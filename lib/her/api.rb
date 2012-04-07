@@ -3,7 +3,7 @@ module Her
   # so it knows where to make those requests. In Rails, this is done in `config/initializers/her.rb`:
   #
   # @example
-  # Her::API.setup :base_uri => "https://api.example.com"
+  #   Her::API.setup :base_uri => "https://api.example.com"
   class API
     # Setup the API connection
     def self.setup(attrs={}) # {{{
