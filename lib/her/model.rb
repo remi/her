@@ -1,6 +1,6 @@
 module Her
-  # This module is the main element of Her. After creating a Her::API object, include
-  # this module in your models to get a few magic methods defined in them.
+  # This module is the main element of Her. After creating a Her::API object,
+  # include this module in your models to get a few magic methods defined in them.
   #
   # @example
   #   class User
