@@ -1,10 +1,11 @@
 module Her
-  # This module is the main element of Her. After initializing Model::API, include this module
-  # in your models to get a few magic methods defined in them.
+  # This module is the main element of Her. After creating a Her::API object, include
+  # this module in your models to get a few magic methods defined in them.
   #
   # @example
   #   class User
   #     include Her::Model
+  #     uses_api $api
   #   end
   #
   #   @user = User.new(:name => "Rémi")
@@ -26,13 +27,18 @@ module Her
       def request(attrs={}) # {{{
         p "relationships are"
         p @her_relationships
-        response = Her::API.request(attrs)
-        Her::API.parse(response)
+        response = @her_api.request(attrs)
+        @her_api.parse(response)
       end # }}}
 
       # Make a GET request and return the parsed JSON response
       def get(path, attrs={}) # {{{
         request attrs.merge(:path => path)
+      end # }}}
+
+      # Link a model with a Her::API object
+      def uses_api(api) # {{{
+        @her_api = api
       end # }}}
 
       # Define an *has_many* relationship for the resource
