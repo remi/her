@@ -2,6 +2,11 @@ module Her
   module Model
     # This module adds relationships to models
     module Relationships
+      # Return relationships
+      def relationships # {{{
+        @her_relationships
+      end # }}}
+
       # Define an *has_many* relationship for the resource
       #
       # * `User.has_many :comments` is used to check if the "user" JSON
