@@ -26,7 +26,8 @@ module Her
       def request(attrs={}) # {{{
         p "relationships are"
         p @her_relationships
-        Her::API.request(attrs)
+        response = Her::API.request(attrs)
+        Her::API.parse(response)
       end # }}}
 
       # Make a GET request and return the parsed JSON response
