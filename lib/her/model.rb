@@ -9,15 +9,13 @@ module Her
   #   end
   #
   #   @user = User.new(:name => "Rémi")
-  #   @user.save
-  #
   module Model
-    extend ActiveSupport::Concern
-
     autoload :Base,          "her/model/base"
     autoload :HTTP,          "her/model/http"
     autoload :ORM,           "her/model/orm"
     autoload :Relationships, "her/model/relationships"
+
+    extend ActiveSupport::Concern
 
     # Instance methods
     include Her::Model::ORM
