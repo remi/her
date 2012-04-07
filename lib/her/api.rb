@@ -6,6 +6,7 @@ module Her
   #   $my_api = Her::API.new
   #   $my_api.setup :base_uri => "https://api.example.com"
   class API
+    # @private
     attr_reader :base_uri, :parse_with
 
     # Setup the API connection
@@ -13,12 +14,19 @@ module Her
       @base_uri = attrs[:base_uri]
       @parse_with = lambda do |response|
         json = JSON.parse(response.body, :symbolize_names => true)
-        [json[:data], json[:errors], json[:metadata]]
+        [json[:data] || {}, json[:errors] || [], json[:metadata] || {}]
       end
     end # }}}
 
-    # Define a custom parsing procedure. The procedure is expected to return an array
-    # of three elements: the main data, the errors and the metadata.
+    # Define a custom parsing procedure. The procedure is passed the response object and is
+    # expected to return an array # of three elements: a main data Hash, an errors Array
+    # and a metadata Hash.
+    #
+    # @example
+    #   $my_api.parse_with do |response|
+    #     json = JSON.parse(response.body)
+    #     [json["result"] || {}, json["errors"] || [], json["misc"] || {}]
+    #   end
     def parse_with(&block) # {{{
       @custom_parsing_block = true
       @parse_with = block
