@@ -2,7 +2,20 @@
 require File.join(File.dirname(__FILE__), "spec_helper.rb")
 
 describe Her::Model do
-  context "relationships" do
+  context Her::Model::HTTP do
+    describe "fetching data" do # {{{
+    end # }}}
+
+    describe "parsing data" do # {{{
+    end # }}}
+  end
+
+  context Her::Model::ORM do
+    describe "mapping data to Ruby objects" do # {{{
+    end # }}}
+  end
+
+  context Her::Model::Relationships do
     describe "setting associations" do # {{{
       before do # {{{
         User = Class.new # FIXME There has to be a better way to reset the class…

@@ -1,6 +1,6 @@
 require "her/version"
 require "json"
-require "rest-client"
+require "faraday"
 require "active_support"
 
 module Her
