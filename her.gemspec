@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Rémi Prévost"]
   s.email       = ["remi@exomel.com"]
   s.homepage    = "https://github.com/remiprev/her"
-  s.summary     = "A REST-based HTTP-powered ORM. Her?"
-  s.description = "Her is an ORM that maps REST resources to ActiveModel-like Ruby objects"
+  s.summary     = "A simple Representational State Transfer-based Hypertext Transfer Protocol-powered Object Relational Mapper. Her?"
+  s.description = "Her is an ORM that maps REST resources to Ruby objects"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
