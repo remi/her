@@ -8,7 +8,15 @@ module Her
       end # }}}
 
       # Defines a custom collection path for the resource
-      def collection_path(path) # {{{
+      #
+      # @example
+      #  class User
+      #    include Her::Model
+      #    uses_api $example_api
+      #    collection_path "users"
+      #  end
+      def collection_path(path=nil) # {{{
+        return @her_collection_path unless path
         @her_collection_path = path
       end # }}}
 

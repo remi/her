@@ -18,7 +18,7 @@ module Her
       end
       @connection = Faraday.new(:url => @base_uri) do |builder|
         builder.request  :url_encoded
-        #builder.response :logger
+        builder.response :logger
         builder.adapter  :net_http
       end
     end # }}}

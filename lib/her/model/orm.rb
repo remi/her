@@ -4,9 +4,15 @@ module Her
     module ORM
       # Initialize a new object with data received from an HTTP request
       # @private
-      def initialize(data) # {{{
-        @data = data
+      def initialize(single_data) # {{{
+        @data = single_data
         @data = self.class.parse_relationships(@data)
+      end # }}}
+
+      # Initialize a collection of resources
+      # @private
+      def self.initialize_collection(name, collection_data) # {{{
+        collection_data.map { |item_data| Object.const_get(name.to_s.classify).new(item_data) }
       end # }}}
 
       # Handles missing methods

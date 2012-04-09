@@ -11,9 +11,10 @@ module Her
       # Parse relationships data after initializing a new object
       # @private
       def parse_relationships(data) # {{{
+        @her_relationships ||= {}
         @her_relationships.each_pair do |type, relationships|
           relationships.each do |relationship|
-            data[relationship[:name]] = data[relationship[:name]].map { |item_data| relationship[:name].to_s.classify.new(item_data) } if data.include?(relationship[:name])
+            data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:name], data[relationship[:name]]) if data.include?(relationship[:name])
           end
         end
         data
@@ -29,6 +30,13 @@ module Her
       def has_many(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:has_many] ||= []) << attrs.merge(:name => name)
+        collection_path = @her_collection_path
+
+        define_method(name) do
+          return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
+          data, errors, metadata = self.class.get("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).collection_path}")
+          @data[name] = Her::Model::ORM.initialize_collection(name, data)
+        end
       end # }}}
 
       # Define a *belongs_to* relationship for the resource
