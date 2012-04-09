@@ -94,3 +94,21 @@ end
 User.popular  # => [#<User id=1>, #<User id=2>]
 User.total    # => 42
 ```
+
+## Things to be done
+
+* Deleting resources
+* Support for Faraday middleware
+* Hooks before save, update, create, destroy, etc.
+* Better introspection for debug
+* Better documentation
+
+## Contributors
+
+Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues).
+
+Take a look at the `spec` folder before you do, and make sure `bundle exec rake spec` passes after your modifications :)
+
+## License
+
+Teamocil is © 2012 [Rémi Prévost](http://exomel.com) and may be freely distributed under the [LITL license](https://github.com/remiprev/her/blob/master/LICENSE). See the `LICENSE` file.
