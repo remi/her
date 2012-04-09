@@ -9,6 +9,17 @@ module Her
     # @private
     attr_reader :base_uri, :parse_with
 
+    # Setup a default API connection
+    def self.setup(attrs={}) # {{{
+      @@default_api = new
+      @@default_api.setup(attrs)
+    end # }}}
+
+    # @private
+    def self.default_api(attrs={}) # {{{
+      @@default_api || nil
+    end # }}}
+
     # Setup the API connection
     def setup(attrs={}) # {{{
       @base_uri = attrs[:base_uri]

@@ -3,6 +3,13 @@ require File.join(File.dirname(__FILE__), "spec_helper.rb")
 
 describe Her::API do
   context "initialization" do
+    describe ".setup" do
+      it "creates a default connection" do # {{{
+        Her::API.setup :base_uri => "https://api.example.com"
+        Her::API.default_api.base_uri.should == "https://api.example.com"
+      end # }}}
+    end
+
     describe "#setup" do
       it "sets a base URI" do # {{{
         @api = Her::API.new

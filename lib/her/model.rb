@@ -22,11 +22,14 @@ module Her
 
     # Class methods
     included do
-      @her_collection_path = "#{self.to_s.downcase.pluralize}"
       extend Her::Model::Base
       extend Her::Model::HTTP
       extend Her::Model::ORM
       extend Her::Model::Relationships
+
+      # Define default settings
+      collection_path "#{self.to_s.downcase.pluralize}"
+      uses_api Her::API.default_api
     end
   end
 end

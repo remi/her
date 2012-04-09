@@ -2,6 +2,85 @@
 require File.join(File.dirname(__FILE__), "spec_helper.rb")
 
 describe Her::Model do
+  describe Her::Model::HTTP do
+    context "binding a model with an API" do # {{{
+      it "binds a model to an instance of Her::API" do # {{{
+        @api = Her::API.new
+        @api.setup :base_uri => "https://api.example.com"
+
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+        class User
+          include Her::Model
+        end
+        User.uses_api @api
+
+        User.class_eval do
+          @her_api.should_not == nil
+          @her_api.base_uri.should == "https://api.example.com"
+        end
+      end # }}}
+
+      it "binds a model directly to Her::API" do # {{{
+        Her::API.setup :base_uri => "https://api.example.com"
+
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+        class User
+          include Her::Model
+        end
+
+        User.class_eval do
+          @her_api.should_not == nil
+          @her_api.base_uri.should == "https://api.example.com"
+        end
+      end # }}}
+
+      it "binds two models to two different instances of Her::API" do # {{{
+        @api1 = Her::API.new
+        @api1.setup :base_uri => "https://api1.example.com"
+
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+        class User; include Her::Model; end
+        User.uses_api @api1
+
+        User.class_eval do
+          @her_api.base_uri.should == "https://api1.example.com"
+        end
+
+        @api2 = Her::API.new
+        @api2.setup :base_uri => "https://api2.example.com"
+
+        Object.instance_eval { remove_const :Comment } if Object.const_defined?(:Comment)
+        class Comment; include Her::Model; end
+        Comment.uses_api @api2
+
+        Comment.class_eval do
+          @her_api.base_uri.should == "https://api2.example.com"
+        end
+      end # }}}
+
+      it "binds one model to Her::API and another one to an instance of Her::API" do # {{{
+        Her::API.setup :base_uri => "https://api1.example.com"
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+        class User; include Her::Model; end
+
+        User.class_eval do
+          @her_api.base_uri.should == "https://api1.example.com"
+        end
+
+        @api = Her::API.new
+        @api.setup :base_uri => "https://api2.example.com"
+
+        Object.instance_eval { remove_const :Comment } if Object.const_defined?(:Comment)
+        class Comment; include Her::Model; end
+        Comment.uses_api @api
+
+        Comment.class_eval do
+          @her_api.base_uri.should == "https://api2.example.com"
+        end
+      end # }}}
+    end # }}}
+  end
+
   describe Her::Model::ORM do
     context "mapping data to Ruby objects" do # {{{
       before do # {{{
