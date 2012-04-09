@@ -17,7 +17,7 @@ module Her
 
     # @private
     def self.default_api(attrs={}) # {{{
-      @@default_api || nil
+      defined?(@@default_api) ? @@default_api : nil
     end # }}}
 
     # Setup the API connection
