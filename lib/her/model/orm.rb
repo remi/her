@@ -9,15 +9,6 @@ module Her
         @data = self.class.parse_relationships(@data)
       end # }}}
 
-      # Initialize a collection of resources with raw data from an HTTP request
-      #
-      # @example
-      #   User.get("/users/popular") { |data| User.new_collection(data) }
-      def new_collection(parsed_data) # {{{
-        collection_data = parsed_data[:data]
-        Her::Model::ORM.initialize_collection(self.to_s.downcase.to_sym, collection_data)
-      end # }}}
-
       # Initialize a collection of resources
       # @private
       def self.initialize_collection(name, collection_data) # {{{
@@ -38,6 +29,12 @@ module Her
         else
           super
         end
+      end # }}}
+
+      # Initialize a collection of resources with raw data from an HTTP request
+      def new_collection(parsed_data) # {{{
+        collection_data = parsed_data[:data]
+        Her::Model::ORM.initialize_collection(self.to_s.downcase.to_sym, collection_data)
       end # }}}
 
       # Fetch a specific resource based on an ID
