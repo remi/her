@@ -88,7 +88,7 @@ describe Her::Model do
         FakeWeb.register_uri(:get, "https://api.example.com/users?page=2", :body => { :data => [{ :id => 2 }] }.to_json)
         FakeWeb.register_uri(:post, "https://api.example.com/users_post", :body => { :data => [{ :id => 3 }] }.to_json)
         FakeWeb.register_uri(:put, "https://api.example.com/users/4/put", :body => { :data => [{ :id => 4 }] }.to_json)
-        FakeWeb.register_uri(:delete, "https://api.example.com/users/4/delete", :body => { :data => [{ :id => 5 }] }.to_json)
+        FakeWeb.register_uri(:delete, "https://api.example.com/users/5/delete", :body => { :data => [{ :id => 5 }] }.to_json)
 
         Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User

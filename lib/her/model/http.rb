@@ -27,12 +27,36 @@ module Her
         yield @her_api.parse(response)
       end # }}}
 
-      # Make a GET request and return the parsed JSON response
+      # Make a GET request and return the parsed JSON response (not mapped to objects)
       #
       # @example
-      #   User.get "/users/foo"
+      #   User.get "/users/1"
       def get(path, attrs={}, &block) # {{{
         request(attrs.merge(:_method => :get, :_path => path), &block)
+      end # }}}
+
+      # Make a POST request and return the parsed JSON response (not mapped to objects)
+      #
+      # @example
+      #   User.post "/users", :fullname => "G.O.B. Bluth"
+      def post(path, attrs={}, &block) # {{{
+        request(attrs.merge(:_method => :post, :_path => path), &block)
+      end # }}}
+
+      # Make a PUT request and return the parsed JSON response (not mapped to objects)
+      #
+      # @example
+      #   User.put "/users/1", :email => "gob@bluthcompany.com"
+      def put(path, attrs={}, &block) # {{{
+        request(attrs.merge(:_method => :put, :_path => path), &block)
+      end # }}}
+
+      # Make a DELETE request and return the parsed JSON response (not mapped to objects)
+      #
+      # @example
+      #   User.delete "/users/1"
+      def delete(path, attrs={}, &block) # {{{
+        request(attrs.merge(:_method => :delete, :_path => path), &block)
       end # }}}
     end
   end
