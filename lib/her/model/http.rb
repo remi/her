@@ -28,35 +28,98 @@ module Her
       end # }}}
 
       # Make a GET request and return the parsed JSON response (not mapped to objects)
-      #
-      # @example
-      #   User.get "/users/1"
-      def get(path, attrs={}, &block) # {{{
+      def get_raw(path, attrs={}, &block) # {{{
         request(attrs.merge(:_method => :get, :_path => path), &block)
       end # }}}
 
+      # Make a GET request and return a collection of resources
+      def get_collection(path, attrs={}) # {{{
+        get_raw(path, attrs) do |parsed_data|
+          new_collection(parsed_data)
+        end
+      end # }}}
+
+      # Make a GET request and return a collection of resources
+      def get_resource(path, attrs={}) # {{{
+        get_raw(path, attrs) do |parsed_data|
+          new(parsed_data[:resource])
+        end
+      end # }}}
+
       # Make a POST request and return the parsed JSON response (not mapped to objects)
-      #
-      # @example
-      #   User.post "/users", :fullname => "G.O.B. Bluth"
-      def post(path, attrs={}, &block) # {{{
+      def post_raw(path, attrs={}, &block) # {{{
         request(attrs.merge(:_method => :post, :_path => path), &block)
       end # }}}
 
+      # Make a POST request and return a collection of resources
+      def post_collection(path, attrs={}) # {{{
+        post_raw(path, attrs) do |parsed_data|
+          new_collection(parsed_data)
+        end
+      end # }}}
+
+      # Make a POST request and return a collection of resources
+      def post_resource(path, attrs={}) # {{{
+        post_raw(path, attrs) do |parsed_data|
+          new(parsed_data[:resource])
+        end
+      end # }}}
+
       # Make a PUT request and return the parsed JSON response (not mapped to objects)
-      #
-      # @example
-      #   User.put "/users/1", :email => "gob@bluthcompany.com"
-      def put(path, attrs={}, &block) # {{{
+      def put_raw(path, attrs={}, &block) # {{{
         request(attrs.merge(:_method => :put, :_path => path), &block)
       end # }}}
 
+      # Make a PUT request and return a collection of resources
+      def put_collection(path, attrs={}) # {{{
+        put_raw(path, attrs) do |parsed_data|
+          new_collection(parsed_data)
+        end
+      end # }}}
+
+      # Make a PUT request and return a collection of resources
+      def put_resource(path, attrs={}) # {{{
+        put_raw(path, attrs) do |parsed_data|
+          new(parsed_data[:resource])
+        end
+      end # }}}
+
+      # Make a PATCH request and return the parsed JSON response (not mapped to objects)
+      def patch_raw(path, attrs={}, &block) # {{{
+        request(attrs.merge(:_method => :patch, :_path => path), &block)
+      end # }}}
+
+      # Make a PATCH request and return a collection of resources
+      def patch_collection(path, attrs={}) # {{{
+        patch_raw(path, attrs) do |parsed_data|
+          new_collection(parsed_data)
+        end
+      end # }}}
+
+      # Make a PATCH request and return a collection of resources
+      def patch_resource(path, attrs={}) # {{{
+        patch_raw(path, attrs) do |parsed_data|
+          new(parsed_data[:resource])
+        end
+      end # }}}
+
       # Make a DELETE request and return the parsed JSON response (not mapped to objects)
-      #
-      # @example
-      #   User.delete "/users/1"
-      def delete(path, attrs={}, &block) # {{{
+      def delete_raw(path, attrs={}, &block) # {{{
         request(attrs.merge(:_method => :delete, :_path => path), &block)
+      end # }}}
+
+      # Make a DELETE request and return a collection of resources
+      def delete_collection(path, attrs={}) # {{{
+        delete_raw(path, attrs) do |parsed_data|
+          new_collection(parsed_data)
+        end
+      end # }}}
+
+      # Make a DELETE request and return a collection of resources
+      def delete_resource(path, attrs={}) # {{{
+        delete_raw(path, attrs) do |parsed_data|
+          new(parsed_data[:resource])
+        end
       end # }}}
     end
   end

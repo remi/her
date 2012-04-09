@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), "spec_helper.rb")
 
 describe Her::Model do
   describe Her::Model::HTTP do
-    context "binding a model with an API" do # {{{
+    context "binding a model with an API" do
       it "binds a model to an instance of Her::API" do # {{{
         @api = Her::API.new
         @api.setup :base_uri => "https://api.example.com"
@@ -78,7 +78,7 @@ describe Her::Model do
           @her_api.base_uri.should == "https://api2.example.com"
         end
       end # }}}
-    end # }}}
+    end
 
     context "making HTTP requests" do
       before do # {{{
@@ -86,8 +86,11 @@ describe Her::Model do
         @api.setup :base_uri => "https://api.example.com"
         FakeWeb.register_uri(:get, "https://api.example.com/users", :body => { :data => [{ :id => 1 }] }.to_json)
         FakeWeb.register_uri(:get, "https://api.example.com/users?page=2", :body => { :data => [{ :id => 2 }] }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => { :data => [{ :id => 1 }, { :id => 2 }] }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1 } }.to_json)
         FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :data => [{ :id => 3 }] }.to_json)
         FakeWeb.register_uri(:put, "https://api.example.com/users/4", :body => { :data => [{ :id => 4 }] }.to_json)
+        FakeWeb.register_uri(:patch, "https://api.example.com/users/6", :body => { :data => [{ :id => 6 }] }.to_json)
         FakeWeb.register_uri(:delete, "https://api.example.com/users/5", :body => { :data => [{ :id => 5 }] }.to_json)
 
         Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
@@ -97,40 +100,57 @@ describe Her::Model do
         User.uses_api @api
       end # }}}
 
-      it "handle GET" do # {{{
-        User.get("/users") do |parsed_data|
+      it "handle raw GET" do # {{{
+        User.get_raw("/users") do |parsed_data|
           parsed_data[:resource].should == [{ :id => 1 }]
         end
       end # }}}
 
-      it "handle POST" do # {{{
-        User.post("/users") do |parsed_data|
+      it "handle raw POST" do # {{{
+        User.post_raw("/users") do |parsed_data|
           parsed_data[:resource].should == [{ :id => 3 }]
         end
       end # }}}
 
-      it "handle PUT" do # {{{
-        User.put("/users/4") do |parsed_data|
+      it "handle raw PUT" do # {{{
+        User.put_raw("/users/4") do |parsed_data|
           parsed_data[:resource].should == [{ :id => 4 }]
         end
       end # }}}
 
-      it "handle DELETE" do # {{{
-        User.delete("/users/5") do |parsed_data|
+      it "handle raw PATCH" do # {{{
+        User.patch_raw("/users/6") do |parsed_data|
+          parsed_data[:resource].should == [{ :id => 6 }]
+        end
+      end # }}}
+
+      it "handle raw DELETE" do # {{{
+        User.delete_raw("/users/5") do |parsed_data|
           parsed_data[:resource].should == [{ :id => 5 }]
         end
       end # }}}
 
       it "handle querystring parameters" do # {{{
-        User.get("/users", :page => 2) do |parsed_data|
+        User.get_raw("/users", :page => 2) do |parsed_data|
           parsed_data[:resource].should == [{ :id => 2 }]
         end
+      end # }}}
+
+      it "handle GET collection" do # {{{
+        @users = User.get_collection("/users/popular")
+        @users.length.should == 2
+        @users.first.id.should == 1
+      end # }}}
+
+      it "handle GET resource" do # {{{
+        @user = User.get_resource("/users/1")
+        @user.id.should == 1
       end # }}}
     end
   end
 
   describe Her::Model::ORM do
-    context "mapping data to Ruby objects" do # {{{
+    context "mapping data to Ruby objects" do
       before do # {{{
         @api = Her::API.new
         @api.setup :base_uri => "https://api.example.com"
@@ -155,7 +175,7 @@ describe Her::Model do
         @users.length.should == 2
         @users.first.name.should == "Tobias Fünke"
       end # }}}
-    end # }}}
+    end
 
     context "creating resources" do
       before do # {{{
@@ -173,7 +193,7 @@ describe Her::Model do
   end
 
   describe Her::Model::Relationships do
-    context "setting relationships" do # {{{
+    context "setting relationships" do
       before do # {{{
         Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User
@@ -202,9 +222,9 @@ describe Her::Model do
         User.belongs_to :family
         User.relationships[:belongs_to].should == [{ :name => :organization }, { :name => :family }]
       end # }}}
-    end # }}}
+    end
 
-    context "handling relationships" do # {{{
+    context "handling relationships" do
       before do # {{{
         Her::API.setup :base_uri => "https://api.example.com"
         FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }] } }.to_json)
@@ -236,7 +256,6 @@ describe Her::Model do
         @user.comments.first.id.should == 4
         @user.comments.first.body.should == "They're having a FIRESALE?"
       end # }}}
-
-    end # }}}
+    end
   end
 end

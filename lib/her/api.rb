@@ -26,7 +26,7 @@ module Her
       @parse_with = lambda do |response|
         json = JSON.parse(response.body, :symbolize_names => true)
         {
-          :resource => json[:data],
+          :data => json[:data],
           :errors => json[:errors],
           :metadata => json[:metadata],
         }
@@ -38,7 +38,7 @@ module Her
     end # }}}
 
     # Define a custom parsing procedure. The procedure is passed the response object and is
-    # expected to return a hash with three keys: a main resource Hash, an errors Array
+    # expected to return a hash with three keys: a main data Hash, an errors Array
     # and a metadata Hash.
     #
     # @example

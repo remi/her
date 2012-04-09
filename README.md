@@ -55,8 +55,23 @@ user.comments # => [#<Comment id=1>, #<Comment id=2>]
 
 ## Custom requests
 
-TBD.
+You can easily add custom methods for your models. You can either use `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data return from the HTTP request).
 
-## Hooks
+```ruby
+class User
+  include Her::Model
 
-TBD.
+  def self.popular
+    get_collection("/users/popular")
+  end
+
+  def self.total
+    get_raw("/users/stats") do |parsed_data|
+      parsed_data[:data][:total_users]
+    end
+  end
+end
+
+User.popular  # => [#<User id=1>, #<User id=2>]
+User.total    # => 42
+```

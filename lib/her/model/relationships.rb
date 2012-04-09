@@ -34,9 +34,7 @@ module Her
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          self.class.get("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).collection_path}") do |parsed_data|
-            @data[name] = Her::Model::ORM.initialize_collection(name, parsed_data[:resource])
-          end
+          self.class.get_collection("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).collection_path}")
         end
       end # }}}
 
@@ -50,6 +48,8 @@ module Her
       def belongs_to(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:belongs_to] ||= []) << attrs.merge(:name => name)
+
+        # TODO Write some code here
       end # }}}
     end
   end
