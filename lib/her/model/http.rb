@@ -32,7 +32,7 @@ module Her
       # @example
       #   User.get "/users/foo"
       def get(path, attrs={}, &block) # {{{
-        request(attrs.merge(:method => :get, :path => path), &block)
+        request(attrs.merge(:_method => :get, :_path => path), &block)
       end # }}}
     end
   end

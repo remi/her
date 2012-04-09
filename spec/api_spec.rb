@@ -35,7 +35,7 @@ describe Her::API do
       end # }}}
 
       it "makes HTTP requests" do # {{{
-        response = @api.request(:method => :get, :path => "/foo")
+        response = @api.request(:_method => :get, :_path => "/foo")
         response.body.should == "Foo, it is."
       end # }}}
     end
@@ -48,7 +48,7 @@ describe Her::API do
       end # }}}
 
       it "parses a request" do # {{{
-        @api.parse @api.request(:method => :get, :path => "users/1") do |parsed_data|
+        @api.parse @api.request(:_method => :get, :_path => "users/1") do |parsed_data|
           parsed_data[:resource].should == { :id => 1, :name => "George Michael Bluth" }
           parsed_data[:errors].should == ["This is a single error"]
           parsed_data[:metadata].should == { :page => 1, :per_page => 10 }

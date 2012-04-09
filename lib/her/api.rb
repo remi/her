@@ -58,8 +58,9 @@ module Her
 
     # Make an HTTP request to the API
     def request(attrs={}) # {{{
-      # TODO Here, we would probably look for hooks that modify the request before calling the API
-      @connection.send(attrs[:method], attrs[:path])
+      @connection.send attrs.delete(:_method) do |request|
+        request.url attrs.delete(:_path), attrs
+      end
     end # }}}
 
     # Parse the HTTP response
