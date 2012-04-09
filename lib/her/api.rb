@@ -32,8 +32,8 @@ module Her
         }
       end
       @connection = Faraday.new(:url => @base_uri) do |builder|
-        builder.request  :url_encoded
-        builder.adapter  :net_http
+        builder.request :url_encoded
+        builder.adapter :net_http
       end
     end # }}}
 
