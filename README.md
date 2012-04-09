@@ -19,6 +19,7 @@ That’s it!
 First, you have to define which API your models will be bound to. For example, with Rails, you would create a new `config/initializers/her.rb` file with this line:
 
 ```ruby
+# config/initializers/her.rb
 Her::API.setup :base_uri => "https://api.example.com"
 ```
 
@@ -34,10 +35,10 @@ After that, using Her is very similar to many ActiveModel-like ORMs:
 
 ```ruby
 User.all
-# GET "https://api.example.com/users" and return an array of User objects
+# GET https://api.example.com/users and return an array of User objects
 
 User.find(1)
-# GET "https://api.example.com/users/1" and return a User object
+# GET https://api.example.com/users/1 and return a User object
 
 @user = User.create(:fullname => "Tobias Fünke")
 # POST "https://api.example.com/users" with the data and return a User object
@@ -45,12 +46,12 @@ User.find(1)
 @user = User.new(:fullname => "Tobias Fünke")
 @user.occupation = "actor"
 @user.save
-# POST "https://api.example.com/users" with the data and return a User object
+# POST https://api.example.com/users with the data and return a User object
 
 @user = User.find(1)
 @user.fullname = "Lindsay Fünke"
 @user.save
-# PUT "https://api.example.com/users/1" with the data and return+update the User object
+# PUT https://api.example.com/users/1 with the data and return+update the User object
 ```
 
 ## Relationships
@@ -109,6 +110,39 @@ end
 
 User.popular  # => [#<User id=1>, #<User id=2>]
 User.total    # => 42
+```
+
+## Multiple APIs
+
+It is possible to use different APIs for different models. Instead of calling `Her::API.setup`, you can create instances of `Her::API`:
+
+```ruby
+# config/initializers/her.rb
+$my_api = Her::API.new
+$my_api.setup :base_uri => "https://my_api.example.com"
+
+$other_api = Her::API.new
+$other_api.setup :base_uri => "https://other_api.example.com"
+```
+
+You can then define which API a model will use:
+
+```ruby
+class User
+  include Her::Model
+  uses_api $my_api
+end
+
+class Category
+  include Her::Model
+  uses_api $other_api
+end
+
+User.all
+# GET https://my_api.example.com/users
+
+Category.all
+# GET https://other_api.example.com/categories
 ```
 
 ## Things to be done
