@@ -35,6 +35,13 @@ module Her
           Her::Model::ORM.initialize_collection(to_s.downcase.pluralize, parsed_data[:resource])
         end
       end # }}}
+
+      # Create a resource
+      def create(params={}) # {{{
+        request(params.merge(:_method => :post, :_path => "#{@her_collection_path}")) do |parsed_data|
+          new(parsed_data[:resource])
+        end
+      end # }}}
     end
   end
 end

@@ -156,6 +156,20 @@ describe Her::Model do
         @users.first.name.should == "Tobias Fünke"
       end # }}}
     end # }}}
+
+    context "creating resources" do
+      before do # {{{
+        @api = Her::API.new
+        @api.setup :base_uri => "https://api.example.com"
+        FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :data => { :id => 1, :fullname => "Tobias Fünke" } }.to_json)
+      end # }}}
+
+      it "handle one-line resource creation" do # {{{
+        @user = User.create(:fullname => "Tobias Fünke")
+        @user.id.should == 1
+        @user.fullname.should == "Tobias Fünke"
+      end # }}}
+    end
   end
 
   describe Her::Model::Relationships do
