@@ -173,7 +173,7 @@ describe Her::Model do
   end
 
   describe Her::Model::Relationships do
-    context "setting associations" do # {{{
+    context "setting relationships" do # {{{
       before do # {{{
         Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User
@@ -181,23 +181,23 @@ describe Her::Model do
         end
       end # }}}
 
-      it "handles a single 'has_many' association" do # {{{
+      it "handles a single 'has_many' relationship" do # {{{
         User.has_many :comments
         User.relationships[:has_many].should == [{ :name => :comments }]
       end # }}}
 
-      it "handles multiples 'has_many' associations" do # {{{
+      it "handles multiples 'has_many' relationship" do # {{{
         User.has_many :comments
         User.has_many :posts
         User.relationships[:has_many].should == [{ :name => :comments }, { :name => :posts }]
       end # }}}
 
-      it "handles a single belongs_to association" do # {{{
+      it "handles a single belongs_to relationship" do # {{{
         User.belongs_to :organization
         User.relationships[:belongs_to].should == [{ :name => :organization }]
       end # }}}
 
-      it "handles multiples 'belongs_to' associations" do # {{{
+      it "handles multiples 'belongs_to' relationship" do # {{{
         User.belongs_to :organization
         User.belongs_to :family
         User.relationships[:belongs_to].should == [{ :name => :organization }, { :name => :family }]
