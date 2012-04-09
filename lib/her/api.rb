@@ -14,7 +14,11 @@ module Her
       @base_uri = attrs[:base_uri]
       @parse_with = lambda do |response|
         json = JSON.parse(response.body, :symbolize_names => true)
-        [json[:data] || {}, json[:errors] || [], json[:metadata] || {}]
+        {
+          :resource => json[:data],
+          :errors => json[:errors],
+          :metadata => json[:metadata],
+        }
       end
       @connection = Faraday.new(:url => @base_uri) do |builder|
         builder.request  :url_encoded
@@ -24,13 +28,13 @@ module Her
     end # }}}
 
     # Define a custom parsing procedure. The procedure is passed the response object and is
-    # expected to return an array # of three elements: a main data Hash, an errors Array
+    # expected to return hash with three keys: a main resource Hash, an errors Array
     # and a metadata Hash.
     #
     # @example
     #   $my_api.parse_with do |response|
     #     json = JSON.parse(response.body)
-    #     [json["result"] || {}, json["errors"] || [], json["misc"] || {}]
+    #     { :resource => json[:data], :errors => json[:errors], :metadata => json[:metdata] }
     #   end
     def parse_with(&block) # {{{
       @custom_parsing_block = true

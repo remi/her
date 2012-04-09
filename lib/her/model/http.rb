@@ -22,17 +22,17 @@ module Her
 
       # Main request wrapper around Her::API. Used to make custom request to the API.
       # @private
-      def request(attrs={}) # {{{
+      def request(attrs={}, &block) # {{{
         response = @her_api.request(attrs)
-        @her_api.parse(response)
+        yield @her_api.parse(response)
       end # }}}
 
       # Make a GET request and return the parsed JSON response
       #
       # @example
       #   User.get "/users/foo"
-      def get(path, attrs={}) # {{{
-        request attrs.merge(:method => :get, :path => path)
+      def get(path, attrs={}, &block) # {{{
+        request(attrs.merge(:method => :get, :path => path), &block)
       end # }}}
     end
   end

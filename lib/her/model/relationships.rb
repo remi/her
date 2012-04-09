@@ -34,8 +34,9 @@ module Her
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          data, errors, metadata = self.class.get("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).collection_path}")
-          @data[name] = Her::Model::ORM.initialize_collection(name, data)
+          self.class.get("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).collection_path}") do |parsed_data|
+            @data[name] = Her::Model::ORM.initialize_collection(name, parsed_data[:resource])
+          end
         end
       end # }}}
 

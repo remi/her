@@ -24,8 +24,9 @@ module Her
 
       # Fetch a specific resource based on an ID
       def find(id) # {{{
-        data, errors, metdata = request :method => :get, :path => "#{@her_collection_path}/#{id}"
-        new(data)
+        request(:method => :get, :path => "#{@her_collection_path}/#{id}") do |parsed_data|
+          new(parsed_data[:resource])
+        end
       end # }}}
     end
   end
