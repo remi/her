@@ -23,7 +23,7 @@ module Her
       end # }}}
 
       # Fetch a specific resource based on an ID
-      def find(id) # {{{
+      def find(id, params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}/#{id}")) do |parsed_data|
           new(parsed_data[:resource])
         end
