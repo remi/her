@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "yard"
   s.add_development_dependency "maruku"
   s.add_development_dependency "mocha"
+  s.add_development_dependency "fakeweb"
 
   s.add_runtime_dependency "activesupport"
   s.add_runtime_dependency "faraday"
