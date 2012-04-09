@@ -40,17 +40,17 @@ User.find(1)
 # GET "https://api.example.com/users/1" and return a User object
 
 @user = User.create(:fullname => "Tobias Fünke")
-# POST "https//api.example.com/users" with the data and return a User object
+# POST "https://api.example.com/users" with the data and return a User object
 
 @user = User.new(:fullname => "Tobias Fünke")
 @user.occupation = "actor"
 @user.save
-# POST "https//api.example.com/users" with the data and return a User object
+# POST "https://api.example.com/users" with the data and return a User object
 
 @user = User.find(1)
 @user.fullname = "Lindsay Fünke"
 @user.save
-# PUT "https//api.example.com/users/1" with the data and return+update the User object
+# PUT "https://api.example.com/users/1" with the data and return+update the User object
 ```
 
 ## Relationships
