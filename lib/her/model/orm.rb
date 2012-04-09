@@ -40,6 +40,18 @@ module Her
         end
       end # }}}
 
+      # Sorts a collection of resources
+      # @private
+      def self.sort(collection, attribute, order) # {{{
+        if order == :asc
+          collection.sort_by { |resource| resource.instance_eval(attribute) }
+        elsif order == :desc
+          collection.sort { |a,b| b.instance_eval(attribute) <=> a.instance_eval(attribute) }
+        else
+          collection
+        end
+      end # }}}
+
       # Fetch a specific resource based on an ID
       def find(id, params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}/#{id}")) do |parsed_data|
@@ -49,8 +61,11 @@ module Her
 
       # Fetch a collection of resources
       def all(params={}) # {{{
+        attribute, order = params.delete(:order).split(".") if params[:order]
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}")) do |parsed_data|
-          Her::Model::ORM.initialize_collection(to_s.downcase.pluralize, parsed_data[:data])
+          collection = Her::Model::ORM.initialize_collection(to_s.downcase.pluralize, parsed_data[:data])
+          return collection unless attribute
+          Her::Model::ORM.sort collection, attribute, (order ? order.to_sym : :asc)
         end
       end # }}}
 
