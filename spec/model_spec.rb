@@ -10,7 +10,7 @@ describe Her::Model do
         FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
         FakeWeb.register_uri(:get, "https://api.example.com/users", :body => { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }] }.to_json)
 
-        User = Class.new
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User
           include Her::Model
         end
@@ -34,7 +34,7 @@ describe Her::Model do
   describe Her::Model::Relationships do
     context "setting associations" do # {{{
       before do # {{{
-        User = Class.new # FIXME There has to be a better way to reset the class…
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User
           include Her::Model
         end
