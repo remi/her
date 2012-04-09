@@ -197,7 +197,7 @@ Category.all
 ## Things to be done
 
 * Deleting resources
-* Support for Faraday middleware
+* Support for Faraday middleware to handle caching, alternative formats, etc.
 * Hooks before save, update, create, destroy, etc.
 * Better error handling
 * Better introspection for debug
