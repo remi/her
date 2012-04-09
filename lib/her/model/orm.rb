@@ -28,6 +28,13 @@ module Her
           new(parsed_data[:resource])
         end
       end # }}}
+
+      # Fetch a collection of resources
+      def all(params={}) # {{{
+        request(:method => :get, :path => "#{@her_collection_path}") do |parsed_data|
+          Her::Model::ORM.initialize_collection(to_s.downcase.pluralize, parsed_data[:resource])
+        end
+      end # }}}
     end
   end
 end
