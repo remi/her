@@ -86,7 +86,7 @@ By default, Her handles JSON data. It expects the data to be formatted in a cert
 }
 ```
 
-However, you can define your own parsing method, with `Her::API.parse_with`. The `parse_with` method takes a block which will be executed each time data from an HTTP response needs to be parsed. The block is expected to return a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating this data as first-level properties.
+However, you can define your own parsing method, with `Her::API.parse_with`. The `parse_with` method takes a block which will be executed each time data from an HTTP response needs to be parsed. The block is expected to return a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating this data as first-level properties:
 
 ```ruby
 Her::API.setup :base_uri => "https://api.example.com"
@@ -99,9 +99,11 @@ Her::API.parse_with |response|
     :metadata => {}
   }
 end
+
+# User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "id": 1, "name": "Tobias Fünke" }'
 ```
 
-This feature is not stable and might change in the future, probably by using a middleware throught [Faraday](https://github.com/technoweenie/faraday).
+This feature is not stable and might change in the future, probably by using a middleware through [Faraday](https://github.com/technoweenie/faraday).
 
 ## Relationships
 
