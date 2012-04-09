@@ -155,7 +155,7 @@ describe Her::Model do
         @api = Her::API.new
         @api.setup :base_uri => "https://api.example.com"
         FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
-        FakeWeb.register_uri(:get, "https://api.example.com/users", :body => { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }] }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users", :body => { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }, { :id => 3, :name => "Maeby Fünke" }] }.to_json)
 
         Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User
@@ -172,8 +172,14 @@ describe Her::Model do
 
       it "maps a collection of resources to an array of Ruby objects" do # {{{
         @users = User.all
-        @users.length.should == 2
+        @users.length.should == 3
         @users.first.name.should == "Tobias Fünke"
+      end # }}}
+      
+      it "maps and reorders a collection of resources" do # {{{
+        @users = User.all(:order => "id.desc")
+        @users.length.should == 3
+        @users.first.name.should == "Maeby Fünke"
       end # }}}
     end
 
