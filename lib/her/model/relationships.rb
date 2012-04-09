@@ -3,8 +3,20 @@ module Her
     # This module adds relationships to models
     module Relationships
       # Return relationships
+      # @private
       def relationships # {{{
         @her_relationships
+      end # }}}
+
+      # Parse relationships data after initializing a new object
+      # @private
+      def parse_relationships(data) # {{{
+        @her_relationships.each_pair do |type, relationships|
+          relationships.each do |relationship|
+            data[relationship[:name]] = data[relationship[:name]].map { |item_data| relationship[:name].to_s.classify.new(item_data) } if data.include?(relationship[:name])
+          end
+        end
+        data
       end # }}}
 
       # Define an *has_many* relationship for the resource

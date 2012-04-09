@@ -7,19 +7,24 @@ module Her
         @her_api = api
       end # }}}
 
+      # Defines a custom collection path for the resource
+      def collection_path(path) # {{{
+        @her_collection_path = path
+      end # }}}
+
       # Main request wrapper around Her::API. Used to make custom request to the API.
-      #
       # @private
       def request(attrs={}) # {{{
-        p "relationships are"
-        p @her_relationships
         response = @her_api.request(attrs)
         @her_api.parse(response)
       end # }}}
 
       # Make a GET request and return the parsed JSON response
+      #
+      # @example
+      #   User.get "/users/foo"
       def get(path, attrs={}) # {{{
-        request attrs.merge(:path => path)
+        request attrs.merge(:method => :get, :path => path)
       end # }}}
     end
   end

@@ -16,6 +16,11 @@ module Her
         json = JSON.parse(response.body, :symbolize_names => true)
         [json[:data] || {}, json[:errors] || [], json[:metadata] || {}]
       end
+      @connection = Faraday.new(:url => @base_uri) do |builder|
+        builder.request  :url_encoded
+        #builder.response :logger
+        builder.adapter  :net_http
+      end
     end # }}}
 
     # Define a custom parsing procedure. The procedure is passed the response object and is
@@ -39,8 +44,8 @@ module Her
 
     # Make an HTTP request to the API
     def request(attrs={}) # {{{
-      p "base_uri is #{@base_uri}"
-      p "request attributes are #{attrs}"
+      # TODO Here, we would probably look for hooks that modify the request before calling the API
+      @connection.send(attrs[:method], attrs[:path])
     end # }}}
 
     # Parse the HTTP response

@@ -22,6 +22,7 @@ module Her
 
     # Class methods
     included do
+      @her_collection_path = "/#{self.to_s.downcase.pluralize}"
       extend Her::Model::Base
       extend Her::Model::HTTP
       extend Her::Model::ORM
