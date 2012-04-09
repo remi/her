@@ -12,29 +12,51 @@ In your Gemfile, add:
 gem "her"
 ```
 
+That’s it!
+
 ## Usage
 
-To add the ORM to a class, you just have to include `Her::Model` in it and define which API you want it to be bound to. For example, with Rails, you would define a `config/initializers/her.rb` file with this:
+First, you have to define which API your models will be bound to. For example, with Rails, you would create a new `config/initializers/her.rb` file with this line:
 
 ```ruby
-$my_api = Her::API.new
-$my_api.setup :base_uri => "https://api.example.com"
+Her::API.setup :base_uri => "https://api.example.com"
 ```
 
-And then, for each of your models:
+And then to add the ORM behavior to a class, you just have to include `Her::Model` in it:
 
 ```ruby
 class User
   include Her::Model
-  uses_api $my_api
 end
 ```
 
 After that, using Her is very similar to many ActiveModel-like ORMs:
 
 ```ruby
-User.all     # => Fetches "https://api.example.com/users" and return an array of User objects
-User.find(1) # => Fetches "https://api.example.com/users/1" and return a User object
+User.all      # => Fetches "https://api.example.com/users" and return an array of User objects
+User.find(1)  # => Fetches "https://api.example.com/users/1" and return a User object
 ```
 
-This is just the beginning. Relationships, hooks, and other stuff will be handled and documented.
+## Relationships
+
+```ruby
+class User
+  include Her::Model
+  has_many :comments
+end
+
+class Comment
+  include Her::Model
+end
+
+user = User.find(1)
+user.comments # => [#<Comment id=1>, #<Comment id=2>]
+```
+
+## Custom requests
+
+TBD.
+
+## Hooks
+
+TBD.
