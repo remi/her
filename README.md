@@ -58,7 +58,7 @@ User.find(1)
 
 By default, Her handles JSON data. It expects the data to be formatted in a certain structure. The default is this:
 
-```json
+```javascript
 // The response of GET /users/1
 {
   "data" : {
@@ -78,7 +78,7 @@ By default, Her handles JSON data. It expects the data to be formatted in a cert
       "id" : 2,
       "name" : "Lindsay Fünke"
     }
-  ]
+  ],
   "metadata" : {
     "page" : 1,
     "per_page" : 10
