@@ -8,7 +8,9 @@ Her is an ORM (Object Relational Mapper) that maps REST resources to Ruby object
 
 In your Gemfile, add:
 
-    gem "her"
+```ruby
+gem "her"
+```
 
 ## Usage
 
@@ -34,3 +36,5 @@ After that, using Her is very similar to many ActiveModel-like ORMs:
 User.all     # => Fetches "https://api.example.com/users" and return an array of User objects
 User.find(1) # => Fetches "https://api.example.com/users/1" and return a User object
 ```
+
+This is just the beginning. Relationships, hooks, and other stuff will be handled and documented.
