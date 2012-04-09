@@ -179,9 +179,13 @@ describe Her::Model do
 
     context "creating resources" do
       before do # {{{
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com"
+        Her::API.setup :base_uri => "https://api.example.com"
         FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :data => { :id => 1, :fullname => "Tobias Fünke" } }.to_json)
+
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+        class User
+          include Her::Model
+        end
       end # }}}
 
       it "handle one-line resource creation" do # {{{
