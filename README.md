@@ -2,7 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/remiprev/her.png)](http://travis-ci.org/remiprev/her)
 
-Her is an ORM (Object Relational Mapper) that maps REST resources to Ruby objects. It is designed to build applications that are powered by a RESTful API.
+Her is an ORM (Object Relational Mapper) that maps REST resources to Ruby objects. It is designed to build applications that are powered by a RESTful API and no database.
 
 ## Installation
 
@@ -33,8 +33,24 @@ end
 After that, using Her is very similar to many ActiveModel-like ORMs:
 
 ```ruby
-User.all      # => Fetches "https://api.example.com/users" and return an array of User objects
-User.find(1)  # => Fetches "https://api.example.com/users/1" and return a User object
+User.all
+# GET "https://api.example.com/users" and return an array of User objects
+
+User.find(1)
+# GET "https://api.example.com/users/1" and return a User object
+
+@user = User.create(:fullname => "Tobias Fünke")
+# POST "https//api.example.com/users" with the data and return a User object
+
+@user = User.new(:fullname => "Tobias Fünke")
+@user.occupation = "actor"
+@user.save
+# POST "https//api.example.com/users" with the data and return a User object
+
+@user = User.find(1)
+@user.fullname = "Lindsay Fünke"
+@user.save
+# PUT "https//api.example.com/users/1" with the data and return+update the User object
 ```
 
 ## Relationships
@@ -59,14 +75,14 @@ end
 Including relationship data in the resource, no extra HTTP request is made when calling the `#comments` method:
 
 ```ruby
-@user = User.find(1) # { :data => { :id => 1, :name => "Rémi Prévost", :comments => [{ :id => 1, :text => "Foo" }, { :id => 2, :text => "Bar" }] }}
+@user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth", :comments => [{ :id => 1, :text => "Foo" }, { :id => 2, :text => "Bar" }] }}
 @user.comments # => [#<Comment id=1>, #<Comment id=2>] fetched directly from @user
 ```
 
 If there’s no relationship data in the resource, an extra HTTP request (to `GET /users/1/comments`) is made when calling the `#comments` method:
 
 ```ruby
-@user = User.find(1) # { :data => { :id => 1, :name => "Rémi Prévost" }}
+@user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth" }}
 @user.comments # => [#<Comment id=1>, #<Comment id=2>] fetched from /users/1/comments
 ```
 
@@ -74,7 +90,7 @@ However, subsequent calls to `#comments` will not trigger the extra HTTP request
 
 ## Custom requests
 
-You can easily add custom methods for your models. You can either use `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data return from the HTTP request).
+You can easily add custom methods for your models. You can either use `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data return from the HTTP request). Other HTTP methods are supported (`post_raw`, `put_resource`, etc.)
 
 ```ruby
 class User
@@ -100,6 +116,7 @@ User.total    # => 42
 * Deleting resources
 * Support for Faraday middleware
 * Hooks before save, update, create, destroy, etc.
+* Better error handling
 * Better introspection for debug
 * Better documentation
 
