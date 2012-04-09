@@ -50,7 +50,7 @@ module Her
       # Fetch a collection of resources
       def all(params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}")) do |parsed_data|
-          Her::Model::ORM.initialize_collection(to_s.downcase.pluralize, parsed_data[:data])
+          new_collection(parsed_data)
         end
       end # }}}
 
