@@ -24,14 +24,14 @@ module Her
 
       # Fetch a specific resource based on an ID
       def find(id) # {{{
-        request({:_method => :get, :_path => "#{@her_collection_path}/#{id}"}.merge(params)) do |parsed_data|
+        request(params.merge(:_method => :get, :_path => "#{@her_collection_path}/#{id}")) do |parsed_data|
           new(parsed_data[:resource])
         end
       end # }}}
 
       # Fetch a collection of resources
       def all(params={}) # {{{
-        request({ :_method => :get, :_path => "#{@her_collection_path}" }.merge(params)) do |parsed_data|
+        request(params.merge(:_method => :get, :_path => "#{@her_collection_path}")) do |parsed_data|
           Her::Model::ORM.initialize_collection(to_s.downcase.pluralize, parsed_data[:resource])
         end
       end # }}}
