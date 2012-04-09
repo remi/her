@@ -72,7 +72,7 @@ class Comment
 end
 ```
 
-Including relationship data in the resource, no extra HTTP request is made when calling the `#comments` method:
+If there’s relationship data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources are returned:
 
 ```ruby
 @user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth", :comments => [{ :id => 1, :text => "Foo" }, { :id => 2, :text => "Bar" }] }}
