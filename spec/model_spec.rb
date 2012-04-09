@@ -86,9 +86,9 @@ describe Her::Model do
         @api.setup :base_uri => "https://api.example.com"
         FakeWeb.register_uri(:get, "https://api.example.com/users", :body => { :data => [{ :id => 1 }] }.to_json)
         FakeWeb.register_uri(:get, "https://api.example.com/users?page=2", :body => { :data => [{ :id => 2 }] }.to_json)
-        FakeWeb.register_uri(:post, "https://api.example.com/users_post", :body => { :data => [{ :id => 3 }] }.to_json)
-        FakeWeb.register_uri(:put, "https://api.example.com/users/4/put", :body => { :data => [{ :id => 4 }] }.to_json)
-        FakeWeb.register_uri(:delete, "https://api.example.com/users/5/delete", :body => { :data => [{ :id => 5 }] }.to_json)
+        FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :data => [{ :id => 3 }] }.to_json)
+        FakeWeb.register_uri(:put, "https://api.example.com/users/4", :body => { :data => [{ :id => 4 }] }.to_json)
+        FakeWeb.register_uri(:delete, "https://api.example.com/users/5", :body => { :data => [{ :id => 5 }] }.to_json)
 
         Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User
@@ -104,19 +104,19 @@ describe Her::Model do
       end # }}}
 
       it "handle POST" do # {{{
-        User.post("/users_post") do |parsed_data|
+        User.post("/users") do |parsed_data|
           parsed_data[:resource].should == [{ :id => 3 }]
         end
       end # }}}
 
       it "handle PUT" do # {{{
-        User.put("/users/4/put") do |parsed_data|
+        User.put("/users/4") do |parsed_data|
           parsed_data[:resource].should == [{ :id => 4 }]
         end
       end # }}}
 
       it "handle DELETE" do # {{{
-        User.delete("/users/5/delete") do |parsed_data|
+        User.delete("/users/5") do |parsed_data|
           parsed_data[:resource].should == [{ :id => 5 }]
         end
       end # }}}
