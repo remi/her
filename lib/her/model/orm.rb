@@ -24,11 +24,20 @@ module Her
         collection_data.map { |item_data| Object.const_get(name.to_s.classify).new(item_data) }
       end # }}}
 
-      # Handles missing methods
+      # Handles missing methods by routing them through @data
       # @private
-      def method_missing(method) # {{{
-        method = method.to_s.gsub(/(\?|\!)$/, "").to_sym
-        @data.include?(method) ? @data[method] : super
+      def method_missing(method, attrs=nil) # {{{
+        assignment_method = method.to_s =~ /\=$/
+        method = method.to_s.gsub(/(\?|\!|\=)$/, "").to_sym
+        if @data.include?(method)
+          if attrs and assignment_method
+            @data[method.to_s.gsub(/\=$/, "").to_sym] = attrs
+          else
+            @data[method]
+          end
+        else
+          super
+        end
       end # }}}
 
       # Fetch a specific resource based on an ID
@@ -49,6 +58,18 @@ module Her
       def create(params={}) # {{{
         request(params.merge(:_method => :post, :_path => "#{@her_collection_path}")) do |parsed_data|
           new(parsed_data[:data])
+        end
+      end # }}}
+
+      # Save a resource
+      def save # {{{
+        params = @data.dup
+        if @data[:id]
+          self.class.request(params.merge(:_method => :put, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
+            @data = parsed_data[:data]
+          end
+        else
+          self.class.create(params)
         end
       end # }}}
     end

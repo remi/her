@@ -193,6 +193,40 @@ describe Her::Model do
         @user.id.should == 1
         @user.fullname.should == "Tobias Fünke"
       end # }}}
+
+      it "handle resource creation through Model.new + #save" do # {{{
+        @user = User.new(:fullname => "Tobias Fünke")
+        @user.save
+        @user.fullname.should == "Tobias Fünke"
+      end # }}}
+    end
+
+    context "updating resources" do
+      before do # {{{
+        @api = Her::API.new
+        @api.setup :base_uri => "https://api.example.com"
+        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Tobias Fünke" } }.to_json)
+        FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json)
+
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+        class User
+          include Her::Model
+        end
+      end # }}}
+
+      it "handle resource data update without saving it" do
+        @user = User.find(1)
+        @user.fullname.should == "Tobias Fünke"
+        @user.fullname = "Kittie Sanchez"
+        @user.fullname.should == "Kittie Sanchez"
+      end
+
+      it "handle resource update through #save on an existing resource" do # {{{
+        @user = User.find(1)
+        @user.fullname = "Lindsay Fünke"
+        @user.save
+        @user.fullname.should == "Lindsay Fünke"
+      end # }}}
     end
   end
 

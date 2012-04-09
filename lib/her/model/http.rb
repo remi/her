@@ -12,7 +12,6 @@ module Her
       # @example
       #  class User
       #    include Her::Model
-      #    uses_api $example_api
       #    collection_path "users"
       #  end
       def collection_path(path=nil) # {{{
