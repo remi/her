@@ -14,7 +14,7 @@ module Her
       # @example
       #   User.get("/users/popular") { |data| User.new_collection(data) }
       def new_collection(parsed_data) # {{{
-        collection_data = parsed_data[:resource]
+        collection_data = parsed_data[:data]
         Her::Model::ORM.initialize_collection(self.to_s.downcase.to_sym, collection_data)
       end # }}}
 
@@ -34,21 +34,21 @@ module Her
       # Fetch a specific resource based on an ID
       def find(id, params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}/#{id}")) do |parsed_data|
-          new(parsed_data[:resource])
+          new(parsed_data[:data])
         end
       end # }}}
 
       # Fetch a collection of resources
       def all(params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}")) do |parsed_data|
-          Her::Model::ORM.initialize_collection(to_s.downcase.pluralize, parsed_data[:resource])
+          Her::Model::ORM.initialize_collection(to_s.downcase.pluralize, parsed_data[:data])
         end
       end # }}}
 
       # Create a resource
       def create(params={}) # {{{
         request(params.merge(:_method => :post, :_path => "#{@her_collection_path}")) do |parsed_data|
-          new(parsed_data[:resource])
+          new(parsed_data[:data])
         end
       end # }}}
     end

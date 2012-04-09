@@ -42,7 +42,7 @@ module Her
       # Make a GET request and return a collection of resources
       def get_resource(path, attrs={}) # {{{
         get_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:resource])
+          new(parsed_data[:data])
         end
       end # }}}
 
@@ -61,7 +61,7 @@ module Her
       # Make a POST request and return a collection of resources
       def post_resource(path, attrs={}) # {{{
         post_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:resource])
+          new(parsed_data[:data])
         end
       end # }}}
 
@@ -80,7 +80,7 @@ module Her
       # Make a PUT request and return a collection of resources
       def put_resource(path, attrs={}) # {{{
         put_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:resource])
+          new(parsed_data[:data])
         end
       end # }}}
 
@@ -99,7 +99,7 @@ module Her
       # Make a PATCH request and return a collection of resources
       def patch_resource(path, attrs={}) # {{{
         patch_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:resource])
+          new(parsed_data[:data])
         end
       end # }}}
 
@@ -118,7 +118,7 @@ module Her
       # Make a DELETE request and return a collection of resources
       def delete_resource(path, attrs={}) # {{{
         delete_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:resource])
+          new(parsed_data[:data])
         end
       end # }}}
     end

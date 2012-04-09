@@ -102,37 +102,37 @@ describe Her::Model do
 
       it "handle raw GET" do # {{{
         User.get_raw("/users") do |parsed_data|
-          parsed_data[:resource].should == [{ :id => 1 }]
+          parsed_data[:data].should == [{ :id => 1 }]
         end
       end # }}}
 
       it "handle raw POST" do # {{{
         User.post_raw("/users") do |parsed_data|
-          parsed_data[:resource].should == [{ :id => 3 }]
+          parsed_data[:data].should == [{ :id => 3 }]
         end
       end # }}}
 
       it "handle raw PUT" do # {{{
         User.put_raw("/users/4") do |parsed_data|
-          parsed_data[:resource].should == [{ :id => 4 }]
+          parsed_data[:data].should == [{ :id => 4 }]
         end
       end # }}}
 
       it "handle raw PATCH" do # {{{
         User.patch_raw("/users/6") do |parsed_data|
-          parsed_data[:resource].should == [{ :id => 6 }]
+          parsed_data[:data].should == [{ :id => 6 }]
         end
       end # }}}
 
       it "handle raw DELETE" do # {{{
         User.delete_raw("/users/5") do |parsed_data|
-          parsed_data[:resource].should == [{ :id => 5 }]
+          parsed_data[:data].should == [{ :id => 5 }]
         end
       end # }}}
 
       it "handle querystring parameters" do # {{{
         User.get_raw("/users", :page => 2) do |parsed_data|
-          parsed_data[:resource].should == [{ :id => 2 }]
+          parsed_data[:data].should == [{ :id => 2 }]
         end
       end # }}}
 
