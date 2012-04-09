@@ -54,6 +54,55 @@ User.find(1)
 # PUT https://api.example.com/users/1 with the data and return+update the User object
 ```
 
+## Parsing data
+
+By default, Her handles JSON data. It expects the data to be formatted in a certain structure. The default is this:
+
+```json
+// The response of GET /users/1
+{
+  "data" : {
+    "id" : 1,
+    "name" : "Tobias Fünke"
+  }
+}
+
+// The response of GET /users
+{
+  "data" : [
+    {
+      "id" : 1,
+      "name" : "Tobias Fünke"
+    },
+    {
+      "id" : 2,
+      "name" : "Lindsay Fünke"
+    }
+  ]
+  "metadata" : {
+    "page" : 1,
+    "per_page" : 10
+  }
+}
+```
+
+However, you can define your own parsing method, with `Her::API.parse_with`. The `parse_with` method takes a block which will be executed each time data from an HTTP response needs to be parsed. The block is expected to return a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating this data as first-level properties.
+
+```ruby
+Her::API.setup :base_uri => "https://api.example.com"
+Her::API.parse_with |response|
+  json = JSON.parse(response.body, :symbolize_names => true)
+  errors = json.delete(:errors)
+  {
+    :data => json,
+    :errors => errors || [],
+    :metadata => {}
+  }
+end
+```
+
+This feature is not stable and might change in the future, probably by using a middleware throught [Faraday](https://github.com/technoweenie/faraday).
+
 ## Relationships
 
 You can define `has_many` relationships in your models. The relationship data is handled in two different ways. When parsing a resource from JSON data, if there’s a relationship data included, it will be used to create new Ruby objects.
