@@ -59,13 +59,14 @@ module Her
     # Make an HTTP request to the API
     def request(attrs={}) # {{{
       method = attrs.delete(:_method)
+      path = attrs.delete(:_path)
       @connection.send method do |request|
         if method == :get
           # For GET requests, treat additional parameters as querystring data
-          request.url attrs.delete(:_path), attrs
+          request.url path, attrs
         else
           # For POST, PUT and DELETE requests, treat additional parameters as request body
-          request.url attrs.delete(:_path)
+          request.url path
           request.body = attrs
         end
       end

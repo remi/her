@@ -203,5 +203,40 @@ describe Her::Model do
         User.relationships[:belongs_to].should == [{ :name => :organization }, { :name => :family }]
       end # }}}
     end # }}}
+
+    context "handling relationships" do # {{{
+      before do # {{{
+        Her::API.setup :base_uri => "https://api.example.com"
+        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }] } }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/2", :body => { :data => { :id => 2, :name => "Lindsay Fünke" } }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/2/comments", :body => { :data => [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }] }.to_json)
+
+        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+        class User
+          include Her::Model
+          has_many :comments
+        end
+
+        Object.instance_eval { remove_const :Comment } if Object.const_defined?(:Comment)
+        class Comment
+          include Her::Model
+        end
+      end # }}}
+
+      it "maps an array of included data" do # {{{
+        @user = User.find(1)
+        @user.comments.length.should == 2
+        @user.comments.first.id.should == 2
+        @user.comments.first.body.should == "Tobias, you blow hard!"
+      end # }}}
+
+      it "fetches data that was not included" do # {{{
+        @user = User.find(2)
+        @user.comments.length.should == 2
+        @user.comments.first.id.should == 4
+        @user.comments.first.body.should == "They're having a FIRESALE?"
+      end # }}}
+
+    end # }}}
   end
 end
