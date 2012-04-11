@@ -304,32 +304,41 @@ describe Her::Model do
         class Role
           include Her::Model
         end
+
+        @user_with_included_data = User.find(1)
+        @user_without_included_data = User.find(2)
       end # }}}
 
-      it "maps an array of included data" do # {{{
-        @user = User.find(1)
-        @user.comments.length.should == 2
-        @user.comments.first.id.should == 2
-        @user.comments.first.body.should == "Tobias, you blow hard!"
-
-        @user.role.id.should == 1
-        @user.role.body.should == "Admin"
-
-        @user.organization.id.should == 1
-        @user.organization.name.should == "Bluth Company"
+      it "maps an array of included data through has_many" do # {{{
+        @user_with_included_data.comments.length.should == 2
+        @user_with_included_data.comments.first.id.should == 2
+        @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
       end # }}}
 
-      it "fetches data that was not included" do # {{{
-        @user = User.find(2)
-        @user.comments.length.should == 2
-        @user.comments.first.id.should == 4
-        @user.comments.first.body.should == "They're having a FIRESALE?"
+      it "fetches data that was not included through has_many" do # {{{
+        @user_without_included_data.comments.length.should == 2
+        @user_without_included_data.comments.first.id.should == 4
+        @user_without_included_data.comments.first.body.should == "They're having a FIRESALE?"
+      end # }}}
 
-        @user.role.id.should == 2
-        @user.role.body.should == "User"
+      it "maps an array of included data through has_one" do # {{{
+        @user_with_included_data.role.id.should == 1
+        @user_with_included_data.role.body.should == "Admin"
+      end # }}}
 
-        @user.organization.id.should == 1
-        @user.organization.name.should == "Bluth Company"
+      it "fetches data that was not included through has_one" do # {{{
+        @user_without_included_data.role.id.should == 2
+        @user_without_included_data.role.body.should == "User"
+      end # }}}
+
+      it "maps an array of included data through belongs_to" do # {{{
+        @user_with_included_data.organization.id.should == 1
+        @user_with_included_data.organization.name.should == "Bluth Company"
+      end # }}}
+
+      it "fetches data that was not included through belongs_to" do # {{{
+        @user_without_included_data.organization.id.should == 1
+        @user_without_included_data.organization.name.should == "Bluth Company"
       end # }}}
     end
   end
