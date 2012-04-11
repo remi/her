@@ -38,6 +38,24 @@ module Her
         end
       end # }}}
 
+      # Define an *has_one* relationship for the resource
+      #
+      # * `User.has_one :author` is used to check if the "user" JSON
+      #   resource we receive has a `author` key and map it to an Author
+      #   object
+      # * `User.has_one :author` creates a User.author method to would
+      #   make an extra HTTP request if there was no "author" key
+      def has_one(name, attrs={}) # {{{
+        @her_relationships ||= {}
+        (@her_relationships[:has_one] ||= []) << attrs.merge(:name => name)
+        collection_path = @her_collection_path
+
+        define_method(name) do
+          return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
+          self.class.get_resource("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).item_path}")
+        end
+      end # }}}
+
       # Define a *belongs_to* relationship for the resource
       #
       # * `User.belongs_to :organzation` is used to check if the "user" JSON
