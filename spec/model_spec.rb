@@ -214,12 +214,12 @@ describe Her::Model do
         end
       end # }}}
 
-      it "handle resource data update without saving it" do
+      it "handle resource data update without saving it" do # {{{
         @user = User.find(1)
         @user.fullname.should == "Tobias Fünke"
         @user.fullname = "Kittie Sanchez"
         @user.fullname.should == "Kittie Sanchez"
-      end
+      end # }}}
 
       it "handle resource update through #save on an existing resource" do # {{{
         @user = User.find(1)
