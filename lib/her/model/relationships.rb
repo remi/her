@@ -40,11 +40,11 @@ module Her
 
       # Define an *has_one* relationship for the resource
       #
-      # * `User.has_one :author` is used to check if the "user" JSON
-      #   resource we receive has a `author` key and map it to an Author
+      # * `User.has_one :category` is used to check if the "category" JSON
+      #   resource we receive has a `category` key and map it to an Category
       #   object
-      # * `User.has_one :author` creates a User.author method to would
-      #   make an extra HTTP request if there was no "author" key
+      # * `User.has_one :category` creates a User.category method to would
+      #   make an extra HTTP request if there was no "category" key
       def has_one(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:has_one] ||= []) << attrs.merge(:name => name)
