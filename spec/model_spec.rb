@@ -304,7 +304,7 @@ describe Her::Model do
         @user.comments.length.should == 2
         @user.comments.first.id.should == 2
         @user.comments.first.body.should == "Tobias, you blow hard!"
-        
+
         @user.role.id.should == 1
         @user.role.body.should == "Admin"
       end # }}}
@@ -314,7 +314,7 @@ describe Her::Model do
         @user.comments.length.should == 2
         @user.comments.first.id.should == 4
         @user.comments.first.body.should == "They're having a FIRESALE?"
-        
+
         @user.role.id.should == 2
         @user.role.body.should == "User"
       end # }}}
