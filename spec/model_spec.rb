@@ -250,6 +250,17 @@ describe Her::Model do
         User.relationships[:has_many].should == [{ :name => :comments }, { :name => :posts }]
       end # }}}
 
+      it "handles a single 'has_one' relationship" do # {{{
+        User.has_one :category
+        User.relationships[:has_one].should == [{ :name => :category }]
+      end # }}}
+
+      it "handles multiples 'has_one' relationship" do # {{{
+        User.has_one :category
+        User.has_one :role
+        User.relationships[:has_one].should == [{ :name => :category }, { :name => :role }]
+      end # }}}
+
       it "handles a single belongs_to relationship" do # {{{
         User.belongs_to :organization
         User.relationships[:belongs_to].should == [{ :name => :organization }]
@@ -265,18 +276,25 @@ describe Her::Model do
     context "handling relationships" do
       before do # {{{
         Her::API.setup :base_uri => "https://api.example.com"
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }] } }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }], :role => { :id => 1, :body => "Admin" } } }.to_json)
         FakeWeb.register_uri(:get, "https://api.example.com/users/2", :body => { :data => { :id => 2, :name => "Lindsay Fünke" } }.to_json)
         FakeWeb.register_uri(:get, "https://api.example.com/users/2/comments", :body => { :data => [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }] }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/2/role", :body => { :data => { :id => 2, :body => "User" } }.to_json)
 
         Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User
           include Her::Model
           has_many :comments
+          has_one :role
         end
 
         Object.instance_eval { remove_const :Comment } if Object.const_defined?(:Comment)
         class Comment
+          include Her::Model
+        end
+
+        Object.instance_eval { remove_const :Role } if Object.const_defined?(:Role)
+        class Role
           include Her::Model
         end
       end # }}}
@@ -286,6 +304,9 @@ describe Her::Model do
         @user.comments.length.should == 2
         @user.comments.first.id.should == 2
         @user.comments.first.body.should == "Tobias, you blow hard!"
+        
+        @user.role.id.should == 1
+        @user.role.body.should == "Admin"
       end # }}}
 
       it "fetches data that was not included" do # {{{
@@ -293,6 +314,9 @@ describe Her::Model do
         @user.comments.length.should == 2
         @user.comments.first.id.should == 4
         @user.comments.first.body.should == "They're having a FIRESALE?"
+        
+        @user.role.id.should == 2
+        @user.role.body.should == "User"
       end # }}}
     end
   end

@@ -14,7 +14,13 @@ module Her
         @her_relationships ||= {}
         @her_relationships.each_pair do |type, relationships|
           relationships.each do |relationship|
-            data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:name], data[relationship[:name]]) if data.include?(relationship[:name])
+            if data.include?(relationship[:name])
+              if type == :has_many
+                data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:name], data[relationship[:name]])
+              elsif type == :has_one
+                data[relationship[:name]] = Object.const_get(relationship[:name].to_s.classify).new(data[relationship[:name]])
+              end
+            end
           end
         end
         data
@@ -35,6 +41,24 @@ module Her
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
           self.class.get_collection("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).collection_path}")
+        end
+      end # }}}
+
+      # Define an *has_one* relationship for the resource
+      #
+      # * `User.has_one :category` is used to check if the "category" JSON
+      #   resource we receive has a `category` key and map it to an Category
+      #   object
+      # * `User.has_one :category` creates a User.category method to would
+      #   make an extra HTTP request if there was no "category" key
+      def has_one(name, attrs={}) # {{{
+        @her_relationships ||= {}
+        (@her_relationships[:has_one] ||= []) << attrs.merge(:name => name)
+        collection_path = @her_collection_path
+
+        define_method(name) do
+          return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
+          self.class.get_resource("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).item_path}")
         end
       end # }}}
 
