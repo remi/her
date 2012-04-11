@@ -19,6 +19,8 @@ module Her
                 data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:name], data[relationship[:name]])
               elsif type == :has_one
                 data[relationship[:name]] = Object.const_get(relationship[:name].to_s.classify).new(data[relationship[:name]])
+              elsif type == :belongs_to
+                data[relationship[:name]] = Object.const_get(relationship[:name].to_s.classify).new(data[relationship[:name]])
               end
             end
           end
@@ -30,9 +32,9 @@ module Her
       #
       # * `User.has_many :comments` is used to check if the "user" JSON
       #   resource we receive has a `comments` key and map it to an array
-      #   of Comment.new objects
+      #   of Comment objects
       # * `User.has_many :comments` creates a User.comments method to would
-      #   make an extra HTTP request if there was no "comments" key
+      #   make an extra HTTP request (to `/users/:id/comments`) if there was no "comments" key
       def has_many(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:has_many] ||= []) << attrs.merge(:name => name)
@@ -47,10 +49,9 @@ module Her
       # Define an *has_one* relationship for the resource
       #
       # * `User.has_one :category` is used to check if the "category" JSON
-      #   resource we receive has a `category` key and map it to an Category
-      #   object
+      #   resource we receive has a `category` key and map it to a Category object
       # * `User.has_one :category` creates a User.category method to would
-      #   make an extra HTTP request if there was no "category" key
+      #   make an extra HTTP request (to `/users/category`) if there was no "category" key
       def has_one(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:has_one] ||= []) << attrs.merge(:name => name)
@@ -64,16 +65,19 @@ module Her
 
       # Define a *belongs_to* relationship for the resource
       #
-      # * `User.belongs_to :organzation` is used to check if the "user" JSON
-      #   resource we receive has an `organzation` key and map it to
-      #   an Organization.new object
-      #
-      # * `User.belongs_to :organzation` creates a User.organzation method
+      # * `User.belongs_to :organization` is used to check if the "organization" JSON
+      #   resource we receive has a `organization` key and map it to an Organization object
+      # * `User.belongs_to :organization` creates a User.organization method to would
+      #   make an extra HTTP request (to `/organizations/:organization_id`) if there was no "organization" key
       def belongs_to(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:belongs_to] ||= []) << attrs.merge(:name => name)
+        collection_path = @her_collection_path
 
-        # TODO Write some code here
+        define_method(name) do
+          return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
+          self.class.get_resource("#{Object.const_get(name.to_s.classify).collection_path}/#{@data["#{name}_id".to_sym]}")
+        end
       end # }}}
     end
   end

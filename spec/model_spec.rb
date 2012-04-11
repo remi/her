@@ -276,16 +276,23 @@ describe Her::Model do
     context "handling relationships" do
       before do # {{{
         Her::API.setup :base_uri => "https://api.example.com"
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }], :role => { :id => 1, :body => "Admin" } } }.to_json)
-        FakeWeb.register_uri(:get, "https://api.example.com/users/2", :body => { :data => { :id => 2, :name => "Lindsay Fünke" } }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 } }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/2", :body => { :data => { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 } }.to_json)
         FakeWeb.register_uri(:get, "https://api.example.com/users/2/comments", :body => { :data => [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }] }.to_json)
         FakeWeb.register_uri(:get, "https://api.example.com/users/2/role", :body => { :data => { :id => 2, :body => "User" } }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/organizations/1", :body => { :data => { :id => 1, :name => "Bluth Company" } }.to_json)
 
         Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
         class User
           include Her::Model
           has_many :comments
           has_one :role
+          belongs_to :organization
+        end
+
+        Object.instance_eval { remove_const :Organization } if Object.const_defined?(:Organization)
+        class Organization
+          include Her::Model
         end
 
         Object.instance_eval { remove_const :Comment } if Object.const_defined?(:Comment)
@@ -307,6 +314,9 @@ describe Her::Model do
 
         @user.role.id.should == 1
         @user.role.body.should == "Admin"
+
+        @user.organization.id.should == 1
+        @user.organization.name.should == "Bluth Company"
       end # }}}
 
       it "fetches data that was not included" do # {{{
@@ -317,6 +327,9 @@ describe Her::Model do
 
         @user.role.id.should == 2
         @user.role.body.should == "User"
+
+        @user.organization.id.should == 1
+        @user.organization.name.should == "Bluth Company"
       end # }}}
     end
   end
