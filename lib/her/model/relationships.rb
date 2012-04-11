@@ -14,7 +14,13 @@ module Her
         @her_relationships ||= {}
         @her_relationships.each_pair do |type, relationships|
           relationships.each do |relationship|
-            data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:name], data[relationship[:name]]) if data.include?(relationship[:name])
+            if data.include?(relationship[:name])
+              if type == :has_many
+                data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:name], data[relationship[:name]])
+              elsif type == :has_one
+                data[relationship[:name]] = Object.const_get(relationship[:name].to_s.classify).new(data[relationship[:name]])
+              end
+            end
           end
         end
         data
