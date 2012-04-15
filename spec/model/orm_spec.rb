@@ -74,7 +74,7 @@ describe Her::Model::ORM do
     end # }}}
 
     it "handle resource update through the .update class method" do # {{{
-      @user = User.update(1, { :fullname => "Lindsay Fünke" })
+      @user = User.save_existing(1, { :fullname => "Lindsay Fünke" })
       @user.fullname.should == "Lindsay Fünke"
     end # }}}
 
@@ -83,6 +83,31 @@ describe Her::Model::ORM do
       @user.fullname = "Lindsay Fünke"
       @user.save
       @user.fullname.should == "Lindsay Fünke"
+    end # }}}
+  end
+
+  context "deleting resources" do
+    before do # {{{
+      @api = Her::API.new
+      @api.setup :base_uri => "https://api.example.com"
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Tobias Fünke", :active => true } }.to_json)
+      FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Lindsay Fünke", :active => false } }.to_json)
+
+      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+      class User
+        include Her::Model
+      end
+    end # }}}
+
+    it "handle resource deletion through the .destroy class method" do # {{{
+      @user = User.destroy_existing(1)
+      @user.active.should be_false
+    end # }}}
+
+    it "handle resource deletion through #destroy on an existing resource" do # {{{
+      @user = User.find(1)
+      @user.destroy
+      @user.active.should be_false
     end # }}}
   end
 end

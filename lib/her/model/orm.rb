@@ -58,8 +58,8 @@ module Her
         end
       end # }}}
 
-      # Update a resource
-      def update(id, params) # {{{
+      # Update an existing resource
+      def save_existing(id, params) # {{{
         request(params.merge(:_method => :put, :_path => "#{collection_path}/#{id}")) do |parsed_data|
           new(parsed_data[:data])
         end
@@ -74,6 +74,22 @@ module Her
           end
         else
           self.class.create(params)
+        end
+      end # }}}
+
+      # Destroy a resource
+      def destroy # {{{
+        params = @data.dup
+        self.class.request(params.merge(:_method => :delete, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
+          @data = parsed_data[:data]
+        end
+      end # }}}
+
+      # Destroy an existing resource
+      def destroy_existing(id) # {{{
+        params = {}
+        request(params.merge(:_method => :delete, :_path => "#{collection_path}/#{id}")) do |parsed_data|
+          new(parsed_data[:data])
         end
       end # }}}
     end
