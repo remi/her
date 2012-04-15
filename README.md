@@ -102,7 +102,6 @@ class MyCustomParser < Faraday::Response::Middleware
   end
 end
 Her::API.setup :base_uri => "https://api.example.com", :middleware => [MyCustomParser] + Her::API.default_middleware
-end
 
 # User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "id": 1, "name": "Tobias Fünke" }'
 ```
