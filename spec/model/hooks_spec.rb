@@ -34,6 +34,30 @@ describe Her::Model::Hooks do
       User.hooks[:before_destroy].length.should == 1
       User.hooks[:before_destroy].first.class.should == Symbol
     end # }}}
+
+    it "handles “after save” method hooks" do # {{{
+      User.after_save :set_internal_id
+      User.hooks[:after_save].length.should == 1
+      User.hooks[:after_save].first.class.should == Symbol
+    end # }}}
+
+    it "handles “after create” method hooks" do # {{{
+      User.after_create :set_internal_id
+      User.hooks[:after_create].length.should == 1
+      User.hooks[:after_create].first.class.should == Symbol
+    end # }}}
+
+    it "handles “after update” method hooks" do # {{{
+      User.after_update :set_internal_id
+      User.hooks[:after_update].length.should == 1
+      User.hooks[:after_update].first.class.should == Symbol
+    end # }}}
+
+    it "handles “after destroy” method hooks" do # {{{
+      User.after_destroy :set_internal_id
+      User.hooks[:after_destroy].length.should == 1
+      User.hooks[:after_destroy].first.class.should == Symbol
+    end # }}}
     end
 
     describe "block hooks" do
@@ -60,6 +84,30 @@ describe Her::Model::Hooks do
       User.hooks[:before_destroy].length.should == 1
       User.hooks[:before_destroy].first.class.should == Proc
     end # }}}
+
+    it "handles “after save” block hooks" do # {{{
+      User.after_save { |record| record.internal_id = 42 }
+      User.hooks[:after_save].length.should == 1
+      User.hooks[:after_save].first.class.should == Proc
+    end # }}}
+
+    it "handles “after create” block hooks" do # {{{
+      User.after_create { |record| record.internal_id = 42 }
+      User.hooks[:after_create].length.should == 1
+      User.hooks[:after_create].first.class.should == Proc
+    end # }}}
+
+    it "handles “after update” block hooks" do # {{{
+      User.after_update { |record| record.internal_id = 42 }
+      User.hooks[:after_update].length.should == 1
+      User.hooks[:after_update].first.class.should == Proc
+    end # }}}
+
+    it "handles “after destroy” block hooks" do # {{{
+      User.after_destroy { |record| record.internal_id = 42 }
+      User.hooks[:after_destroy].length.should == 1
+      User.hooks[:after_destroy].first.class.should == Proc
+    end # }}}
     end
   end
 
@@ -75,22 +123,21 @@ describe Her::Model::Hooks do
         class User
           include Her::Model
           attr_accessor :internal_save_id, :internal_create_id, :internal_update_id, :internal_destroy_id
+          attr_accessor :internal_after_save_id, :internal_after_create_id, :internal_after_update_id, :internal_after_destroy_id
 
-          def change_internal_save_id
-            @internal_save_id = 100
-          end
+          def change_internal_save_id; @internal_save_id = 100; end
+          def change_internal_create_id; @internal_create_id = 101; end
+          def change_internal_update_id; @internal_update_id = 102; end
+          def change_internal_destroy_id; @internal_destroy_id = 103; end
 
-          def change_internal_create_id
-            @internal_create_id = 101
+          def change_internal_after_save_id;
+            @internal_after_save_id = 100;
+            p "Resource modifie"
+            p self
           end
-
-          def change_internal_update_id
-            @internal_update_id = 102
-          end
-
-          def change_internal_destroy_id
-            @internal_destroy_id = 103
-          end
+          def change_internal_after_create_id; @internal_after_create_id = 101; end
+          def change_internal_after_update_id; @internal_after_update_id = 102; end
+          def change_internal_after_destroy_id; @internal_after_destroy_id = 103; end
         end
       end # }}}
 
@@ -100,9 +147,14 @@ describe Her::Model::Hooks do
         User.before_update :change_internal_update_id
         User.before_create :change_internal_create_id
         User.before_destroy :change_internal_destroy_id
+
+        User.after_save :change_internal_after_save_id
+        User.after_update :change_internal_after_update_id
+        User.after_create :change_internal_after_create_id
+        User.after_destroy :change_internal_after_destroy_id
       end # }}}
 
-      it "perform “before save” “before create” method hook before creating a resource" do # {{{
+      it "perform “before save” “before create” method hook on Model#save without an ID" do # {{{
         @user = User.new(:fullname => "Tobias Fünke")
         @user.save
         @user.internal_save_id.should == 100
@@ -110,7 +162,7 @@ describe Her::Model::Hooks do
         @user.internal_update_id.should == nil
       end # }}}
 
-      it "perform “before save” and “before update” method hook before updating a resource" do # {{{
+      it "perform “before save” and “before update” method hook on Model#save with an ID" do # {{{
         @user = User.find(1)
         @user.save
         @user.internal_save_id.should == 100
@@ -118,13 +170,43 @@ describe Her::Model::Hooks do
         @user.internal_update_id.should == 102
       end # }}}
 
-      it "perform “before destroy” method hook before destroying a resource" do # {{{
+      it "perform “before destroy” method hook on Model#destroy" do # {{{
         @user = User.find(1)
         @user.destroy
         @user.internal_save_id.should == nil
         @user.internal_create_id.should == nil
         @user.internal_update_id.should == nil
         @user.internal_destroy_id.should == 103
+      end # }}}
+
+      it "perform “after save” “after create” method hook on Model#save without an ID" do # {{{
+        @user = User.new(:fullname => "Tobias Fünke")
+        @user.save
+        @user.internal_after_save_id.should == 100
+        @user.internal_after_create_id.should == 101
+        @user.internal_after_update_id.should == nil
+      end # }}}
+
+      it "perform “after save” “after update” method hook on Model#save with an ID" do # {{{
+        @user = User.find(1)
+        @user.save
+        @user.internal_after_save_id.should == 100
+        @user.internal_after_create_id.should == nil
+        @user.internal_after_update_id.should == 102
+      end # }}}
+
+      it "perform “after save” “after update” method hook on Model.save_existing" do # {{{
+        @user = User.save_existing(1, { :fullname => "Tobias Fünke" })
+        @user.internal_after_save_id.should == 100
+        @user.internal_after_create_id.should == nil
+        @user.internal_after_update_id.should == 102
+      end # }}}
+
+      it "perform “after save” “after create” method hook on Model.create" do # {{{
+        @user = User.create({ :fullname => "Tobias Fünke" })
+        @user.internal_after_save_id.should == 100
+        @user.internal_after_create_id.should == 101
+        @user.internal_after_update_id.should == nil
       end # }}}
     end
 
@@ -134,9 +216,14 @@ describe Her::Model::Hooks do
         User.before_create { |record| record.internal_create_id = 201 }
         User.before_update { |record| record.internal_update_id = 202 }
         User.before_destroy { |record| record.internal_destroy_id = 203 }
+
+        User.after_save { |record| record.internal_after_save_id = 200 }
+        User.after_create { |record| record.internal_after_create_id = 201 }
+        User.after_update { |record| record.internal_after_update_id = 202 }
+        User.after_destroy { |record| record.internal_after_destroy_id = 203 }
       end # }}}
 
-      it "perform “before save” and “before create” block hook before creating a resource" do # {{{
+      it "perform “before save” and “before create” block hook on Model#save without an ID" do # {{{
         @user = User.new(:fullname => "Tobias Fünke")
         @user.save
         @user.internal_save_id.should == 200
@@ -144,7 +231,7 @@ describe Her::Model::Hooks do
         @user.internal_update_id.should == nil
       end # }}}
 
-      it "perform “before save” and “before update” block hook before updating a resource" do # {{{
+      it "perform “before save” and “before update” block hook on Model#save with an ID" do # {{{
         @user = User.find(1)
         @user.save
         @user.internal_save_id.should == 200
@@ -152,13 +239,29 @@ describe Her::Model::Hooks do
         @user.internal_update_id.should == 202
       end # }}}
 
-      it "perform “before destroy” block hook before destroying a resource" do # {{{
+      it "perform “before destroy” block hook on Model#destroy" do # {{{
         @user = User.find(1)
         @user.destroy
         @user.internal_save_id.should == nil
         @user.internal_create_id.should == nil
         @user.internal_update_id.should == nil
         @user.internal_destroy_id.should == 203
+      end # }}}
+
+      it "perform “after save” “after create” block hook on Model#save without an ID" do # {{{
+        @user = User.new(:fullname => "Tobias Fünke")
+        @user.save
+        @user.internal_after_save_id.should == 200
+        @user.internal_after_create_id.should == 201
+        @user.internal_after_update_id.should == nil
+      end # }}}
+
+      it "perform “after save” “after update” block hook on Model#save with an ID" do # {{{
+        @user = User.find(1)
+        @user.save
+        @user.internal_after_save_id.should == 200
+        @user.internal_after_create_id.should == nil
+        @user.internal_after_update_id.should == 202
       end # }}}
     end
   end

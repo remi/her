@@ -62,9 +62,18 @@ module Her
       # @example
       #   @user = User.create({ :fullname => "Tobias Fünke" }) # POST /users/1
       def create(params={}) # {{{
+        resource = new(params)
+        perform_hook(resource, :before, :create)
+        perform_hook(resource, :before, :save)
         request(params.merge(:_method => :post, :_path => "#{@her_collection_path}")) do |parsed_data|
-          new(parsed_data[:data])
+          resource.instance_eval do
+            @data = parsed_data[:data]
+          end
         end
+        perform_hook(resource, :after, :save)
+        perform_hook(resource, :after, :create)
+
+        resource
       end # }}}
 
       # Save an existing resource and return it
@@ -72,9 +81,8 @@ module Her
       # @example
       #   @user = User.save_existing(1, { :fullname => "Tobias Fünke" }) # PUT /users/1
       def save_existing(id, params) # {{{
-        request(params.merge(:_method => :put, :_path => "#{collection_path}/#{id}")) do |parsed_data|
-          new(parsed_data[:data])
-        end
+        resource = new(params.merge(:id => id))
+        resource.save
       end # }}}
 
       # Save a resource
@@ -95,15 +103,19 @@ module Her
           self.class.request(params.merge(:_method => :put, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
             @data = parsed_data[:data]
           end
-          resource = self
+          self.class.perform_hook(self, :after, :save)
+          self.class.perform_hook(self, :after, :update)
+          self
         else
           self.class.perform_hook(self, :before, :create)
           self.class.perform_hook(self, :before, :save)
-          resource = self.class.create(params)
-          self.class.perform_hook(resource, :after, :save)
-          self.class.perform_hook(resource, :after, :create)
+          self.class.request(params.merge(:_method => :post, :_path => "#{self.class.collection_path}")) do |parsed_data|
+            @data = parsed_data[:data]
+          end
+          self.class.perform_hook(self, :after, :save)
+          self.class.perform_hook(self, :after, :create)
         end
-        resource
+        self
       end # }}}
 
       # Destroy a resource
