@@ -253,7 +253,10 @@ Category.all
 
 ## Contributors
 
-Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues).
+Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues) like these fine folks did:
+
+* [@jfcixmedia](https://github.com/jfcixmedia)
+* [@EtienneLem](https://github.com/EtienneLem)
 
 Take a look at the `spec` folder before you do, and make sure `bundle exec rake spec` passes after your modifications :)
 
