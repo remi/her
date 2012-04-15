@@ -245,8 +245,6 @@ Category.all
 
 ## Things to be done
 
-* Support for Faraday middleware to handle caching, alternative formats, etc.
-* Hooks before save, update, create, destroy, etc.
 * Better error handling
 * Better introspection for debug
 * Better documentation
