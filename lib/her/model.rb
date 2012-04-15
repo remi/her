@@ -14,6 +14,7 @@ module Her
     autoload :HTTP,          "her/model/http"
     autoload :ORM,           "her/model/orm"
     autoload :Relationships, "her/model/relationships"
+    autoload :Hooks,         "her/model/hooks"
 
     extend ActiveSupport::Concern
 
@@ -26,6 +27,7 @@ module Her
       extend Her::Model::HTTP
       extend Her::Model::ORM
       extend Her::Model::Relationships
+      extend Her::Model::Hooks
 
       # Define default settings
       collection_path "#{self.to_s.downcase.pluralize}"

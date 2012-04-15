@@ -90,12 +90,20 @@ module Her
       def save # {{{
         params = @data.dup
         if @data[:id]
+          self.class.perform_hook(self, :before, :update)
+          self.class.perform_hook(self, :before, :save)
           self.class.request(params.merge(:_method => :put, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
             @data = parsed_data[:data]
           end
+          resource = self
         else
-          self.class.create(params)
+          self.class.perform_hook(self, :before, :create)
+          self.class.perform_hook(self, :before, :save)
+          resource = self.class.create(params)
+          self.class.perform_hook(resource, :after, :save)
+          self.class.perform_hook(resource, :after, :create)
         end
+        resource
       end # }}}
 
       # Destroy a resource
@@ -105,9 +113,12 @@ module Her
       #   @user.destroy # DELETE /users/1
       def destroy # {{{
         params = @data.dup
+        self.class.perform_hook(self, :before, :destroy)
         self.class.request(params.merge(:_method => :delete, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
           @data = parsed_data[:data]
         end
+        self.class.perform_hook(self, :after, :destroy)
+        self
       end # }}}
 
       # Destroy an existing resource
