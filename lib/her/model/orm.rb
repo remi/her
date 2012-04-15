@@ -37,6 +37,11 @@ module Her
         Her::Model::ORM.initialize_collection(self.to_s.downcase.to_sym, collection_data)
       end # }}}
 
+      # Return `true` if a resource was not saved yet
+      def new? # {{{
+        !@data.include?(:id)
+      end # }}}
+
       # Fetch a specific resource based on an ID
       #
       # @example

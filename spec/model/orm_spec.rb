@@ -27,6 +27,14 @@ describe Her::Model::ORM do
       @users.length.should == 2
       @users.first.name.should == "Tobias Fünke"
     end # }}}
+
+    it "handles new resource" do # {{{
+      @new_user = User.new(:fullname => "Tobias Fünke")
+      @new_user.new?.should be_true
+
+      @existing_user = User.find(1)
+      @existing_user.new?.should be_false
+    end # }}}
   end
 
   context "creating resources" do
