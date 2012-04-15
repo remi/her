@@ -245,6 +245,7 @@ Category.all
 
 ## Things to be done
 
+* Add support for collection paths of nested resources (eg. `/users/:user_id/comments` for the `Comment` model)
 * Better error handling
 * Better documentation
 
