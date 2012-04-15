@@ -20,14 +20,14 @@ module Her
       def method_missing(method, attrs=nil) # {{{
         assignment_method = method.to_s =~ /\=$/
         method = method.to_s.gsub(/(\?|\!|\=)$/, "").to_sym
-        if @data.include?(method)
-          if attrs and assignment_method
-            @data[method.to_s.gsub(/\=$/, "").to_sym] = attrs
-          else
-            @data[method]
-          end
+        if attrs and assignment_method
+          @data[method.to_s.gsub(/\=$/, "").to_sym] = attrs
         else
-          super
+          if @data.include?(method)
+            @data[method]
+          else
+            super
+          end
         end
       end # }}}
 
@@ -65,6 +65,7 @@ module Her
         resource = new(params)
         perform_hook(resource, :before, :create)
         perform_hook(resource, :before, :save)
+        params = resource.instance_eval { @data }
         request(params.merge(:_method => :post, :_path => "#{@her_collection_path}")) do |parsed_data|
           resource.instance_eval do
             @data = parsed_data[:data]
