@@ -166,6 +166,23 @@ For `belongs_to` relationship, an extra HTTP request (to `GET /organizations/2`)
 
 However, subsequent calls to `#comments` or `#role` will not trigger the extra HTTP request.
 
+## Hooks
+
+You can add *before* and *after* hooks to your models that are triggered on specific actions (`save`, `update`, `create`, `destroy`):
+
+```ruby
+class User
+  include Her::Model
+  before_save :set_internal_id
+
+  def set_internal_id
+    self.internal_id = 42 # Will be passed in the HTTP request
+  end
+end
+```
+
+In the future, adding hooks to all models will be possible, as well as defining and triggering your own hooks (eg. for your custom requests).
+
 ## Custom requests
 
 You can easily add custom methods for your models. You can either use `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data return from the HTTP request). Other HTTP methods are supported (`post_raw`, `put_resource`, etc.)
