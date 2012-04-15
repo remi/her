@@ -130,11 +130,7 @@ describe Her::Model::Hooks do
           def change_internal_update_id; @internal_update_id = 102; end
           def change_internal_destroy_id; @internal_destroy_id = 103; end
 
-          def change_internal_after_save_id;
-            @internal_after_save_id = 100;
-            p "Resource modifie"
-            p self
-          end
+          def change_internal_after_save_id; @internal_after_save_id = 100; end
           def change_internal_after_create_id; @internal_after_create_id = 101; end
           def change_internal_after_update_id; @internal_after_update_id = 102; end
           def change_internal_after_destroy_id; @internal_after_destroy_id = 103; end
