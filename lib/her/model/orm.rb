@@ -58,6 +58,13 @@ module Her
         end
       end # }}}
 
+      # Update a resource
+      def update(id, params) # {{{
+        request(params.merge(:_method => :put, :_path => "#{collection_path}/#{id}")) do |parsed_data|
+          new(parsed_data[:data])
+        end
+      end # }}}
+
       # Save a resource
       def save # {{{
         params = @data.dup

@@ -73,6 +73,11 @@ describe Her::Model::ORM do
       @user.fullname.should == "Kittie Sanchez"
     end # }}}
 
+    it "handle resource update through the .update class method" do # {{{
+      @user = User.update(1, { :fullname => "Lindsay Fünke" })
+      @user.fullname.should == "Lindsay Fünke"
+    end # }}}
+
     it "handle resource update through #save on an existing resource" do # {{{
       @user = User.find(1)
       @user.fullname = "Lindsay Fünke"
