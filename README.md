@@ -179,6 +179,9 @@ class User
     self.internal_id = 42 # Will be passed in the HTTP request
   end
 end
+
+@user = User.create(:fullname => "Tobias Fünke")
+# POST /users&fullname=Tobias+Fünke&internal_id=42
 ```
 
 In the future, adding hooks to all models will be possible, as well as defining and triggering your own hooks (eg. for your custom requests).
