@@ -38,6 +38,9 @@ module Her
       end # }}}
 
       # Fetch a specific resource based on an ID
+      #
+      # @example
+      #   @user = User.find(1) GET /users/1
       def find(id, params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}/#{id}")) do |parsed_data|
           new(parsed_data[:data])
@@ -45,20 +48,29 @@ module Her
       end # }}}
 
       # Fetch a collection of resources
+      #
+      # @example
+      #   @users = User.all # GET /users
       def all(params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}")) do |parsed_data|
           new_collection(parsed_data)
         end
       end # }}}
 
-      # Create a resource
+      # Create a resource and return it
+      #
+      # @example
+      #   @user = User.create({ :fullname => "Tobias Fünke" }) # POST /users/1
       def create(params={}) # {{{
         request(params.merge(:_method => :post, :_path => "#{@her_collection_path}")) do |parsed_data|
           new(parsed_data[:data])
         end
       end # }}}
 
-      # Update an existing resource
+      # Save an existing resource and return it
+      #
+      # @example
+      #   @user = User.save_existing(1, { :fullname => "Tobias Fünke" }) # PUT /users/1
       def save_existing(id, params) # {{{
         request(params.merge(:_method => :put, :_path => "#{collection_path}/#{id}")) do |parsed_data|
           new(parsed_data[:data])
@@ -66,6 +78,15 @@ module Her
       end # }}}
 
       # Save a resource
+      #
+      # @example Save a resource after fetching it
+      #   @user = User.find(1) # GET /users/1
+      #   @user.fullname = "Tobias Fünke"
+      #   @user.save # PUT /users/1
+      #
+      # @example Save a new resource by creating it
+      #   @user = User.new({ :fullname => "Tobias Fünke" })
+      #   @user.save # POST /users
       def save # {{{
         params = @data.dup
         if @data[:id]
@@ -78,6 +99,10 @@ module Her
       end # }}}
 
       # Destroy a resource
+      #
+      # @example
+      #   @user = User.find(1) # GET /users/1
+      #   @user.destroy # DELETE /users/1
       def destroy # {{{
         params = @data.dup
         self.class.request(params.merge(:_method => :delete, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
@@ -86,6 +111,9 @@ module Her
       end # }}}
 
       # Destroy an existing resource
+      #
+      # @example
+      #   User.destroy_existing(1) # DELETE /users/1
       def destroy_existing(id) # {{{
         params = {}
         request(params.merge(:_method => :delete, :_path => "#{collection_path}/#{id}")) do |parsed_data|
