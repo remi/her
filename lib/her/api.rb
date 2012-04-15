@@ -7,7 +7,7 @@ module Her
   #   $my_api.setup :base_uri => "https://api.example.com"
   class API
     # @private
-    attr_reader :base_uri, :parse_with
+    attr_reader :base_uri, :middleware
 
     # Setup a default API connection
     def self.setup(attrs={}) # {{{
@@ -20,20 +20,32 @@ module Her
       defined?(@@default_api) ? @@default_api : nil
     end # }}}
 
+    # @private
+    def self.default_middleware # {{{
+      [Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
+    end # }}}
+
     # Setup the API connection
+    #
+    # @example
+    #   module MyAPI
+    #     class ParseResponse
+    #       def on_complete(env)
+    #         json = JSON.parse(env[:body], :symbolize_names => true)
+    #         {
+    #           :data => json,
+    #           :errors => json[:errors] || [],
+    #           :metadata => json[:metadata] || {},
+    #         }
+    #       end
+    #     end
+    #   end
+    #   Her::API.setup :base_url => "https://api.example.com", :middleware => [MyAPI::ParseResponse, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
     def setup(attrs={}) # {{{
       @base_uri = attrs[:base_uri]
-      @parse_with = lambda do |response|
-        json = JSON.parse(response.body, :symbolize_names => true)
-        {
-          :data => json[:data],
-          :errors => json[:errors],
-          :metadata => json[:metadata],
-        }
-      end
+      middleware = @middleware = attrs[:middleware] || [Her::Middleware::DefaultParseJSON] + Her::API.default_middleware
       @connection = Faraday.new(:url => @base_uri) do |builder|
-        builder.request :url_encoded
-        builder.adapter :net_http
+        middleware.each { |m| builder.use(m) }
       end
     end # }}}
 
@@ -42,25 +54,12 @@ module Her
     # and a metadata Hash.
     #
     # @example
-    #   $my_api.parse_with do |response|
-    #     json = JSON.parse(response.body)
-    #     { :resource => json[:data], :errors => json[:errors], :metadata => json[:metdata] }
-    #   end
-    def parse_with(&block) # {{{
-      @custom_parsing_block = true
-      @parse_with = block
-    end # }}}
-
-    # Return whether a custom parsing block has been defined
-    def custom_parsing_block? # {{{
-      @custom_parsing_block
-    end # }}}
 
     # Make an HTTP request to the API
     def request(attrs={}) # {{{
       method = attrs.delete(:_method)
       path = attrs.delete(:_path)
-      @connection.send method do |request|
+      response = @connection.send method do |request|
         if method == :get
           # For GET requests, treat additional parameters as querystring data
           request.url path, attrs
@@ -70,11 +69,7 @@ module Her
           request.body = attrs
         end
       end
-    end # }}}
-
-    # Parse the HTTP response
-    def parse(response) # {{{
-      @parse_with.call(response)
+      response.env[:body]
     end # }}}
   end
 end
