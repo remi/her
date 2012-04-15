@@ -15,11 +15,13 @@ module Her
     autoload :ORM,           "her/model/orm"
     autoload :Relationships, "her/model/relationships"
     autoload :Hooks,         "her/model/hooks"
+    autoload :Introspection, "her/model/introspection"
 
     extend ActiveSupport::Concern
 
     # Instance methods
     include Her::Model::ORM
+    include Her::Model::Introspection
 
     # Class methods
     included do

@@ -246,7 +246,6 @@ Category.all
 ## Things to be done
 
 * Better error handling
-* Better introspection for debug
 * Better documentation
 
 ## Contributors
