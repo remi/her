@@ -54,39 +54,40 @@ User.find(1)
 # PUT https://api.example.com/users/1 with the data and return+update the User object
 ```
 
-## Parsing data
+## Middlware
+
+Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses.
+
+### Authentication
+
+Her doesn’t support any kind of authentication. However, it’s very easy to implement one with a request middleware. Using the `add_middleware` key, we add it to the default list of middleware.
+
+```ruby
+class MyAuthentication < Faraday::Middleware
+  def call(env)
+    env[:request_headers]["X-API-Token"] = "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
+    @all.call(env)
+  end
+end
+
+Her::API.setup :base_uri => "https://api.example.com", :add_middleware => [MyAuthentication]
+```
+
+Now, each HTTP request made by Her will have the `X-API-Token` header.
+
+### Parsing data
 
 By default, Her handles JSON data. It expects the data to be formatted in a certain structure. The default is this:
 
 ```javascript
 // The response of GET /users/1
-{
-  "data" : {
-    "id" : 1,
-    "name" : "Tobias Fünke"
-  }
-}
+{ "data" : { "id" : 1, "name" : "Tobias Fünke" } }
 
 // The response of GET /users
-{
-  "data" : [
-    {
-      "id" : 1,
-      "name" : "Tobias Fünke"
-    },
-    {
-      "id" : 2,
-      "name" : "Lindsay Fünke"
-    }
-  ],
-  "metadata" : {
-    "page" : 1,
-    "per_page" : 10
-  }
-}
+{ "data" : [{ "id" : 1, "name" : "Tobias Fünke" }] }
 ```
 
-However, you can define your own parsing method, using a Faraday response middleware. The middleware is expected to return a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating this data as first-level properties:
+However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the `parse_middleware` key, we then replace the default parser.
 
 ```ruby
 class MyCustomParser < Faraday::Response::Middleware
@@ -94,15 +95,11 @@ class MyCustomParser < Faraday::Response::Middleware
     json = JSON.parse(env[:body], :symbolize_names => true)
     errors = json.delete(:errors) || []
     metadata = json.delete(:metadata) || []
-    env[:body] = {
-      :data => json,
-      :errors => errors,
-      :metadata => metadata,
-    }
+    env[:body] = { :data => json, :errors => errors, :metadata => metadata }
   end
 end
-Her::API.setup :base_uri => "https://api.example.com", :middleware => [MyCustomParser] + Her::API.default_middleware
 
+Her::API.setup :base_uri => "https://api.example.com", :parse_middleware => MyCustomParser
 # User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "id": 1, "name": "Tobias Fünke" }'
 ```
 

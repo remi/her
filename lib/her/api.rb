@@ -22,12 +22,12 @@ module Her
 
     # @private
     def self.default_middleware # {{{
-      [Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
+      [Her::Middleware::DefaultParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
     end # }}}
 
     # Setup the API connection
     #
-    # @example
+    # @example A custom parse middleware
     #   module MyAPI
     #     class ParseResponse
     #       def on_complete(env)
@@ -40,10 +40,17 @@ module Her
     #       end
     #     end
     #   end
-    #   Her::API.setup :base_url => "https://api.example.com", :middleware => [MyAPI::ParseResponse, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
+    #   Her::API.setup :base_url => "https://api.example.com", :parse_middleware => MyAPI::ParseResponse
     def setup(attrs={}) # {{{
       @base_uri = attrs[:base_uri]
-      middleware = @middleware = attrs[:middleware] || [Her::Middleware::DefaultParseJSON] + Her::API.default_middleware
+      @middleware = Her::API.default_middleware
+
+      @middleware = [attrs[:middleware]] if attrs[:middleware]
+      @middleware = [attrs[:add_middleware]] + @middleware if attrs[:add_middleware]
+      @middleware = [attrs[:parse_middleware]] + @middleware.reject { |item| item == Her::Middleware::DefaultParseJSON } if attrs[:parse_middleware]
+
+      @middleware.flatten!
+      middleware = @middleware
       @connection = Faraday.new(:url => @base_uri) do |builder|
         middleware.each { |m| builder.use(m) }
       end
