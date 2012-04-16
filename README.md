@@ -54,7 +54,7 @@ User.find(1)
 # PUT https://api.example.com/users/1 with the data and return+update the User object
 ```
 
-## Middlware
+## Middleware
 
 Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses.
 
