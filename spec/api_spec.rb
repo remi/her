@@ -66,7 +66,7 @@ describe Her::API do
       end # }}}
 
       it "parses a request with the default parser" do # {{{
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "George Michael Bluth" }, :errors => ["This is a single error"], :metadata => { :page => 1, :per_page => 10 }}.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => MultiJson.dump(:data => { :id => 1, :name => "George Michael Bluth" }, :errors => ["This is a single error"], :metadata => { :page => 1, :per_page => 10 }))
 
         @api = Her::API.new
         @api.setup :base_uri => "https://api.example.com"
@@ -78,7 +78,7 @@ describe Her::API do
       end # }}}
 
       it "parses a request with a custom parser" do # {{{
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "George Michael Bluth" }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => MultiJson.dump(:id => 1, :name => "George Michael Bluth"))
 
         class CustomParser < Faraday::Response::Middleware
           def on_complete(env)
