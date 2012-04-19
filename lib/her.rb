@@ -1,5 +1,5 @@
 require "her/version"
-require "json"
+require "multi_json"
 require "faraday"
 require "active_support"
 require "active_support/inflector"

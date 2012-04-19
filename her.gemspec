@@ -25,5 +25,5 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency "activesupport"
   s.add_runtime_dependency "faraday"
-  s.add_runtime_dependency "json"
+  s.add_runtime_dependency "multi_json"
 end
