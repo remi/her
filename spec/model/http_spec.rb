@@ -145,5 +145,22 @@ describe Her::Model::HTTP do
       @user = User.get_resource("/users/1")
       @user.id.should == 1
     end # }}}
+
+    it "handle GET collection through a symbol" do # {{{
+      @users = User.get_collection(:popular)
+      @users.length.should == 2
+      @users.first.id.should == 1
+    end # }}}
+
+    it "handle GET resource through a symbol" do # {{{
+      @user = User.get_resource(:"1")
+      @user.id.should == 1
+    end # }}}
+
+    it "handle raw GET through a symbol" do # {{{
+      User.get_raw(:popular) do |parsed_data|
+        parsed_data[:data].should == [{ :id => 1 }, { :id => 2 }]
+      end
+    end # }}}
   end
 end

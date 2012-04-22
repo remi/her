@@ -191,6 +191,17 @@ You can easily add custom methods for your models. You can either use `get_colle
 ```ruby
 class User
   include Her::Model
+end
+
+User.get_collection(:popular) # =>  [#<User id=1>, #<User id=2>]
+# GET /users/popular
+```
+
+You can also use a full request path:
+
+```ruby
+class User
+  include Her::Model
 
   def self.popular
     get_collection("/users/popular")
@@ -203,8 +214,8 @@ class User
   end
 end
 
-User.popular  # => [#<User id=1>, #<User id=2>]
-User.total    # => 42
+User.popular # => [#<User id=1>, #<User id=2>]
+User.total # => 42
 ```
 
 ## Multiple APIs
