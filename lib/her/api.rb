@@ -40,7 +40,7 @@ module Her
     #       end
     #     end
     #   end
-    #   Her::API.setup :base_url => "https://api.example.com", :parse_middleware => MyAPI::ParseResponse
+    #   Her::API.setup :base_uri => "https://api.example.com", :parse_middleware => MyAPI::ParseResponse
     def setup(attrs={}) # {{{
       @base_uri = attrs[:base_uri]
       @middleware = Her::API.default_middleware
