@@ -206,6 +206,56 @@ module Her
           new(parsed_data[:data])
         end
       end # }}}
+
+      # Define custom GET requests
+      def custom_get(*paths) # {{{
+        metaclass = (class << self; self; end)
+        paths.each do |path|
+          metaclass.send(:define_method, path.to_sym) do |*attrs|
+            get(path, attrs.first || Hash.new)
+          end
+        end
+      end # }}}
+
+      # Define custom POST requests
+      def custom_post(*paths) # {{{
+        metaclass = (class << self; self; end)
+        paths.each do |path|
+          metaclass.send(:define_method, path.to_sym) do |*attrs|
+            post(path, attrs.first || Hash.new)
+          end
+        end
+      end # }}}
+
+      # Define custom PUT requests
+      def custom_put(*paths) # {{{
+        metaclass = (class << self; self; end)
+        paths.each do |path|
+          metaclass.send(:define_method, path.to_sym) do |*attrs|
+            put(path, attrs.first || Hash.new)
+          end
+        end
+      end # }}}
+
+      # Define custom PATCH requests
+      def custom_patch(*paths) # {{{
+        metaclass = (class << self; self; end)
+        paths.each do |path|
+          metaclass.send(:define_method, path.to_sym) do |*attrs|
+            patch(path, attrs.first || Hash.new)
+          end
+        end
+      end # }}}
+
+      # Define custom DELETE requests
+      def custom_delete(*paths) # {{{
+        metaclass = (class << self; self; end)
+        paths.each do |path|
+          metaclass.send(:define_method, path.to_sym) do |*attrs|
+            delete(path, attrs.first || Hash.new)
+          end
+        end
+      end # }}}
     end
   end
 end

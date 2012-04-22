@@ -172,4 +172,36 @@ describe Her::Model::HTTP do
       end
     end # }}}
   end
+
+  context "setting custom requests" do
+    before do # {{{
+      @api = Her::API.new
+      @api.setup :base_uri => "https://api.example.com"
+      FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => { :data => [{ :id => 1 }, { :id => 2 }] }.to_json)
+      FakeWeb.register_uri(:post, "https://api.example.com/users/from_default", :body => { :data => { :id => 4 } }.to_json)
+
+      class User
+        include Her::Model
+      end
+      User.custom_get :popular, :foobar
+      User.custom_post :from_default
+    end # }}}
+
+    it "handles custom methods" do # {{{
+      User.respond_to?(:popular).should be_true
+      User.respond_to?(:foobar).should be_true
+      User.respond_to?(:from_default).should be_true
+    end # }}}
+
+    it "handles custom GET requests" do # {{{
+      @users = User.popular
+      @users.length.should == 2
+      @users.first.id.should == 1
+    end # }}}
+
+    it "handles custom POST requests" do # {{{
+      @user = User.from_default(:name => "Tobias Fünke")
+      @user.id.should be_true
+    end # }}}
+  end
 end
