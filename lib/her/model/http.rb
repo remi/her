@@ -37,6 +37,18 @@ module Her
         yield @her_api.request(attrs)
       end # }}}
 
+      # Make a GET request and return either a collection or a resource
+      def get(path, attrs={}) # {{{
+        path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
+        get_raw(path, attrs) do |parsed_data|
+          if parsed_data[:data].is_a?(Array)
+            new_collection(parsed_data)
+          else
+            new(parsed_data[:data])
+          end
+        end
+      end # }}}
+
       # Make a GET request and return the parsed JSON response (not mapped to objects)
       def get_raw(path, attrs={}, &block) # {{{
         path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
@@ -56,6 +68,18 @@ module Her
         path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
         get_raw(path, attrs) do |parsed_data|
           new(parsed_data[:data])
+        end
+      end # }}}
+
+      # Make a POST request and return either a collection or a resource
+      def post(path, attrs={}) # {{{
+        path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
+        post_raw(path, attrs) do |parsed_data|
+          if parsed_data[:data].is_a?(Array)
+            new_collection(parsed_data)
+          else
+            new(parsed_data[:data])
+          end
         end
       end # }}}
 
@@ -81,6 +105,18 @@ module Her
         end
       end # }}}
 
+      # Make a PUT request and return either a collection or a resource
+      def put(path, attrs={}) # {{{
+        path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
+        put_raw(path, attrs) do |parsed_data|
+          if parsed_data[:data].is_a?(Array)
+            new_collection(parsed_data)
+          else
+            new(parsed_data[:data])
+          end
+        end
+      end # }}}
+
       # Make a PUT request and return the parsed JSON response (not mapped to objects)
       def put_raw(path, attrs={}, &block) # {{{
         path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
@@ -103,6 +139,18 @@ module Her
         end
       end # }}}
 
+      # Make a PATCH request and return either a collection or a resource
+      def patch(path, attrs={}) # {{{
+        path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
+        patch_raw(path, attrs) do |parsed_data|
+          if parsed_data[:data].is_a?(Array)
+            new_collection(parsed_data)
+          else
+            new(parsed_data[:data])
+          end
+        end
+      end # }}}
+
       # Make a PATCH request and return the parsed JSON response (not mapped to objects)
       def patch_raw(path, attrs={}, &block) # {{{
         path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
@@ -122,6 +170,18 @@ module Her
         path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
         patch_raw(path, attrs) do |parsed_data|
           new(parsed_data[:data])
+        end
+      end # }}}
+
+      # Make a DELETE request and return either a collection or a resource
+      def delete(path, attrs={}) # {{{
+        path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
+        delete_raw(path, attrs) do |parsed_data|
+          if parsed_data[:data].is_a?(Array)
+            new_collection(parsed_data)
+          else
+            new(parsed_data[:data])
+          end
         end
       end # }}}
 

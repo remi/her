@@ -99,6 +99,15 @@ describe Her::Model::HTTP do
       User.uses_api @api
     end # }}}
 
+    it "handle GET wrapper method" do # {{{
+      @users = User.get(:popular)
+      @users.length.should == 2
+      @users.first.id.should == 1
+
+      @user = User.get(:"1")
+      @user.id.should == 1
+    end # }}}
+
     it "handle raw GET" do # {{{
       User.get_raw("/users") do |parsed_data|
         parsed_data[:data].should == [{ :id => 1 }]

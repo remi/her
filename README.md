@@ -186,29 +186,32 @@ In the future, adding hooks to all models will be possible, as well as defining 
 
 ## Custom requests
 
-You can easily add custom methods for your models. You can either use `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data return from the HTTP request). Other HTTP methods are supported (`post_raw`, `put_resource`, etc.)
+You can easily add custom methods for your models. You can either use `get`, `post`, `put` or `delete` (which maps the returned data to either a collection or a resource).
 
 ```ruby
 class User
   include Her::Model
 end
 
-User.get_collection(:popular) # =>  [#<User id=1>, #<User id=2>]
+User.get(:popular) # => [#<User id=1>, #<User id=2>]
 # GET /users/popular
+
+User.get(:single_best) # => #<User id=1>
+# GET /users/single_best
 ```
 
-You can also use a full request path:
+Also, `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data return from the HTTP request) can also be used. Other HTTP methods are supported (`post_raw`, `put_resource`, etc.).
 
 ```ruby
 class User
   include Her::Model
 
   def self.popular
-    get_collection("/users/popular")
+    get_collection(:popular)
   end
 
   def self.total
-    get_raw("/users/stats") do |parsed_data|
+    get_raw(:stats) do |parsed_data|
       parsed_data[:data][:total_users]
     end
   end
@@ -216,6 +219,17 @@ end
 
 User.popular # => [#<User id=1>, #<User id=2>]
 User.total # => 42
+```
+
+You can also use full request paths (with strings instead of symbols).
+
+```ruby
+class User
+  include Her::Model
+end
+
+User.get("/users/popular") # => [#<User id=1>, #<User id=2>]
+# GET /users/popular
 ```
 
 ## Multiple APIs
