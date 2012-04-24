@@ -32,6 +32,8 @@ module Her
       end # }}}
 
       # Initialize a collection of resources with raw data from an HTTP request
+      #
+      # @param [Hash] parsed_data The raw `parsed_data` parsed from the HTTP response
       def new_collection(parsed_data) # {{{
         collection_data = parsed_data[:data]
         Her::Model::ORM.initialize_collection(self.to_s.downcase.to_sym, collection_data)
@@ -45,7 +47,8 @@ module Her
       # Fetch a specific resource based on an ID
       #
       # @example
-      #   @user = User.find(1) GET /users/1
+      #   @user = User.find(1)
+      #   # Fetched via GET "/users/1"
       def find(id, params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}/#{id}")) do |parsed_data|
           new(parsed_data[:data])
@@ -55,7 +58,8 @@ module Her
       # Fetch a collection of resources
       #
       # @example
-      #   @users = User.all # GET /users
+      #   @users = User.all
+      #   # Fetched via GET "/users"
       def all(params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{@her_collection_path}")) do |parsed_data|
           new_collection(parsed_data)
@@ -65,7 +69,8 @@ module Her
       # Create a resource and return it
       #
       # @example
-      #   @user = User.create({ :fullname => "Tobias Fünke" }) # POST /users/1
+      #   @user = User.create({ :fullname => "Tobias Fünke" })
+      #   # Called via POST "/users/1"
       def create(params={}) # {{{
         resource = new(params)
         perform_hook(resource, :before, :create)
@@ -85,7 +90,8 @@ module Her
       # Save an existing resource and return it
       #
       # @example
-      #   @user = User.save_existing(1, { :fullname => "Tobias Fünke" }) # PUT /users/1
+      #   @user = User.save_existing(1, { :fullname => "Tobias Fünke" })
+      #   # Called via PUT "/users/1"
       def save_existing(id, params) # {{{
         resource = new(params.merge(:id => id))
         resource.save
@@ -94,32 +100,44 @@ module Her
       # Save a resource
       #
       # @example Save a resource after fetching it
-      #   @user = User.find(1) # GET /users/1
+      #   @user = User.find(1)
+      #   # Fetched via GET "/users/1"
       #   @user.fullname = "Tobias Fünke"
-      #   @user.save # PUT /users/1
+      #   @user.save
+      #   # Called via PUT "/users/1"
       #
       # @example Save a new resource by creating it
       #   @user = User.new({ :fullname => "Tobias Fünke" })
-      #   @user.save # POST /users
+      #   @user.save
+      #   # Called via POST "/users"
       def save # {{{
         params = @data.dup
+        resource = self
         if @data[:id]
-          self.class.perform_hook(self, :before, :update)
-          self.class.perform_hook(self, :before, :save)
+          self.class.class_eval do
+            perform_hook(resource, :before, :update)
+            perform_hook(resource, :before, :save)
+          end
           self.class.request(params.merge(:_method => :put, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
             @data = parsed_data[:data]
           end
-          self.class.perform_hook(self, :after, :save)
-          self.class.perform_hook(self, :after, :update)
+          self.class.class_eval do
+            perform_hook(resource, :after, :save)
+            perform_hook(resource, :after, :update)
+          end
           self
         else
-          self.class.perform_hook(self, :before, :create)
-          self.class.perform_hook(self, :before, :save)
+          self.class.class_eval do
+            perform_hook(resource, :before, :create)
+            perform_hook(resource, :before, :save)
+          end
           self.class.request(params.merge(:_method => :post, :_path => "#{self.class.collection_path}")) do |parsed_data|
             @data = parsed_data[:data]
           end
-          self.class.perform_hook(self, :after, :save)
-          self.class.perform_hook(self, :after, :create)
+          self.class.class_eval do
+            perform_hook(resource, :after, :save)
+            perform_hook(resource, :after, :create)
+          end
         end
         self
       end # }}}
@@ -127,22 +145,25 @@ module Her
       # Destroy a resource
       #
       # @example
-      #   @user = User.find(1) # GET /users/1
-      #   @user.destroy # DELETE /users/1
+      #   @user = User.find(1)
+      #   @user.destroy
+      #   # Called via DELETE "/users/1"
       def destroy # {{{
         params = @data.dup
-        self.class.perform_hook(self, :before, :destroy)
+        resource = self
+        self.class.class_eval { perform_hook(resource, :before, :destroy) }
         self.class.request(params.merge(:_method => :delete, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
           @data = parsed_data[:data]
         end
-        self.class.perform_hook(self, :after, :destroy)
+        self.class.class_eval { perform_hook(resource, :after, :destroy) }
         self
       end # }}}
 
       # Destroy an existing resource
       #
       # @example
-      #   User.destroy_existing(1) # DELETE /users/1
+      #   User.destroy_existing(1)
+      #   # Called via DELETE "/users/1"
       def destroy_existing(id) # {{{
         params = {}
         request(params.merge(:_method => :delete, :_path => "#{collection_path}/#{id}")) do |parsed_data|

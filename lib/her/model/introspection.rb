@@ -1,7 +1,15 @@
 module Her
   module Model
     module Introspection
-      # Inspect an element
+      # Inspect an element, returns it for introspection.
+      #
+      # @example
+      #   class User
+      #     include Her::Model
+      #   end
+      #
+      #   @user = User.find(1)
+      #   p @user # => #<User(/users/1) id=1 name="Tobias Fünke">
       def inspect # {{{
         resource_path = self.class.collection_path
         resource_path << "/#{id}" if @data.include?(:id)

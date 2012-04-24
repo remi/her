@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec"
   s.add_development_dependency "yard"
-  s.add_development_dependency "maruku"
+  s.add_development_dependency "redcarpet", "1.17.2"
   s.add_development_dependency "mocha"
   s.add_development_dependency "fakeweb"
 

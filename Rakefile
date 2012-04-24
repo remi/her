@@ -18,7 +18,7 @@ YARD::Rake::YardocTask.new do |task| # {{{
     "-o", File.expand_path("../doc", __FILE__),
     "--readme=README.md",
     "--markup=markdown",
-    "--markup-provider=maruku",
+    "--markup-provider=redcarpet",
     "--no-private",
     "--no-cache",
     "--protected",

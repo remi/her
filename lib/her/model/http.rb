@@ -38,6 +38,14 @@ module Her
       end # }}}
 
       # Make a GET request and return either a collection or a resource
+      #
+      # @example
+      #   class User
+      #     include Her::Model
+      #   end
+      #
+      #   @popular_users = User.get(:popular)
+      #   # Fetched via GET "/users/popular"
       def get(path, attrs={}) # {{{
         path = "#{@her_collection_path}/#{path}" if path.is_a?(Symbol)
         get_raw(path, attrs) do |parsed_data|
@@ -208,6 +216,15 @@ module Her
       end # }}}
 
       # Define custom GET requests
+      #
+      # @example
+      #   class User
+      #     include Her::Model
+      #     custom_get :popular
+      #   end
+      #
+      #   User.popular
+      #   # Fetched from GET "/users/popular"
       def custom_get(*paths) # {{{
         metaclass = (class << self; self; end)
         paths.each do |path|

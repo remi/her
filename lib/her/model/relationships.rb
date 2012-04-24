@@ -28,13 +28,24 @@ module Her
         data
       end # }}}
 
-      # Define an *has_many* relationship for the resource
+      # Define an *has_many* relationship.
       #
-      # * `User.has_many :comments` is used to check if the "user" JSON
-      #   resource we receive has a `comments` key and map it to an array
-      #   of Comment objects
-      # * `User.has_many :comments` creates a User.comments method to would
-      #   make an extra HTTP request (to `/users/:id/comments`) if there was no "comments" key
+      # @param [Symbol] name The name of the model
+      # @param [Hash] attrs Options (currently not used)
+      #
+      # @example
+      #   class User
+      #     include Her::API
+      #     has_many :articles
+      #   end
+      #
+      #   class Article
+      #     include Her::API
+      #   end
+      #
+      #   @user = User.find(1)
+      #   @user.articles # => [#<Article(articles/2) id=2 title="Hello world.">]
+      #   # Fetched via GET "/users/1/articles"
       def has_many(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:has_many] ||= []) << attrs.merge(:name => name)
@@ -46,12 +57,24 @@ module Her
         end
       end # }}}
 
-      # Define an *has_one* relationship for the resource
+      # Define an *has_one* relationship.
       #
-      # * `User.has_one :category` is used to check if the "category" JSON
-      #   resource we receive has a `category` key and map it to a Category object
-      # * `User.has_one :category` creates a User.category method to would
-      #   make an extra HTTP request (to `/users/category`) if there was no "category" key
+      # @param [Symbol] name The name of the model
+      # @param [Hash] attrs Options (currently not used)
+      #
+      # @example
+      #   class User
+      #     include Her::API
+      #     has_one :organization
+      #   end
+      #
+      #   class Organization
+      #     include Her::API
+      #   end
+      #
+      #   @user = User.find(1)
+      #   @user.organization # => #<Organization(organizations/2) id=2 name="Foobar Inc.">
+      #   # Fetched via GET "/users/1/organization"
       def has_one(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:has_one] ||= []) << attrs.merge(:name => name)
@@ -63,12 +86,24 @@ module Her
         end
       end # }}}
 
-      # Define a *belongs_to* relationship for the resource
+      # Define a *belongs_to* relationship.
       #
-      # * `User.belongs_to :organization` is used to check if the "organization" JSON
-      #   resource we receive has a `organization` key and map it to an Organization object
-      # * `User.belongs_to :organization` creates a User.organization method to would
-      #   make an extra HTTP request (to `/organizations/:organization_id`) if there was no "organization" key
+      # @param [Symbol] name The name of the model
+      # @param [Hash] attrs Options (currently not used)
+      #
+      # @example
+      #   class User
+      #     include Her::API
+      #     belongs_to :team
+      #   end
+      #
+      #   class Team
+      #     include Her::API
+      #   end
+      #
+      #   @user = User.find(1)
+      #   @user.team # => #<Team(teams/2) id=2 name="Developers">
+      #   # Fetched via GET "/teams/2"
       def belongs_to(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:belongs_to] ||= []) << attrs.merge(:name => name)

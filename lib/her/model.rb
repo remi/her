@@ -5,10 +5,10 @@ module Her
   # @example
   #   class User
   #     include Her::Model
-  #     uses_api $api
   #   end
   #
   #   @user = User.new(:name => "Rémi")
+  #   @user.save
   module Model
     autoload :Base,          "her/model/base"
     autoload :HTTP,          "her/model/http"
