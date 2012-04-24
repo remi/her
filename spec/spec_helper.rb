@@ -10,3 +10,9 @@ end
 RSpec.configure do |c|
   c.include Helpers
 end
+
+class Hash
+  def to_json
+    MultiJson.dump(self)
+  end
+end
