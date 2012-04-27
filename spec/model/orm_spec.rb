@@ -6,8 +6,8 @@ describe Her::Model::ORM do
     before do # {{{
       @api = Her::API.new
       @api.setup :base_uri => "https://api.example.com"
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users", :body => { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }] }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users", :body => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json)
 
       spawn_model :User
       User.uses_api @api
@@ -37,7 +37,7 @@ describe Her::Model::ORM do
   context "creating resources" do
     before do # {{{
       Her::API.setup :base_uri => "https://api.example.com"
-      FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :data => { :id => 1, :fullname => "Tobias Fünke" } }.to_json)
+      FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :id => 1, :fullname => "Tobias Fünke" }.to_json)
 
       spawn_model :User
     end # }}}
@@ -59,8 +59,8 @@ describe Her::Model::ORM do
     before do # {{{
       @api = Her::API.new
       @api.setup :base_uri => "https://api.example.com"
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Tobias Fünke" } }.to_json)
-      FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :fullname => "Tobias Fünke" }.to_json)
+      FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :id => 1, :fullname => "Lindsay Fünke" }.to_json)
 
       spawn_model :User
     end # }}}
@@ -89,8 +89,8 @@ describe Her::Model::ORM do
     before do # {{{
       @api = Her::API.new
       @api.setup :base_uri => "https://api.example.com"
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Tobias Fünke", :active => true } }.to_json)
-      FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Lindsay Fünke", :active => false } }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json)
+      FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json)
 
       spawn_model :User
     end # }}}

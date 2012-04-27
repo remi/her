@@ -17,7 +17,7 @@ module Her
     # @option attrs [String] :base_uri The main HTTP API root (eg. `https://api.example.com`)
     # @option attrs [Array, Class] :middleware A list of the only middleware Her will use
     # @option attrs [Array, Class] :add_middleware A list of middleware to add to Her’s default middleware
-    # @option attrs [Class] :parse_middleware A middleware that will replace {Her::Middleware::DefaultParseJSON} to parse the received JSON
+    # @option attrs [Class] :parse_middleware A middleware that will replace {Her::Middleware::FirstLevelParseJSON} to parse the received JSON
     #
     # @example Setting up the default API connection
     #   Her::API.setup :base_uri => "https://api.example"
@@ -47,7 +47,7 @@ module Her
 
       @middleware = [attrs[:middleware]] if attrs[:middleware]
       @middleware = [attrs[:add_middleware]] + @middleware if attrs[:add_middleware]
-      @middleware = [attrs[:parse_middleware]] + @middleware.reject { |item| item == Her::Middleware::DefaultParseJSON } if attrs[:parse_middleware]
+      @middleware = [attrs[:parse_middleware]] + @middleware.reject { |item| item == Her::Middleware::FirstLevelParseJSON } if attrs[:parse_middleware]
 
       @middleware.flatten!
       middleware = @middleware
@@ -85,7 +85,7 @@ module Her
 
     # @private
     def self.default_middleware # {{{
-      [Her::Middleware::DefaultParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
+      [Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
     end # }}}
   end
 end

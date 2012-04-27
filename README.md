@@ -75,16 +75,18 @@ Her::API.setup :base_uri => "https://api.example.com", :add_middleware => [MyAut
 
 Now, each HTTP request made by Her will have the `X-API-Token` header.
 
-### Parsing data
+### Parsing JSON data
 
-By default, Her handles JSON data. It expects the data to be formatted in a certain structure. The default is this:
+By default, Her handles JSON data. It expects the resource/collection data to be returned at the first level.
+
+**Note**: *Before 0.2, Her expected the resource/collection data to be returned in a `data` key within the JSON object. If you want the old behavior, you can use the `Her::Middleware::SecondLevelParseJSON` middleware.*
 
 ```javascript
 // The response of GET /users/1
-{ "data" : { "id" : 1, "name" : "Tobias Fünke" } }
+{ "id" : 1, "name" : "Tobias Fünke" }
 
 // The response of GET /users
-{ "data" : [{ "id" : 1, "name" : "Tobias Fünke" }] }
+[{ "id" : 1, "name" : "Tobias Fünke" }]
 ```
 
 However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the `parse_middleware` key, we then replace the default parser.
@@ -92,15 +94,17 @@ However, you can define your own parsing method, using a response middleware. Th
 ```ruby
 class MyCustomParser < Faraday::Response::Middleware
   def on_complete(env)
-    json = JSON.parse(env[:body], :symbolize_names => true)
-    errors = json.delete(:errors) || []
-    metadata = json.delete(:metadata) || []
-    env[:body] = { :data => json, :errors => errors, :metadata => metadata }
+    json = MultiJson.load(body, :symbolize_keys => true)
+    env[:body] = {
+      :data => json[:data],
+      :errors => json[:errors],
+      :metadata => json[:metadata]
+    }
   end
 end
 
 Her::API.setup :base_uri => "https://api.example.com", :parse_middleware => MyCustomParser
-# User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "id": 1, "name": "Tobias Fünke" }'
+# User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "data" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
 ```
 
 ## Relationships

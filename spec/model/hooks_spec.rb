@@ -111,10 +111,10 @@ describe Her::Model::Hooks do
   context "perform hooks on a model" do
       before do # {{{
         Her::API.setup :base_uri => "https://api.example.com"
-        FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
-        FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
-        FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
+        FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+        FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+        FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
 
         spawn_model :User
         class User

@@ -73,14 +73,14 @@ describe Her::Model::HTTP do
     before do # {{{
       @api = Her::API.new
       @api.setup :base_uri => "https://api.example.com"
-      FakeWeb.register_uri(:get, "https://api.example.com/users", :body => { :data => [{ :id => 1 }] }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users?page=2", :body => { :data => [{ :id => 2 }] }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => { :data => [{ :id => 1 }, { :id => 2 }] }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1 } }.to_json)
-      FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :data => [{ :id => 3 }] }.to_json)
-      FakeWeb.register_uri(:put, "https://api.example.com/users/4", :body => { :data => [{ :id => 4 }] }.to_json)
-      FakeWeb.register_uri(:patch, "https://api.example.com/users/6", :body => { :data => [{ :id => 6 }] }.to_json)
-      FakeWeb.register_uri(:delete, "https://api.example.com/users/5", :body => { :data => [{ :id => 5 }] }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users", :body => [{ :id => 1 }].to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users?page=2", :body => [{ :id => 2 }].to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => [{ :id => 1 }, { :id => 2 }].to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1 }.to_json)
+      FakeWeb.register_uri(:post, "https://api.example.com/users", :body => [{ :id => 3 }].to_json)
+      FakeWeb.register_uri(:put, "https://api.example.com/users/4", :body => [{ :id => 4 }].to_json)
+      FakeWeb.register_uri(:patch, "https://api.example.com/users/6", :body => [{ :id => 6 }].to_json)
+      FakeWeb.register_uri(:delete, "https://api.example.com/users/5", :body => [{ :id => 5 }].to_json)
 
       spawn_model :User
       User.uses_api @api
@@ -164,8 +164,8 @@ describe Her::Model::HTTP do
     before do # {{{
       @api = Her::API.new
       @api.setup :base_uri => "https://api.example.com"
-      FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => { :data => [{ :id => 1 }, { :id => 2 }] }.to_json)
-      FakeWeb.register_uri(:post, "https://api.example.com/users/from_default", :body => { :data => { :id => 4 } }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => [{ :id => 1 }, { :id => 2 }].to_json)
+      FakeWeb.register_uri(:post, "https://api.example.com/users/from_default", :body => { :id => 4 }.to_json)
 
       class User
         include Her::Model

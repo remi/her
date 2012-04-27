@@ -12,9 +12,11 @@ RSpec.configure do |c|
 end
 
 class Hash
-  def to_json
-    MultiJson.dump(self)
-  end
+  def to_json; MultiJson.dump(self); end
+end
+
+class Array
+  def to_json; MultiJson.dump(self); end
 end
 
 def spawn_model(klass, attrs={})

@@ -23,11 +23,11 @@ describe Her::API do
 
         @api = Her::API.new
         @api.setup :base_uri => "https://api.example.com", :add_middleware => [Foo, Bar]
-        @api.middleware.should == [Foo, Bar, Her::Middleware::DefaultParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
+        @api.middleware.should == [Foo, Bar, Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
 
         @api = Her::API.new
         @api.setup :base_uri => "https://api.example.com", :add_middleware => Foo
-        @api.middleware.should == [Foo, Her::Middleware::DefaultParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
+        @api.middleware.should == [Foo, Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
       end # }}}
 
       it "overrides middleware" do # {{{

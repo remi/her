@@ -44,11 +44,11 @@ describe Her::Model::Relationships do
   context "handling relationships" do
     before do # {{{
       Her::API.setup :base_uri => "https://api.example.com"
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 } }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users/2", :body => { :data => { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 } }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users/2/comments", :body => { :data => [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }] }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users/2/role", :body => { :data => { :id => 2, :body => "User" } }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/organizations/1", :body => { :data => { :id => 1, :name => "Bluth Company" } }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/2", :body => { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/2/comments", :body => [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }].to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/2/role", :body => { :id => 2, :body => "User" }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/organizations/1", :body => { :id => 1, :name => "Bluth Company" }.to_json)
 
       spawn_model :User
       spawn_model :Organization
