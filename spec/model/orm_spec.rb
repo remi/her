@@ -9,10 +9,7 @@ describe Her::Model::ORM do
       FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
       FakeWeb.register_uri(:get, "https://api.example.com/users", :body => { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }] }.to_json)
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
       User.uses_api @api
     end # }}}
 
@@ -42,10 +39,7 @@ describe Her::Model::ORM do
       Her::API.setup :base_uri => "https://api.example.com"
       FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :data => { :id => 1, :fullname => "Tobias Fünke" } }.to_json)
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
     end # }}}
 
     it "handle one-line resource creation" do # {{{
@@ -68,10 +62,7 @@ describe Her::Model::ORM do
       FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Tobias Fünke" } }.to_json)
       FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json)
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
     end # }}}
 
     it "handle resource data update without saving it" do # {{{
@@ -101,10 +92,7 @@ describe Her::Model::ORM do
       FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Tobias Fünke", :active => true } }.to_json)
       FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :data => { :id => 1, :fullname => "Lindsay Fünke", :active => false } }.to_json)
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
     end # }}}
 
     it "handle resource deletion through the .destroy class method" do # {{{

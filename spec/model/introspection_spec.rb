@@ -6,10 +6,7 @@ describe Her::Model::Introspection do
     before do # {{{
       Her::API.setup :base_uri => "https://api.example.com"
       FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
     end # }}}
 
     describe "#inspect" do

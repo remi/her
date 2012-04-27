@@ -7,10 +7,7 @@ describe Her::Model::HTTP do
       @api = Her::API.new
       @api.setup :base_uri => "https://api.example.com"
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
       User.uses_api @api
 
       User.class_eval do
@@ -22,10 +19,7 @@ describe Her::Model::HTTP do
     it "binds a model directly to Her::API" do # {{{
       Her::API.setup :base_uri => "https://api.example.com"
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
 
       User.class_eval do
         @her_api.should_not == nil
@@ -37,8 +31,7 @@ describe Her::Model::HTTP do
       @api1 = Her::API.new
       @api1.setup :base_uri => "https://api1.example.com"
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User; include Her::Model; end
+      spawn_model :User
       User.uses_api @api1
 
       User.class_eval do
@@ -48,8 +41,7 @@ describe Her::Model::HTTP do
       @api2 = Her::API.new
       @api2.setup :base_uri => "https://api2.example.com"
 
-      Object.instance_eval { remove_const :Comment } if Object.const_defined?(:Comment)
-      class Comment; include Her::Model; end
+      spawn_model :Comment
       Comment.uses_api @api2
 
       Comment.class_eval do
@@ -59,8 +51,7 @@ describe Her::Model::HTTP do
 
     it "binds one model to Her::API and another one to an instance of Her::API" do # {{{
       Her::API.setup :base_uri => "https://api1.example.com"
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User; include Her::Model; end
+      spawn_model :User
 
       User.class_eval do
         @her_api.base_uri.should == "https://api1.example.com"
@@ -69,8 +60,7 @@ describe Her::Model::HTTP do
       @api = Her::API.new
       @api.setup :base_uri => "https://api2.example.com"
 
-      Object.instance_eval { remove_const :Comment } if Object.const_defined?(:Comment)
-      class Comment; include Her::Model; end
+      spawn_model :Comment
       Comment.uses_api @api
 
       Comment.class_eval do
@@ -92,10 +82,7 @@ describe Her::Model::HTTP do
       FakeWeb.register_uri(:patch, "https://api.example.com/users/6", :body => { :data => [{ :id => 6 }] }.to_json)
       FakeWeb.register_uri(:delete, "https://api.example.com/users/5", :body => { :data => [{ :id => 5 }] }.to_json)
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
       User.uses_api @api
     end # }}}
 

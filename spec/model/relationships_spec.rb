@@ -4,10 +4,7 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::Relationships do
   context "setting relationships" do
     before do # {{{
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
     end # }}}
 
     it "handles a single 'has_many' relationship" do # {{{
@@ -53,28 +50,14 @@ describe Her::Model::Relationships do
       FakeWeb.register_uri(:get, "https://api.example.com/users/2/role", :body => { :data => { :id => 2, :body => "User" } }.to_json)
       FakeWeb.register_uri(:get, "https://api.example.com/organizations/1", :body => { :data => { :id => 1, :name => "Bluth Company" } }.to_json)
 
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-        has_many :comments
-        has_one :role
-        belongs_to :organization
-      end
+      spawn_model :User
+      spawn_model :Organization
+      spawn_model :Comment
+      spawn_model :Role
 
-      Object.instance_eval { remove_const :Organization } if Object.const_defined?(:Organization)
-      class Organization
-        include Her::Model
-      end
-
-      Object.instance_eval { remove_const :Comment } if Object.const_defined?(:Comment)
-      class Comment
-        include Her::Model
-      end
-
-      Object.instance_eval { remove_const :Role } if Object.const_defined?(:Role)
-      class Role
-        include Her::Model
-      end
+      User.has_many :comments
+      User.has_one :role
+      User.belongs_to :organization
 
       @user_with_included_data = User.find(1)
       @user_without_included_data = User.find(2)

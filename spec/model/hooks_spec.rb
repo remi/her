@@ -4,10 +4,7 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::Hooks do
   context "adding hooks to a model" do
     before do # {{{
-      Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
-      class User
-        include Her::Model
-      end
+      spawn_model :User
     end # }}}
 
     describe "method hooks" do
@@ -119,9 +116,8 @@ describe Her::Model::Hooks do
         FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
         FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :data => { :id => 1, :name => "Tobias Fünke" } }.to_json)
 
-        Object.instance_eval { remove_const :User } if Object.const_defined?(:User)
+        spawn_model :User
         class User
-          include Her::Model
           attr_accessor :internal_save_id, :internal_create_id, :internal_update_id, :internal_destroy_id
           attr_accessor :internal_after_save_id, :internal_after_create_id, :internal_after_update_id, :internal_after_destroy_id
 
