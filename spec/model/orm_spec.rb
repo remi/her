@@ -4,13 +4,14 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::ORM do
   context "mapping data to Ruby objects" do
     before do # {{{
-      @api = Her::API.new
-      @api.setup :base_uri => "https://api.example.com"
+      api = Her::API.new
+      api.setup :base_uri => "https://api.example.com"
       FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
       FakeWeb.register_uri(:get, "https://api.example.com/users", :body => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json)
 
-      spawn_model :User
-      User.uses_api @api
+      spawn_model :User do
+        uses_api api
+      end
     end # }}}
 
     it "maps a single resource to a Ruby object" do # {{{

@@ -50,14 +50,16 @@ describe Her::Model::Relationships do
       FakeWeb.register_uri(:get, "https://api.example.com/users/2/role", :body => { :id => 2, :body => "User" }.to_json)
       FakeWeb.register_uri(:get, "https://api.example.com/organizations/1", :body => { :id => 1, :name => "Bluth Company" }.to_json)
 
-      spawn_model :User
+      spawn_model :User do
+        has_many :comments
+        has_one :role
+        belongs_to :organization
+      end
+
       spawn_model :Organization
       spawn_model :Comment
       spawn_model :Role
 
-      User.has_many :comments
-      User.has_one :role
-      User.belongs_to :organization
 
       @user_with_included_data = User.find(1)
       @user_without_included_data = User.find(2)
