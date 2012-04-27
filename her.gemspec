@@ -22,6 +22,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency "redcarpet", "1.17.2"
   s.add_development_dependency "mocha"
   s.add_development_dependency "fakeweb"
+  s.add_development_dependency "guard"
+  s.add_development_dependency "guard-rspec"
+  s.add_development_dependency "rb-fsevent"
+  s.add_development_dependency "growl"
 
   s.add_runtime_dependency "activesupport"
   s.add_runtime_dependency "faraday"
