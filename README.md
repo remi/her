@@ -255,6 +255,35 @@ User.get("/users/popular") # => [#<User id=1>, #<User id=2>]
 # GET /users/popular
 ```
 
+## Custom paths
+
+You can define custom HTTP paths for your models:
+
+```ruby
+class User
+  include Her::Model
+  collection_path "/hello_users/:id"
+end
+
+@user = User.find(1)
+# GET /hello_users/1
+```
+
+You can include custom variables in your paths:
+
+```ruby
+class User
+  include Her::Model
+  collection_path "/organizations/:organization_id/users/:id"
+end
+
+@user = User.find(1, :_organization_id => 2)
+# GET /organizations/2/users/1
+
+@user = User.all(:_organization_id => 2)
+# GET /organizations/2/users
+```
+
 ## Multiple APIs
 
 It is possible to use different APIs for different models. Instead of calling `Her::API.setup`, you can create instances of `Her::API`:
