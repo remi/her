@@ -49,11 +49,10 @@ module Her
       def has_many(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:has_many] ||= []) << attrs.merge(:name => name)
-        collection_path = @her_collection_path
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          self.class.get_collection("#{collection_path}/#{id}/#{name.to_s.pluralize}")
+          self.class.get_collection("#{self.class.build_request_path(:id => id)}/#{name.to_s.pluralize}")
         end
       end # }}}
 
@@ -78,11 +77,10 @@ module Her
       def has_one(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:has_one] ||= []) << attrs.merge(:name => name)
-        collection_path = @her_collection_path
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          self.class.get_resource("#{collection_path}/#{id}/#{name.to_s.singularize}")
+          self.class.get_resource("#{self.class.build_request_path(:id => id)}/#{name.to_s.singularize}")
         end
       end # }}}
 
@@ -107,11 +105,10 @@ module Her
       def belongs_to(name, attrs={}) # {{{
         @her_relationships ||= {}
         (@her_relationships[:belongs_to] ||= []) << attrs.merge(:name => name)
-        collection_path = @her_collection_path
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          self.class.get_resource("#{Object.const_get(name.to_s.classify).collection_path}/#{@data["#{name}_id".to_sym]}")
+          self.class.get_resource("#{Object.const_get(name.to_s.classify).build_request_path(:id => @data["#{name}_id".to_sym])}")
         end
       end # }}}
     end

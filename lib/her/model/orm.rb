@@ -50,7 +50,7 @@ module Her
       #   @user = User.find(1)
       #   # Fetched via GET "/users/1"
       def find(id, params={}) # {{{
-        request(params.merge(:_method => :get, :_path => "#{@her_collection_path}/#{id}")) do |parsed_data|
+        request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
           new(parsed_data[:data])
         end
       end # }}}
@@ -61,7 +61,7 @@ module Her
       #   @users = User.all
       #   # Fetched via GET "/users"
       def all(params={}) # {{{
-        request(params.merge(:_method => :get, :_path => "#{@her_collection_path}")) do |parsed_data|
+        request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data|
           new_collection(parsed_data)
         end
       end # }}}
@@ -76,7 +76,7 @@ module Her
         perform_hook(resource, :before, :create)
         perform_hook(resource, :before, :save)
         params = resource.instance_eval { @data }
-        request(params.merge(:_method => :post, :_path => "#{@her_collection_path}")) do |parsed_data|
+        request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
           resource.instance_eval do
             @data = parsed_data[:data]
           end
@@ -118,7 +118,7 @@ module Her
             perform_hook(resource, :before, :update)
             perform_hook(resource, :before, :save)
           end
-          self.class.request(params.merge(:_method => :put, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
+          self.class.request(params.merge(:_method => :put, :_path => "#{request_path}")) do |parsed_data|
             @data = parsed_data[:data]
           end
           self.class.class_eval do
@@ -131,7 +131,7 @@ module Her
             perform_hook(resource, :before, :create)
             perform_hook(resource, :before, :save)
           end
-          self.class.request(params.merge(:_method => :post, :_path => "#{self.class.collection_path}")) do |parsed_data|
+          self.class.request(params.merge(:_method => :post, :_path => "#{request_path}")) do |parsed_data|
             @data = parsed_data[:data]
           end
           self.class.class_eval do
@@ -152,7 +152,7 @@ module Her
         params = @data.dup
         resource = self
         self.class.class_eval { perform_hook(resource, :before, :destroy) }
-        self.class.request(params.merge(:_method => :delete, :_path => "#{self.class.collection_path}/#{id}")) do |parsed_data|
+        self.class.request(params.merge(:_method => :delete, :_path => "#{request_path}")) do |parsed_data|
           @data = parsed_data[:data]
         end
         self.class.class_eval { perform_hook(resource, :after, :destroy) }
@@ -164,9 +164,8 @@ module Her
       # @example
       #   User.destroy_existing(1)
       #   # Called via DELETE "/users/1"
-      def destroy_existing(id) # {{{
-        params = {}
-        request(params.merge(:_method => :delete, :_path => "#{collection_path}/#{id}")) do |parsed_data|
+      def destroy_existing(id, params={}) # {{{
+        request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
           new(parsed_data[:data])
         end
       end # }}}

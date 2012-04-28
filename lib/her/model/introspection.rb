@@ -11,9 +11,7 @@ module Her
       #   @user = User.find(1)
       #   p @user # => #<User(/users/1) id=1 name="Tobias Fünke">
       def inspect # {{{
-        resource_path = self.class.collection_path
-        resource_path << "/#{id}" if @data.include?(:id)
-        "#<#{self.class}(#{resource_path}) #{@data.inject([]) { |memo, item| key, value = item; memo << "#{key}=#{attribute_for_inspect(value)}"}.join(" ")}>"
+        "#<#{self.class}(#{self.class.build_request_path(@data)}) #{@data.inject([]) { |memo, item| key, value = item; memo << "#{key}=#{attribute_for_inspect(value)}"}.join(" ")}>"
       end # }}}
 
       private
