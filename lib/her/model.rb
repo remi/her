@@ -16,12 +16,14 @@ module Her
     autoload :Relationships, "her/model/relationships"
     autoload :Hooks,         "her/model/hooks"
     autoload :Introspection, "her/model/introspection"
+    autoload :Paths,         "her/model/paths"
 
     extend ActiveSupport::Concern
 
     # Instance methods
     include Her::Model::ORM
     include Her::Model::Introspection
+    include Her::Model::Paths
 
     # Class methods
     included do
@@ -30,6 +32,7 @@ module Her
       extend Her::Model::ORM
       extend Her::Model::Relationships
       extend Her::Model::Hooks
+      extend Her::Model::Paths
 
       # Define default settings
       collection_path "#{self.to_s.downcase.pluralize}"

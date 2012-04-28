@@ -7,30 +7,6 @@ module Her
         @her_api = api
       end # }}}
 
-      # Defines a custom collection path for the resource
-      #
-      # @example
-      #  class User
-      #    include Her::Model
-      #    collection_path "users"
-      #  end
-      def collection_path(path=nil) # {{{
-        return @her_collection_path unless path
-        @her_collection_path = path
-      end # }}}
-
-      # Defines a custom item path for the resource
-      #
-      # @example
-      #  class User
-      #    include Her::Model
-      #    item_path "user"
-      #  end
-      def item_path(path=nil) # {{{
-        return @her_item_path unless path
-        @her_item_path = path
-      end # }}}
-
       # Main request wrapper around Her::API. Used to make custom request to the API.
       # @private
       def request(attrs={}, &block) # {{{
