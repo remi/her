@@ -33,7 +33,6 @@ module Her
 
       # Define default settings
       collection_path "#{self.to_s.downcase.pluralize}"
-      item_path "#{self.to_s.downcase}"
       uses_api Her::API.default_api
     end
   end
