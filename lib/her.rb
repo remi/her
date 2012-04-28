@@ -8,4 +8,5 @@ module Her
   autoload :Model,       "her/model"
   autoload :API,         "her/api"
   autoload :Middleware,  "her/middleware"
+  autoload :Errors,      "her/errors"
 end

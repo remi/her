@@ -35,7 +35,8 @@ module Her
       extend Her::Model::Paths
 
       # Define default settings
-      collection_path "#{self.to_s.downcase.pluralize}"
+      collection_path "/#{self.to_s.downcase.pluralize}"
+      resource_path "/#{self.to_s.downcase.pluralize}/:id"
       uses_api Her::API.default_api
     end
   end

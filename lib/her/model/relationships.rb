@@ -53,7 +53,7 @@ module Her
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          self.class.get_collection("#{collection_path}/#{id}/#{Object.const_get(name.to_s.classify).collection_path}")
+          self.class.get_collection("#{collection_path}/#{id}/#{name.to_s.pluralize}")
         end
       end # }}}
 

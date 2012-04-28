@@ -12,12 +12,12 @@ describe Her::Model::Introspection do
     describe "#inspect" do
       it "outputs resource attributs for an existing resource" do # {{{
         @user = User.find(1)
-        @user.inspect.should == "#<User(users/1) id=1 name=\"Tobias Fünke\">"
+        @user.inspect.should == "#<User(/users/1) id=1 name=\"Tobias Fünke\">"
       end # }}}
 
       it "outputs resource attributs for an not-saved-yet resource" do # {{{
         @user = User.new(:name => "Tobias Fünke")
-        @user.inspect.should == "#<User(users) name=\"Tobias Fünke\">"
+        @user.inspect.should == "#<User(/users) name=\"Tobias Fünke\">"
       end # }}}
     end
   end
