@@ -179,7 +179,8 @@ class MyCache
   end
 end
 
-# A cache system must respond to `#write`, `#read` and `#fetch`. We should probably using something like Memcached here.
+# A cache system must respond to `#write`, `#read` and `#fetch`.
+# We should be probably using something like Memcached here, not a global object
 $cache = MyCache.new
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
