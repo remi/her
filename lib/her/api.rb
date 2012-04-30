@@ -52,7 +52,15 @@ module Her
       @middleware.flatten!
       middleware = @middleware
       @connection = Faraday.new(:url => @base_uri) do |builder|
-        middleware.each { |m| builder.use(m) }
+        middleware.each do |item|
+          klass = item.is_a?(Hash) ? item.keys.first : item
+          args = item.is_a?(Hash) ? item.values.first : nil
+          if args
+            builder.use klass, args
+          else
+            builder.use klass
+          end
+        end
       end
     end # }}}
 
