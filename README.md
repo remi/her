@@ -114,14 +114,15 @@ Using the `faraday_middleware` and `simple_oauth` gems, it’s fairly easy to us
 In your Gemfile:
 
 ```ruby
-  gem "her"
-  gem "faraday_middleware"
-  gem "simple_oauth"
+gem "her"
+gem "faraday_middleware"
+gem "simple_oauth"
 ```
 
 In your Ruby code:
 
 ```ruby
+# Create an application on `https://dev.twitter.com/apps` to set these values
 TWITTER_CREDENTIALS = {
   :consumer_key => "",
   :consumer_secret => "",
@@ -129,7 +130,10 @@ TWITTER_CREDENTIALS = {
   :token_secret => ""
 }
 
-Her::API.setup :base_uri => "https://api.twitter.com/1/", :add_middleware => [FaradayMiddleware::OAuth => TWITTER_CREDENTIALS]
+Her::API.setup({
+  :base_uri => "https://api.twitter.com/1/",
+  :add_middleware => [FaradayMiddleware::OAuth => TWITTER_CREDENTIALS]
+})
 
 class Tweet
   include Her::Model
