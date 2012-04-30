@@ -3,6 +3,7 @@ source :rubygems
 gem "sinatra"
 gem "haml"
 gem "thin", :require => false
+gem "faraday_middleware"
 
 gem "her", :path => File.join(File.dirname(__FILE__),"../..")
 

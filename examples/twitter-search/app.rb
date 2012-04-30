@@ -12,8 +12,33 @@ class TwitterSearchParser < Faraday::Response::Middleware
   end
 end
 
+class MyCache
+  def initialize
+    @cache = {}
+  end
+
+  def write(key, value)
+    @cache[key] = value
+  end
+
+  def read(key)
+    @cache[key]
+  end
+
+  def fetch(key, &block)
+    return value = read(key) if value.nil?
+    write key, yield
+  end
+end
+
+$cache = MyCache.new
+
 # Initialize API
-Her::API.setup :base_uri => "http://search.twitter.com", :parse_middleware => TwitterSearchParser
+Her::API.setup :base_uri => "http://search.twitter.com" do |builder|
+  builder.delete Her::Middleware::FirstLevelParseJSON
+  builder.use TwitterSearchParser
+  builder.use FaradayMiddleware::Caching, $cache
+end
 
 # Define classes
 class Tweet
