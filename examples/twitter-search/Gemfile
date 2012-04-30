@@ -1,0 +1,11 @@
+source :rubygems
+
+gem "sinatra"
+gem "haml"
+gem "thin", :require => false
+
+gem "her", :path => File.join(File.dirname(__FILE__),"../..")
+
+group :development do
+  gem "shotgun"
+end
