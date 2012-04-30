@@ -22,7 +22,7 @@ TWITTER_CREDENTIALS = {
 
 # Initialize API
 Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
-  builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  builder.insert 0, FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
   builder.swap Her::Middleware::DefaultParseJSON, TwitterParser
 end
 
@@ -34,12 +34,16 @@ class Tweet
     get "/statuses/home_timeline.json"
   end
 
+  def self.mentions
+    get "/statuses/mentions.json"
+  end
+
   def username
     user[:screen_name]
   end
 end
 
 get "/" do
-  @tweets = Tweet.timeline
+  @tweets = Tweet.mentions
   haml :index
 end

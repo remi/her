@@ -6,11 +6,9 @@ module Her
     attr_reader :base_uri, :middleware
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
-    def self.setup(attrs={}) # {{{
+    def self.setup(attrs={}, &block) # {{{
       @@default_api = new
-      connection = @@default_api.setup(attrs)
-      yield connection.builder if block_given?
-      connection
+      @@default_api.setup(attrs, &block)
     end # }}}
 
     # Setup the API connection.
@@ -60,19 +58,12 @@ module Her
 
       @middleware.flatten!
       middleware = @middleware
-      @connection = Faraday.new(:url => @base_uri) do |builder|
-        middleware.each do |item|
-          klass = item.is_a?(Hash) ? item.keys.first : item
-          args = item.is_a?(Hash) ? item.values.first : nil
-          if args
-            builder.use klass, args
-          else
-            builder.use klass
-          end
+      @connection = Faraday.new(:url => @base_uri) do |connection|
+        middleware.each do |klass|
+          connection.use klass
         end
+        yield connection.builder if block_given?
       end
-      yield @connection.builder if block_given?
-      @connection
     end # }}}
 
     # Define a custom parsing procedure. The procedure is passed the response object and is

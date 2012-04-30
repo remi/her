@@ -135,7 +135,7 @@ TWITTER_CREDENTIALS = {
 }
 
 Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
-  builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  builder.insert 0, FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
 end
 
 class Tweet
