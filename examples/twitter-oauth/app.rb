@@ -21,7 +21,7 @@ TWITTER_CREDENTIALS = {
 }
 
 # Initialize API
-Her::API.setup :base_uri => "https://api.twitter.com/1/", :parse_middleware => TwitterSearchParser, :add_middleware => [FaradayMiddleware::OAuth]
+Her::API.setup :base_uri => "https://api.twitter.com/1/", :parse_middleware => TwitterSearchParser, :add_middleware => [FaradayMiddleware::OAuth => TWITTER_CREDENTIALS]
 
 # Define classes
 class Tweet
