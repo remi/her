@@ -8,16 +8,20 @@ module Her
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
     def self.setup(attrs={}) # {{{
       @@default_api = new
-      @@default_api.setup(attrs)
+      connection = @@default_api.setup(attrs)
+      yield connection.builder if block_given?
+      connection
     end # }}}
 
     # Setup the API connection.
     #
     # @param [Hash] attrs the options to create a message with
     # @option attrs [String] :base_uri The main HTTP API root (eg. `https://api.example.com`)
-    # @option attrs [Array, Class] :middleware A list of the only middleware Her will use
-    # @option attrs [Array, Class] :add_middleware A list of middleware to add to Her’s default middleware
-    # @option attrs [Class] :parse_middleware A middleware that will replace {Her::Middleware::FirstLevelParseJSON} to parse the received JSON
+    # @option attrs [Array, Class] :middleware **Deprecated** A list of the only middleware Her will use
+    # @option attrs [Array, Class] :add_middleware **Deprecated** A list of middleware to add to Her’s default middleware
+    # @option attrs [Class] :parse_middleware **Deprecated** A middleware that will replace {Her::Middleware::FirstLevelParseJSON} to parse the received JSON
+    #
+    # @return Faraday::Connection
     #
     # @example Setting up the default API connection
     #   Her::API.setup :base_uri => "https://api.example"
@@ -29,7 +33,9 @@ module Her
     #       @all.call(env)
     #     end
     #   end
-    #   Her::API.setup :base_uri => "https://api.example.com", :add_middleware => [MyAuthentication]
+    #   Her::API.setup :base_uri => "https://api.example.com" do |builder|
+    #     builder.use MyAuthentication
+    #   end
     #
     # @example A custom parse middleware
     #   class MyCustomParser < Faraday::Response::Middleware
@@ -40,7 +46,10 @@ module Her
     #       env[:body] = { :data => json, :errors => errors, :metadata => metadata }
     #     end
     #   end
-    #   Her::API.setup :base_uri => "https://api.example.com", :parse_middleware => MyCustomParser
+    #   Her::API.setup :base_uri => "https://api.example.com" do |builder|
+    #     builder.delete Her::Middleware::DefaultParseJSON
+    #     builder.use MyCustomParser
+    #   end
     def setup(attrs={}) # {{{
       @base_uri = attrs[:base_uri]
       @middleware = Her::API.default_middleware
@@ -62,6 +71,8 @@ module Her
           end
         end
       end
+      yield @connection.builder if block_given?
+      @connection
     end # }}}
 
     # Define a custom parsing procedure. The procedure is passed the response object and is

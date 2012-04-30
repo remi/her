@@ -60,7 +60,7 @@ Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send H
 
 ### Authentication
 
-Her doesn’t support any kind of authentication. However, it’s very easy to implement one with a request middleware. Using the `add_middleware` key, we add it to the default list of middleware.
+Her doesn’t support any kind of authentication. However, it’s very easy to implement one with a request middleware. Using the builder block, we add it to the default list of middleware.
 
 ```ruby
 class MyAuthentication < Faraday::Middleware
@@ -70,7 +70,9 @@ class MyAuthentication < Faraday::Middleware
   end
 end
 
-Her::API.setup :base_uri => "https://api.example.com", :add_middleware => [MyAuthentication]
+Her::API.setup :base_uri => "https://api.example.com" do |builder|
+  builder.use MyAuthentication
+end
 ```
 
 Now, each HTTP request made by Her will have the `X-API-Token` header.
@@ -89,7 +91,7 @@ By default, Her handles JSON data. It expects the resource/collection data to be
 [{ "id" : 1, "name" : "Tobias Fünke" }]
 ```
 
-However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the `parse_middleware` key, we then replace the default parser.
+However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the builder block, we then replace the default parser.
 
 ```ruby
 class MyCustomParser < Faraday::Response::Middleware
@@ -103,7 +105,10 @@ class MyCustomParser < Faraday::Response::Middleware
   end
 end
 
-Her::API.setup :base_uri => "https://api.example.com", :parse_middleware => MyCustomParser
+Her::API.setup :base_uri => "https://api.example.com" do |builder|
+  builder.delete Her::Middleware::DefaultParseJSON
+  builder.use MyCustomParser
+end
 # User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "data" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
 ```
 
@@ -130,16 +135,50 @@ TWITTER_CREDENTIALS = {
   :token_secret => ""
 }
 
-Her::API.setup({
-  :base_uri => "https://api.twitter.com/1/",
-  :add_middleware => [FaradayMiddleware::OAuth => TWITTER_CREDENTIALS]
-})
+Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
+  builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+end
 
 class Tweet
   include Her::Model
 end
 
 @tweets = Tweet.get("/statuses/home_timeline.json")
+```
+
+### Caching
+
+Again, using the `faraday_middleware` makes it very easy to cache requests and responses:
+
+In your Gemfile:
+
+```ruby
+gem "her"
+gem "faraday_middleware"
+```
+
+In your Ruby code:
+
+```ruby
+class MyCache
+  def write(key, value); end
+  def read(key); end
+  def fetch(key, &block); end
+end
+
+# A cache system must respond to `#write`, `#read` and `#fetch`.
+$cache = MyCache.new
+
+Her::API.setup :base_uri => "https://api.example.com" do |builder|
+  builder.use FaradayMiddleware::Caching, $cache
+end
+
+class User
+  include Her::Model
+end
+
+@user = User.find(1)
+@user = User.find(1) # This request will be fetched from the cache
 ```
 
 ## Relationships

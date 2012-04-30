@@ -16,41 +16,6 @@ describe Her::API do
         @api.setup :base_uri => "https://api.example.com"
         @api.base_uri.should == "https://api.example.com"
       end # }}}
-
-      it "sets additional middleware" do # {{{
-        class Foo < Faraday::Response::Middleware; end;
-        class Bar < Faraday::Response::Middleware; end;
-        class Baz < Faraday::Response::Middleware; end;
-
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :add_middleware => [Foo, Bar, Baz => { :hello => :world }]
-        @api.middleware.should == [Foo, Bar, { Baz => { :hello => :world } }, Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
-
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :add_middleware => Foo
-        @api.middleware.should == [Foo, Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
-
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :add_middleware => [{Baz => { :hello => :world }}]
-        @api.middleware.should == [{ Baz => { :hello => :world } }, Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
-      end # }}}
-
-      it "overrides middleware" do # {{{
-        class Foo < Faraday::Response::Middleware; end;
-        class Bar < Faraday::Response::Middleware; end;
-
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :middleware => [Foo, Bar]
-        @api.middleware.should == [Foo, Bar]
-      end # }}}
-
-      it "sets a parse middleware" do # {{{
-        class Foo < Faraday::Response::Middleware; end;
-
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :parse_middleware => Foo
-        @api.middleware.should == [Foo, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
-      end # }}}
     end
 
     describe "#request" do
@@ -97,31 +62,14 @@ describe Her::API do
         end
 
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :parse_middleware => CustomParser
+        @api.setup :base_uri => "https://api.example.com" do |connection|
+          connection.delete Her::Middleware::DefaultParseJSON
+          connection.use CustomParser
+        end
         parsed_data = @api.request(:_method => :get, :_path => "users/1")
         parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
         parsed_data[:errors].should == []
         parsed_data[:metadata].should == {}
-      end # }}}
-
-      it "uses middleware with custom arguments" do # {{{
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => MultiJson.dump(:id => 1, :name => "George Michael Bluth"))
-
-        class FakeOAuth < Faraday::Middleware
-          def initialize(app, options={})
-            super(app)
-            @options = options
-          end
-
-          def call(env)
-            env[:request_headers]["X-Hello"] = @options[:foo]
-            @app.call(env)
-          end
-        end
-
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :add_middleware => [FakeOAuth => { :foo => "World" }]
-        parsed_data = @api.request(:_method => :get, :_path => "users/1")
       end # }}}
     end
   end
