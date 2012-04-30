@@ -66,7 +66,7 @@ Her doesn’t support any kind of authentication. However, it’s very easy to i
 class MyAuthentication < Faraday::Middleware
   def call(env)
     env[:request_headers]["X-API-Token"] = "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
-    @all.call(env)
+    @app.call(env)
   end
 end
 
@@ -105,6 +105,37 @@ end
 
 Her::API.setup :base_uri => "https://api.example.com", :parse_middleware => MyCustomParser
 # User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "data" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
+```
+
+### OAuth
+
+Using the `faraday_middleware` and `simple_oauth` gems, it’s fairly easy to use OAuth authentication with Her.
+
+In your Gemfile:
+
+```ruby
+  gem "her"
+  gem "faraday_middleware"
+  gem "simple_oauth"
+```
+
+In your Ruby code:
+
+```ruby
+TWITTER_CREDENTIALS = {
+  :consumer_key => "",
+  :consumer_secret => "",
+  :token => "",
+  :token_secret => ""
+}
+
+Her::API.setup :base_uri => "https://api.twitter.com/1/", :add_middleware => [FaradayMiddleware::OAuth => TWITTER_CREDENTIALS]
+
+class Tweet
+  include Her::Model
+end
+
+@tweets = Tweet.get("/statuses/home_timeline.json")
 ```
 
 ## Relationships
