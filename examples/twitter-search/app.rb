@@ -35,8 +35,7 @@ $cache = MyCache.new
 
 # Initialize API
 Her::API.setup :base_uri => "http://search.twitter.com" do |builder|
-  builder.delete Her::Middleware::FirstLevelParseJSON
-  builder.use TwitterSearchParser
+  builder.swap Her::Middleware::FirstLevelParseJSON, TwitterSearchParser
   builder.use FaradayMiddleware::Caching, $cache
 end
 

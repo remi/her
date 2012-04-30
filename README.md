@@ -91,7 +91,7 @@ By default, Her handles JSON data. It expects the resource/collection data to be
 [{ "id" : 1, "name" : "Tobias Fünke" }]
 ```
 
-However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the builder block, we then replace the default parser.
+However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the builder block, we then replace the default parser with our custom parser.
 
 ```ruby
 class MyCustomParser < Faraday::Response::Middleware
@@ -106,8 +106,7 @@ class MyCustomParser < Faraday::Response::Middleware
 end
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
-  builder.delete Her::Middleware::DefaultParseJSON
-  builder.use MyCustomParser
+  builder.swap Her::Middleware::DefaultParseJSON, MyCustomParser
 end
 # User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "data" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
 ```

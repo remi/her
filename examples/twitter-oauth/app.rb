@@ -1,5 +1,5 @@
 # Create custom parser
-class TwitterSearchParser < Faraday::Response::Middleware
+class TwitterParser < Faraday::Response::Middleware
   METADATA_KEYS = [:completed_in, :max_id, :max_id_str, :next_page, :page, :query, :refresh_url, :results_per_page, :since_id, :since_id_str]
 
   def on_complete(env)
@@ -21,7 +21,10 @@ TWITTER_CREDENTIALS = {
 }
 
 # Initialize API
-Her::API.setup :base_uri => "https://api.twitter.com/1/", :parse_middleware => TwitterSearchParser, :add_middleware => [FaradayMiddleware::OAuth => TWITTER_CREDENTIALS]
+Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
+  builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  builder.swap Her::Middleware::DefaultParseJSON, TwitterParser
+end
 
 # Define classes
 class Tweet

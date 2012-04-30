@@ -63,8 +63,7 @@ describe Her::API do
 
         @api = Her::API.new
         @api.setup :base_uri => "https://api.example.com" do |connection|
-          connection.delete Her::Middleware::DefaultParseJSON
-          connection.use CustomParser
+          connection.swap Her::Middleware::DefaultParseJSON, CustomParser
         end
         parsed_data = @api.request(:_method => :get, :_path => "users/1")
         parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
