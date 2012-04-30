@@ -1,3 +1,13 @@
 #content pre, #content code, #content tt {
   font-family: Monaco, Inconsolata, Consolas, monospace;
 }
+
+#content h1 {
+  font-family: Pacifico, Helvetica, sans-serif;
+  font-size: 4em;
+  margin-bottom: 0.3em;
+}
+
+#content p a[href*=travis-ci] img {
+  margin: 5px 0 0;
+}

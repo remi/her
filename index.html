@@ -11,9 +11,14 @@
         google_analytics: "UA-9062654-2",
         twitter: ["remi"],
         afterRender: function(data) {
+          var head = document.getElementsByTagName("head")[0];
+          var stylesheet = document.createElement("link");
+          stylesheet.rel = "stylesheet"; stylesheet.type = "text/css"; stylesheet.href = "http://fonts.googleapis.com/css?family=Pacifico";
+          head.appendChild(stylesheet);
+
           var stylesheet = document.createElement("link");
           stylesheet.rel = "stylesheet"; stylesheet.type = "text/css"; stylesheet.href = "custom.css";
-          document.getElementsByTagName("head")[0].appendChild(stylesheet);
+          head.appendChild(stylesheet);
         }
       });
     </script>
