@@ -94,7 +94,7 @@ However, you can define your own parsing method, using a response middleware. Th
 ```ruby
 class MyCustomParser < Faraday::Response::Middleware
   def on_complete(env)
-    json = MultiJson.load(body, :symbolize_keys => true)
+    json = MultiJson.load(env[:body], :symbolize_keys => true)
     env[:body] = {
       :data => json[:data],
       :errors => json[:errors],
@@ -319,7 +319,6 @@ Category.all
 
 ## Things to be done
 
-* Add support for collection paths of nested resources (eg. `/users/:user_id/comments` for the `Comment` model)
 * Better error handling
 * Better documentation
 
