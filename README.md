@@ -161,12 +161,25 @@ In your Ruby code:
 
 ```ruby
 class MyCache
-  def write(key, value); end
-  def read(key); end
-  def fetch(key, &block); end
+  def initialize
+    @cache = {}
+  end
+
+  def write(key, value)
+    @cache[key] = value
+  end
+
+  def read(key)
+    @cache[key]
+  end
+
+  def fetch(key, &block)
+    return value = read(key) if value.nil?
+    write key, yield
+  end
 end
 
-# A cache system must respond to `#write`, `#read` and `#fetch`.
+# A cache system must respond to `#write`, `#read` and `#fetch`. We should probably using something like Memcached here.
 $cache = MyCache.new
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
