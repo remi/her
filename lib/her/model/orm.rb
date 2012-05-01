@@ -31,6 +31,12 @@ module Her
         end
       end # }}}
 
+      # Override the method to prevent from returning the object ID (in ruby-1.8.7)
+      # @private
+      def id # {{{
+        @data[:id] || super
+      end # }}}
+
       # Initialize a collection of resources with raw data from an HTTP request
       #
       # @param [Hash] parsed_data The raw `parsed_data` parsed from the HTTP response

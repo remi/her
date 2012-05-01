@@ -10,13 +10,13 @@ describe Her::Model::Paths do
 
       describe "#build_request_path" do
         it "builds paths with defaults" do # {{{
-          User.build_request_path(id: "foo").should == "/users/foo"
+          User.build_request_path(:id => "foo").should == "/users/foo"
           User.build_request_path.should == "/users"
         end # }}}
 
         it "builds paths with custom collection path" do # {{{
           User.collection_path "/utilisateurs"
-          User.build_request_path(id: "foo").should == "/utilisateurs/foo"
+          User.build_request_path(:id => "foo").should == "/utilisateurs/foo"
           User.build_request_path.should == "/utilisateurs"
         end # }}}
 
@@ -28,7 +28,7 @@ describe Her::Model::Paths do
 
         it "builds paths with custom item path" do # {{{
           User.resource_path "/utilisateurs/:id"
-          User.build_request_path(id: "foo").should == "/utilisateurs/foo"
+          User.build_request_path(:id => "foo").should == "/utilisateurs/foo"
           User.build_request_path.should == "/users"
         end # }}}
 
@@ -46,7 +46,7 @@ describe Her::Model::Paths do
 
       describe "#build_request_path" do
         it "builds paths with defaults" do # {{{
-          Base::User.build_request_path(id: "foo").should == "/users/foo"
+          Base::User.build_request_path(:id => "foo").should == "/users/foo"
           Base::User.build_request_path.should == "/users"
         end # }}}
       end

@@ -82,7 +82,7 @@ describe Her::API do
 
         class CustomParser < Faraday::Response::Middleware
           def on_complete(env)
-            json = JSON.parse(env[:body], :symbolize_names => true)
+            json = MultiJson.load(env[:body], :symbolize_keys => true)
             errors = json.delete(:errors) || []
             metadata = json.delete(:metadata) || {}
             env[:body] = {

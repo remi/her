@@ -74,7 +74,7 @@ module Her
     def request(attrs={}) # {{{
       method = attrs.delete(:_method)
       path = attrs.delete(:_path)
-      attrs.delete_if { |key, value| key =~ /^_/ } # Remove all internal parameters
+      attrs.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
       response = @connection.send method do |request|
         if method == :get
           # For GET requests, treat additional parameters as querystring data

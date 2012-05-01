@@ -5,19 +5,19 @@ describe Her::Model::Introspection do
   context "introspecting a resource" do
     before do # {{{
       Her::API.setup :base_uri => "https://api.example.com"
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Funke" }.to_json)
       spawn_model :User
     end # }}}
 
     describe "#inspect" do
       it "outputs resource attributs for an existing resource" do # {{{
         @user = User.find(1)
-        @user.inspect.should == "#<User(/users/1) id=1 name=\"Tobias Fünke\">"
+        ["#<User(/users/1) name=\"Tobias Funke\" id=1>", "#<User(/users/1) id=1 name=\"Tobias Funke\">"].should include(@user.inspect)
       end # }}}
 
       it "outputs resource attributs for an not-saved-yet resource" do # {{{
-        @user = User.new(:name => "Tobias Fünke")
-        @user.inspect.should == "#<User(/users) name=\"Tobias Fünke\">"
+        @user = User.new(:name => "Tobias Funke")
+        @user.inspect.should == "#<User(/users) name=\"Tobias Funke\">"
       end # }}}
     end
   end
