@@ -1,6 +1,6 @@
 # Her
 
-Her is an ORM (Object Relational Mapper) that maps REST resources to Ruby objects. It is designed to build applications that are powered by a RESTful API and no database.
+Her is an ORM (Object Relational Mapper) that maps REST resources to Ruby objects. It is designed to build applications that are powered by a RESTful API instead of a database.
 
 [![Build Status](https://secure.travis-ci.org/remiprev/her.png)](http://travis-ci.org/remiprev/her)
 
@@ -56,7 +56,7 @@ User.find(1)
 
 ## Middleware
 
-Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses.
+Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses. Using a block in the `setup` call, you have access to Faraday’s `builder` object and are able to customize the middleware stack used on each request and response.
 
 ### Authentication
 
@@ -64,14 +64,19 @@ Her doesn’t support any kind of authentication. However, it’s very easy to i
 
 ```ruby
 class MyAuthentication < Faraday::Middleware
+  def initialize(app, options={})
+    @options = options
+  end
+
   def call(env)
-    env[:request_headers]["X-API-Token"] = "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
+    env[:request_headers]["X-API-Token"] = @options[:token] if @options.include?(:token)
     @app.call(env)
   end
 end
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
-  builder.use MyAuthentication
+  # This token could be stored in the client session
+  builder.use MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
 end
 ```
 
@@ -98,7 +103,7 @@ class MyCustomParser < Faraday::Response::Middleware
   def on_complete(env)
     json = MultiJson.load(env[:body], :symbolize_keys => true)
     env[:body] = {
-      :data => json[:data],
+      :data => json[:result],
       :errors => json[:errors],
       :metadata => json[:metadata]
     }
@@ -106,9 +111,10 @@ class MyCustomParser < Faraday::Response::Middleware
 end
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
+  # We use the `swap` method to replace Her’s default parser middleware
   builder.swap Her::Middleware::DefaultParseJSON, MyCustomParser
 end
-# User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "data" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
+# User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "result" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
 ```
 
 ### OAuth
@@ -135,6 +141,7 @@ TWITTER_CREDENTIALS = {
 }
 
 Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
+  # We need to insert the middleware at the beginning of the stack (hence the `insert 0`)
   builder.insert 0, FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
 end
 
@@ -191,12 +198,15 @@ class User
 end
 
 @user = User.find(1)
-@user = User.find(1) # This request will be fetched from the cache
+# GET /users/1
+
+@user = User.find(1)
+# This request will be fetched from the cache
 ```
 
 ## Relationships
 
-You can define `has_many`, `has_one` and `belongs_to` relationships in your models. The relationship data is handled in two different ways. When parsing a resource from JSON data, if there’s a relationship data included, it will be used to create new Ruby objects.
+You can define `has_many`, `has_one` and `belongs_to` relationships in your models. The relationship data is handled in two different ways. If there’s relationship data when parsing a resource, it will be used to create new Ruby objects.
 
 If no relationship data was included when parsing a resource, calling a method with the same name as the relationship will fetch the data (providing there’s an HTTP request available for it in the API).
 
@@ -223,7 +233,7 @@ class Organization
 end
 ```
 
-If there’s relationship data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources are returned:
+If there’s relationship data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources is returned:
 
 ```ruby
 @user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth", :comments => [{ :id => 1, :text => "Foo" }, { :id => 2, :text => "Bar" }], :role => { :id => 1, :name => "Admin" }, :organization => { :id => 2, :name => "Bluth Company" } }}
@@ -239,21 +249,21 @@ If there’s no relationship data in the resource, an extra HTTP request (to `GE
 @user.comments # => [#<Comment id=1>, #<Comment id=2>] fetched from /users/1/comments
 ```
 
-For `has_one` relationship, an extra HTTP request (to `GET /users/1/role`) is made when calling the `#role` method:
+For `has_one` relationships, an extra HTTP request (to `GET /users/1/role`) is made when calling the `#role` method:
 
 ```ruby
 @user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth" }}
 @user.role # => #<Role id=1> fetched from /users/1/role
 ```
 
-For `belongs_to` relationship, an extra HTTP request (to `GET /organizations/2`) is made when calling the `#organization` method:
+For `belongs_to` relationships, an extra HTTP request (to `GET /organizations/2`) is made when calling the `#organization` method:
 
 ```ruby
 @user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth", :organization_id => 2 }}
 @user.organization # => #<Organization id=2> fetched from /organizations/2
 ```
 
-However, subsequent calls to `#comments` or `#role` will not trigger the extra HTTP request.
+However, subsequent calls to `#comments`, `#role` and `#organization` will not trigger extra HTTP requests as the data has already been fetched.
 
 ## Hooks
 
@@ -272,8 +282,6 @@ end
 @user = User.create(:fullname => "Tobias Fünke")
 # POST /users&fullname=Tobias+Fünke&internal_id=42
 ```
-
-In the future, adding hooks to all models will be possible, as well as defining and triggering your own hooks (eg. for your custom requests).
 
 ## Custom requests
 
@@ -356,12 +364,12 @@ end
 # GET /hello_users/1
 ```
 
-You can include custom variables in your paths:
+You can also include custom variables in your paths:
 
 ```ruby
 class User
   include Her::Model
-  collection_path "/organizations/:organization_id/users/:id"
+  collection_path "/organizations/:organization_id/users"
 end
 
 @user = User.find(1, :_organization_id => 2)
@@ -369,6 +377,10 @@ end
 
 @user = User.all(:_organization_id => 2)
 # GET /organizations/2/users
+
+@user = User.new(:fullname => "Tobias Fünke", :organization_id => 2)
+@user.save
+# POST /organizations/2/users
 ```
 
 ## Multiple APIs
@@ -407,7 +419,7 @@ Category.all
 ## Things to be done
 
 * Better error handling
-* Better documentation
+* Better API documentation (using YARD)
 
 ## Contributors
 
