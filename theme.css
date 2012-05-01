@@ -160,7 +160,7 @@ a {
 }
 
 #header #logo {
-    color: #fff;
+    color: rgba(255,255,255,0.8);
     font-size: 18px;
     font-weight: normal;
     padding: 10px 15px;
