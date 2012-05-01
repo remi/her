@@ -16,20 +16,52 @@ describe Her::API do
         @api.setup :base_uri => "https://api.example.com"
         @api.base_uri.should == "https://api.example.com"
       end # }}}
+
+      it "sets custom middleware with #use" do # {{{
+        class Foo; end;
+        class Bar; end;
+
+        @api = Her::API.new
+        @api.setup :base_uri => "https://api.example.com" do |builder|
+          builder.use Foo
+          builder.use Bar
+        end
+        @api.connection.builder.handlers.should == [Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp, Foo, Bar]
+      end # }}}
+
+      it "sets custom middleware with #insert" do # {{{
+        class Foo; end;
+        class Bar; end;
+
+        @api = Her::API.new
+        @api.setup :base_uri => "https://api.example.com" do |builder|
+          builder.use Foo
+          builder.insert 0, Bar
+        end
+        @api.connection.builder.handlers.should == [Bar, Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp, Foo]
+      end # }}}
+
+      it "delete some default middleware" do # {{{
+        @api = Her::API.new
+        @api.setup :base_uri => "https://api.example.com" do |builder|
+          builder.delete Faraday::Request::UrlEncoded
+        end
+        @api.connection.builder.handlers.should == [Her::Middleware::FirstLevelParseJSON, Faraday::Adapter::NetHttp]
+      end # }}}
     end
 
     describe "#request" do
       it "makes HTTP requests" do # {{{
         FakeWeb.register_uri(:get, "https://api.example.com/foo", :body => "Foo, it is.")
 
-        class Foo < Faraday::Response::Middleware
+        class SimpleParser < Faraday::Response::Middleware
           def on_complete(env)
             env[:body] = { :data => env[:body] }
           end
         end
 
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :parse_middleware => Foo
+        @api.setup :base_uri => "https://api.example.com", :parse_middleware => SimpleParser
         parsed_data = @api.request(:_method => :get, :_path => "/foo")
         parsed_data[:data] == "Foo, it is."
       end # }}}

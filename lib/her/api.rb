@@ -3,7 +3,7 @@ module Her
   # so it knows where to make those requests. In Rails, this is usually done in `config/initializers/her.rb`:
   class API
     # @private
-    attr_reader :base_uri, :middleware
+    attr_reader :base_uri, :middleware, :connection
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
     def self.setup(attrs={}, &block) # {{{
