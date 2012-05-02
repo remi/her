@@ -39,6 +39,42 @@ describe Her::Model::Paths do
       end
     end
 
+    context "simple model with multiple words" do
+      before do # {{{
+        spawn_model :AdminUser
+      end # }}}
+
+      describe "#build_request_path" do
+        it "builds paths with defaults" do # {{{
+          AdminUser.build_request_path(:id => "foo").should == "/admin_users/foo"
+          AdminUser.build_request_path.should == "/admin_users"
+        end # }}}
+
+        it "builds paths with custom collection path" do # {{{
+          AdminUser.collection_path "/users"
+          AdminUser.build_request_path(:id => "foo").should == "/users/foo"
+          AdminUser.build_request_path.should == "/users"
+        end # }}}
+
+        it "builds paths with custom collection path with multiple variables" do # {{{
+          AdminUser.collection_path "/organizations/:organization_id/users"
+          AdminUser.build_request_path(:id => "foo", :_organization_id => "acme").should == "/organizations/acme/users/foo"
+          AdminUser.build_request_path(:_organization_id => "acme").should == "/organizations/acme/users"
+        end # }}}
+
+        it "builds paths with custom item path" do # {{{
+          AdminUser.resource_path "/users/:id"
+          AdminUser.build_request_path(:id => "foo").should == "/users/foo"
+          AdminUser.build_request_path.should == "/admin_users"
+        end # }}}
+
+        it "raises exceptions when building a path without required custom variables" do # {{{
+          AdminUser.collection_path "/organizations/:organization_id/users"
+          expect { AdminUser.build_request_path(:id => "foo") }.should raise_error(Her::Errors::PathError)
+        end # }}}
+      end
+    end
+
     context "nested model" do
       before do # {{{
         spawn_submodel :Base, :User

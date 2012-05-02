@@ -8,8 +8,13 @@ describe Her::Model::ORM do
       api.setup :base_uri => "https://api.example.com"
       FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
       FakeWeb.register_uri(:get, "https://api.example.com/users", :body => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/admin_users", :body => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json)
 
       spawn_model :User do
+        uses_api api
+      end
+
+      spawn_model :AdminUser do
         uses_api api
       end
     end # }}}
@@ -22,6 +27,10 @@ describe Her::Model::ORM do
 
     it "maps a collection of resources to an array of Ruby objects" do # {{{
       @users = User.all
+      @users.length.should == 2
+      @users.first.name.should == "Tobias Fünke"
+
+      @users = AdminUser.all
       @users.length.should == 2
       @users.first.name.should == "Tobias Fünke"
     end # }}}
