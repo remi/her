@@ -76,7 +76,7 @@ end
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
   # This token could be stored in the client session
-  builder.use MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
+  builder.insert 0, MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
 end
 ```
 
@@ -141,7 +141,6 @@ TWITTER_CREDENTIALS = {
 }
 
 Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
-  # We need to insert the middleware at the beginning of the stack (hence the `insert 0`)
   builder.insert 0, FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
 end
 
