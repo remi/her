@@ -16,11 +16,15 @@ That’s it!
 
 ## Usage
 
-First, you have to define which API your models will be bound to. For example, with Rails, you would create a new `config/initializers/her.rb` file with this line:
+First, you have to define which API your models will be bound to. For example, with Rails, you would create a new `config/initializers/her.rb` file with these lines:
 
 ```ruby
 # config/initializers/her.rb
-Her::API.setup :base_uri => "https://api.example.com"
+Her::API.setup :base_uri => "https://api.example.com" do |builder|
+  builder.use Faraday::Request::UrlEncoded
+  builder.use Her::Middleware::DefaultParseJSON
+  builder.use Faraday::Adapter::NetHttp
+end
 ```
 
 And then to add the ORM behavior to a class, you just have to include `Her::Model` in it:
@@ -56,7 +60,7 @@ User.find(1)
 
 ## Middleware
 
-Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses. Using a block in the `setup` call, you have access to Faraday’s `builder` object and are able to customize the middleware stack used on each request and response.
+Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `builder` object and are able to customize the middleware stack used on each request and response.
 
 ### Authentication
 
@@ -76,7 +80,11 @@ end
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
   # This token could be stored in the client session
-  builder.insert 0, MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
+  builder.use MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
+
+  builder.use Faraday::Request::UrlEncoded
+  builder.use Her::Middleware::DefaultParseJSON
+  builder.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -109,8 +117,9 @@ class MyCustomParser < Faraday::Response::Middleware
 end
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
-  # We use the `swap` method to replace Her’s default parser middleware
-  builder.swap Her::Middleware::DefaultParseJSON, MyCustomParser
+  builder.use Faraday::Request::UrlEncoded
+  builder.use MyCustomParser
+  builder.use Faraday::Adapter::NetHttp
 end
 # User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "result" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
 ```
@@ -139,7 +148,10 @@ TWITTER_CREDENTIALS = {
 }
 
 Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
-  builder.insert 0, FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  builder.use Faraday::Request::UrlEncoded
+  builder.use Her::Middleware::DefaultParseJSON
+  builder.use Faraday::Adapter::NetHttp
 end
 
 class Tweet
@@ -187,7 +199,10 @@ end
 $cache = MyCache.new
 
 Her::API.setup :base_uri => "https://api.example.com" do |builder|
+  builder.use Faraday::Request::UrlEncoded
   builder.use FaradayMiddleware::Caching, $cache
+  builder.use Her::Middleware::DefaultParseJSON
+  builder.use Faraday::Adapter::NetHttp
 end
 
 class User
@@ -387,10 +402,18 @@ It is possible to use different APIs for different models. Instead of calling `H
 ```ruby
 # config/initializers/her.rb
 $my_api = Her::API.new
-$my_api.setup :base_uri => "https://my_api.example.com"
+$my_api.setup :base_uri => "https://my_api.example.com" do |builder|
+  builder.use Faraday::Request::UrlEncoded
+  builder.use Her::Middleware::DefaultParseJSON
+  builder.use Faraday::Adapter::NetHttp
+end
 
 $other_api = Her::API.new
-$other_api.setup :base_uri => "https://other_api.example.com"
+$other_api.setup :base_uri => "https://other_api.example.com" do |builder|
+  builder.use Faraday::Request::UrlEncoded
+  builder.use Her::Middleware::DefaultParseJSON
+  builder.use Faraday::Adapter::NetHttp
+end
 ```
 
 You can then define which API a model will use:

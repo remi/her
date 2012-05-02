@@ -3,7 +3,7 @@ module Her
   # so it knows where to make those requests. In Rails, this is usually done in `config/initializers/her.rb`:
   class API
     # @private
-    attr_reader :base_uri, :middleware, :connection
+    attr_reader :base_uri, :connection
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
     def self.setup(attrs={}, &block) # {{{
@@ -15,9 +15,6 @@ module Her
     #
     # @param [Hash] attrs the options to create a message with
     # @option attrs [String] :base_uri The main HTTP API root (eg. `https://api.example.com`)
-    # @option attrs [Array, Class] :middleware **Deprecated** A list of the only middleware Her will use
-    # @option attrs [Array, Class] :add_middleware **Deprecated** A list of middleware to add to Her’s default middleware
-    # @option attrs [Class] :parse_middleware **Deprecated** A middleware that will replace {Her::Middleware::FirstLevelParseJSON} to parse the received JSON
     #
     # @return Faraday::Connection
     #
@@ -50,18 +47,7 @@ module Her
     #   end
     def setup(attrs={}) # {{{
       @base_uri = attrs[:base_uri]
-      @middleware = Her::API.default_middleware
-
-      @middleware = [attrs[:middleware]] if attrs[:middleware]
-      @middleware = [attrs[:add_middleware]] + @middleware if attrs[:add_middleware]
-      @middleware = [attrs[:parse_middleware]] + @middleware.reject { |item| item == Her::Middleware::FirstLevelParseJSON } if attrs[:parse_middleware]
-
-      @middleware.flatten!
-      middleware = @middleware
       @connection = Faraday.new(:url => @base_uri) do |connection|
-        middleware.each do |klass|
-          connection.use klass
-        end
         yield connection.builder if block_given?
       end
     end # }}}
@@ -92,11 +78,6 @@ module Her
     # @private
     def self.default_api(attrs={}) # {{{
       defined?(@@default_api) ? @@default_api : nil
-    end # }}}
-
-    # @private
-    def self.default_middleware # {{{
-      [Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp]
     end # }}}
   end
 end

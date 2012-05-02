@@ -110,7 +110,12 @@ describe Her::Model::Hooks do
 
   context "perform hooks on a model" do
       before do # {{{
-        Her::API.setup :base_uri => "https://api.example.com"
+        Her::API.setup :base_uri => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.use Faraday::Adapter::NetHttp
+        end
+
         FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
         FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
         FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)

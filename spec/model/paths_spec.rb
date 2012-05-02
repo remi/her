@@ -92,7 +92,12 @@ describe Her::Model::Paths do
   context "making HTTP requests" do
     before do # {{{
       api = Her::API.new
-      api.setup :base_uri => "https://api.example.com"
+      api.setup :base_uri => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.use Faraday::Adapter::NetHttp
+      end
+
       FakeWeb.register_uri(:get, "https://api.example.com/organizations/2/users", :body => [{ :id => 1, :fullname => "Tobias Fünke", :organization_id => 2 }, { :id => 2, :fullname => "Lindsay Fünke", :organization_id => 2 }].to_json)
       FakeWeb.register_uri(:post, "https://api.example.com/organizations/2/users", :body => { :id => 1, :fullname => "Tobias Fünke", :organization_id => 2 }.to_json)
       FakeWeb.register_uri(:put, "https://api.example.com/organizations/2/users/1", :body => { :id => 1, :fullname => "Lindsay Fünke", :organization_id => 2 }.to_json)

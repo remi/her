@@ -26,27 +26,7 @@ describe Her::API do
           builder.use Foo
           builder.use Bar
         end
-        @api.connection.builder.handlers.should == [Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp, Foo, Bar]
-      end # }}}
-
-      it "sets custom middleware with #insert" do # {{{
-        class Foo; end;
-        class Bar; end;
-
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com" do |builder|
-          builder.use Foo
-          builder.insert 0, Bar
-        end
-        @api.connection.builder.handlers.should == [Bar, Her::Middleware::FirstLevelParseJSON, Faraday::Request::UrlEncoded, Faraday::Adapter::NetHttp, Foo]
-      end # }}}
-
-      it "delete some default middleware" do # {{{
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com" do |builder|
-          builder.delete Faraday::Request::UrlEncoded
-        end
-        @api.connection.builder.handlers.should == [Her::Middleware::FirstLevelParseJSON, Faraday::Adapter::NetHttp]
+        @api.connection.builder.handlers.should == [Foo, Bar]
       end # }}}
     end
 
@@ -61,7 +41,12 @@ describe Her::API do
         end
 
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com", :parse_middleware => SimpleParser
+        @api.setup :base_uri => "https://api.example.com" do |builder|
+          builder.use SimpleParser
+          builder.use Faraday::Request::UrlEncoded
+          builder.use Faraday::Adapter::NetHttp
+        end
+
         parsed_data = @api.request(:_method => :get, :_path => "/foo")
         parsed_data[:data] == "Foo, it is."
       end # }}}
@@ -70,7 +55,11 @@ describe Her::API do
         FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => MultiJson.dump({ :id => 1, :name => "George Michael Bluth", :errors => ["This is a single error"], :metadata => { :page => 1, :per_page => 10 } }))
 
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com"
+        @api.setup :base_uri => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.use Faraday::Adapter::NetHttp
+        end
         parsed_data = @api.request(:_method => :get, :_path => "users/1")
         parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
         parsed_data[:errors].should == ["This is a single error"]
@@ -94,8 +83,10 @@ describe Her::API do
         end
 
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com" do |connection|
-          connection.swap Her::Middleware::DefaultParseJSON, CustomParser
+        @api.setup :base_uri => "https://api.example.com" do |builder|
+          builder.use CustomParser
+          builder.use Faraday::Request::UrlEncoded
+          builder.use Faraday::Adapter::NetHttp
         end
         parsed_data = @api.request(:_method => :get, :_path => "users/1")
         parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
