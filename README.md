@@ -86,8 +86,6 @@ Now, each HTTP request made by Her will have the `X-API-Token` header.
 
 By default, Her handles JSON data. It expects the resource/collection data to be returned at the first level.
 
-**Note**: *Before 0.2, Her expected the resource/collection data to be returned in a `data` key within the JSON object. If you want the old behavior, you can use the `Her::Middleware::SecondLevelParseJSON` middleware.*
-
 ```javascript
 // The response of GET /users/1
 { "id" : 1, "name" : "Tobias Fünke" }
