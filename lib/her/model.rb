@@ -35,7 +35,7 @@ module Her
       extend Her::Model::Paths
 
       # Define default settings
-      base_path = self.name.split("::").last.downcase.pluralize
+      base_path = self.name.split("::").last.underscore.pluralize
       collection_path "/#{base_path}"
       resource_path "/#{base_path}/:id"
       uses_api Her::API.default_api

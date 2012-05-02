@@ -42,7 +42,7 @@ module Her
       # @param [Hash] parsed_data The raw `parsed_data` parsed from the HTTP response
       def new_collection(parsed_data) # {{{
         collection_data = parsed_data[:data]
-        Her::Model::ORM.initialize_collection(self.to_s.downcase.to_sym, collection_data)
+        Her::Model::ORM.initialize_collection(self.to_s.underscore, collection_data)
       end # }}}
 
       # Return `true` if a resource was not saved yet
