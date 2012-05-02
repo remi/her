@@ -14,6 +14,10 @@ gem "her"
 
 That’s it!
 
+## Upgrade
+
+Please see the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) file for backward compability issues.
+
 ## Usage
 
 First, you have to define which API your models will be bound to. For example, with Rails, you would create a new `config/initializers/her.rb` file with these lines:
