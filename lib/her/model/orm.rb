@@ -39,9 +39,8 @@ module Her
 
       # Initialize a collection of resources with raw data from an HTTP request
       #
-      # @param [Hash] parsed_data The raw `parsed_data` parsed from the HTTP response
-      def new_collection(parsed_data) # {{{
-        collection_data = parsed_data[:data]
+      # @param [Array] collection_data An array of model hashes
+      def new_collection(collection_data) # {{{
         Her::Model::ORM.initialize_collection(self.to_s.underscore, collection_data)
       end # }}}
 
@@ -68,7 +67,7 @@ module Her
       #   # Fetched via GET "/users"
       def all(params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data|
-          new_collection(parsed_data)
+          new_collection(parsed_data[:data])
         end
       end # }}}
 
