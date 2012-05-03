@@ -445,17 +445,28 @@ Category.all
 * Better error handling
 * Better API documentation (using YARD)
 
-## Contributors
+## Contribute
 
-Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues) like these fine folks did:
+Yes please! Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues).
+
+### How to contribute
+
+* Fork the repository
+* Implement your feature or fix
+* Add examples that describe it (in the `spec` directory)
+* Make sure `bundle exec rake spec` passes after your modifications
+* Commit (bonus points for doing it in a `feature-*` branch)
+* Send a pull request!
+
+### Contributors
+
+These fine folks helped with Her:
 
 * [@jfcixmedia](https://github.com/jfcixmedia)
 * [@EtienneLem](https://github.com/EtienneLem)
 * [@rafaelss](https://github.com/rafaelss)
 * [@tysontate](https://github.com/tysontate)
 * [@nfo](https://github.com/nfo)
-
-Take a look at the `spec` folder before you do, and make sure `bundle exec rake spec` passes after your modifications :)
 
 ## License
 
