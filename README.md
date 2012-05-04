@@ -179,22 +179,19 @@ gem "faraday_middleware"
 In your Ruby code:
 
 ```ruby
-class MyCache
-  def initialize
-    @cache = {}
-  end
-
-  def write(key, value)
-    @cache[key] = value
-  end
-
+class MyCache < Hash
   def read(key)
-    @cache[key]
+    if cached = self[key]
+      Marshal.load(cached)
+    end
   end
 
-  def fetch(key, &block)
-    return value = read(key) if value.nil?
-    write key, yield
+  def write(key, data)
+    self[key] = Marshal.dump(data)
+  end
+
+  def fetch(key)
+    read(key) || yield.tap { |data| write(key, data) }
   end
 end
 
