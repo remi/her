@@ -20,13 +20,13 @@ describe Her::Model::Relationships do
 
     it "handles a single 'has_one' relationship" do # {{{
       User.has_one :category
-      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category", :foreign_key => "category_id" }]
+      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category" }]
     end # }}}
 
     it "handles multiples 'has_one' relationship" do # {{{
       User.has_one :category
       User.has_one :role
-      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category", :foreign_key => "category_id" }, { :name => :role, :class_name => "Role", :foreign_key => "role_id" }]
+      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category" }, { :name => :role, :class_name => "Role"  }]
     end # }}}
 
     it "handles a single belongs_to relationship" do # {{{
