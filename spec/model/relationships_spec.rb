@@ -9,35 +9,56 @@ describe Her::Model::Relationships do
 
     it "handles a single 'has_many' relationship" do # {{{
       User.has_many :comments
-      User.relationships[:has_many].should == [{ :name => :comments }]
+      User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment" }]
     end # }}}
 
     it "handles multiples 'has_many' relationship" do # {{{
       User.has_many :comments
       User.has_many :posts
-      User.relationships[:has_many].should == [{ :name => :comments }, { :name => :posts }]
+      User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment" }, { :name => :posts, :class_name => "Post" }]
     end # }}}
 
     it "handles a single 'has_one' relationship" do # {{{
       User.has_one :category
-      User.relationships[:has_one].should == [{ :name => :category }]
+      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category", :foreign_key => "category_id" }]
     end # }}}
 
     it "handles multiples 'has_one' relationship" do # {{{
       User.has_one :category
       User.has_one :role
-      User.relationships[:has_one].should == [{ :name => :category }, { :name => :role }]
+      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category", :foreign_key => "category_id" }, { :name => :role, :class_name => "Role", :foreign_key => "role_id" }]
     end # }}}
 
     it "handles a single belongs_to relationship" do # {{{
       User.belongs_to :organization
-      User.relationships[:belongs_to].should == [{ :name => :organization }]
+      User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Organization", :foreign_key => "organization_id" }]
     end # }}}
 
     it "handles multiples 'belongs_to' relationship" do # {{{
       User.belongs_to :organization
       User.belongs_to :family
-      User.relationships[:belongs_to].should == [{ :name => :organization }, { :name => :family }]
+      User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Organization", :foreign_key => "organization_id" }, { :name => :family, :class_name => "Family", :foreign_key => "family_id" }]
+    end # }}}
+  end
+
+  context "setting relationships with details" do
+    before do # {{{
+      spawn_model :User
+    end # }}}
+
+    it "handles a single 'has_many' relationship" do # {{{
+      User.has_many :comments, :class_name => "Post"
+      User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Post" }]
+    end # }}}
+
+    it "handles a single 'has_one' relationship" do # {{{
+      User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id"
+      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Topic", :foreign_key => "topic_id" }]
+    end # }}}
+
+    it "handles a single belongs_to relationship" do # {{{
+      User.belongs_to :organization, :class_name => "Business", :foreign_key => "business_id"
+      User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Business", :foreign_key => "business_id" }]
     end # }}}
   end
 
@@ -71,6 +92,7 @@ describe Her::Model::Relationships do
     end # }}}
 
     it "maps an array of included data through has_many" do # {{{
+      @user_with_included_data.comments.first.class.should == Comment
       @user_with_included_data.comments.length.should == 2
       @user_with_included_data.comments.first.id.should == 2
       @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"

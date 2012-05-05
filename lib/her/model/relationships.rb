@@ -16,11 +16,11 @@ module Her
           relationships.each do |relationship|
             if data.include?(relationship[:name])
               if type == :has_many
-                data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:name], data[relationship[:name]])
+                data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:class_name], data[relationship[:name]])
               elsif type == :has_one
-                data[relationship[:name]] = Object.const_get(relationship[:name].to_s.classify).new(data[relationship[:name]])
+                data[relationship[:name]] = Object.const_get(relationship[:class_name]).new(data[relationship[:name]])
               elsif type == :belongs_to
-                data[relationship[:name]] = Object.const_get(relationship[:name].to_s.classify).new(data[relationship[:name]])
+                data[relationship[:name]] = Object.const_get(relationship[:class_name]).new(data[relationship[:name]])
               end
             end
           end
@@ -48,7 +48,8 @@ module Her
       #   # Fetched via GET "/users/1/articles"
       def has_many(name, attrs={}) # {{{
         @her_relationships ||= {}
-        (@her_relationships[:has_many] ||= []) << attrs.merge(:name => name)
+        defaults = { :class_name => name.to_s.classify, :name => name }
+        (@her_relationships[:has_many] ||= []) << defaults.merge(attrs)
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
@@ -76,7 +77,8 @@ module Her
       #   # Fetched via GET "/users/1/organization"
       def has_one(name, attrs={}) # {{{
         @her_relationships ||= {}
-        (@her_relationships[:has_one] ||= []) << attrs.merge(:name => name)
+        defaults = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }
+        (@her_relationships[:has_one] ||= []) << defaults.merge(attrs)
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
@@ -104,7 +106,8 @@ module Her
       #   # Fetched via GET "/teams/2"
       def belongs_to(name, attrs={}) # {{{
         @her_relationships ||= {}
-        (@her_relationships[:belongs_to] ||= []) << attrs.merge(:name => name)
+        defaults = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }
+        (@her_relationships[:belongs_to] ||= []) << defaults.merge(attrs)
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
