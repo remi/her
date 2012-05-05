@@ -128,4 +128,39 @@ describe Her::Model::Relationships do
       @user_without_included_data.organization.name.should == "Bluth Company"
     end # }}}
   end
+
+  context "handling relationships with details" do
+    before do # {{{
+      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.use Faraday::Adapter::NetHttp
+      end
+
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/2", :body => { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/organizations/1", :body => { :id => 1, :name => "Bluth Company" }.to_json)
+
+      spawn_model :User do
+        belongs_to :organization, :class_name => "Business"
+      end
+
+      spawn_model :Business
+
+      @user_with_included_data = User.find(1)
+      @user_without_included_data = User.find(2)
+    end # }}}
+
+    it "maps an array of included data through belongs_to" do # {{{
+      @user_with_included_data.organization.class.should == Business
+      @user_with_included_data.organization.id.should == 1
+      @user_with_included_data.organization.name.should == "Bluth Company"
+    end # }}}
+
+    it "fetches data that was not included through belongs_to" do # {{{
+      @user_without_included_data.organization.class.should == Business
+      @user_without_included_data.organization.id.should == 1
+      @user_without_included_data.organization.name.should == "Bluth Company"
+    end # }}}
+  end
 end
