@@ -48,12 +48,12 @@ module Her
       #   # Fetched via GET "/users/1/articles"
       def has_many(name, attrs={}) # {{{
         @her_relationships ||= {}
-        defaults = { :class_name => name.to_s.classify, :name => name }
-        (@her_relationships[:has_many] ||= []) << defaults.merge(attrs)
+        attrs = { :class_name => name.to_s.classify, :name => name }.merge(attrs)
+        (@her_relationships[:has_many] ||= []) << attrs
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          self.class.get_collection("#{self.class.build_request_path(:id => id)}/#{name.to_s.pluralize}")
+          Object.const_get(attrs[:class_name]).get_collection("#{self.class.build_request_path(:id => id)}/#{name.to_s.pluralize}")
         end
       end # }}}
 
@@ -77,12 +77,12 @@ module Her
       #   # Fetched via GET "/users/1/organization"
       def has_one(name, attrs={}) # {{{
         @her_relationships ||= {}
-        defaults = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }
-        (@her_relationships[:has_one] ||= []) << defaults.merge(attrs)
+        attrs = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }.merge(attrs)
+        (@her_relationships[:has_one] ||= []) << attrs
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          self.class.get_resource("#{self.class.build_request_path(:id => id)}/#{name.to_s.singularize}")
+          Object.const_get(attrs[:class_name]).get_resource("#{self.class.build_request_path(:id => id)}/#{name.to_s.singularize}")
         end
       end # }}}
 
@@ -106,12 +106,12 @@ module Her
       #   # Fetched via GET "/teams/2"
       def belongs_to(name, attrs={}) # {{{
         @her_relationships ||= {}
-        defaults = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }
-        (@her_relationships[:belongs_to] ||= []) << defaults.merge(attrs)
+        attrs = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }.merge(attrs)
+        (@her_relationships[:belongs_to] ||= []) << attrs
 
         define_method(name) do
           return @data[name] if @data.include?(name) # Do not fetch from API again if we have it in @data
-          self.class.get_resource("#{Object.const_get(name.to_s.classify).build_request_path(:id => @data["#{name}_id".to_sym])}")
+          Object.const_get(attrs[:class_name]).get_resource("#{Object.const_get(name.to_s.classify).build_request_path(:id => @data["#{name}_id".to_sym])}")
         end
       end # }}}
     end

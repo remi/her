@@ -2,7 +2,7 @@
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::Relationships do
-  context "setting relationships" do
+  context "setting relationships without details" do
     before do # {{{
       spawn_model :User
     end # }}}
@@ -62,7 +62,7 @@ describe Her::Model::Relationships do
     end # }}}
   end
 
-  context "handling relationships" do
+  context "handling relationships without details" do
     before do # {{{
       Her::API.setup :base_uri => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -86,7 +86,6 @@ describe Her::Model::Relationships do
       spawn_model :Comment
       spawn_model :Role
 
-
       @user_with_included_data = User.find(1)
       @user_without_included_data = User.find(2)
     end # }}}
@@ -99,27 +98,32 @@ describe Her::Model::Relationships do
     end # }}}
 
     it "fetches data that was not included through has_many" do # {{{
+      @user_without_included_data.comments.first.class.should == Comment
       @user_without_included_data.comments.length.should == 2
       @user_without_included_data.comments.first.id.should == 4
       @user_without_included_data.comments.first.body.should == "They're having a FIRESALE?"
     end # }}}
 
     it "maps an array of included data through has_one" do # {{{
+      @user_with_included_data.role.class.should == Role
       @user_with_included_data.role.id.should == 1
       @user_with_included_data.role.body.should == "Admin"
     end # }}}
 
     it "fetches data that was not included through has_one" do # {{{
+      @user_without_included_data.role.class.should == Role
       @user_without_included_data.role.id.should == 2
       @user_without_included_data.role.body.should == "User"
     end # }}}
 
     it "maps an array of included data through belongs_to" do # {{{
+      @user_with_included_data.organization.class.should == Organization
       @user_with_included_data.organization.id.should == 1
       @user_with_included_data.organization.name.should == "Bluth Company"
     end # }}}
 
     it "fetches data that was not included through belongs_to" do # {{{
+      @user_without_included_data.organization.class.should == Organization
       @user_without_included_data.organization.id.should == 1
       @user_without_included_data.organization.name.should == "Bluth Company"
     end # }}}
