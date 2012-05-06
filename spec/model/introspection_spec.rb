@@ -7,21 +7,27 @@ describe Her::Model::Introspection do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
+        builder.adapter :test do |stub|
+          stub.post("/users")     { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.get("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.put("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.get("/users/1", { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
+        end
       end
 
-      spawn_model :User
+      spawn_model "Foo::User"
     end # }}}
 
     describe "#inspect" do
       it "outputs resource attributs for an existing resource" do # {{{
-        @user = User.find(1)
-        ["#<User(/users/1) name=\"Tobias Funke\" id=1>", "#<User(/users/1) id=1 name=\"Tobias Funke\">"].should include(@user.inspect)
+        @user = Foo::User.find(1)
+        ["#<Foo::User(/users/1) name=\"Tobias Funke\" id=1>", "#<Foo::User(/users/1) id=1 name=\"Tobias Funke\">"].should include(@user.inspect)
       end # }}}
 
       it "outputs resource attributs for an not-saved-yet resource" do # {{{
-        @user = User.new(:name => "Tobias Funke")
-        @user.inspect.should == "#<User(/users) name=\"Tobias Funke\">"
+        @user = Foo::User.new(:name => "Tobias Funke")
+        @user.inspect.should == "#<Foo::User(/users) name=\"Tobias Funke\">"
       end # }}}
     end
   end
