@@ -24,7 +24,9 @@ def spawn_model(klass, &block)
     Object.const_set(base, Module.new) unless Object.const_defined?(base)
     Object.const_get(base).module_eval do
       remove_const submodel if constants.include?(submodel)
-      const_set(submodel, Class.new).send(:include, Her::Model)
+      submodel = const_set(submodel, Class.new)
+      submodel.send(:include, Her::Model)
+      submodel.class_eval(&block) if block_given?
     end
   else
     Object.instance_eval { remove_const klass } if Object.const_defined?(klass)
