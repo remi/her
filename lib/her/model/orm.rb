@@ -20,10 +20,8 @@ module Her
 
       # Initialize a collection of resources
       # @private
-      def self.initialize_collection(name, parsed_data={}) # {{{
-        collection_data = parsed_data[:data].map do |item_data|
-          Object.const_get(name.to_s.classify).new(item_data)
-        end
+      def self.initialize_collection(klass, parsed_data={}) # {{{
+        collection_data = parsed_data[:data].map { |item_data| klass.new(item_data) }
         Her::Collection.new(collection_data, parsed_data[:metadata], parsed_data[:errors])
       end # }}}
 
@@ -54,7 +52,7 @@ module Her
       #
       # @param [Array] parsed_data
       def new_collection(parsed_data) # {{{
-        Her::Model::ORM.initialize_collection(self.to_s.underscore, parsed_data)
+        Her::Model::ORM.initialize_collection(self, parsed_data)
       end # }}}
 
       # Return `true` if a resource was not saved yet
