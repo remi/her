@@ -77,7 +77,7 @@ describe Her::Model::Paths do
 
     context "nested model" do
       before do # {{{
-        spawn_submodel :Base, :User
+        spawn_model "Base::User"
       end # }}}
 
       describe "#build_request_path" do
