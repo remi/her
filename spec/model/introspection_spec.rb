@@ -7,9 +7,7 @@ describe Her::Model::Introspection do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
-        end
+        builder.use Faraday::Adapter::NetHttp
       end
 
       spawn_model :User
