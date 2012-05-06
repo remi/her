@@ -4,61 +4,61 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::Relationships do
   context "setting relationships without details" do
     before do # {{{
-      spawn_model :User
+      spawn_model "Foo::User"
     end # }}}
 
     it "handles a single 'has_many' relationship" do # {{{
-      User.has_many :comments
-      User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment" }]
+      Foo::User.has_many :comments
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments" }]
     end # }}}
 
     it "handles multiples 'has_many' relationship" do # {{{
-      User.has_many :comments
-      User.has_many :posts
-      User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment" }, { :name => :posts, :class_name => "Post" }]
+      Foo::User.has_many :comments
+      Foo::User.has_many :posts
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments" }, { :name => :posts, :class_name => "Post", :path => "/posts" }]
     end # }}}
 
     it "handles a single 'has_one' relationship" do # {{{
-      User.has_one :category
-      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category" }]
+      Foo::User.has_one :category
+      Foo::User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category", :path => "/category" }]
     end # }}}
 
     it "handles multiples 'has_one' relationship" do # {{{
-      User.has_one :category
-      User.has_one :role
-      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category" }, { :name => :role, :class_name => "Role"  }]
+      Foo::User.has_one :category
+      Foo::User.has_one :role
+      Foo::User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category", :path => "/category" }, { :name => :role, :class_name => "Role", :path => "/role" }]
     end # }}}
 
     it "handles a single belongs_to relationship" do # {{{
-      User.belongs_to :organization
-      User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Organization", :foreign_key => "organization_id" }]
+      Foo::User.belongs_to :organization
+      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }]
     end # }}}
 
     it "handles multiples 'belongs_to' relationship" do # {{{
-      User.belongs_to :organization
-      User.belongs_to :family
-      User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Organization", :foreign_key => "organization_id" }, { :name => :family, :class_name => "Family", :foreign_key => "family_id" }]
+      Foo::User.belongs_to :organization
+      Foo::User.belongs_to :family
+      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }]
     end # }}}
   end
 
   context "setting relationships with details" do
     before do # {{{
-      spawn_model :User
+      spawn_model "Foo::User"
     end # }}}
 
     it "handles a single 'has_many' relationship" do # {{{
-      User.has_many :comments, :class_name => "Post"
-      User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Post" }]
+      Foo::User.has_many :comments, :class_name => "Post"
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Post", :path => "/comments" }]
     end # }}}
 
     it "handles a single 'has_one' relationship" do # {{{
-      User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id"
-      User.relationships[:has_one].should == [{ :name => :category, :class_name => "Topic", :foreign_key => "topic_id" }]
+      Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id"
+      Foo::User.relationships[:has_one].should == [{ :name => :category, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }]
     end # }}}
 
     it "handles a single belongs_to relationship" do # {{{
-      User.belongs_to :organization, :class_name => "Business", :foreign_key => "business_id"
-      User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Business", :foreign_key => "business_id" }]
+      Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id"
+      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }]
     end # }}}
   end
 
@@ -76,54 +76,54 @@ describe Her::Model::Relationships do
         end
       end
 
-      spawn_model :User do
+      spawn_model "Foo::User" do
         has_many :comments
         has_one :role
         belongs_to :organization
       end
 
-      spawn_model :Organization
-      spawn_model :Comment
-      spawn_model :Role
+      spawn_model "Foo::Organization"
+      spawn_model "Foo::Comment"
+      spawn_model "Foo::Role"
 
-      @user_with_included_data = User.find(1)
-      @user_without_included_data = User.find(2)
+      @user_with_included_data = Foo::User.find(1)
+      @user_without_included_data = Foo::User.find(2)
     end # }}}
 
     it "maps an array of included data through has_many" do # {{{
-      @user_with_included_data.comments.first.class.should == Comment
+      @user_with_included_data.comments.first.should be_a(Foo::Comment)
       @user_with_included_data.comments.length.should == 2
       @user_with_included_data.comments.first.id.should == 2
       @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
     end # }}}
 
     it "fetches data that was not included through has_many" do # {{{
-      @user_without_included_data.comments.first.class.should == Comment
+      @user_without_included_data.comments.first.should be_a(Foo::Comment)
       @user_without_included_data.comments.length.should == 2
       @user_without_included_data.comments.first.id.should == 4
       @user_without_included_data.comments.first.body.should == "They're having a FIRESALE?"
     end # }}}
 
     it "maps an array of included data through has_one" do # {{{
-      @user_with_included_data.role.class.should == Role
+      @user_with_included_data.role.should be_a(Foo::Role)
       @user_with_included_data.role.id.should == 1
       @user_with_included_data.role.body.should == "Admin"
     end # }}}
 
     it "fetches data that was not included through has_one" do # {{{
-      @user_without_included_data.role.class.should == Role
+      @user_without_included_data.role.should be_a(Foo::Role)
       @user_without_included_data.role.id.should == 2
       @user_without_included_data.role.body.should == "User"
     end # }}}
 
     it "maps an array of included data through belongs_to" do # {{{
-      @user_with_included_data.organization.class.should == Organization
+      @user_with_included_data.organization.should be_a(Foo::Organization)
       @user_with_included_data.organization.id.should == 1
       @user_with_included_data.organization.name.should == "Bluth Company"
     end # }}}
 
     it "fetches data that was not included through belongs_to" do # {{{
-      @user_without_included_data.organization.class.should == Organization
+      @user_without_included_data.organization.should be_a(Foo::Organization)
       @user_without_included_data.organization.id.should == 1
       @user_without_included_data.organization.name.should == "Bluth Company"
     end # }}}
@@ -143,10 +143,11 @@ describe Her::Model::Relationships do
       end
 
 
-      spawn_model :User do
-        belongs_to :organization, :class_name => "Business"
+      spawn_model "Foo::User" do
+        belongs_to :company, :path => "/organizations/:id", :foreign_key => :organization_id
       end
 
+<<<<<<< HEAD
       spawn_model :Business do
         collection_path "/organizations"
       end
@@ -154,12 +155,18 @@ describe Her::Model::Relationships do
       @user_with_included_data = User.find(1)
       @user_without_included_data = User.find(2)
       @user_with_included_nil_data = User.find(3)
+=======
+      spawn_model "Foo::Company"
+
+      @user_with_included_data = Foo::User.find(1)
+      @user_without_included_data = Foo::User.find(2)
+>>>>>>> Use submodels in relationships_spec.rb and add better support for submodels.
     end # }}}
 
     it "maps an array of included data through belongs_to" do # {{{
-      @user_with_included_data.organization.class.should == Business
-      @user_with_included_data.organization.id.should == 1
-      @user_with_included_data.organization.name.should == "Bluth Company"
+      @user_with_included_data.company.should be_a(Foo::Company)
+      @user_with_included_data.company.id.should == 1
+      @user_with_included_data.company.name.should == "Bluth Company"
     end # }}}
 
     it "does not map included data if it’s nil" do # {{{
@@ -167,9 +174,9 @@ describe Her::Model::Relationships do
     end # }}}
 
     it "fetches data that was not included through belongs_to" do # {{{
-      @user_without_included_data.organization.class.should == Business
-      @user_without_included_data.organization.id.should == 1
-      @user_without_included_data.organization.name.should == "Bluth Company"
+      @user_without_included_data.company.should be_a(Foo::Company)
+      @user_without_included_data.company.id.should == 1
+      @user_without_included_data.company.name.should == "Bluth Company"
     end # }}}
   end
 end

@@ -15,13 +15,13 @@ module Her
         @her_relationships.each_pair do |type, relationships|
           relationships.each do |relationship|
             name = relationship[:name]
-            class_name = relationship[:class_name]
+            klass = self.nearby_class(relationship[:class_name])
             next if !data.include?(name) or data[name].nil?
             data[name] = case type
               when :has_many
-                Her::Model::ORM.initialize_collection(class_name, :data => data[name])
+                Her::Model::ORM.initialize_collection(klass, :data => data[name])
               when :has_one, :belongs_to
-                Object.const_get(class_name).new(data[name])
+                klass.new(data[name])
               else
                 nil
             end
@@ -49,8 +49,18 @@ module Her
       #   @user.articles # => [#<Article(articles/2) id=2 title="Hello world.">]
       #   # Fetched via GET "/users/1/articles"
       def has_many(name, attrs={}) # {{{
-        attrs = { :class_name => name.to_s.classify, :name => name }.merge(attrs)
-        define_relationship(:has_many, attrs)
+        @her_relationships ||= {}
+        attrs = {
+          :class_name => name.to_s.classify,
+          :name => name,
+          :path => "/#{name}"
+        }.merge(attrs)
+        (@her_relationships[:has_many] ||= []) << attrs
+
+        define_method(name) do
+          klass = self.class.nearby_class(attrs[:class_name])
+          @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
+        end
       end # }}}
 
       # Define an *has_one* relationship.
@@ -72,8 +82,18 @@ module Her
       #   @user.organization # => #<Organization(organizations/2) id=2 name="Foobar Inc.">
       #   # Fetched via GET "/users/1/organization"
       def has_one(name, attrs={}) # {{{
-        attrs = { :class_name => name.to_s.classify, :name => name }.merge(attrs)
-        define_relationship(:has_one, attrs)
+        @her_relationships ||= {}
+        attrs = {
+          :class_name => name.to_s.classify,
+          :name => name,
+          :path => "/#{name}"
+        }.merge(attrs)
+        (@her_relationships[:has_one] ||= []) << attrs
+
+        define_method(name) do
+          klass = self.class.nearby_class(attrs[:class_name])
+          @data[name] ||= klass.get_resource("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
+        end
       end # }}}
 
       # Define a *belongs_to* relationship.
@@ -84,10 +104,10 @@ module Her
       # @example
       #   class User
       #     include Her::API
-      #     belongs_to :team
+      #     belongs_to :team, :class_name => "Group"
       #   end
       #
-      #   class Team
+      #   class Group
       #     include Her::API
       #   end
       #
@@ -95,36 +115,22 @@ module Her
       #   @user.team # => #<Team(teams/2) id=2 name="Developers">
       #   # Fetched via GET "/teams/2"
       def belongs_to(name, attrs={}) # {{{
-        attrs = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }.merge(attrs)
-        define_relationship(:belongs_to, attrs)
-      end # }}}
-
-      private
-      # @private
-      def define_relationship(type, attrs) # {{{
         @her_relationships ||= {}
-        (@her_relationships[type] ||= []) << attrs
-        relationship_accessor(type, attrs)
-      end # }}}
+        attrs = {
+          :class_name => name.to_s.classify,
+          :name => name,
+          :foreign_key => "#{name}_id",
+          :path => "/#{name.to_s.pluralize}/:id"
+        }.merge(attrs)
+        (@her_relationships[:belongs_to] ||= []) << attrs
 
       # @private
       def relationship_accessor(type, attrs) # {{{
         name = attrs[:name]
         class_name = attrs[:class_name]
         define_method(name) do
-          return @data[name] if @data.include?(name)
-
-          klass = Object.const_get(class_name)
-          path = self.class.build_request_path(:id => id)
-          @data[name] = case type
-            when :belongs_to
-              foreign_key = attrs[:foreign_key].to_sym
-              klass.get_resource("#{klass.build_request_path(:id => @data[foreign_key])}")
-            when :has_many
-              klass.get_collection("#{path}/#{name.to_s.pluralize}")
-            when :has_one
-              klass.get_resource("#{path}/#{name.to_s.singularize}")
-          end
+          klass = self.class.nearby_class(attrs[:class_name])
+          @data[name] ||= klass.get_resource("#{klass.build_request_path(attrs[:path], :id => @data[attrs[:foreign_key].to_sym])}")
         end
       end # }}}
     end
