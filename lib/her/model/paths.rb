@@ -35,8 +35,12 @@ module Her
       #   end
       #
       #   User.all # Fetched via GET /utilisateurs
-      def build_request_path(parameters={}) # {{{
-        (path = parameters.include?(:id) ? @her_resource_path : @her_collection_path).gsub(/:([\w_]+)/) do
+      def build_request_path(path=nil, parameters={}) # {{{
+        unless path.is_a?(String)
+          parameters = path || {}
+          path = parameters.include?(:id) ? @her_resource_path : @her_collection_path
+        end
+        path.gsub(/:([\w_]+)/) do
           # Look for :key or :_key, otherwise raise an exception
           parameters[$1.to_sym] || parameters["_#{$1}".to_sym] || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path (#{path})."))
         end
