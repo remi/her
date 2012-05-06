@@ -64,14 +64,16 @@ You can look into the `examples` directory for sample applications using Her.
 
 ## Middleware
 
-Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `connection` object and are able to customize the middleware stack used on each request and response.
+Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can choose the middleware used to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `builder` object and are able to customize the middleware stack used on each request and response.
 
 ### Authentication
 
-Her doesn’t support any kind of authentication. However, it’s very easy to implement one with a request middleware. Using the connection block, we add it to the default list of middleware.
+Her doesn’t support authentication by default. However, it’s easy to implement one with request middleware. Using the `builder` block, we can add it to the middleware stack.
+
+For example, to add a API token header to your requests, you would do something like this:
 
 ```ruby
-class MyAuthentication < Faraday::Middleware
+class TokenAuthentication < Faraday::Middleware
   def initialize(app, options={})
     @options = options
   end
@@ -84,7 +86,7 @@ end
 
 Her::API.setup :url => "https://api.example.com" do |connection|
   # This token could be stored in the client session
-  connection.use MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
+  connection.use TokenAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
 
   connection.use Faraday::Request::UrlEncoded
   connection.use Her::Middleware::DefaultParseJSON
@@ -106,9 +108,19 @@ By default, Her handles JSON data. It expects the resource/collection data to be
 [{ "id" : 1, "name" : "Tobias Fünke" }]
 ```
 
-However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the connection block, we then replace the default parser with our custom parser.
+However, you can define your own parsing method using a response middleware. The middleware should set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code uses a custom middleware to parse the JSON data:
 
 ```ruby
+# Expects responses like:
+#
+#     {
+#       "result": {
+#         "id": 1,
+#         "name": "Tobias Fünke"
+#       },
+#       "errors" => []
+#     }
+#
 class MyCustomParser < Faraday::Response::Middleware
   def on_complete(env)
     json = MultiJson.load(env[:body], :symbolize_keys => true)
@@ -125,7 +137,6 @@ Her::API.setup :url => "https://api.example.com" do |connection|
   connection.use MyCustomParser
   connection.use Faraday::Adapter::NetHttp
 end
-# User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "result" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
 ```
 
 ### OAuth
@@ -219,11 +230,12 @@ end
 
 ## Relationships
 
-You can define `has_many`, `has_one` and `belongs_to` relationships in your models. The relationship data is handled in two different ways. If there’s relationship data when parsing a resource, it will be used to create new Ruby objects.
+You can define `has_many`, `has_one` and `belongs_to` relationships in your models. The relationship data is handled in two different ways.
 
-If no relationship data was included when parsing a resource, calling a method with the same name as the relationship will fetch the data (providing there’s an HTTP request available for it in the API).
+1. If Her finds relationship data when parsing a resource, that data will be used to create the associated model objects on the resource.
+2. If no relationship data was included when parsing a resource, calling a method with the same name as the relationship will fetch the data (providing there’s an HTTP request available for it in the API).
 
-For example, with this setup:
+For example:
 
 ```ruby
 class User
@@ -249,34 +261,51 @@ end
 If there’s relationship data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources is returned:
 
 ```ruby
-@user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth", :comments => [{ :id => 1, :text => "Foo" }, { :id => 2, :text => "Bar" }], :role => { :id => 1, :name => "Admin" }, :organization => { :id => 2, :name => "Bluth Company" } }}
-@user.comments # => [#<Comment id=1>, #<Comment id=2>] fetched directly from @user
-@user.role # => #<Role id=1> fetched directly from @user
-@user.organization # => #<Organization id=2> fetched directly from @user
+@user = User.find(1) 
+# { 
+#   :data => {
+#     :id => 1,
+#     :name => "George Michael Bluth",
+#     :comments => [
+#       { :id => 1, :text => "Foo" },
+#       { :id => 2, :text => "Bar" }
+#     ],
+#     :role => { :id => 1, :name => "Admin" },
+#     :organization => { :id => 2, :name => "Bluth Company" }
+#   }
+# }
+@user.comments
+# [#<Comment id=1 text="Foo">, #<Comment id=2 text="Bar">]
+@user.role
+# #<Role id=1 name="Admin">
+@user.organization
+# #<Organization id=2 name="Bluth Company">
 ```
 
-If there’s no relationship data in the resource, an extra HTTP request (to `GET /users/1/comments`) is made when calling the `#comments` method:
+If there’s no relationship data in the resource, Her makes a HTTP request to retrieve the data.
 
 ```ruby
-@user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth" }}
-@user.comments # => [#<Comment id=1>, #<Comment id=2>] fetched from /users/1/comments
+@user = User.find(1)
+# { :data => { :id => 1, :name => "George Michael Bluth", :organization_id => 2 }}
+
+# has_many relationship:
+@user.comments
+# GET /users/1/comments
+# [#<Comment id=1>, #<Comment id=2>]
+
+# has_one relationship:
+@user.role
+# GET /users/1/role
+# #<Role id=1>
+
+# belongs_to relationship:
+@user.organization
+# (the organization id comes from :organization_id, by default)
+# GET /organizations/2
+# #<Organization id=2>
 ```
 
-For `has_one` relationships, an extra HTTP request (to `GET /users/1/role`) is made when calling the `#role` method:
-
-```ruby
-@user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth" }}
-@user.role # => #<Role id=1> fetched from /users/1/role
-```
-
-For `belongs_to` relationships, an extra HTTP request (to `GET /organizations/2`) is made when calling the `#organization` method:
-
-```ruby
-@user = User.find(1) # { :data => { :id => 1, :name => "George Michael Bluth", :organization_id => 2 }}
-@user.organization # => #<Organization id=2> fetched from /organizations/2
-```
-
-However, subsequent calls to `#comments`, `#role` and `#organization` will not trigger extra HTTP requests as the data has already been fetched.
+Subsequent calls to `#comments`, `#role` and `#organization` will not trigger extra HTTP requests and will return the cached objects.
 
 ## Hooks
 
@@ -307,14 +336,17 @@ class User
   custom_post :from_default
 end
 
-User.popular # => [#<User id=1>, #<User id=2>]
+User.popular
 # GET /users/popular
+# [#<User id=1>, #<User id=2>]
 
-User.unpopular # => [#<User id=3>, #<User id=4>]
+User.unpopular
 # GET /users/unpopular
+# [#<User id=3>, #<User id=4>]
 
-User.from_default(:name => "Maeby Fünke") # => #<User id=5>
+User.from_default(:name => "Maeby Fünke")
 # POST /users/from_default?name=Maeby+Fünke
+# #<User id=5 name="Maeby Fünke">
 ```
 
 You can also use `get`, `post`, `put` or `delete` (which maps the returned data to either a collection or a resource).
@@ -324,11 +356,13 @@ class User
   include Her::Model
 end
 
-User.get(:popular) # => [#<User id=1>, #<User id=2>]
+User.get(:popular)
 # GET /users/popular
+# [#<User id=1>, #<User id=2>]
 
-User.get(:single_best) # => #<User id=1>
+User.get(:single_best)
 # GET /users/single_best
+# #<User id=1>
 ```
 
 Also, `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data return from the HTTP request) can also be used. Other HTTP methods are supported (`post_raw`, `put_resource`, etc.).
@@ -348,8 +382,12 @@ class User
   end
 end
 
-User.popular # => [#<User id=1>, #<User id=2>]
-User.total # => 42
+User.popular
+# GET /users/popular
+# [#<User id=1>, #<User id=2>]
+User.total
+# GET /users/stats
+# => 42
 ```
 
 You can also use full request paths (with strings instead of symbols).
@@ -359,8 +397,9 @@ class User
   include Her::Model
 end
 
-User.get("/users/popular") # => [#<User id=1>, #<User id=2>]
+User.get("/users/popular")
 # GET /users/popular
+# [#<User id=1>, #<User id=2>]
 ```
 
 ## Custom paths
