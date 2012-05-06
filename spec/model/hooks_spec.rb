@@ -109,33 +109,33 @@ describe Her::Model::Hooks do
   end
 
   context "perform hooks on a model" do
-      before do # {{{
-        Her::API.setup :base_uri => "https://api.example.com" do |builder|
-          builder.use Her::Middleware::FirstLevelParseJSON
-          builder.use Faraday::Request::UrlEncoded
-          builder.use Faraday::Adapter::NetHttp
-        end
+    before do # {{{
+      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.use Faraday::Adapter::NetHttp
+      end
 
-        FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
-        FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
-        FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+      FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+      FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
+      FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
 
-        spawn_model :User do
-          attr_accessor :internal_save_id, :internal_create_id, :internal_update_id, :internal_destroy_id
-          attr_accessor :internal_after_save_id, :internal_after_create_id, :internal_after_update_id, :internal_after_destroy_id
+      spawn_model "Foo::User" do
+        attr_accessor :internal_save_id, :internal_create_id, :internal_update_id, :internal_destroy_id
+        attr_accessor :internal_after_save_id, :internal_after_create_id, :internal_after_update_id, :internal_after_destroy_id
 
-          def change_internal_save_id; @internal_save_id = 100; end
-          def change_internal_create_id; @internal_create_id = 101; end
-          def change_internal_update_id; @internal_update_id = 102; end
-          def change_internal_destroy_id; @internal_destroy_id = 103; end
+        def change_internal_save_id; @internal_save_id = 100; end
+        def change_internal_create_id; @internal_create_id = 101; end
+        def change_internal_update_id; @internal_update_id = 102; end
+        def change_internal_destroy_id; @internal_destroy_id = 103; end
 
-          def change_internal_after_save_id; @internal_after_save_id = 100; end
-          def change_internal_after_create_id; @internal_after_create_id = 101; end
-          def change_internal_after_update_id; @internal_after_update_id = 102; end
-          def change_internal_after_destroy_id; @internal_after_destroy_id = 103; end
-        end
-      end # }}}
+        def change_internal_after_save_id; @internal_after_save_id = 100; end
+        def change_internal_after_create_id; @internal_after_create_id = 101; end
+        def change_internal_after_update_id; @internal_after_update_id = 102; end
+        def change_internal_after_destroy_id; @internal_after_destroy_id = 103; end
+      end
+    end # }}}
 
     describe "method hooks" do
       before do # {{{
