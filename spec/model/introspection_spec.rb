@@ -11,18 +11,18 @@ describe Her::Model::Introspection do
       end
 
       FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Funke" }.to_json)
-      spawn_model :User
+      spawn_model "Foo::User"
     end # }}}
 
     describe "#inspect" do
       it "outputs resource attributs for an existing resource" do # {{{
-        @user = User.find(1)
-        ["#<User(/users/1) name=\"Tobias Funke\" id=1>", "#<User(/users/1) id=1 name=\"Tobias Funke\">"].should include(@user.inspect)
+        @user = Foo::User.find(1)
+        ["#<Foo::User(/users/1) name=\"Tobias Funke\" id=1>", "#<Foo::User(/users/1) id=1 name=\"Tobias Funke\">"].should include(@user.inspect)
       end # }}}
 
       it "outputs resource attributs for an not-saved-yet resource" do # {{{
-        @user = User.new(:name => "Tobias Funke")
-        @user.inspect.should == "#<User(/users) name=\"Tobias Funke\">"
+        @user = Foo::User.new(:name => "Tobias Funke")
+        @user.inspect.should == "#<Foo::User(/users) name=\"Tobias Funke\">"
       end # }}}
     end
   end
