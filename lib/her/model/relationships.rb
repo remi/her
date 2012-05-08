@@ -15,12 +15,13 @@ module Her
         @her_relationships.each_pair do |type, relationships|
           relationships.each do |relationship|
             if data.include?(relationship[:name])
+              klass = self.nearby_class(relationship[:class_name])
               if type == :has_many
-                data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:class_name], data[relationship[:name]])
+                data[relationship[:name]] = Her::Model::ORM.initialize_collection(klass, data[relationship[:name]])
               elsif type == :has_one
-                data[relationship[:name]] = Object.const_get(relationship[:class_name]).new(data[relationship[:name]])
+                data[relationship[:name]] = klass.new(data[relationship[:name]])
               elsif type == :belongs_to
-                data[relationship[:name]] = Object.const_get(relationship[:class_name]).new(data[relationship[:name]])
+                data[relationship[:name]] = klass.new(data[relationship[:name]])
               end
             end
           end
@@ -48,11 +49,16 @@ module Her
       #   # Fetched via GET "/users/1/articles"
       def has_many(name, attrs={}) # {{{
         @her_relationships ||= {}
-        attrs = { :class_name => name.to_s.classify, :name => name }.merge(attrs)
+        attrs = {
+          :class_name => name.to_s.classify,
+          :name => name,
+          :path => "/#{name}"
+        }.merge(attrs)
         (@her_relationships[:has_many] ||= []) << attrs
 
         define_method(name) do
-          @data[name] ||= Object.const_get(attrs[:class_name]).get_collection("#{self.class.build_request_path(:id => id)}/#{name.to_s.pluralize}")
+          klass = self.class.nearby_class(attrs[:class_name])
+          @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
         end
       end # }}}
 
@@ -76,11 +82,16 @@ module Her
       #   # Fetched via GET "/users/1/organization"
       def has_one(name, attrs={}) # {{{
         @her_relationships ||= {}
-        attrs = { :class_name => name.to_s.classify, :name => name }.merge(attrs)
+        attrs = {
+          :class_name => name.to_s.classify,
+          :name => name,
+          :path => "/#{name}"
+        }.merge(attrs)
         (@her_relationships[:has_one] ||= []) << attrs
 
         define_method(name) do
-          @data[name] ||= Object.const_get(attrs[:class_name]).get_resource("#{self.class.build_request_path(:id => id)}/#{name.to_s.singularize}")
+          klass = self.class.nearby_class(attrs[:class_name])
+          @data[name] ||= klass.get_resource("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
         end
       end # }}}
 
@@ -92,10 +103,10 @@ module Her
       # @example
       #   class User
       #     include Her::API
-      #     belongs_to :team
+      #     belongs_to :team, :class_name => "Group"
       #   end
       #
-      #   class Team
+      #   class Group
       #     include Her::API
       #   end
       #
@@ -104,11 +115,17 @@ module Her
       #   # Fetched via GET "/teams/2"
       def belongs_to(name, attrs={}) # {{{
         @her_relationships ||= {}
-        attrs = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }.merge(attrs)
+        attrs = {
+          :class_name => name.to_s.classify,
+          :name => name,
+          :foreign_key => "#{name}_id",
+          :path => "/#{name.to_s.pluralize}/:id"
+        }.merge(attrs)
         (@her_relationships[:belongs_to] ||= []) << attrs
 
         define_method(name) do
-          @data[name] ||= Object.const_get(attrs[:class_name]).get_resource("#{Object.const_get(name.to_s.classify).build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
+          klass = self.class.nearby_class(attrs[:class_name])
+          @data[name] ||= klass.get_resource("#{klass.build_request_path(attrs[:path], :id => @data[attrs[:foreign_key].to_sym])}")
         end
       end # }}}
     end

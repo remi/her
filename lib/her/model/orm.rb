@@ -11,8 +11,8 @@ module Her
 
       # Initialize a collection of resources
       # @private
-      def self.initialize_collection(name, collection_data) # {{{
-        collection_data.map { |item_data| Object.const_get(name.to_s.classify).new(item_data) }
+      def self.initialize_collection(klass, collection_data) # {{{
+        collection_data.map { |item_data| klass.new(item_data) }
       end # }}}
 
       # Handles missing methods by routing them through @data
@@ -41,7 +41,7 @@ module Her
       #
       # @param [Array] collection_data An array of model hashes
       def new_collection(collection_data) # {{{
-        Her::Model::ORM.initialize_collection(self.to_s.underscore, collection_data)
+        Her::Model::ORM.initialize_collection(self, collection_data)
       end # }}}
 
       # Return `true` if a resource was not saved yet
