@@ -47,8 +47,10 @@ describe Her::Model::HTTP do
         builder.use Faraday::Request::UrlEncoded
       end
 
-      spawn_model :Comment do
-        uses_api api2
+      spawn_model "Foo::Comment"
+      Foo::Comment.uses_api @api2
+
+      Foo::Comment.class_eval do
         @her_api.base_uri.should == "https://api2.example.com"
       end
     end # }}}
@@ -71,8 +73,10 @@ describe Her::Model::HTTP do
         builder.use Faraday::Request::UrlEncoded
       end
 
-      spawn_model :Comment do
-        uses_api api
+      spawn_model "Foo::Comment"
+      Foo::Comment.uses_api @api
+
+      Foo::Comment.class_eval do
         @her_api.base_uri.should == "https://api2.example.com"
       end
     end # }}}
@@ -189,10 +193,8 @@ describe Her::Model::HTTP do
         end
       end
 
-      spawn_model :User do
-        custom_get :popular, :foobar
-        custom_post :from_default
-      end
+      spawn_model "Foo::User"
+      Foo::User.uses_api @api
       Foo::User.custom_get :popular, :foobar
       Foo::User.custom_post :from_default
     end # }}}
