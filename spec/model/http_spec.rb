@@ -49,10 +49,10 @@ describe Her::Model::HTTP do
         builder.use Faraday::Adapter::NetHttp
       end
 
-      spawn_model :Comment
-      Comment.uses_api @api2
+      spawn_model "Foo::Comment"
+      Foo::Comment.uses_api @api2
 
-      Comment.class_eval do
+      Foo::Comment.class_eval do
         @her_api.base_uri.should == "https://api2.example.com"
       end
     end # }}}
@@ -77,10 +77,10 @@ describe Her::Model::HTTP do
         builder.use Faraday::Adapter::NetHttp
       end
 
-      spawn_model :Comment
-      Comment.uses_api @api
+      spawn_model "Foo::Comment"
+      Foo::Comment.uses_api @api
 
-      Comment.class_eval do
+      Foo::Comment.class_eval do
         @her_api.base_uri.should == "https://api2.example.com"
       end
     end # }}}
@@ -194,9 +194,8 @@ describe Her::Model::HTTP do
       FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => [{ :id => 1 }, { :id => 2 }].to_json)
       FakeWeb.register_uri(:post, "https://api.example.com/users/from_default", :body => { :id => 4 }.to_json)
 
-      class User
-        include Her::Model
-      end
+      spawn_model "Foo::User"
+      Foo::User.uses_api @api
       Foo::User.custom_get :popular, :foobar
       Foo::User.custom_post :from_default
     end # }}}
