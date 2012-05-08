@@ -16,18 +16,18 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_development_dependency "rake", "0.9.2.2"
-  s.add_development_dependency "rspec", "2.9.0"
-  s.add_development_dependency "yard", "0.7.5"
-  s.add_development_dependency "redcarpet", "1.17.2"
-  s.add_development_dependency "mocha", "0.11.3"
-  s.add_development_dependency "fakeweb", "1.3.0"
-  s.add_development_dependency "guard", "1.0.1"
-  s.add_development_dependency "guard-rspec", "0.7.0"
-  s.add_development_dependency "rb-fsevent", "0.9.1"
-  s.add_development_dependency "growl", "1.0.3"
+  s.add_development_dependency "rake", "~> 0.9.2"
+  s.add_development_dependency "rspec", "~> 2.10"
+  s.add_development_dependency "yard", "~> 0.8"
+  s.add_development_dependency "redcarpet", "~> 2.1"
+  s.add_development_dependency "mocha", "~> 0.11"
+  s.add_development_dependency "fakeweb", "~> 1.3"
+  s.add_development_dependency "guard", "~> 1.0"
+  s.add_development_dependency "guard-rspec", "~> 0.7"
+  s.add_development_dependency "rb-fsevent", "~> 0.9"
+  s.add_development_dependency "growl", "~> 1.0"
 
-  s.add_runtime_dependency "activesupport", "3.2.3"
-  s.add_runtime_dependency "faraday", "0.8.0"
-  s.add_runtime_dependency "multi_json", "1.3.4"
+  s.add_runtime_dependency "activesupport", "~> 3.2"
+  s.add_runtime_dependency "faraday", "~> 0.8"
+  s.add_runtime_dependency "multi_json", "~> 1.3"
 end
