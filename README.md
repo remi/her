@@ -60,6 +60,8 @@ User.find(1)
 # PUT https://api.example.com/users/1 with the data and return+update the User object
 ```
 
+You can look into the `examples` directory for sample applications using Her.
+
 ## Middleware
 
 Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `builder` object and are able to customize the middleware stack used on each request and response.

@@ -4,10 +4,12 @@ class TwitterSearchParser < Faraday::Response::Middleware
 
   def on_complete(env)
     json = MultiJson.load(env[:body], :symbolize_keys => true)
+    data = json.delete(:results)
+    errors = [json.delete(:error)].compact
     env[:body] = {
-      :data => json[:results],
-      :errors => [json[:error]],
-      :metadata => json.select { |key, value| METADATA_KEYS.include?(key) }
+      :data => data,
+      :errors => errors,
+      :metadata => json
     }
   end
 end

@@ -1,7 +1,5 @@
 # Create custom parser
 class TwitterParser < Faraday::Response::Middleware
-  METADATA_KEYS = [:completed_in, :max_id, :max_id_str, :next_page, :page, :query, :refresh_url, :results_per_page, :since_id, :since_id_str]
-
   def on_complete(env)
     json = MultiJson.load(env[:body], :symbolize_keys => true)
     errors = [json.delete(:error)]
@@ -13,6 +11,7 @@ class TwitterParser < Faraday::Response::Middleware
   end
 end
 
+# See https://dev.twitter.com/apps
 TWITTER_CREDENTIALS = {
   :consumer_key => "",
   :consumer_secret => "",
@@ -22,8 +21,10 @@ TWITTER_CREDENTIALS = {
 
 # Initialize API
 Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
-  builder.insert 0, FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
-  builder.swap Her::Middleware::DefaultParseJSON, TwitterParser
+  builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  builder.use Faraday::Request::UrlEncoded
+  builder.use TwitterParser
+  builder.use Faraday::Adapter::NetHttp
 end
 
 # Define classes
