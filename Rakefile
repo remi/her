@@ -9,7 +9,6 @@ task :default => :spec
 desc "Run all specs"
 RSpec::Core::RakeTask.new(:spec) do |task| # {{{
   task.pattern = "spec/**/*_spec.rb"
-  task.rspec_opts = "--colour --format=documentation"
 end # }}}
 
 desc "Generate YARD Documentation"
