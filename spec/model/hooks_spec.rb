@@ -113,13 +113,13 @@ describe Her::Model::Hooks do
         Her::API.setup :base_uri => "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
-          builder.use Faraday::Adapter::NetHttp
+          builder.adapter :test do |stub|
+            stub.post("/users")     { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+            stub.get("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+            stub.put("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+            stub.delete("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+          end
         end
-
-        FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
-        FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
-        FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
 
         spawn_model :User do
           attr_accessor :internal_save_id, :internal_create_id, :internal_update_id, :internal_destroy_id

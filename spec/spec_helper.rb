@@ -1,7 +1,6 @@
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
 require "her"
-require "fakeweb"
 require "mocha"
 
 module Helpers

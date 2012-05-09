@@ -5,12 +5,13 @@ describe Her::Model::Introspection do
   context "introspecting a resource" do
     before do # {{{
       Her::API.setup :base_uri => "https://api.example.com" do |builder|
-          builder.use Her::Middleware::FirstLevelParseJSON
-          builder.use Faraday::Request::UrlEncoded
-          builder.use Faraday::Adapter::NetHttp
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
         end
+      end
 
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Funke" }.to_json)
       spawn_model :User
     end # }}}
 

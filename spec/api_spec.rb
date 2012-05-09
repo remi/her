@@ -32,8 +32,6 @@ describe Her::API do
 
     describe "#request" do
       it "makes HTTP requests" do # {{{
-        FakeWeb.register_uri(:get, "https://api.example.com/foo", :body => "Foo, it is.")
-
         class SimpleParser < Faraday::Response::Middleware
           def on_complete(env)
             env[:body] = { :data => env[:body] }
@@ -44,7 +42,9 @@ describe Her::API do
         @api.setup :base_uri => "https://api.example.com" do |builder|
           builder.use SimpleParser
           builder.use Faraday::Request::UrlEncoded
-          builder.use Faraday::Adapter::NetHttp
+          builder.adapter :test do |stub|
+            stub.get("/foo") { |env| [200, {}, "Foo it is"] }
+          end
         end
 
         parsed_data = @api.request(:_method => :get, :_path => "/foo")
@@ -52,13 +52,13 @@ describe Her::API do
       end # }}}
 
       it "parses a request with the default parser" do # {{{
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => MultiJson.dump({ :id => 1, :name => "George Michael Bluth", :errors => ["This is a single error"], :metadata => { :page => 1, :per_page => 10 } }))
-
         @api = Her::API.new
         @api.setup :base_uri => "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
-          builder.use Faraday::Adapter::NetHttp
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, MultiJson.dump({ :id => 1, :name => "George Michael Bluth", :errors => ["This is a single error"], :metadata => { :page => 1, :per_page => 10 } })] }
+          end
         end
         parsed_data = @api.request(:_method => :get, :_path => "users/1")
         parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
@@ -67,8 +67,6 @@ describe Her::API do
       end # }}}
 
       it "parses a request with a custom parser" do # {{{
-        FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => MultiJson.dump(:id => 1, :name => "George Michael Bluth"))
-
         class CustomParser < Faraday::Response::Middleware
           def on_complete(env)
             json = MultiJson.load(env[:body], :symbolize_keys => true)
@@ -86,7 +84,9 @@ describe Her::API do
         @api.setup :base_uri => "https://api.example.com" do |builder|
           builder.use CustomParser
           builder.use Faraday::Request::UrlEncoded
-          builder.use Faraday::Adapter::NetHttp
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, MultiJson.dump(:id => 1, :name => "George Michael Bluth")] }
+          end
         end
         parsed_data = @api.request(:_method => :get, :_path => "users/1")
         parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }

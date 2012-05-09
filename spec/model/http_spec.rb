@@ -4,13 +4,11 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::HTTP do
   context "binding a model with an API" do
     it "binds a model to an instance of Her::API" do # {{{
-      @api = Her::API.new
-      @api.setup :base_uri => "https://api.example.com"
+      api = Her::API.new
+      api.setup :base_uri => "https://api.example.com"
 
-      spawn_model :User
-      User.uses_api @api
-
-      User.class_eval do
+      spawn_model :User do
+        uses_api api
         @her_api.should_not == nil
         @her_api.base_uri.should == "https://api.example.com"
       end
@@ -19,40 +17,32 @@ describe Her::Model::HTTP do
     it "binds a model directly to Her::API" do # {{{
       Her::API.setup :base_uri => "https://api.example.com"
 
-      spawn_model :User
-
-      User.class_eval do
+      spawn_model :User do
         @her_api.should_not == nil
         @her_api.base_uri.should == "https://api.example.com"
       end
     end # }}}
 
     it "binds two models to two different instances of Her::API" do # {{{
-      @api1 = Her::API.new
-      @api1.setup :base_uri => "https://api1.example.com" do |builder|
+      api1 = Her::API.new
+      api1.setup :base_uri => "https://api1.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
       end
 
-      spawn_model :User
-      User.uses_api @api1
-
-      User.class_eval do
+      spawn_model :User do
+        uses_api api1
         @her_api.base_uri.should == "https://api1.example.com"
       end
 
-      @api2 = Her::API.new
-      @api2.setup :base_uri => "https://api2.example.com" do |builder|
+      api2 = Her::API.new
+      api2.setup :base_uri => "https://api2.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
       end
 
-      spawn_model :Comment
-      Comment.uses_api @api2
-
-      Comment.class_eval do
+      spawn_model :Comment do
+        uses_api api2
         @her_api.base_uri.should == "https://api2.example.com"
       end
     end # }}}
@@ -61,26 +51,20 @@ describe Her::Model::HTTP do
       Her::API.setup :base_uri => "https://api1.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
       end
 
-      spawn_model :User
-
-      User.class_eval do
+      spawn_model :User do
         @her_api.base_uri.should == "https://api1.example.com"
       end
 
-      @api = Her::API.new
-      @api.setup :base_uri => "https://api2.example.com" do |builder|
+      api = Her::API.new
+      api.setup :base_uri => "https://api2.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
       end
 
-      spawn_model :Comment
-      Comment.uses_api @api
-
-      Comment.class_eval do
+      spawn_model :Comment do
+        uses_api api
         @her_api.base_uri.should == "https://api2.example.com"
       end
     end # }}}
@@ -88,24 +72,27 @@ describe Her::Model::HTTP do
 
   context "making HTTP requests" do
     before do # {{{
-      @api = Her::API.new
-      @api.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :base_uri => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
+        builder.adapter :test do |stub|
+          stub.get("/users") do |env|
+            if env[:params]["page"] == "2"
+              [200, {}, [{ :id => 2 }].to_json]
+            else
+              [200, {}, [{ :id => 1 }].to_json]
+            end
+          end
+          stub.get("/users/popular") { |env| [200, {}, [{ :id => 1 }, { :id => 2 }].to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :id => 1 }.to_json] }
+          stub.post("/users") { |env| [200, {}, [{ :id => 3 }].to_json] }
+          stub.put("/users/4") { |env| [200, {}, [{ :id => 4 }].to_json] }
+          stub.patch("/users/6") { |env| [200, {}, [{ :id => 6 }].to_json] }
+          stub.delete("/users/5") { |env| [200, {}, [{ :id => 5 }].to_json] }
+        end
       end
 
-      FakeWeb.register_uri(:get, "https://api.example.com/users", :body => [{ :id => 1 }].to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users?page=2", :body => [{ :id => 2 }].to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => [{ :id => 1 }, { :id => 2 }].to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1 }.to_json)
-      FakeWeb.register_uri(:post, "https://api.example.com/users", :body => [{ :id => 3 }].to_json)
-      FakeWeb.register_uri(:put, "https://api.example.com/users/4", :body => [{ :id => 4 }].to_json)
-      FakeWeb.register_uri(:patch, "https://api.example.com/users/6", :body => [{ :id => 6 }].to_json)
-      FakeWeb.register_uri(:delete, "https://api.example.com/users/5", :body => [{ :id => 5 }].to_json)
-
       spawn_model :User
-      User.uses_api @api
     end # }}}
 
     it "handle GET wrapper method" do # {{{
@@ -184,21 +171,19 @@ describe Her::Model::HTTP do
 
   context "setting custom requests" do
     before do # {{{
-      @api = Her::API.new
-      @api.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :base_uri => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
+        builder.adapter :test do |stub|
+          stub.get("/users/popular") { |env| [200, {}, [{ :id => 1 }, { :id => 2 }].to_json] }
+          stub.post("/users/from_default") { |env| [200, {}, { :id => 4 }.to_json] }
+        end
       end
 
-      FakeWeb.register_uri(:get, "https://api.example.com/users/popular", :body => [{ :id => 1 }, { :id => 2 }].to_json)
-      FakeWeb.register_uri(:post, "https://api.example.com/users/from_default", :body => { :id => 4 }.to_json)
-
-      class User
-        include Her::Model
+      spawn_model :User do
+        custom_get :popular, :foobar
+        custom_post :from_default
       end
-      User.custom_get :popular, :foobar
-      User.custom_post :from_default
     end # }}}
 
     it "handles custom methods" do # {{{

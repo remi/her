@@ -8,12 +8,12 @@ describe Her::Model::ORM do
       api.setup :base_uri => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.get("/users") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
+        end
       end
-
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :name => "Tobias Fünke" }.to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/users", :body => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json)
-      FakeWeb.register_uri(:get, "https://api.example.com/admin_users", :body => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json)
 
       spawn_model :User do
         uses_api api
@@ -54,10 +54,10 @@ describe Her::Model::ORM do
       Her::API.setup :base_uri => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
+        builder.adapter :test do |stub|
+          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+        end
       end
-
-      FakeWeb.register_uri(:post, "https://api.example.com/users", :body => { :id => 1, :fullname => "Tobias Fünke" }.to_json)
 
       spawn_model :User
     end # }}}
@@ -77,15 +77,14 @@ describe Her::Model::ORM do
 
   context "updating resources" do
     before do # {{{
-      @api = Her::API.new
-      @api.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :base_uri => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+        end
       end
-
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :fullname => "Tobias Fünke" }.to_json)
-      FakeWeb.register_uri(:put, "https://api.example.com/users/1", :body => { :id => 1, :fullname => "Lindsay Fünke" }.to_json)
 
       spawn_model :User
     end # }}}
@@ -112,15 +111,14 @@ describe Her::Model::ORM do
 
   context "deleting resources" do
     before do # {{{
-      @api = Her::API.new
-      @api.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :base_uri => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
-        builder.use Faraday::Adapter::NetHttp
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
+          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+        end
       end
-
-      FakeWeb.register_uri(:get, "https://api.example.com/users/1", :body => { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json)
-      FakeWeb.register_uri(:delete, "https://api.example.com/users/1", :body => { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json)
 
       spawn_model :User
     end # }}}
