@@ -437,6 +437,19 @@ Category.all
 # GET https://other_api.example.com/categories
 ```
 
+## SSL
+
+When initializing `Her::API`, you can pass any parameter supported by `Faraday.new`. So [to use HTTPS](https://github.com/technoweenie/faraday/wiki/Setting-up-SSL-certificates), you can use Faraday’s `:ssl` option.
+
+```ruby
+ssl_options = { :ca_path => "/usr/lib/ssl/certs" }
+Her::API.setup :url => "https://api.example.com", :ssl => ssl_options do |builder|
+  builder.use Faraday::Request::UrlEncoded
+  builder.use Her::Middleware::DefaultParseJSON
+  builder.use Faraday::Adapter::NetHttp
+end
+```
+
 ## Things to be done
 
 * Better error handling
