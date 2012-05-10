@@ -33,7 +33,7 @@ end
 $cache = MyCache.new
 
 # Initialize API
-Her::API.setup :base_uri => "http://search.twitter.com" do |builder|
+Her::API.setup :url => "http://search.twitter.com" do |builder|
   builder.use Faraday::Request::UrlEncoded
   builder.use FaradayMiddleware::Caching, $cache
   builder.use TwitterSearchParser

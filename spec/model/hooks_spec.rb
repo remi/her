@@ -110,7 +110,7 @@ describe Her::Model::Hooks do
 
   context "perform hooks on a model" do
       before do # {{{
-        Her::API.setup :base_uri => "https://api.example.com" do |builder|
+        Her::API.setup :url => "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|

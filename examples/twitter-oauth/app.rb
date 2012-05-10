@@ -20,7 +20,7 @@ TWITTER_CREDENTIALS = {
 }
 
 # Initialize API
-Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
+Her::API.setup :url => "https://api.twitter.com/1/" do |builder|
   builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
   builder.use Faraday::Request::UrlEncoded
   builder.use TwitterParser

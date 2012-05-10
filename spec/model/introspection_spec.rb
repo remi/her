@@ -4,7 +4,7 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::Introspection do
   context "introspecting a resource" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|

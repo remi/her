@@ -5,7 +5,7 @@ describe Her::Model::ORM do
   context "mapping data to Ruby objects" do
     before do # {{{
       api = Her::API.new
-      api.setup :base_uri => "https://api.example.com" do |builder|
+      api.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
@@ -51,7 +51,7 @@ describe Her::Model::ORM do
 
   context "creating resources" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
@@ -77,7 +77,7 @@ describe Her::Model::ORM do
 
   context "updating resources" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
@@ -111,7 +111,7 @@ describe Her::Model::ORM do
 
   context "deleting resources" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|

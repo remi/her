@@ -22,7 +22,7 @@ First, you have to define which API your models will be bound to. For example, w
 
 ```ruby
 # config/initializers/her.rb
-Her::API.setup :base_uri => "https://api.example.com" do |builder|
+Her::API.setup :url => "https://api.example.com" do |builder|
   builder.use Faraday::Request::UrlEncoded
   builder.use Her::Middleware::DefaultParseJSON
   builder.use Faraday::Adapter::NetHttp
@@ -82,7 +82,7 @@ class MyAuthentication < Faraday::Middleware
   end
 end
 
-Her::API.setup :base_uri => "https://api.example.com" do |builder|
+Her::API.setup :url => "https://api.example.com" do |builder|
   # This token could be stored in the client session
   builder.use MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
 
@@ -120,7 +120,7 @@ class MyCustomParser < Faraday::Response::Middleware
   end
 end
 
-Her::API.setup :base_uri => "https://api.example.com" do |builder|
+Her::API.setup :url => "https://api.example.com" do |builder|
   builder.use Faraday::Request::UrlEncoded
   builder.use MyCustomParser
   builder.use Faraday::Adapter::NetHttp
@@ -151,7 +151,7 @@ TWITTER_CREDENTIALS = {
   :token_secret => ""
 }
 
-Her::API.setup :base_uri => "https://api.twitter.com/1/" do |builder|
+Her::API.setup :url => "https://api.twitter.com/1/" do |builder|
   builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
   builder.use Faraday::Request::UrlEncoded
   builder.use Her::Middleware::DefaultParseJSON
@@ -199,7 +199,7 @@ end
 # We should be probably using something like Memcached here, not a global object
 $cache = MyCache.new
 
-Her::API.setup :base_uri => "https://api.example.com" do |builder|
+Her::API.setup :url => "https://api.example.com" do |builder|
   builder.use Faraday::Request::UrlEncoded
   builder.use FaradayMiddleware::Caching, $cache
   builder.use Her::Middleware::DefaultParseJSON
@@ -403,14 +403,14 @@ It is possible to use different APIs for different models. Instead of calling `H
 ```ruby
 # config/initializers/her.rb
 $my_api = Her::API.new
-$my_api.setup :base_uri => "https://my_api.example.com" do |builder|
+$my_api.setup :url => "https://my_api.example.com" do |builder|
   builder.use Faraday::Request::UrlEncoded
   builder.use Her::Middleware::DefaultParseJSON
   builder.use Faraday::Adapter::NetHttp
 end
 
 $other_api = Her::API.new
-$other_api.setup :base_uri => "https://other_api.example.com" do |builder|
+$other_api.setup :url => "https://other_api.example.com" do |builder|
   builder.use Faraday::Request::UrlEncoded
   builder.use Her::Middleware::DefaultParseJSON
   builder.use Faraday::Adapter::NetHttp

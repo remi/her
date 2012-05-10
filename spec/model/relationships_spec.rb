@@ -64,7 +64,7 @@ describe Her::Model::Relationships do
 
   context "handling relationships without details" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
@@ -131,7 +131,7 @@ describe Her::Model::Relationships do
 
   context "handling relationships with details" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|

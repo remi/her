@@ -5,7 +5,7 @@ describe Her::API do
   context "initialization" do
     describe ".setup" do
       it "creates a default connection" do # {{{
-        Her::API.setup :base_uri => "https://api.example.com"
+        Her::API.setup :url => "https://api.example.com"
         Her::API.default_api.base_uri.should == "https://api.example.com"
       end # }}}
     end
@@ -13,7 +13,7 @@ describe Her::API do
     describe "#setup" do
       it "sets a base URI" do # {{{
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com"
+        @api.setup :url => "https://api.example.com"
         @api.base_uri.should == "https://api.example.com"
       end # }}}
 
@@ -22,7 +22,7 @@ describe Her::API do
         class Bar; end;
 
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com" do |builder|
+        @api.setup :url => "https://api.example.com" do |builder|
           builder.use Foo
           builder.use Bar
         end
@@ -39,7 +39,7 @@ describe Her::API do
         end
 
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com" do |builder|
+        @api.setup :url => "https://api.example.com" do |builder|
           builder.use SimpleParser
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
@@ -53,7 +53,7 @@ describe Her::API do
 
       it "parses a request with the default parser" do # {{{
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com" do |builder|
+        @api.setup :url => "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
@@ -81,7 +81,7 @@ describe Her::API do
         end
 
         @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com" do |builder|
+        @api.setup :url => "https://api.example.com" do |builder|
           builder.use CustomParser
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|

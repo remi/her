@@ -91,7 +91,7 @@ describe Her::Model::Paths do
 
   context "making HTTP requests" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|

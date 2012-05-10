@@ -5,7 +5,7 @@ describe Her::Model::HTTP do
   context "binding a model with an API" do
     it "binds a model to an instance of Her::API" do # {{{
       api = Her::API.new
-      api.setup :base_uri => "https://api.example.com"
+      api.setup :url => "https://api.example.com"
 
       spawn_model :User do
         uses_api api
@@ -15,7 +15,7 @@ describe Her::Model::HTTP do
     end # }}}
 
     it "binds a model directly to Her::API" do # {{{
-      Her::API.setup :base_uri => "https://api.example.com"
+      Her::API.setup :url => "https://api.example.com"
 
       spawn_model :User do
         @her_api.should_not == nil
@@ -25,7 +25,7 @@ describe Her::Model::HTTP do
 
     it "binds two models to two different instances of Her::API" do # {{{
       api1 = Her::API.new
-      api1.setup :base_uri => "https://api1.example.com" do |builder|
+      api1.setup :url => "https://api1.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
@@ -36,7 +36,7 @@ describe Her::Model::HTTP do
       end
 
       api2 = Her::API.new
-      api2.setup :base_uri => "https://api2.example.com" do |builder|
+      api2.setup :url => "https://api2.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
@@ -48,7 +48,7 @@ describe Her::Model::HTTP do
     end # }}}
 
     it "binds one model to Her::API and another one to an instance of Her::API" do # {{{
-      Her::API.setup :base_uri => "https://api1.example.com" do |builder|
+      Her::API.setup :url => "https://api1.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
@@ -58,7 +58,7 @@ describe Her::Model::HTTP do
       end
 
       api = Her::API.new
-      api.setup :base_uri => "https://api2.example.com" do |builder|
+      api.setup :url => "https://api2.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
@@ -72,7 +72,7 @@ describe Her::Model::HTTP do
 
   context "making HTTP requests" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
@@ -171,7 +171,7 @@ describe Her::Model::HTTP do
 
   context "setting custom requests" do
     before do # {{{
-      Her::API.setup :base_uri => "https://api.example.com" do |builder|
+      Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|

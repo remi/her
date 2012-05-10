@@ -13,13 +13,14 @@ module Her
 
     # Setup the API connection.
     #
-    # @param [Hash] attrs the options to create a message with
-    # @option attrs [String] :base_uri The main HTTP API root (eg. `https://api.example.com`)
+    # @param [Hash] attrs the Faraday options
+    # @option attrs [String] :url The main HTTP API root (eg. `https://api.example.com`)
+    # @option attrs [String] :ssl A hash containing [SSL options](https://github.com/technoweenie/faraday/wiki/Setting-up-SSL-certificates)
     #
     # @return Faraday::Connection
     #
     # @example Setting up the default API connection
-    #   Her::API.setup :base_uri => "https://api.example"
+    #   Her::API.setup :url => "https://api.example"
     #
     # @example A custom middleware added to the default list
     #   class MyAuthentication < Faraday::Middleware
@@ -28,8 +29,10 @@ module Her
     #       @all.call(env)
     #     end
     #   end
-    #   Her::API.setup :base_uri => "https://api.example.com" do |builder|
-    #     builder.use MyAuthentication
+    #   Her::API.setup :url => "https://api.example.com" do |builder|
+    #     builder.use Faraday::Request::UrlEncoded
+    #     builder.use Her::Middleware::DefaultParseJSON
+    #     builder.use Faraday::Adapter::NetHttp
     #   end
     #
     # @example A custom parse middleware
@@ -41,14 +44,16 @@ module Her
     #       env[:body] = { :data => json, :errors => errors, :metadata => metadata }
     #     end
     #   end
-    #   Her::API.setup :base_uri => "https://api.example.com" do |builder|
-    #     builder.delete Her::Middleware::DefaultParseJSON
+    #   Her::API.setup :url => "https://api.example.com" do |builder|
+    #     builder.use Faraday::Request::UrlEncoded
     #     builder.use MyCustomParser
+    #     builder.use Faraday::Adapter::NetHttp
     #   end
     def setup(attrs={}) # {{{
-      @base_uri = attrs[:base_uri]
-      @connection = Faraday.new(:url => @base_uri) do |connection|
-        yield connection.builder if block_given?
+      attrs[:url] = attrs.delete(:base_uri) if attrs.include?(:base_uri) # Support legacy :base_uri option
+      @base_uri = attrs[:url]
+      @connection = Faraday.new(attrs) do |connection|
+        yield connection if block_given?
       end
     end # }}}
 
