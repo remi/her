@@ -146,7 +146,9 @@ describe Her::Model::Relationships do
         belongs_to :organization, :class_name => "Business"
       end
 
-      spawn_model :Business
+      spawn_model :Business do
+        collection_path "/organizations"
+      end
 
       @user_with_included_data = User.find(1)
       @user_without_included_data = User.find(2)

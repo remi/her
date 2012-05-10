@@ -14,14 +14,16 @@ module Her
         @her_relationships ||= {}
         @her_relationships.each_pair do |type, relationships|
           relationships.each do |relationship|
-            if data.include?(relationship[:name])
-              if type == :has_many
-                data[relationship[:name]] = Her::Model::ORM.initialize_collection(relationship[:class_name], data[relationship[:name]])
-              elsif type == :has_one
-                data[relationship[:name]] = Object.const_get(relationship[:class_name]).new(data[relationship[:name]])
-              elsif type == :belongs_to
-                data[relationship[:name]] = Object.const_get(relationship[:class_name]).new(data[relationship[:name]])
-              end
+            name = relationship[:name]
+            class_name = relationship[:class_name]
+            next unless data.include?(name)
+            data[name] = case type
+              when :has_many
+                Her::Model::ORM.initialize_collection(class_name, data[name])
+              when :has_one, :belongs_to
+                Object.const_get(class_name).new(data[name])
+              else
+                nil
             end
           end
         end
@@ -47,13 +49,8 @@ module Her
       #   @user.articles # => [#<Article(articles/2) id=2 title="Hello world.">]
       #   # Fetched via GET "/users/1/articles"
       def has_many(name, attrs={}) # {{{
-        @her_relationships ||= {}
         attrs = { :class_name => name.to_s.classify, :name => name }.merge(attrs)
-        (@her_relationships[:has_many] ||= []) << attrs
-
-        define_method(name) do
-          @data[name] ||= Object.const_get(attrs[:class_name]).get_collection("#{self.class.build_request_path(:id => id)}/#{name.to_s.pluralize}")
-        end
+        define_relationship(:has_many, attrs)
       end # }}}
 
       # Define an *has_one* relationship.
@@ -75,13 +72,8 @@ module Her
       #   @user.organization # => #<Organization(organizations/2) id=2 name="Foobar Inc.">
       #   # Fetched via GET "/users/1/organization"
       def has_one(name, attrs={}) # {{{
-        @her_relationships ||= {}
         attrs = { :class_name => name.to_s.classify, :name => name }.merge(attrs)
-        (@her_relationships[:has_one] ||= []) << attrs
-
-        define_method(name) do
-          @data[name] ||= Object.const_get(attrs[:class_name]).get_resource("#{self.class.build_request_path(:id => id)}/#{name.to_s.singularize}")
-        end
+        define_relationship(:has_one, attrs)
       end # }}}
 
       # Define a *belongs_to* relationship.
@@ -103,12 +95,34 @@ module Her
       #   @user.team # => #<Team(teams/2) id=2 name="Developers">
       #   # Fetched via GET "/teams/2"
       def belongs_to(name, attrs={}) # {{{
-        @her_relationships ||= {}
         attrs = { :class_name => name.to_s.classify, :name => name, :foreign_key => "#{name}_id" }.merge(attrs)
-        (@her_relationships[:belongs_to] ||= []) << attrs
+        define_relationship(:belongs_to, attrs)
+      end # }}}
 
+      private
+      # @private
+      def define_relationship(type, attrs) # {{{
+        @her_relationships ||= {}
+        (@her_relationships[type] ||= []) << attrs
+        relationship_accessor(type, attrs)
+      end # }}}
+
+      # @private
+      def relationship_accessor(type, attrs) # {{{
+        name = attrs[:name]
         define_method(name) do
-          @data[name] ||= Object.const_get(attrs[:class_name]).get_resource("#{Object.const_get(name.to_s.classify).build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
+          return @data[name] if @data.include?(name)
+
+          klass = Object.const_get(attrs[:class_name])
+          path = self.class.build_request_path(:id => id)
+          @data[name] = case type
+            when :belongs_to
+              klass.get_resource("#{klass.build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
+            when :has_many
+              klass.get_collection("#{path}/#{name.to_s.pluralize}")
+            when :has_one
+              klass.get_resource("#{path}/#{name.to_s.singularize}")
+          end
         end
       end # }}}
     end
