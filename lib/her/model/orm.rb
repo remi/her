@@ -78,17 +78,14 @@ module Her
       #   # Called via POST "/users/1"
       def create(params={}) # {{{
         resource = new(params)
-        perform_hook(resource, :before, :create)
-        perform_hook(resource, :before, :save)
-        params = resource.instance_eval { @data }
-        request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
-          resource.instance_eval do
-            @data = parsed_data[:data]
+        wrap_in_hooks(resource, :create, :save) do |resource, klass|
+          params = resource.instance_eval { @data }
+          request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
+            resource.instance_eval do
+              @data = parsed_data[:data]
+            end
           end
         end
-        perform_hook(resource, :after, :save)
-        perform_hook(resource, :after, :create)
-
         resource
       end # }}}
 
@@ -118,30 +115,18 @@ module Her
       def save # {{{
         params = @data.dup
         resource = self
+
         if @data[:id]
-          self.class.class_eval do
-            perform_hook(resource, :before, :update)
-            perform_hook(resource, :before, :save)
-          end
-          self.class.request(params.merge(:_method => :put, :_path => "#{request_path}")) do |parsed_data|
-            @data = parsed_data[:data]
-          end
-          self.class.class_eval do
-            perform_hook(resource, :after, :save)
-            perform_hook(resource, :after, :update)
-          end
-          self
+          hooks = [:update, :save]
+          method = :put
         else
-          self.class.class_eval do
-            perform_hook(resource, :before, :create)
-            perform_hook(resource, :before, :save)
-          end
-          self.class.request(params.merge(:_method => :post, :_path => "#{request_path}")) do |parsed_data|
+          hooks = [:create, :save]
+          method = :post
+        end
+
+        self.class.wrap_in_hooks(resource, *hooks) do |resource, klass|
+          klass.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data|
             @data = parsed_data[:data]
-          end
-          self.class.class_eval do
-            perform_hook(resource, :after, :save)
-            perform_hook(resource, :after, :create)
           end
         end
         self
@@ -156,11 +141,11 @@ module Her
       def destroy # {{{
         params = @data.dup
         resource = self
-        self.class.class_eval { perform_hook(resource, :before, :destroy) }
-        self.class.request(params.merge(:_method => :delete, :_path => "#{request_path}")) do |parsed_data|
-          @data = parsed_data[:data]
+        self.class.wrap_in_hooks(resource, :destroy) do |resource, klass|
+          klass.request(params.merge(:_method => :delete, :_path => "#{request_path}")) do |parsed_data|
+            @data = parsed_data[:data]
+          end
         end
-        self.class.class_eval { perform_hook(resource, :after, :destroy) }
         self
       end # }}}
 

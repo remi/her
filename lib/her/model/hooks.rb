@@ -51,6 +51,14 @@ module Her
       # @param [Symbol, &block] method A method or a block to be called
       def after_destroy(method=nil, &block); set_hook(:after, :destroy, method || block); end
 
+      # Wrap a block between “before” and “after” hooks
+      # @private
+      def wrap_in_hooks(resource, *hooks) # {{{
+        perform_before_hooks(resource, *hooks)
+        yield(resource, resource.class)
+        perform_after_hooks(resource, *hooks.reverse)
+      end # }}}
+
       private
       # @private
       def hooks # {{{
@@ -73,6 +81,22 @@ module Her
           else
             hook.call(record)
           end
+        end
+      end # }}}
+
+      # Perform “after” hooks on a resource
+      # @private
+      def perform_after_hooks(resource, *hooks) # {{{
+        hooks.each do |hook|
+          perform_hook(resource, :after, hook)
+        end
+      end # }}}
+
+      # Perform “before” hooks on a resource
+      # @private
+      def perform_before_hooks(resource, *hooks) # {{{
+        hooks.each do |hook|
+          perform_hook(resource, :before, hook)
         end
       end # }}}
     end
