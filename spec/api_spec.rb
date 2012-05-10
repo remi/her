@@ -28,6 +28,12 @@ describe Her::API do
         end
         @api.connection.builder.handlers.should == [Foo, Bar]
       end # }}}
+
+      it "takes custom options" do # {{{
+        @api = Her::API.new
+        @api.setup :foo => { :bar => "baz" }, :url => "https://api.example.com"
+        @api.options.should == { :foo => { :bar => "baz" }, :url => "https://api.example.com" }
+      end # }}}
     end
 
     describe "#request" do

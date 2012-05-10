@@ -3,7 +3,7 @@ module Her
   # so it knows where to make those requests. In Rails, this is usually done in `config/initializers/her.rb`:
   class API
     # @private
-    attr_reader :base_uri, :connection
+    attr_reader :base_uri, :connection, :options
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
     def self.setup(attrs={}, &block) # {{{
@@ -52,6 +52,7 @@ module Her
     def setup(attrs={}) # {{{
       attrs[:url] = attrs.delete(:base_uri) if attrs.include?(:base_uri) # Support legacy :base_uri option
       @base_uri = attrs[:url]
+      @options = attrs
       @connection = Faraday.new(attrs) do |connection|
         yield connection if block_given?
       end
