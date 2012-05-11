@@ -1,3 +1,11 @@
+require "her/model/base"
+require "her/model/http"
+require "her/model/orm"
+require "her/model/relationships"
+require "her/model/hooks"
+require "her/model/introspection"
+require "her/model/paths"
+
 module Her
   # This module is the main element of Her. After creating a Her::API object,
   # include this module in your models to get a few magic methods defined in them.
@@ -10,14 +18,6 @@ module Her
   #   @user = User.new(:name => "Rémi")
   #   @user.save
   module Model
-    autoload :Base,          "her/model/base"
-    autoload :HTTP,          "her/model/http"
-    autoload :ORM,           "her/model/orm"
-    autoload :Relationships, "her/model/relationships"
-    autoload :Hooks,         "her/model/hooks"
-    autoload :Introspection, "her/model/introspection"
-    autoload :Paths,         "her/model/paths"
-
     extend ActiveSupport::Concern
 
     # Instance methods
