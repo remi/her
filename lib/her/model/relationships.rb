@@ -110,14 +110,16 @@ module Her
       # @private
       def relationship_accessor(type, attrs) # {{{
         name = attrs[:name]
+        class_name = attrs[:class_name]
         define_method(name) do
           return @data[name] if @data.include?(name)
 
-          klass = Object.const_get(attrs[:class_name])
+          klass = Object.const_get(class_name)
           path = self.class.build_request_path(:id => id)
           @data[name] = case type
             when :belongs_to
-              klass.get_resource("#{klass.build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
+              foreign_key = attrs[:foreign_key].to_sym
+              klass.get_resource("#{klass.build_request_path(:id => @data[foreign_key])}")
             when :has_many
               klass.get_collection("#{path}/#{name.to_s.pluralize}")
             when :has_one
