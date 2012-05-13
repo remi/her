@@ -450,6 +450,38 @@ Her::API.setup :url => "https://api.example.com", :ssl => ssl_options do |builde
 end
 ```
 
+## Testing
+
+Using Faraday stubbing feature, it’s very easy to write tests for our models. For example, using [RSpec](https://github.com/rspec/rspec-core):
+
+```ruby
+# app/models/post.rb
+class Post
+  include Her::Model
+  custom_get :popular
+end
+
+# spec/models/post.rb
+describe Post do
+  before do
+    Her::API.setup :url => "http://api.example.com" do |builder|
+      builder.use Her::Middleware::FirstLevelParseJSON
+      builder.use Faraday::Request::UrlEncoded
+      builder.adapter :test do |stub|
+        stub.get("/users/popular") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
+      end
+    end
+  end
+
+  describe ".popular" do
+    it "should fetch all popular posts" do
+      @posts = Post.popular
+      @posts.length.should == 2
+    end
+  end
+end
+```
+
 ## Things to be done
 
 * Better error handling
