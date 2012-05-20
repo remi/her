@@ -20,10 +20,10 @@ module Her
       def method_missing(method, attrs=nil) # {{{
         assignment_method = method.to_s =~ /\=$/
         method = method.to_s.gsub(/(\?|\!|\=)$/, "").to_sym
-        if attrs and assignment_method
+        if @data and attrs and assignment_method
           @data[method.to_s.gsub(/\=$/, "").to_sym] = attrs
         else
-          if @data.include?(method)
+          if @data and @data.include?(method)
             @data[method]
           else
             super
