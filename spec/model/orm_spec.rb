@@ -47,6 +47,11 @@ describe Her::Model::ORM do
       @existing_user = User.find(1)
       @existing_user.new?.should be_false
     end # }}}
+
+    it "handles method missing" do# {{{
+      @new_user = User.new(:fullname => 'Mayonegg')
+      lambda { @new_user.unknown_method_for_a_user }.should raise_error(NoMethodError)
+    end# }}}
   end
 
   context "creating resources" do
