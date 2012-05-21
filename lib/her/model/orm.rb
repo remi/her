@@ -4,7 +4,7 @@ module Her
     module ORM
       # Initialize a new object with data received from an HTTP request
       # @private
-      def initialize(single_data) # {{{
+      def initialize(single_data={}) # {{{
         @data = single_data
         @data = self.class.parse_relationships(@data)
       end # }}}
@@ -20,7 +20,8 @@ module Her
       def method_missing(method, attrs=nil) # {{{
         assignment_method = method.to_s =~ /\=$/
         method = method.to_s.gsub(/(\?|\!|\=)$/, "").to_sym
-        if @data and attrs and assignment_method
+        if attrs and assignment_method
+          @data ||= {}
           @data[method.to_s.gsub(/\=$/, "").to_sym] = attrs
         else
           if @data and @data.include?(method)
