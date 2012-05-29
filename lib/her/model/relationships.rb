@@ -16,7 +16,7 @@ module Her
           relationships.each do |relationship|
             name = relationship[:name]
             class_name = relationship[:class_name]
-            next unless data.include?(name)
+            next if !data.include?(name) or data[name].nil?
             data[name] = case type
               when :has_many
                 Her::Model::ORM.initialize_collection(class_name, data[name])

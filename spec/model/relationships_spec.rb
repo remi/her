@@ -137,6 +137,7 @@ describe Her::Model::Relationships do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 }.to_json] }
+          stub.get("/users/3") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization => nil }.to_json] }
           stub.get("/organizations/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company" }.to_json] }
         end
       end
@@ -152,12 +153,17 @@ describe Her::Model::Relationships do
 
       @user_with_included_data = User.find(1)
       @user_without_included_data = User.find(2)
+      @user_with_included_nil_data = User.find(3)
     end # }}}
 
     it "maps an array of included data through belongs_to" do # {{{
       @user_with_included_data.organization.class.should == Business
       @user_with_included_data.organization.id.should == 1
       @user_with_included_data.organization.name.should == "Bluth Company"
+    end # }}}
+
+    it "does not map included data if it’s nil" do # {{{
+      @user_with_included_nil_data.organization.should be_nil
     end # }}}
 
     it "fetches data that was not included through belongs_to" do # {{{
