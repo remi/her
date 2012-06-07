@@ -20,11 +20,11 @@ TWITTER_CREDENTIALS = {
 }
 
 # Initialize API
-Her::API.setup :url => "https://api.twitter.com/1/" do |builder|
-  builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
-  builder.use Faraday::Request::UrlEncoded
-  builder.use TwitterParser
-  builder.use Faraday::Adapter::NetHttp
+Her::API.setup :url => "https://api.twitter.com/1/" do |connection|
+  connection.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  connection.use Faraday::Request::UrlEncoded
+  connection.use TwitterParser
+  connection.use Faraday::Adapter::NetHttp
 end
 
 # Define classes
@@ -47,4 +47,40 @@ end
 get "/" do
   @tweets = Tweet.mentions
   haml :index
+end
+
+############################################
+
+# config/initializers/her.rb
+Her::API.setup :url => "https://api.example.com" do |connection|
+  connection.use MyAuthentication
+  connection.use Faraday::Request::UrlEncoded
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
+end
+
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  before_filter do
+    MyApp.current_user = session[:user_id] ? User.find(session[:user_id]) : nil
+  end
+end
+
+# lib/my_app.rb
+class MyApp
+  def self.current_user=(user)
+    @current_user = user
+  end
+
+  def self.current_user
+    @current_user
+  end
+end
+
+# lib/my_authentication.rb
+class MyAuthentication < Faraday::Middleware
+  def call(env)
+    env[:request_headers]["X-API-Token"] = MyApp.current_user.token if MyApp.current_user?
+    @app.call(env)
+  end
 end

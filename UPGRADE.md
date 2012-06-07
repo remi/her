@@ -4,17 +4,17 @@ Here is a list of backward-incompatible changes that were introduced while Her i
 
 * Her no longer includes default middleware when making HTTP requests. The user has now to define all the needed middleware. Before:
 
-        Her::API.setup :url => "https://api.example.com" do |builder|
-          builder.insert(0, FaradayMiddle::OAuth)
+        Her::API.setup :url => "https://api.example.com" do |connection|
+          connection.insert(0, FaradayMiddle::OAuth)
         end
 
   Now:
 
-        Her::API.setup :url => "https://api.example.com" do |builder|
-          builder.use FaradayMiddle::OAuth
-          builder.use Her::Middleware::FirstLevelParseJSON
-          builder.use Faraday::Request::UrlEncoded
-          builder.use Faraday::Adapter::NetHttp
+        Her::API.setup :url => "https://api.example.com" do |connection|
+          connection.use FaradayMiddle::OAuth
+          connection.use Her::Middleware::FirstLevelParseJSON
+          connection.use Faraday::Request::UrlEncoded
+          connection.use Faraday::Adapter::NetHttp
         end
 
 ## 0.2

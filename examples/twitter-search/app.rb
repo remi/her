@@ -33,11 +33,11 @@ end
 $cache = MyCache.new
 
 # Initialize API
-Her::API.setup :url => "http://search.twitter.com" do |builder|
-  builder.use Faraday::Request::UrlEncoded
-  builder.use FaradayMiddleware::Caching, $cache
-  builder.use TwitterSearchParser
-  builder.use Faraday::Adapter::NetHttp
+Her::API.setup :url => "http://search.twitter.com" do |connection|
+  connection.use Faraday::Request::UrlEncoded
+  connection.use FaradayMiddleware::Caching, $cache
+  connection.use TwitterSearchParser
+  connection.use Faraday::Adapter::NetHttp
 end
 
 # Define classes

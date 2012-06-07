@@ -22,10 +22,10 @@ First, you have to define which API your models will be bound to. For example, w
 
 ```ruby
 # config/initializers/her.rb
-Her::API.setup :url => "https://api.example.com" do |builder|
-  builder.use Faraday::Request::UrlEncoded
-  builder.use Her::Middleware::DefaultParseJSON
-  builder.use Faraday::Adapter::NetHttp
+Her::API.setup :url => "https://api.example.com" do |connection|
+  connection.use Faraday::Request::UrlEncoded
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -64,11 +64,11 @@ You can look into the `examples` directory for sample applications using Her.
 
 ## Middleware
 
-Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `builder` object and are able to customize the middleware stack used on each request and response.
+Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can add additional middleware to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `connection` object and are able to customize the middleware stack used on each request and response.
 
 ### Authentication
 
-Her doesn’t support any kind of authentication. However, it’s very easy to implement one with a request middleware. Using the builder block, we add it to the default list of middleware.
+Her doesn’t support any kind of authentication. However, it’s very easy to implement one with a request middleware. Using the connection block, we add it to the default list of middleware.
 
 ```ruby
 class MyAuthentication < Faraday::Middleware
@@ -82,13 +82,13 @@ class MyAuthentication < Faraday::Middleware
   end
 end
 
-Her::API.setup :url => "https://api.example.com" do |builder|
+Her::API.setup :url => "https://api.example.com" do |connection|
   # This token could be stored in the client session
-  builder.use MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
+  connection.use MyAuthentication, :token => "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
 
-  builder.use Faraday::Request::UrlEncoded
-  builder.use Her::Middleware::DefaultParseJSON
-  builder.use Faraday::Adapter::NetHttp
+  connection.use Faraday::Request::UrlEncoded
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -106,7 +106,7 @@ By default, Her handles JSON data. It expects the resource/collection data to be
 [{ "id" : 1, "name" : "Tobias Fünke" }]
 ```
 
-However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the builder block, we then replace the default parser with our custom parser.
+However, you can define your own parsing method, using a response middleware. The middleware is expected to set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code enables parsing JSON data and treating the result as first-level properties. Using the connection block, we then replace the default parser with our custom parser.
 
 ```ruby
 class MyCustomParser < Faraday::Response::Middleware
@@ -120,10 +120,10 @@ class MyCustomParser < Faraday::Response::Middleware
   end
 end
 
-Her::API.setup :url => "https://api.example.com" do |builder|
-  builder.use Faraday::Request::UrlEncoded
-  builder.use MyCustomParser
-  builder.use Faraday::Adapter::NetHttp
+Her::API.setup :url => "https://api.example.com" do |connection|
+  connection.use Faraday::Request::UrlEncoded
+  connection.use MyCustomParser
+  connection.use Faraday::Adapter::NetHttp
 end
 # User.find(1) will now expect "https://api.example.com/users/1" to return something like '{ "result" => { "id": 1, "name": "Tobias Fünke" }, "errors" => [] }'
 ```
@@ -151,11 +151,11 @@ TWITTER_CREDENTIALS = {
   :token_secret => ""
 }
 
-Her::API.setup :url => "https://api.twitter.com/1/" do |builder|
-  builder.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
-  builder.use Faraday::Request::UrlEncoded
-  builder.use Her::Middleware::DefaultParseJSON
-  builder.use Faraday::Adapter::NetHttp
+Her::API.setup :url => "https://api.twitter.com/1/" do |connection|
+  connection.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  connection.use Faraday::Request::UrlEncoded
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
 end
 
 class Tweet
@@ -199,11 +199,11 @@ end
 # We should be probably using something like Memcached here, not a global object
 $cache = MyCache.new
 
-Her::API.setup :url => "https://api.example.com" do |builder|
-  builder.use Faraday::Request::UrlEncoded
-  builder.use FaradayMiddleware::Caching, $cache
-  builder.use Her::Middleware::DefaultParseJSON
-  builder.use Faraday::Adapter::NetHttp
+Her::API.setup :url => "https://api.example.com" do |connection|
+  connection.use Faraday::Request::UrlEncoded
+  connection.use FaradayMiddleware::Caching, $cache
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
 end
 
 class User
@@ -403,17 +403,17 @@ It is possible to use different APIs for different models. Instead of calling `H
 ```ruby
 # config/initializers/her.rb
 $my_api = Her::API.new
-$my_api.setup :url => "https://my_api.example.com" do |builder|
-  builder.use Faraday::Request::UrlEncoded
-  builder.use Her::Middleware::DefaultParseJSON
-  builder.use Faraday::Adapter::NetHttp
+$my_api.setup :url => "https://my_api.example.com" do |connection|
+  connection.use Faraday::Request::UrlEncoded
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
 end
 
 $other_api = Her::API.new
-$other_api.setup :url => "https://other_api.example.com" do |builder|
-  builder.use Faraday::Request::UrlEncoded
-  builder.use Her::Middleware::DefaultParseJSON
-  builder.use Faraday::Adapter::NetHttp
+$other_api.setup :url => "https://other_api.example.com" do |connection|
+  connection.use Faraday::Request::UrlEncoded
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -443,10 +443,10 @@ When initializing `Her::API`, you can pass any parameter supported by `Faraday.n
 
 ```ruby
 ssl_options = { :ca_path => "/usr/lib/ssl/certs" }
-Her::API.setup :url => "https://api.example.com", :ssl => ssl_options do |builder|
-  builder.use Faraday::Request::UrlEncoded
-  builder.use Her::Middleware::DefaultParseJSON
-  builder.use Faraday::Adapter::NetHttp
+Her::API.setup :url => "https://api.example.com", :ssl => ssl_options do |connection|
+  connection.use Faraday::Request::UrlEncoded
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -464,10 +464,10 @@ end
 # spec/models/post.rb
 describe Post do
   before do
-    Her::API.setup :url => "http://api.example.com" do |builder|
-      builder.use Her::Middleware::FirstLevelParseJSON
-      builder.use Faraday::Request::UrlEncoded
-      builder.adapter :test do |stub|
+    Her::API.setup :url => "http://api.example.com" do |connection|
+      connection.use Her::Middleware::FirstLevelParseJSON
+      connection.use Faraday::Request::UrlEncoded
+      connection.adapter :test do |stub|
         stub.get("/users/popular") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
       end
     end

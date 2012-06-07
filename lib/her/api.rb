@@ -29,10 +29,10 @@ module Her
     #       @all.call(env)
     #     end
     #   end
-    #   Her::API.setup :url => "https://api.example.com" do |builder|
-    #     builder.use Faraday::Request::UrlEncoded
-    #     builder.use Her::Middleware::DefaultParseJSON
-    #     builder.use Faraday::Adapter::NetHttp
+    #   Her::API.setup :url => "https://api.example.com" do |connection|
+    #     connection.use Faraday::Request::UrlEncoded
+    #     connection.use Her::Middleware::DefaultParseJSON
+    #     connection.use Faraday::Adapter::NetHttp
     #   end
     #
     # @example A custom parse middleware
@@ -44,10 +44,10 @@ module Her
     #       env[:body] = { :data => json, :errors => errors, :metadata => metadata }
     #     end
     #   end
-    #   Her::API.setup :url => "https://api.example.com" do |builder|
-    #     builder.use Faraday::Request::UrlEncoded
-    #     builder.use MyCustomParser
-    #     builder.use Faraday::Adapter::NetHttp
+    #   Her::API.setup :url => "https://api.example.com" do |connection|
+    #     connection.use Faraday::Request::UrlEncoded
+    #     connection.use MyCustomParser
+    #     connection.use Faraday::Adapter::NetHttp
     #   end
     def setup(attrs={}) # {{{
       attrs[:url] = attrs.delete(:base_uri) if attrs.include?(:base_uri) # Support legacy :base_uri option
