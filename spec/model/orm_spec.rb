@@ -60,6 +60,61 @@ describe Her::Model::ORM do
     end# }}}
   end
 
+  context "defining custom getters and setters" do
+    before do # {{{
+      api = Her::API.new
+      api.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :friends => ["Maeby", "GOB", "Anne"] }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { :id => 1, :organization => true }.to_json] }
+        end
+      end
+
+      spawn_model :User do
+        uses_api api
+        belongs_to :organization
+
+        def friends=(val)
+          val = val.gsub("\r", "").split("\n").map { |friend| friend.gsub(/^\s*\*\s*/, "") } if val and val.is_a?(String)
+          @data[:friends] = val
+        end
+
+        def friends
+          @data[:friends].map { |friend| "* #{friend}" }.join("\n")
+        end
+
+        # Why would anybody want to do this? I don’t know.
+        def organization=(organization)
+          @data[:organization] = { :foo => :bar }
+        end
+      end
+    end # }}}
+
+    it "handles custom setters" do # {{{
+      @user = User.find(1)
+      @user.friends.should == "* Maeby\n* GOB\n* Anne"
+      @user.instance_eval do
+        @data[:friends] = ["Maeby", "GOB", "Anne"]
+      end
+    end # }}}
+
+    it "handles custom setters with relationships" do # {{{
+      @user = User.find(2)
+      @user.organization.should == { :foo => :bar }
+    end # }}}
+
+    it "handles custom getters" do # {{{
+      @user = User.new
+      @user.friends = "* George\n* Oscar\n* Lucille"
+      @user.friends.should == "* George\n* Oscar\n* Lucille"
+      @user.instance_eval do
+        @data[:friends] = ["George", "Oscar", "Lucille"]
+      end
+    end # }}}
+  end
+
   context "creating resources" do
     before do # {{{
       Her::API.setup :url => "https://api.example.com" do |builder|

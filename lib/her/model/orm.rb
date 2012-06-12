@@ -5,8 +5,13 @@ module Her
       # Initialize a new object with data received from an HTTP request
       # @private
       def initialize(single_data={}) # {{{
-        @data = single_data
-        @data = self.class.parse_relationships(@data)
+        @data = {}
+        cleaned_data = single_data.inject({}) do |memo, item|
+          key, value = item
+          send "#{key}=".to_sym, value unless value.nil?
+          respond_to?("#{key}=") ? memo : memo.merge({ key => value })
+        end
+        @data.merge! self.class.parse_relationships(cleaned_data)
       end # }}}
 
       # Initialize a collection of resources
@@ -20,7 +25,7 @@ module Her
       def method_missing(method, attrs=nil) # {{{
         assignment_method = method.to_s =~ /\=$/
         method = method.to_s.gsub(/(\?|\!|\=)$/, "").to_sym
-        if attrs and assignment_method
+        if !attrs.nil? and assignment_method
           @data ||= {}
           @data[method.to_s.gsub(/\=$/, "").to_sym] = attrs
         else
