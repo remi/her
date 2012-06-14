@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Rémi Prévost"]
   s.email       = ["remi@exomel.com"]
   s.homepage    = "http://remiprev.github.com/her"
+  s.license     = "MIT"
   s.summary     = "A simple Representational State Transfer-based Hypertext Transfer Protocol-powered Object Relational Mapper. Her?"
   s.description = "Her is an ORM that maps REST resources and collections to Ruby objects"
 
