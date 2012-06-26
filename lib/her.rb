@@ -9,6 +9,7 @@ require "her/model"
 require "her/api"
 require "her/middleware"
 require "her/errors"
+require "her/collection"
 
 module Her
 end

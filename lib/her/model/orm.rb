@@ -2,11 +2,15 @@ module Her
   module Model
     # This module adds ORM-like capabilities to the model
     module ORM
+      attr_reader :metadata, :errors
+
       # Initialize a new object with data received from an HTTP request
       # @private
-      def initialize(single_data={}) # {{{
+      def initialize(data={}) # {{{
         @data = {}
-        cleaned_data = single_data.inject({}) do |memo, item|
+        @metadata = data.delete(:_metadata) || {}
+        @errors = data.delete(:_errors) || {}
+        cleaned_data = data.inject({}) do |memo, item|
           key, value = item
           send "#{key}=".to_sym, value unless value.nil?
           respond_to?("#{key}=") ? memo : memo.merge({ key => value })
@@ -16,8 +20,11 @@ module Her
 
       # Initialize a collection of resources
       # @private
-      def self.initialize_collection(name, collection_data) # {{{
-        collection_data.map { |item_data| Object.const_get(name.to_s.classify).new(item_data) }
+      def self.initialize_collection(name, parsed_data={}) # {{{
+        collection_data = parsed_data[:data].map do |item_data|
+          Object.const_get(name.to_s.classify).new(item_data)
+        end
+        Her::Collection.new(collection_data, parsed_data[:metadata], parsed_data[:errors])
       end # }}}
 
       # Handles missing methods by routing them through @data
@@ -45,14 +52,24 @@ module Her
 
       # Initialize a collection of resources with raw data from an HTTP request
       #
-      # @param [Array] collection_data An array of model hashes
-      def new_collection(collection_data) # {{{
-        Her::Model::ORM.initialize_collection(self.to_s.underscore, collection_data)
+      # @param [Array] parsed_data
+      def new_collection(parsed_data) # {{{
+        Her::Model::ORM.initialize_collection(self.to_s.underscore, parsed_data)
       end # }}}
 
       # Return `true` if a resource was not saved yet
       def new? # {{{
         !@data.include?(:id)
+      end # }}}
+
+      # Return `true` if a resource does not contain errors
+      def valid? # {{{
+        @errors.empty?
+      end # }}}
+
+      # Return `true` if a resource contains errors
+      def invalid? # {{{
+        @errors.any?
       end # }}}
 
       # Fetch a specific resource based on an ID
@@ -73,7 +90,7 @@ module Her
       #   # Fetched via GET "/users"
       def all(params={}) # {{{
         request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data|
-          new_collection(parsed_data[:data])
+          new_collection(parsed_data)
         end
       end # }}}
 
@@ -89,6 +106,8 @@ module Her
           request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
             resource.instance_eval do
               @data = parsed_data[:data]
+              @metadata = parsed_data[:metadata]
+              @errors = parsed_data[:errors]
             end
           end
         end
@@ -133,6 +152,8 @@ module Her
         self.class.wrap_in_hooks(resource, *hooks) do |resource, klass|
           klass.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data|
             @data = parsed_data[:data]
+            @metadata = parsed_data[:metadata]
+            @errors = parsed_data[:errors]
           end
         end
         self
@@ -150,6 +171,8 @@ module Her
         self.class.wrap_in_hooks(resource, :destroy) do |resource, klass|
           klass.request(params.merge(:_method => :delete, :_path => "#{request_path}")) do |parsed_data|
             @data = parsed_data[:data]
+            @metadata = parsed_data[:metadata]
+            @errors = parsed_data[:errors]
           end
         end
         self

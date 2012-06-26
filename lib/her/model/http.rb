@@ -26,9 +26,9 @@ module Her
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         get_raw(path, attrs) do |parsed_data|
           if parsed_data[:data].is_a?(Array)
-            new_collection(parsed_data[:data])
+            new_collection(parsed_data)
           else
-            new(parsed_data[:data])
+            new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
           end
         end
       end # }}}
@@ -43,7 +43,7 @@ module Her
       def get_collection(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         get_raw(path, attrs) do |parsed_data|
-          new_collection(parsed_data[:data])
+          new_collection(parsed_data)
         end
       end # }}}
 
@@ -51,7 +51,7 @@ module Her
       def get_resource(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         get_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:data])
+          new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
         end
       end # }}}
 
@@ -60,9 +60,9 @@ module Her
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         post_raw(path, attrs) do |parsed_data|
           if parsed_data[:data].is_a?(Array)
-            new_collection(parsed_data[:data])
+            new_collection(parsed_data)
           else
-            new(parsed_data[:data])
+            new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
           end
         end
       end # }}}
@@ -77,7 +77,7 @@ module Her
       def post_collection(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         post_raw(path, attrs) do |parsed_data|
-          new_collection(parsed_data[:data])
+          new_collection(parsed_data)
         end
       end # }}}
 
@@ -94,9 +94,9 @@ module Her
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         put_raw(path, attrs) do |parsed_data|
           if parsed_data[:data].is_a?(Array)
-            new_collection(parsed_data[:data])
+            new_collection(parsed_data)
           else
-            new(parsed_data[:data])
+            new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
           end
         end
       end # }}}
@@ -111,7 +111,7 @@ module Her
       def put_collection(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         put_raw(path, attrs) do |parsed_data|
-          new_collection(parsed_data[:data])
+          new_collection(parsed_data)
         end
       end # }}}
 
@@ -119,7 +119,7 @@ module Her
       def put_resource(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         put_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:data])
+          new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
         end
       end # }}}
 
@@ -128,9 +128,9 @@ module Her
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         patch_raw(path, attrs) do |parsed_data|
           if parsed_data[:data].is_a?(Array)
-            new_collection(parsed_data[:data])
+            new_collection(parsed_data)
           else
-            new(parsed_data[:data])
+            new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
           end
         end
       end # }}}
@@ -145,7 +145,7 @@ module Her
       def patch_collection(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         patch_raw(path, attrs) do |parsed_data|
-          new_collection(parsed_data[:data])
+          new_collection(parsed_data)
         end
       end # }}}
 
@@ -153,7 +153,7 @@ module Her
       def patch_resource(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         patch_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:data])
+          new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
         end
       end # }}}
 
@@ -162,9 +162,9 @@ module Her
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         delete_raw(path, attrs) do |parsed_data|
           if parsed_data[:data].is_a?(Array)
-            new_collection(parsed_data[:data])
+            new_collection(parsed_data)
           else
-            new(parsed_data[:data])
+            new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
           end
         end
       end # }}}
@@ -179,7 +179,7 @@ module Her
       def delete_collection(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         delete_raw(path, attrs) do |parsed_data|
-          new_collection(parsed_data[:data])
+          new_collection(parsed_data)
         end
       end # }}}
 
@@ -187,7 +187,7 @@ module Her
       def delete_resource(path, attrs={}) # {{{
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         delete_raw(path, attrs) do |parsed_data|
-          new(parsed_data[:data])
+          new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
         end
       end # }}}
 
