@@ -66,8 +66,10 @@ module Her
     def request(attrs={}) # {{{
       method = attrs.delete(:_method)
       path = attrs.delete(:_path)
+      headers = attrs.delete(:_headers)
       attrs.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
       response = @connection.send method do |request|
+        request.headers.merge!(headers) if headers
         if method == :get
           # For GET requests, treat additional parameters as querystring data
           request.url path, attrs

@@ -57,6 +57,26 @@ describe Her::API do
         parsed_data[:data] == "Foo, it is."
       end # }}}
 
+      it "makes HTTP requests while specifying custom HTTP headers" do # {{{
+        class SimpleParser < Faraday::Response::Middleware
+          def on_complete(env)
+            env[:body] = { :data => env[:body] }
+          end
+        end
+
+        @api = Her::API.new
+        @api.setup :url => "https://api.example.com" do |builder|
+          builder.use SimpleParser
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/foo") { |env| [200, {}, "Foo it is #{env[:request_headers]["X-Page"]}"] }
+          end
+        end
+
+        parsed_data = @api.request(:_method => :get, :_path => "/foo", :_headers => { "X-Page" => 2 })
+        parsed_data[:data] == "Foo, it is page 2."
+      end # }}}
+
       it "parses a request with the default parser" do # {{{
         @api = Her::API.new
         @api.setup :url => "https://api.example.com" do |builder|
