@@ -64,11 +64,11 @@ You can look into the `examples` directory for sample applications using Her.
 
 ## Middleware
 
-Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can choose the middleware used to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `builder` object and are able to customize the middleware stack used on each request and response.
+Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can choose the middleware used to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `connection` object and are able to customize the middleware stack used on each request and response.
 
 ### Authentication
 
-Her doesn’t support authentication by default. However, it’s easy to implement one with request middleware. Using the `builder` block, we can add it to the middleware stack.
+Her doesn’t support authentication by default. However, it’s easy to implement one with request middleware. Using the `connection` block, we can add it to the middleware stack.
 
 For example, to add a API token header to your requests, you would do something like this:
 
