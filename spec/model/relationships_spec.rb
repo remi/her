@@ -138,29 +138,19 @@ describe Her::Model::Relationships do
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 }.to_json] }
           stub.get("/users/3") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization => nil }.to_json] }
-          stub.get("/organizations/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company" }.to_json] }
+          stub.get("/companies/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company" }.to_json] }
         end
       end
-
 
       spawn_model "Foo::User" do
         belongs_to :company, :path => "/organizations/:id", :foreign_key => :organization_id
       end
 
-<<<<<<< HEAD
-      spawn_model :Business do
-        collection_path "/organizations"
-      end
-
-      @user_with_included_data = User.find(1)
-      @user_without_included_data = User.find(2)
-      @user_with_included_nil_data = User.find(3)
-=======
       spawn_model "Foo::Company"
 
       @user_with_included_data = Foo::User.find(1)
       @user_without_included_data = Foo::User.find(2)
->>>>>>> Use submodels in relationships_spec.rb and add better support for submodels.
+      @user_with_included_nil_data = Foo::User.find(3)
     end # }}}
 
     it "maps an array of included data through belongs_to" do # {{{

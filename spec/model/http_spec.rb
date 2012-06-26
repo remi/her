@@ -8,7 +8,7 @@ describe Her::Model::HTTP do
       api.setup :url => "https://api.example.com"
 
       spawn_model "Foo::User"
-      Foo::User.uses_api @api
+      Foo::User.uses_api api
 
       Foo::User.class_eval do
         @her_api.should_not == nil
@@ -35,7 +35,7 @@ describe Her::Model::HTTP do
       end
 
       spawn_model "Foo::User"
-      Foo::User.uses_api @api1
+      Foo::User.uses_api api1
 
       Foo::User.class_eval do
         @her_api.base_uri.should == "https://api1.example.com"
@@ -48,7 +48,7 @@ describe Her::Model::HTTP do
       end
 
       spawn_model "Foo::Comment"
-      Foo::Comment.uses_api @api2
+      Foo::Comment.uses_api api2
 
       Foo::Comment.class_eval do
         @her_api.base_uri.should == "https://api2.example.com"
@@ -74,7 +74,7 @@ describe Her::Model::HTTP do
       end
 
       spawn_model "Foo::Comment"
-      Foo::Comment.uses_api @api
+      Foo::Comment.uses_api api
 
       Foo::Comment.class_eval do
         @her_api.base_uri.should == "https://api2.example.com"
@@ -105,7 +105,6 @@ describe Her::Model::HTTP do
       end
 
       spawn_model "Foo::User"
-      Foo::User.uses_api @api
     end # }}}
 
     it "handle GET wrapper method" do # {{{
@@ -194,7 +193,6 @@ describe Her::Model::HTTP do
       end
 
       spawn_model "Foo::User"
-      Foo::User.uses_api @api
       Foo::User.custom_get :popular, :foobar
       Foo::User.custom_post :from_default
     end # }}}

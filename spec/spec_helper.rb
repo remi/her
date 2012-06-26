@@ -4,8 +4,6 @@ require "her"
 require "mocha"
 
 RSpec.configure do |c|
-  FakeWeb.allow_net_connect = false
-
   c.before :each do
     @globals = []
   end

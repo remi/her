@@ -41,27 +41,22 @@ describe Her::Model::ORM do
     end # }}}
 
     it "handles new resource" do # {{{
-<<<<<<< HEAD
-      @new_user = User.new(:fullname => "Tobias Fünke", :medicine_license => nil)
-=======
       @new_user = Foo::User.new(:fullname => "Tobias Fünke")
->>>>>>> Use submodels in orm_spec.rb
       @new_user.new?.should be_true
       @new_user.fullname.should == "Tobias Fünke"
-      @new_user.medicine_license.should be_nil
 
       @existing_user = Foo::User.find(1)
       @existing_user.new?.should be_false
     end # }}}
 
     it "handles method missing for getter" do# {{{
-      @new_user = User.new(:fullname => 'Mayonegg')
+      @new_user = Foo::User.new(:fullname => 'Mayonegg')
       lambda { @new_user.unknown_method_for_a_user }.should raise_error(NoMethodError)
       expect { @new_user.fullname }.to_not raise_error(NoMethodError)
     end# }}}
 
     it "handles method missing for setter" do# {{{
-      @new_user = User.new
+      @new_user = Foo::User.new
       expect { @new_user.fullname = "Tobias Fünke" }.to_not raise_error(NoMethodError)
     end# }}}
   end

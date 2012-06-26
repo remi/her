@@ -121,7 +121,7 @@ describe Her::Model::Hooks do
         end
       end
 
-      spawn_model :User do
+      spawn_model "Foo::User" do
         attr_accessor :internal_save_id, :internal_create_id, :internal_update_id, :internal_destroy_id
         attr_accessor :internal_after_save_id, :internal_after_create_id, :internal_after_update_id, :internal_after_destroy_id
 

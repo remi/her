@@ -104,7 +104,6 @@ describe Her::Model::Paths do
       end
 
       spawn_model "Foo::User" do
-        uses_api api
         collection_path "/organizations/:organization_id/users"
       end
     end # }}}
