@@ -8,11 +8,10 @@ describe Her::Model::Introspection do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.post("/users")     { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-          stub.get("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-          stub.put("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.post("/users")     { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
+          stub.get("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
+          stub.put("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
+          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
         end
       end
 
@@ -22,7 +21,7 @@ describe Her::Model::Introspection do
     describe "#inspect" do
       it "outputs resource attributs for an existing resource" do # {{{
         @user = Foo::User.find(1)
-        ["#<Foo::User(/users/1) name=\"Tobias Fünke\" id=1>", "#<Foo::User(/users/1) id=1 name=\"Tobias Fünke\">"].should include(@user.inspect)
+        ["#<Foo::User(/users/1) name=\"Tobias Funke\" id=1>", "#<Foo::User(/users/1) id=1 name=\"Tobias Funke\">"].should include(@user.inspect)
       end # }}}
 
       it "outputs resource attributs for an not-saved-yet resource" do # {{{
