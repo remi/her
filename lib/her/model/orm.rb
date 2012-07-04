@@ -166,10 +166,9 @@ module Her
       #   @user.destroy
       #   # Called via DELETE "/users/1"
       def destroy # {{{
-        params = @data.dup
         resource = self
         self.class.wrap_in_hooks(resource, :destroy) do |resource, klass|
-          klass.request(params.merge(:_method => :delete, :_path => "#{request_path}")) do |parsed_data|
+          klass.request(:_method => :delete, :_path => "#{request_path}") do |parsed_data|
             @data = parsed_data[:data]
             @metadata = parsed_data[:metadata]
             @errors = parsed_data[:errors]
