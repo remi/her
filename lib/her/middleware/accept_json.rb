@@ -1,7 +1,7 @@
 module Her
   module Middleware
     # This middleware adds a "Accept: application/json" HTTP header
-    class AcceptJSON
+    class AcceptJSON < Faraday::Middleware
       def add_header(headers) # {{{
         headers.merge! "Accept" => "application/json"
       end # }}}
