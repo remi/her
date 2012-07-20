@@ -34,7 +34,7 @@ describe Her::Model::Paths do
 
         it "raises exceptions when building a path without required custom variables" do # {{{
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
-          expect { Foo::User.build_request_path(:id => "foo") }.should raise_error(Her::Errors::PathError)
+          expect { Foo::User.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError)
         end # }}}
       end
     end
@@ -70,20 +70,20 @@ describe Her::Model::Paths do
 
         it "raises exceptions when building a path without required custom variables" do # {{{
           Foo::AdminUser.collection_path "/organizations/:organization_id/users"
-          expect { Foo::AdminUser.build_request_path(:id => "foo") }.should raise_error(Her::Errors::PathError)
+          expect { Foo::AdminUser.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError)
         end # }}}
       end
     end
 
     context "nested model" do
       before do # {{{
-        spawn_model "Base::User"
+        spawn_model "Foo::User"
       end # }}}
 
       describe "#build_request_path" do
         it "builds paths with defaults" do # {{{
-          Base::User.build_request_path(:id => "foo").should == "/users/foo"
-          Base::User.build_request_path.should == "/users"
+          Foo::User.build_request_path(:id => "foo").should == "/users/foo"
+          Foo::User.build_request_path.should == "/users"
         end # }}}
       end
     end

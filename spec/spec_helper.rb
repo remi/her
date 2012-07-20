@@ -1,9 +1,11 @@
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
 require "her"
-require "mocha"
+require "mocha_standalone"
 
 RSpec.configure do |c|
+  c.mock_with :mocha
+
   c.before :each do
     @globals = []
   end
