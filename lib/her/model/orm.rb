@@ -131,10 +131,11 @@ module Her
 
       private
 
-      def writer_method_defined?(key)
+      # @private
+      def writer_method_defined?(key) # {{{
         self.class.instance_methods.include?("#{key}=".to_sym) || # Ruby 1.9
           self.class.instance_methods.include?("#{key}=") # Ruby 1.8
-      end
+      end # }}}
 
       module ClassMethods
         # Initialize a collection of resources with raw data from an HTTP request
