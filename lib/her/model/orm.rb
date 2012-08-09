@@ -29,19 +29,21 @@ module Her
 
       # Handles missing methods by routing them through @data
       # @private
-      def method_missing(method, attrs=nil) # {{{
-        assignment_method = method.to_s =~ /\=$/
-        method = method.to_s.gsub(/(\?|\!|\=)$/, "").to_sym
-        if !attrs.nil? and assignment_method
-          @data ||= {}
-          @data[method.to_s.gsub(/\=$/, "").to_sym] = attrs
+      def method_missing(method, *args, &blk) # {{{
+        if method.to_s.end_with?('=')
+          @data[method.to_s.chomp('=').to_sym] = args.first
+        elsif method.to_s.end_with?('?')
+          @data.include?(method.to_s.chomp('?').to_sym)
+        elsif @data.include?(method)
+          @data[method]
         else
-          if @data and @data.include?(method)
-            @data[method]
-          else
-            super
-          end
+          super
         end
+      end # }}}
+
+      # Handles returning true for the cases handled by method_missing
+      def respond_to?(method, include_private = false) # {{{
+        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @data.include?(method) || super
       end # }}}
 
       # Override the method to prevent from returning the object ID (in ruby-1.8.7)
