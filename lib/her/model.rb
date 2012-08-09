@@ -29,10 +29,10 @@ module Her
     included do
       extend Her::Model::Base
       extend Her::Model::HTTP
-      extend Her::Model::ORM
+      extend Her::Model::ORM::ClassMethods
       extend Her::Model::Relationships
       extend Her::Model::Hooks
-      extend Her::Model::Paths
+      extend Her::Model::Paths::ClassMethods
 
       # Define default settings
       base_path = self.name.split("::").last.underscore.pluralize
