@@ -100,7 +100,7 @@ module Her
       def create(params={}) # {{{
         resource = new(params)
         wrap_in_hooks(resource, :create, :save) do |resource, klass|
-          params = resource.instance_eval { @data }
+          params = resource.to_params
           request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
             resource.instance_eval do
               @data = parsed_data[:data]
@@ -136,7 +136,7 @@ module Her
       #   @user.save
       #   # Called via POST "/users"
       def save # {{{
-        params = @data.dup
+        params = to_params
         resource = self
 
         if @data[:id]
@@ -184,6 +184,15 @@ module Her
         request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
           new(parsed_data[:data])
         end
+      end # }}}
+
+      # Convert into a hash of request parameters
+      #
+      # @example
+      #   @user.to_params
+      #   # => { :id => 1, :name => 'John Smith' }
+      def to_params # {{{
+        @data.dup
       end # }}}
     end
   end
