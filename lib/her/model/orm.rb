@@ -10,10 +10,12 @@ module Her
         @data = {}
         @metadata = data.delete(:_metadata) || {}
         @errors = data.delete(:_errors) || {}
+
+        # Only keep the keys that don't have corresponding writer methods
         cleaned_data = data.inject({}) do |memo, item|
           key, value = item
           send "#{key}=".to_sym, value unless value.nil?
-          respond_to?("#{key}=") ? memo : memo.merge({ key => value })
+          writer_method_defined?(key) ? memo : memo.merge({ key => value })
         end
         @data.merge! self.class.parse_relationships(cleaned_data)
       end # }}}
@@ -124,6 +126,12 @@ module Her
       def to_params # {{{
         @data.dup
       end # }}}
+
+      private
+
+      def writer_method_defined?(key)
+        self.class.instance_methods.include? "#{key}=".to_sym
+      end
 
       module ClassMethods
         # Initialize a collection of resources with raw data from an HTTP request
