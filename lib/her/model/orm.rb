@@ -132,7 +132,8 @@ module Her
       private
 
       def writer_method_defined?(key)
-        self.class.instance_methods.include? "#{key}=".to_sym
+        self.class.instance_methods.include?("#{key}=".to_sym) || # Ruby 1.9
+          self.class.instance_methods.include?("#{key}=") # Ruby 1.8
       end
 
       module ClassMethods
