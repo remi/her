@@ -9,11 +9,8 @@ describe Her::Model::HTTP do
 
       spawn_model "Foo::User"
       Foo::User.uses_api api
-
-      Foo::User.class_eval do
-        @her_api.should_not == nil
-        @her_api.base_uri.should == "https://api.example.com"
-      end
+      Foo::User.her_api.should_not == nil
+      Foo::User.her_api.base_uri.should == "https://api.example.com"
     end # }}}
 
     it "binds a model directly to Her::API" do # {{{
@@ -21,10 +18,8 @@ describe Her::Model::HTTP do
 
       spawn_model "Foo::User"
 
-      Foo::User.class_eval do
-        @her_api.should_not == nil
-        @her_api.base_uri.should == "https://api.example.com"
-      end
+      Foo::User.her_api.should_not == nil
+      Foo::User.her_api.base_uri.should == "https://api.example.com"
     end # }}}
 
     it "binds two models to two different instances of Her::API" do # {{{
@@ -36,10 +31,7 @@ describe Her::Model::HTTP do
 
       spawn_model "Foo::User"
       Foo::User.uses_api api1
-
-      Foo::User.class_eval do
-        @her_api.base_uri.should == "https://api1.example.com"
-      end
+      Foo::User.her_api.base_uri.should == "https://api1.example.com"
 
       api2 = Her::API.new
       api2.setup :url => "https://api2.example.com" do |builder|
@@ -49,10 +41,7 @@ describe Her::Model::HTTP do
 
       spawn_model "Foo::Comment"
       Foo::Comment.uses_api api2
-
-      Foo::Comment.class_eval do
-        @her_api.base_uri.should == "https://api2.example.com"
-      end
+      Foo::Comment.her_api.base_uri.should == "https://api2.example.com"
     end # }}}
 
     it "binds one model to Her::API and another one to an instance of Her::API" do # {{{
@@ -63,9 +52,7 @@ describe Her::Model::HTTP do
 
       spawn_model "Foo::User"
 
-      Foo::User.class_eval do
-        @her_api.base_uri.should == "https://api1.example.com"
-      end
+      Foo::User.her_api.base_uri.should == "https://api1.example.com"
 
       api = Her::API.new
       api.setup :url => "https://api2.example.com" do |builder|
@@ -75,11 +62,47 @@ describe Her::Model::HTTP do
 
       spawn_model "Foo::Comment"
       Foo::Comment.uses_api api
-
-      Foo::Comment.class_eval do
-        @her_api.base_uri.should == "https://api2.example.com"
-      end
+      Foo::Comment.her_api.base_uri.should == "https://api2.example.com"
     end # }}}
+
+    it "binds a a model to it's superclass' her_api" do
+      api = Her::API.new
+      api.setup :url => "http://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      spawn_model "Foo::Superclass" do
+        uses_api api
+      end
+
+      Foo::Subclass = Class.new(Foo::Superclass)
+      Foo::Subclass.her_api.should == Foo::Superclass.her_api
+    end
+
+    it "allows subclasses to change her_api without changing the parent class' her_api" do
+      api1 = Her::API.new
+      api1.setup :url => "http://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      spawn_model "Foo::Superclass" do
+        uses_api api1
+      end
+
+      api2 = Her::API.new
+      api2.setup :url => "http://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      Foo::Subclass = Class.new(Foo::Superclass) do
+        uses_api api2
+      end
+
+      Foo::Subclass.her_api.should_not == Foo::Superclass.her_api
+    end
   end
 
   context "making HTTP requests" do

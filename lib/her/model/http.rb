@@ -2,6 +2,13 @@ module Her
   module Model
     # This module interacts with Her::API to fetch HTTP data
     module HTTP
+      # Automatically inherit a superclass' api
+      def her_api # {{{
+        @her_api ||= begin
+          superclass.her_api if superclass.respond_to?(:her_api)
+        end
+      end # }}}
+
       # Link a model with a Her::API object
       def uses_api(api) # {{{
         @her_api = api
@@ -10,7 +17,7 @@ module Her
       # Main request wrapper around Her::API. Used to make custom request to the API.
       # @private
       def request(attrs={}, &block) # {{{
-        yield @her_api.request(attrs)
+        yield her_api.request(attrs)
       end # }}}
 
       # Make a GET request and return either a collection or a resource
