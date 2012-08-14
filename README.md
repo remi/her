@@ -1,4 +1,4 @@
-# Her [![Build Status](https://secure.travis-ci.org/remiprev/her.png)](http://travis-ci.org/remiprev/her) [![Gem dependency status](https://gemnasium.com/remiprev/her.png?travis)](https://gemnasium.com/remiprev/her)
+# Her [![Build Status](https://secure.travis-ci.org/remiprev/her.png?branch=master)](http://travis-ci.org/remiprev/her) [![Gem dependency status](https://gemnasium.com/remiprev/her.png?travis)](https://gemnasium.com/remiprev/her)
 
 Her is an ORM (Object Relational Mapper) that maps REST resources to Ruby objects. It is designed to build applications that are powered by a RESTful API instead of a database.
 

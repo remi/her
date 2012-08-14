@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "redcarpet", "~> 2.1"
   s.add_development_dependency "mocha", "~> 0.12"
   s.add_development_dependency "guard", "~> 1.2"
-  s.add_development_dependency "guard-rspec", "~> 0.7"
+  s.add_development_dependency "guard-rspec", "~> 1.2"
   s.add_development_dependency "rb-fsevent", "~> 0.9"
   s.add_development_dependency "growl", "~> 1.0"
 
