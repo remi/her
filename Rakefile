@@ -1,6 +1,6 @@
 require "bundler"
-Bundler.require :development
-
+require "rake"
+require "yard"
 require "bundler/gem_tasks"
 require "rspec/core/rake_task"
 
