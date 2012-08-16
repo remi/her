@@ -549,6 +549,7 @@ These fine folks helped with Her:
 * [@tysontate](https://github.com/tysontate)
 * [@nfo](https://github.com/nfo)
 * [@simonprevost](https://github.com/simonprevost)
+* [@jmlacroix](https://github.com/jmlacroix)
 
 ## License
 
