@@ -56,7 +56,7 @@ module Her
       #
       #   User.find(1) # Fetched via GET /utilisateurs/1
       def request_path # {{{
-        self.class.build_request_path(to_params)
+        self.class.build_request_path(@data.dup)
       end # }}}
     end
   end
