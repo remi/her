@@ -70,14 +70,30 @@ module Her
         @errors.any?
       end # }}}
 
-      # Fetch a specific resource based on an ID
+      # Fetch specific resource(s) by their ID
       #
       # @example
       #   @user = User.find(1)
       #   # Fetched via GET "/users/1"
-      def find(id, params={}) # {{{
-        request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
-          new(parsed_data[:data])
+      #
+      # @example
+      #   @users = User.find(1, 2)
+      #   # Fetched via GET "/users/1" and GET "/users/2"
+      def find(*ids) # {{{
+        params = ids.last.is_a?(Hash) ? ids.pop : {}
+        results = ids.map do |id|
+          request_params = params.merge(
+            :_method => :get,
+            :_path => "#{build_request_path(params.merge(:id => id))}"
+          )
+          request(request_params) do |parsed_data|
+            new(parsed_data[:data])
+          end
+        end
+        if ids.length == 1
+          results.first
+        else
+          results
         end
       end # }}}
 

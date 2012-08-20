@@ -155,6 +155,44 @@ describe Her::Model::ORM do
     end # }}}
   end
 
+  context "finding resources" do
+    before do # {{{
+      api = Her::API.new
+      api.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :age => 42 }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { :id => 2, :age => 34 }.to_json] }
+          stub.get("/users?age=42") { |env| [200, {}, [{ :id => 1, :age => 42 }].to_json] }
+        end
+      end
+
+      spawn_model :User do
+        uses_api api
+      end
+    end # }}}
+
+    it "handles finding by a single id" do # {{{
+      @user = User.find(1)
+      @user.id.should == 1
+    end # }}}
+
+    it "handles finding by multiple ids" do # {{{
+      @users = User.find(1, 2)
+      @users.should be_kind_of(Array)
+      @users.length.should == 2
+      @users[0].id.should == 1
+      @users[1].id.should == 2
+    end # }}}
+
+    it "handles finding with other parameters" do # {{{
+      @users = User.all(:age => 42)
+      @users.should be_kind_of(Array)
+      @users.should be_all { |u| u.age == 42 }
+    end # }}}
+  end
+
   context "creating resources" do
     before do # {{{
       Her::API.setup :url => "https://api.example.com" do |builder|
