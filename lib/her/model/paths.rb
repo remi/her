@@ -11,7 +11,7 @@ module Her
       #
       #   User.find(1) # Fetched via GET /utilisateurs/1
       def request_path # {{{
-        self.class.build_request_path(to_params)
+        self.class.build_request_path(@data.dup)
       end # }}}
 
       module ClassMethods
@@ -40,25 +40,25 @@ module Her
           @her_resource_path = path
         end # }}}
 
-      # Return a custom path based on the collection path and variable parameters
-      #
-      # @example
-      #   class User
-      #     include Her::Model
-      #     collection_path "/utilisateurs"
-      #   end
-      #
-      #   User.all # Fetched via GET /utilisateurs
-      def build_request_path(path=nil, parameters={}) # {{{
-        unless path.is_a?(String)
-          parameters = path || {}
-          path = parameters.include?(:id) ? @her_resource_path : @her_collection_path
-        end
-        path.gsub(/:([\w_]+)/) do
-          # Look for :key or :_key, otherwise raise an exception
-          parameters.delete($1.to_sym) || parameters.delete("_#{$1}".to_sym) || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path (#{path})."))
-        end
-      end # }}}
+        # Return a custom path based on the collection path and variable parameters
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     collection_path "/utilisateurs"
+        #   end
+        #
+        #   User.all # Fetched via GET /utilisateurs
+        def build_request_path(path=nil, parameters={}) # {{{
+          unless path.is_a?(String)
+            parameters = path || {}
+            path = parameters.include?(:id) ? @her_resource_path : @her_collection_path
+          end
+          path.gsub(/:([\w_]+)/) do
+            # Look for :key or :_key, otherwise raise an exception
+            parameters.delete($1.to_sym) || parameters.delete("_#{$1}".to_sym) || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path (#{path})."))
+          end
+        end # }}}
       end
     end
   end
