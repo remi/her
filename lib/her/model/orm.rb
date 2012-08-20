@@ -10,10 +10,12 @@ module Her
         @data = {}
         @metadata = data.delete(:_metadata) || {}
         @errors = data.delete(:_errors) || {}
+
+        # Only keep the keys that don't have corresponding writer methods
         cleaned_data = data.inject({}) do |memo, item|
           key, value = item
           send "#{key}=".to_sym, value unless value.nil?
-          respond_to?("#{key}=") ? memo : memo.merge({ key => value })
+          writer_method_defined?(key) ? memo : memo.merge({ key => value })
         end
         @data.merge! self.class.parse_relationships(cleaned_data)
       end # }}}
@@ -27,32 +29,27 @@ module Her
 
       # Handles missing methods by routing them through @data
       # @private
-      def method_missing(method, attrs=nil) # {{{
-        assignment_method = method.to_s =~ /\=$/
-        method = method.to_s.gsub(/(\?|\!|\=)$/, "").to_sym
-        if !attrs.nil? and assignment_method
-          @data ||= {}
-          @data[method.to_s.gsub(/\=$/, "").to_sym] = attrs
+      def method_missing(method, *args, &blk) # {{{
+        if method.to_s.end_with?('=')
+          @data[method.to_s.chomp('=').to_sym] = args.first
+        elsif method.to_s.end_with?('?')
+          @data.include?(method.to_s.chomp('?').to_sym)
+        elsif @data.include?(method)
+          @data[method]
         else
-          if @data and @data.include?(method)
-            @data[method]
-          else
-            super
-          end
+          super
         end
+      end # }}}
+
+      # Handles returning true for the cases handled by method_missing
+      def respond_to?(method, include_private = false) # {{{
+        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @data.include?(method) || super
       end # }}}
 
       # Override the method to prevent from returning the object ID (in ruby-1.8.7)
       # @private
       def id # {{{
         @data[:id] || super
-      end # }}}
-
-      # Initialize a collection of resources with raw data from an HTTP request
-      #
-      # @param [Array] parsed_data
-      def new_collection(parsed_data) # {{{
-        Her::Model::ORM.initialize_collection(self, parsed_data)
       end # }}}
 
       # Return `true` if a resource was not saved yet
@@ -68,74 +65,6 @@ module Her
       # Return `true` if a resource contains errors
       def invalid? # {{{
         @errors.any?
-      end # }}}
-
-      # Fetch specific resource(s) by their ID
-      #
-      # @example
-      #   @user = User.find(1)
-      #   # Fetched via GET "/users/1"
-      #
-      # @example
-      #   @users = User.find(1, 2)
-      #   # Fetched via GET "/users/1" and GET "/users/2"
-      def find(*ids) # {{{
-        params = ids.last.is_a?(Hash) ? ids.pop : {}
-        results = ids.map do |id|
-          request_params = params.merge(
-            :_method => :get,
-            :_path => "#{build_request_path(params.merge(:id => id))}"
-          )
-          request(request_params) do |parsed_data|
-            new(parsed_data[:data])
-          end
-        end
-        if ids.length == 1
-          results.first
-        else
-          results
-        end
-      end # }}}
-
-      # Fetch a collection of resources
-      #
-      # @example
-      #   @users = User.all
-      #   # Fetched via GET "/users"
-      def all(params={}) # {{{
-        request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data|
-          new_collection(parsed_data)
-        end
-      end # }}}
-
-      # Create a resource and return it
-      #
-      # @example
-      #   @user = User.create({ :fullname => "Tobias Fünke" })
-      #   # Called via POST "/users/1"
-      def create(params={}) # {{{
-        resource = new(params)
-        wrap_in_hooks(resource, :create, :save) do |resource, klass|
-          params = resource.to_params
-          request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
-            resource.instance_eval do
-              @data = parsed_data[:data]
-              @metadata = parsed_data[:metadata]
-              @errors = parsed_data[:errors]
-            end
-          end
-        end
-        resource
-      end # }}}
-
-      # Save an existing resource and return it
-      #
-      # @example
-      #   @user = User.save_existing(1, { :fullname => "Tobias Fünke" })
-      #   # Called via PUT "/users/1"
-      def save_existing(id, params) # {{{
-        resource = new(params.merge(:id => id))
-        resource.save
       end # }}}
 
       # Save a resource
@@ -191,17 +120,6 @@ module Her
         self
       end # }}}
 
-      # Destroy an existing resource
-      #
-      # @example
-      #   User.destroy_existing(1)
-      #   # Called via DELETE "/users/1"
-      def destroy_existing(id, params={}) # {{{
-        request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
-          new(parsed_data[:data])
-        end
-      end # }}}
-
       # Convert into a hash of request parameters
       #
       # @example
@@ -210,6 +128,101 @@ module Her
       def to_params # {{{
         @data.dup
       end # }}}
+
+      private
+
+      def writer_method_defined?(key)
+        self.class.instance_methods.include?("#{key}=".to_sym) || # Ruby 1.9
+          self.class.instance_methods.include?("#{key}=") # Ruby 1.8
+      end
+
+      module ClassMethods
+        # Initialize a collection of resources with raw data from an HTTP request
+        #
+        # @param [Array] parsed_data
+        def new_collection(parsed_data) # {{{
+          Her::Model::ORM.initialize_collection(self, parsed_data)
+        end # }}}
+
+        # Fetch specific resource(s) by their ID
+        #
+        # @example
+        #   @user = User.find(1)
+        #   # Fetched via GET "/users/1"
+        #
+        # @example
+        #   @users = User.find(1, 2)
+        #   # Fetched via GET "/users/1" and GET "/users/2"
+        def find(*ids) # {{{
+          params = ids.last.is_a?(Hash) ? ids.pop : {}
+          results = ids.map do |id|
+            request_params = params.merge(
+              :_method => :get,
+              :_path => "#{build_request_path(params.merge(:id => id))}"
+            )
+            request(request_params) do |parsed_data|
+              new(parsed_data[:data])
+            end
+          end
+          if ids.length == 1
+            results.first
+          else
+            results
+          end
+        end # }}}
+
+        # Fetch a collection of resources
+        #
+        # @example
+        #   @users = User.all
+        #   # Fetched via GET "/users"
+        def all(params={}) # {{{
+          request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data|
+            new_collection(parsed_data)
+          end
+        end # }}}
+
+        # Create a resource and return it
+        #
+        # @example
+        #   @user = User.create({ :fullname => "Tobias Fünke" })
+        #   # Called via POST "/users/1"
+        def create(params={}) # {{{
+          resource = new(params)
+          wrap_in_hooks(resource, :create, :save) do |resource, klass|
+            params = resource.to_params
+            request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
+              resource.instance_eval do
+                @data = parsed_data[:data]
+                @metadata = parsed_data[:metadata]
+                @errors = parsed_data[:errors]
+              end
+            end
+          end
+          resource
+        end # }}}
+
+        # Save an existing resource and return it
+        #
+        # @example
+        #   @user = User.save_existing(1, { :fullname => "Tobias Fünke" })
+        #   # Called via PUT "/users/1"
+        def save_existing(id, params) # {{{
+          resource = new(params.merge(:id => id))
+          resource.save
+        end # }}}
+
+        # Destroy an existing resource
+        #
+        # @example
+        #   User.destroy_existing(1)
+        #   # Called via DELETE "/users/1"
+        def destroy_existing(id, params={}) # {{{
+          request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
+            new(parsed_data[:data])
+          end
+        end # }}}
+      end
     end
   end
 end

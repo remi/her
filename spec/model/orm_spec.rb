@@ -59,6 +59,27 @@ describe Her::Model::ORM do
       @new_user = Foo::User.new
       expect { @new_user.fullname = "Tobias Fünke" }.to_not raise_error(NoMethodError)
     end# }}}
+
+    it "handles method missing for query" do#{{{
+      @new_user = Foo::User.new
+      expect { @new_user.fullname? }.to_not raise_error(NoMethodError)
+    end# }}}
+
+    it "handles respond_to for getter" do#{{{
+      @new_user = Foo::User.new(:fullname => 'Mayonegg')
+      @new_user.should_not respond_to(:unknown_method_for_a_user)
+      @new_user.should respond_to(:fullname)
+    end#}}}
+
+    it "handles respond_to for setter" do#{{{
+      @new_user = Foo::User.new
+      @new_user.should respond_to(:fullname=)
+    end#}}}
+
+    it "handles respond_to for query" do#{{{
+      @new_user = Foo::User.new
+      @new_user.should respond_to(:fullname?)
+    end#}}}
   end
 
   context "mapping data, metadata and error data to Ruby objects" do
