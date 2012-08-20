@@ -28,14 +28,22 @@ describe Her::Model::Paths do
 
         it "builds paths with custom collection path with multiple variables" do # {{{
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
+
           Foo::User.build_request_path(:id => "foo", :_organization_id => "acme").should == "/organizations/acme/utilisateurs/foo"
           Foo::User.build_request_path(:_organization_id => "acme").should == "/organizations/acme/utilisateurs"
+
+          Foo::User.build_request_path(:id => "foo", :organization_id => "acme").should == "/organizations/acme/utilisateurs/foo"
+          Foo::User.build_request_path(:organization_id => "acme").should == "/organizations/acme/utilisateurs"
         end # }}}
 
         it "builds paths with custom relative collection path with multiple variables" do # {{{
           Foo::User.collection_path "organizations/:organization_id/utilisateurs"
+
           Foo::User.build_request_path(:id => "foo", :_organization_id => "acme").should == "organizations/acme/utilisateurs/foo"
           Foo::User.build_request_path(:_organization_id => "acme").should == "organizations/acme/utilisateurs"
+
+          Foo::User.build_request_path(:id => "foo", :organization_id => "acme").should == "organizations/acme/utilisateurs/foo"
+          Foo::User.build_request_path(:organization_id => "acme").should == "organizations/acme/utilisateurs"
         end # }}}
 
         it "builds paths with custom item path" do # {{{
