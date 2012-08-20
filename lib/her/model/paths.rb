@@ -9,6 +9,10 @@ module Her
       #    collection_path "/users"
       #  end
       def collection_path(path=nil) # {{{
+        @her_collection_path ||= begin
+          superclass.collection_path.dup if superclass.respond_to?(:collection_path)
+        end
+
         return @her_collection_path unless path
         @her_resource_path = "#{path}/:id"
         @her_collection_path = path
@@ -22,6 +26,10 @@ module Her
       #    resource_path "/users/:id"
       #  end
       def resource_path(path=nil) # {{{
+        @her_resource_path ||= begin
+          superclass.resource_path.dup if superclass.respond_to?(:resource_path)
+        end
+
         return @her_resource_path unless path
         @her_resource_path = path
       end # }}}
@@ -38,7 +46,7 @@ module Her
       def build_request_path(path=nil, parameters={}) # {{{
         unless path.is_a?(String)
           parameters = path || {}
-          path = parameters.include?(:id) ? @her_resource_path : @her_collection_path
+          path = parameters.include?(:id) ? resource_path : collection_path
         end
         path.gsub(/:([\w_]+)/) do
           # Look for :key or :_key, otherwise raise an exception
