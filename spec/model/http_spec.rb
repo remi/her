@@ -130,7 +130,7 @@ describe Her::Model::HTTP do
       spawn_model "Foo::User"
     end # }}}
 
-    it "handle GET wrapper method" do # {{{
+    it "handles GET wrapper method" do # {{{
       @users = Foo::User.get(:popular)
       @users.length.should == 2
       @users.first.id.should == 1
@@ -139,65 +139,90 @@ describe Her::Model::HTTP do
       @user.id.should == 1
     end # }}}
 
-    it "handle raw GET" do # {{{
+    it "handles raw GET with a block" do # {{{
       Foo::User.get_raw("/users") do |parsed_data|
         parsed_data[:data].should == [{ :id => 1 }]
       end
     end # }}}
 
-    it "handle raw POST" do # {{{
+    it "handles raw GET with return value" do # {{{
+      parsed_data = Foo::User.get_raw("/users")
+      parsed_data[:data].should == [{ :id => 1 }]
+    end # }}}
+
+    it "handles raw POST with a block" do # {{{
       Foo::User.post_raw("/users") do |parsed_data|
         parsed_data[:data].should == [{ :id => 3 }]
       end
     end # }}}
 
-    it "handle raw PUT" do # {{{
+    it "handles raw POST with return value" do # {{{
+      parsed_data = Foo::User.post_raw("/users")
+      parsed_data[:data].should == [{ :id => 3 }]
+    end # }}}
+
+    it "handles raw PUT with a block" do # {{{
       Foo::User.put_raw("/users/4") do |parsed_data|
         parsed_data[:data].should == [{ :id => 4 }]
       end
     end # }}}
 
-    it "handle raw PATCH" do # {{{
+    it "handles raw PUT with return value" do # {{{
+      parsed_data = Foo::User.put_raw("/users/4")
+      parsed_data[:data].should == [{ :id => 4 }]
+    end # }}}
+
+    it "handles raw PATCH with a block" do # {{{
       Foo::User.patch_raw("/users/6") do |parsed_data|
         parsed_data[:data].should == [{ :id => 6 }]
       end
     end # }}}
 
-    it "handle raw DELETE" do # {{{
+    it "handles raw PATCH with return value" do # {{{
+      parsed_data = Foo::User.patch_raw("/users/6")
+      parsed_data[:data].should == [{ :id => 6 }]
+    end # }}}
+
+    it "handles raw DELETE with a block" do # {{{
       Foo::User.delete_raw("/users/5") do |parsed_data|
         parsed_data[:data].should == [{ :id => 5 }]
       end
     end # }}}
 
-    it "handle querystring parameters" do # {{{
+    it "handles raw DELETE with return value" do # {{{
+      parsed_data = Foo::User.delete_raw("/users/5")
+      parsed_data[:data].should == [{ :id => 5 }]
+    end # }}}
+
+    it "handles querystring parameters" do # {{{
       Foo::User.get_raw("/users", :page => 2) do |parsed_data|
         parsed_data[:data].should == [{ :id => 2 }]
       end
     end # }}}
 
-    it "handle GET collection" do # {{{
+    it "handles GET collection" do # {{{
       @users = Foo::User.get_collection("/users/popular")
       @users.length.should == 2
       @users.first.id.should == 1
     end # }}}
 
-    it "handle GET resource" do # {{{
+    it "handles GET resource" do # {{{
       @user = Foo::User.get_resource("/users/1")
       @user.id.should == 1
     end # }}}
 
-    it "handle GET collection through a symbol" do # {{{
+    it "handles GET collection through a symbol" do # {{{
       @users = Foo::User.get_collection(:popular)
       @users.length.should == 2
       @users.first.id.should == 1
     end # }}}
 
-    it "handle GET resource through a symbol" do # {{{
+    it "handles GET resource through a symbol" do # {{{
       @user = Foo::User.get_resource(:"1")
       @user.id.should == 1
     end # }}}
 
-    it "handle raw GET through a symbol" do # {{{
+    it "handles raw GET through a symbol" do # {{{
       Foo::User.get_raw(:popular) do |parsed_data|
         parsed_data[:data].should == [{ :id => 1 }, { :id => 2 }]
       end
