@@ -16,8 +16,13 @@ module Her
 
       # Main request wrapper around Her::API. Used to make custom request to the API.
       # @private
-      def request(attrs={}, &block) # {{{
-        yield her_api.request(attrs)
+      def request(attrs={}) # {{{
+        parsed_data = her_api.request(attrs)
+        if block_given?
+          yield parsed_data
+        else
+          parsed_data
+        end
       end # }}}
 
       # Make a GET request and return either a collection or a resource
