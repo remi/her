@@ -72,6 +72,17 @@ module Her
         other.is_a?(Her::Model) && @data == other.data
       end # }}}
 
+      # Delegate to the == method
+      def eql?(other) # {{{
+        self == other
+      end # }}}
+
+      # Delegate to @data, allowing models to act correctly in code like:
+      #     [ Model.find(1), Model.find(1) ].uniq # => [ Model.find(1) ]
+      def hash # {{{
+        @data.hash
+      end # }}}
+
       # Save a resource
       #
       # @example Save a resource after fetching it

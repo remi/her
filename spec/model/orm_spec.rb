@@ -392,5 +392,24 @@ describe Her::Model::ORM do
       fake_user = stub(:data => { :id => 1, :fullname => "Lindsay Fünke" })
       user.should_not == fake_user
     end
+
+    it "delegates eql? to ==" do
+      other = Object.new
+      user.expects(:==).with(other).returns(true)
+      user.eql?(other).should be_true
+    end
+
+    it "treats equal resources as equal for Array#uniq" do
+      user2 = Foo::User.find(1)
+      [user, user2].uniq.should == [user]
+    end
+
+    it "treats equal resources as equal for hash keys" do
+      Foo::User.find(1)
+      hash = { user => true }
+      hash[Foo::User.find(1)] = false
+      hash.size.should == 1
+      hash.should == { user => false }
+    end
   end
 end
