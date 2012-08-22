@@ -2,7 +2,7 @@ module Her
   module Model
     # This module adds ORM-like capabilities to the model
     module ORM
-      attr_reader :metadata, :errors
+      attr_accessor :data, :metadata, :errors
 
       # Initialize a new object with data received from an HTTP request
       # @private
@@ -90,9 +90,9 @@ module Her
 
         self.class.wrap_in_hooks(resource, *hooks) do |resource, klass|
           klass.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data|
-            @data = parsed_data[:data]
-            @metadata = parsed_data[:metadata]
-            @errors = parsed_data[:errors]
+            self.data = parsed_data[:data]
+            self.metadata = parsed_data[:metadata]
+            self.errors = parsed_data[:errors]
           end
         end
         self
@@ -108,9 +108,9 @@ module Her
         resource = self
         self.class.wrap_in_hooks(resource, :destroy) do |resource, klass|
           klass.request(:_method => :delete, :_path => "#{request_path}") do |parsed_data|
-            @data = parsed_data[:data]
-            @metadata = parsed_data[:metadata]
-            @errors = parsed_data[:errors]
+            self.data = parsed_data[:data]
+            self.metadata = parsed_data[:metadata]
+            self.errors = parsed_data[:errors]
           end
         end
         self
@@ -181,11 +181,9 @@ module Her
           wrap_in_hooks(resource, :create, :save) do |resource, klass|
             params = resource.to_params
             request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
-              resource.instance_eval do
-                @data = parsed_data[:data]
-                @metadata = parsed_data[:metadata]
-                @errors = parsed_data[:errors]
-              end
+              resource.data = parsed_data[:data]
+              resource.metadata = parsed_data[:metadata]
+              resource.errors = parsed_data[:errors]
             end
           end
           resource
