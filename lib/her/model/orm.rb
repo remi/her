@@ -67,6 +67,11 @@ module Her
         @errors.any?
       end # }}}
 
+      # Return `true` if the other object is also a Her::Model and has matching data
+      def ==(other) # {{{
+        other.is_a?(Her::Model) && @data == other.data
+      end # }}}
+
       # Save a resource
       #
       # @example Save a resource after fetching it

@@ -349,4 +349,48 @@ describe Her::Model::ORM do
       @user.fullname.should == "Lindsay Fünke"
     end
   end
+
+  context "checking resource equality" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.get("/admins/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+        end
+      end
+
+      spawn_model "Foo::User"
+      spawn_model "Foo::Admin"
+    end
+
+    let(:user) { Foo::User.find(1) }
+
+    it "returns true for the exact same object" do
+      user.should == user
+    end
+
+    it "returns true for the same resource via find" do
+      user.should == Foo::User.find(1)
+    end
+
+    it "returns true for the same class with identical data" do
+      user.should == Foo::User.new(:id => 1, :fullname => "Lindsay Fünke")
+    end
+
+    it "returns true for a different resource with the same data" do
+      user.should == Foo::Admin.find(1)
+    end
+
+    it "returns false for the same class with different data" do
+      user.should_not == Foo::User.new(:id => 2, :fullname => "Tobias Fünke")
+    end
+
+    it "returns false for a non-resource with the same data" do
+      fake_user = stub(:data => { :id => 1, :fullname => "Lindsay Fünke" })
+      user.should_not == fake_user
+    end
+  end
 end
