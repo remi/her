@@ -316,7 +316,7 @@ describe Her::Model::ORM do
   end
 
   context "saving resources with overridden to_params" do
-    before do
+    before do # {{{
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
@@ -329,29 +329,29 @@ describe Her::Model::ORM do
             [200, {}, body]
           end
         end
-      end
+      end # }}}
 
       spawn_model "Foo::User" do
         def to_params
           { :fullname => "Lindsay Fünke" }
         end
       end
-    end
+    end # }}}
 
-    it "changes the request parameters for one-line resource creation" do
+    it "changes the request parameters for one-line resource creation" do # {{{
       @user = Foo::User.create(:fullname => "Tobias Fünke")
       @user.fullname.should == "Lindsay Fünke"
-    end
+    end # }}}
 
-    it "changes the request parameters for Model.new + #save" do
+    it "changes the request parameters for Model.new + #save" do # {{{
       @user = Foo::User.new(:fullname => "Tobias Fünke")
       @user.save
       @user.fullname.should == "Lindsay Fünke"
-    end
+    end # }}}
   end
 
   context "checking resource equality" do
-    before do
+    before do # {{{
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
@@ -364,52 +364,52 @@ describe Her::Model::ORM do
 
       spawn_model "Foo::User"
       spawn_model "Foo::Admin"
-    end
+    end # }}}
 
     let(:user) { Foo::User.find(1) }
 
-    it "returns true for the exact same object" do
+    it "returns true for the exact same object" do # {{{
       user.should == user
-    end
+    end # }}}
 
-    it "returns true for the same resource via find" do
+    it "returns true for the same resource via find" do # {{{
       user.should == Foo::User.find(1)
-    end
+    end # }}}
 
-    it "returns true for the same class with identical data" do
+    it "returns true for the same class with identical data" do # {{{
       user.should == Foo::User.new(:id => 1, :fullname => "Lindsay Fünke")
-    end
+    end # }}}
 
-    it "returns true for a different resource with the same data" do
+    it "returns true for a different resource with the same data" do # {{{
       user.should == Foo::Admin.find(1)
-    end
+    end # }}}
 
-    it "returns false for the same class with different data" do
+    it "returns false for the same class with different data" do # {{{
       user.should_not == Foo::User.new(:id => 2, :fullname => "Tobias Fünke")
-    end
+    end # }}}
 
-    it "returns false for a non-resource with the same data" do
+    it "returns false for a non-resource with the same data" do # {{{
       fake_user = stub(:data => { :id => 1, :fullname => "Lindsay Fünke" })
       user.should_not == fake_user
-    end
+    end # }}}
 
-    it "delegates eql? to ==" do
+    it "delegates eql? to ==" do # {{{
       other = Object.new
       user.expects(:==).with(other).returns(true)
       user.eql?(other).should be_true
-    end
+    end # }}}
 
-    it "treats equal resources as equal for Array#uniq" do
+    it "treats equal resources as equal for Array#uniq" do # {{{
       user2 = Foo::User.find(1)
       [user, user2].uniq.should == [user]
-    end
+    end # }}}
 
-    it "treats equal resources as equal for hash keys" do
+    it "treats equal resources as equal for hash keys" do # {{{
       Foo::User.find(1)
       hash = { user => true }
       hash[Foo::User.find(1)] = false
       hash.size.should == 1
       hash.should == { user => false }
-    end
+    end # }}}
   end
 end
