@@ -10,101 +10,115 @@ describe Her::Model::Hooks do
     describe "method hooks" do
       it "handles “before save” method hooks" do # {{{
         Foo::User.before_save :set_internal_id
-        Foo::User.send(:hooks)[:before_save].length.should == 1
-        Foo::User.send(:hooks)[:before_save].first.class.should == Symbol
+        Foo::User.hooks[:before_save].length.should == 1
+        Foo::User.hooks[:before_save].first.class.should == Symbol
       end # }}}
 
       it "handles “before create” method hooks" do # {{{
         Foo::User.before_create :set_internal_id
-        Foo::User.send(:hooks)[:before_create].length.should == 1
-        Foo::User.send(:hooks)[:before_create].first.class.should == Symbol
+        Foo::User.hooks[:before_create].length.should == 1
+        Foo::User.hooks[:before_create].first.class.should == Symbol
       end # }}}
 
       it "handles “before update” method hooks" do # {{{
         Foo::User.before_update :set_internal_id
-        Foo::User.send(:hooks)[:before_update].length.should == 1
-        Foo::User.send(:hooks)[:before_update].first.class.should == Symbol
+        Foo::User.hooks[:before_update].length.should == 1
+        Foo::User.hooks[:before_update].first.class.should == Symbol
       end # }}}
 
       it "handles “before destroy” method hooks" do # {{{
         Foo::User.before_destroy :set_internal_id
-        Foo::User.send(:hooks)[:before_destroy].length.should == 1
-        Foo::User.send(:hooks)[:before_destroy].first.class.should == Symbol
+        Foo::User.hooks[:before_destroy].length.should == 1
+        Foo::User.hooks[:before_destroy].first.class.should == Symbol
       end # }}}
 
       it "handles “after save” method hooks" do # {{{
         Foo::User.after_save :set_internal_id
-        Foo::User.send(:hooks)[:after_save].length.should == 1
-        Foo::User.send(:hooks)[:after_save].first.class.should == Symbol
+        Foo::User.hooks[:after_save].length.should == 1
+        Foo::User.hooks[:after_save].first.class.should == Symbol
       end # }}}
 
       it "handles “after create” method hooks" do # {{{
         Foo::User.after_create :set_internal_id
-        Foo::User.send(:hooks)[:after_create].length.should == 1
-        Foo::User.send(:hooks)[:after_create].first.class.should == Symbol
+        Foo::User.hooks[:after_create].length.should == 1
+        Foo::User.hooks[:after_create].first.class.should == Symbol
       end # }}}
 
       it "handles “after update” method hooks" do # {{{
         Foo::User.after_update :set_internal_id
-        Foo::User.send(:hooks)[:after_update].length.should == 1
-        Foo::User.send(:hooks)[:after_update].first.class.should == Symbol
+        Foo::User.hooks[:after_update].length.should == 1
+        Foo::User.hooks[:after_update].first.class.should == Symbol
       end # }}}
 
       it "handles “after destroy” method hooks" do # {{{
         Foo::User.after_destroy :set_internal_id
-        Foo::User.send(:hooks)[:after_destroy].length.should == 1
-        Foo::User.send(:hooks)[:after_destroy].first.class.should == Symbol
+        Foo::User.hooks[:after_destroy].length.should == 1
+        Foo::User.hooks[:after_destroy].first.class.should == Symbol
       end # }}}
     end
 
     describe "block hooks" do
       it "handles “before save” block hooks" do # {{{
         Foo::User.before_save { |record| record.internal_id = 42 }
-        Foo::User.send(:hooks)[:before_save].length.should == 1
-        Foo::User.send(:hooks)[:before_save].first.class.should == Proc
+        Foo::User.hooks[:before_save].length.should == 1
+        Foo::User.hooks[:before_save].first.class.should == Proc
       end # }}}
 
       it "handles “before create” block hooks" do # {{{
         Foo::User.before_create { |record| record.internal_id = 42 }
-        Foo::User.send(:hooks)[:before_create].length.should == 1
-        Foo::User.send(:hooks)[:before_create].first.class.should == Proc
+        Foo::User.hooks[:before_create].length.should == 1
+        Foo::User.hooks[:before_create].first.class.should == Proc
       end # }}}
 
       it "handles “before update” block hooks" do # {{{
         Foo::User.before_update { |record| record.internal_id = 42 }
-        Foo::User.send(:hooks)[:before_update].length.should == 1
-        Foo::User.send(:hooks)[:before_update].first.class.should == Proc
+        Foo::User.hooks[:before_update].length.should == 1
+        Foo::User.hooks[:before_update].first.class.should == Proc
       end # }}}
 
       it "handles “before destroy” block hooks" do # {{{
         Foo::User.before_destroy { |record| record.internal_id = 42 }
-        Foo::User.send(:hooks)[:before_destroy].length.should == 1
-        Foo::User.send(:hooks)[:before_destroy].first.class.should == Proc
+        Foo::User.hooks[:before_destroy].length.should == 1
+        Foo::User.hooks[:before_destroy].first.class.should == Proc
       end # }}}
 
       it "handles “after save” block hooks" do # {{{
         Foo::User.after_save { |record| record.internal_id = 42 }
-        Foo::User.send(:hooks)[:after_save].length.should == 1
-        Foo::User.send(:hooks)[:after_save].first.class.should == Proc
+        Foo::User.hooks[:after_save].length.should == 1
+        Foo::User.hooks[:after_save].first.class.should == Proc
       end # }}}
 
       it "handles “after create” block hooks" do # {{{
         Foo::User.after_create { |record| record.internal_id = 42 }
-        Foo::User.send(:hooks)[:after_create].length.should == 1
-        Foo::User.send(:hooks)[:after_create].first.class.should == Proc
+        Foo::User.hooks[:after_create].length.should == 1
+        Foo::User.hooks[:after_create].first.class.should == Proc
       end # }}}
 
       it "handles “after update” block hooks" do # {{{
         Foo::User.after_update { |record| record.internal_id = 42 }
-        Foo::User.send(:hooks)[:after_update].length.should == 1
-        Foo::User.send(:hooks)[:after_update].first.class.should == Proc
+        Foo::User.hooks[:after_update].length.should == 1
+        Foo::User.hooks[:after_update].first.class.should == Proc
       end # }}}
 
       it "handles “after destroy” block hooks" do # {{{
         Foo::User.after_destroy { |record| record.internal_id = 42 }
-        Foo::User.send(:hooks)[:after_destroy].length.should == 1
-        Foo::User.send(:hooks)[:after_destroy].first.class.should == Proc
+        Foo::User.hooks[:after_destroy].length.should == 1
+        Foo::User.hooks[:after_destroy].first.class.should == Proc
       end # }}}
+    end
+
+    context "inheriting hooks from a superclass" do
+      before do
+      end
+
+      it "copies hooks to the subclass" do
+        Foo::User.before_save :set_internal_id
+        Foo::User.after_create { |record| record.internal_id = 42 }
+        subclass = Class.new(Foo::User)
+        subclass.hooks.object_id.should_not == Foo::User.hooks.object_id
+        subclass.hooks[:before_save].should == [:set_internal_id]
+        subclass.hooks[:after_create].length.should == 1
+      end
     end
   end
 
