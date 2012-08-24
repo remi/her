@@ -59,23 +59,27 @@ module Her
         perform_after_hooks(resource, *hooks.reverse)
       end # }}}
 
-      private
       # @private
       def hooks # {{{
-        @her_hooks
+        @her_hooks ||= begin
+          if superclass.respond_to?(:hooks)
+            superclass.hooks.dup
+          else
+            {}
+          end
+        end
       end # }}}
+
+      private
 
       # @private
       def set_hook(time, name, action) # {{{
-        @her_hooks ||= {}
-        (@her_hooks["#{time}_#{name}".to_sym] ||= []) << action
+        (self.hooks["#{time}_#{name}".to_sym] ||= []) << action
       end # }}}
 
       # @private
       def perform_hook(record, time, name) # {{{
-        @her_hooks ||= {}
-        hooks = @her_hooks["#{time}_#{name}".to_sym] || []
-        hooks.each do |hook|
+        Array(self.hooks["#{time}_#{name}".to_sym]).each do |hook|
           if hook.is_a? Symbol
             record.send(hook)
           else
