@@ -151,23 +151,19 @@ module Her
         #   # Fetched via GET "/users/1"
         #
         # @example
-        #   @users = User.find(1, 2)
+        #   @users = User.find([1, 2])
         #   # Fetched via GET "/users/1" and GET "/users/2"
         def find(*ids) # {{{
           params = ids.last.is_a?(Hash) ? ids.pop : {}
-          results = ids.map do |id|
-            request_params = params.merge(
-              :_method => :get,
-              :_path => "#{build_request_path(params.merge(:id => id))}"
-            )
-            request(request_params) do |parsed_data|
+          results = ids.flatten.compact.uniq.map do |id|
+            request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
               new(parsed_data[:data])
             end
           end
-          if ids.length == 1 || ids.first.kind_of?(Array)
-            results.first
-          else
+          if ids.length > 1 || ids.first.kind_of?(Array)
             results
+          else
+            results.first
           end
         end # }}}
 
