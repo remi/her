@@ -1,6 +1,7 @@
 module Her
   module Model
     module Paths
+      extend ActiveSupport::Concern
       # Return a path based on the collection path and a resource data
       #
       # @example

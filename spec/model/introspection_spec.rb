@@ -32,20 +32,20 @@ describe Her::Model::Introspection do
   end
 
   describe "#nearby_class" do
-    context "for a class inside of a module" do
-      before do
+    context "for a class inside of a module" do # {{{
+      before do # {{{
         spawn_model "Foo::User"
         spawn_model "Foo::AccessRecord"
         spawn_model "AccessRecord"
         spawn_model "Log"
-      end
+      end # }}}
 
-      it "returns a sibling class, if found" do
+      it "returns a sibling class, if found" do # {{{
         Foo::User.nearby_class("AccessRecord").should == Foo::AccessRecord
         AccessRecord.nearby_class("Log").should == Log
         Foo::User.nearby_class("Log").should == Log
         Foo::User.nearby_class("X").should be_nil
-      end
-    end
+      end # }}}
+    end # }}}
   end
 end

@@ -131,7 +131,7 @@ module Her
           klass = self.class.nearby_class(attrs[:class_name])
           @data[name] ||= klass.get_resource("#{klass.build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
         end
-      end
+      end # }}}
 
       # @private
       def relationship_accessor(type, attrs) # {{{

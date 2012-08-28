@@ -71,7 +71,6 @@ module Her
       end # }}}
 
       private
-
       # @private
       def set_hook(time, name, action) # {{{
         (self.hooks["#{time}_#{name}".to_sym] ||= []) << action

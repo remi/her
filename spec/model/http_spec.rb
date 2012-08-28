@@ -65,7 +65,7 @@ describe Her::Model::HTTP do
       Foo::Comment.her_api.base_uri.should == "https://api2.example.com"
     end # }}}
 
-    it "binds a a model to it's superclass' her_api" do
+    it "binds a a model to it's superclass' her_api" do # {{{
       api = Her::API.new
       api.setup :url => "http://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -78,9 +78,9 @@ describe Her::Model::HTTP do
 
       Foo::Subclass = Class.new(Foo::Superclass)
       Foo::Subclass.her_api.should == Foo::Superclass.her_api
-    end
+    end # }}}
 
-    it "allows subclasses to change her_api without changing the parent class' her_api" do
+    it "allows subclasses to change her_api without changing the parent class' her_api" do # {{{
       api1 = Her::API.new
       api1.setup :url => "http://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -102,7 +102,7 @@ describe Her::Model::HTTP do
       end
 
       Foo::Subclass.her_api.should_not == Foo::Superclass.her_api
-    end
+    end # }}}
   end
 
   context "making HTTP requests" do

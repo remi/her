@@ -2,6 +2,7 @@ module Her
   module Model
     # This module adds ORM-like capabilities to the model
     module ORM
+      extend ActiveSupport::Concern
       attr_accessor :data, :metadata, :errors
 
       # Initialize a new object with data received from an HTTP request

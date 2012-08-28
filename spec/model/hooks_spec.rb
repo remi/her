@@ -108,17 +108,14 @@ describe Her::Model::Hooks do
     end
 
     context "inheriting hooks from a superclass" do
-      before do
-      end
-
-      it "copies hooks to the subclass" do
+      it "copies hooks to the subclass" do # {{{
         Foo::User.before_save :set_internal_id
         Foo::User.after_create { |record| record.internal_id = 42 }
         subclass = Class.new(Foo::User)
         subclass.hooks.object_id.should_not == Foo::User.hooks.object_id
         subclass.hooks[:before_save].should == [:set_internal_id]
         subclass.hooks[:after_create].length.should == 1
-      end
+      end # }}}
     end
   end
 

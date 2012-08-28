@@ -62,16 +62,13 @@ describe Her::Model::Relationships do
     end # }}}
 
     context "inheriting relationships from a superclass" do
-      before do
-      end
-
-      it "copies relationships to the subclass" do
+      it "copies relationships to the subclass" do # {{{
         Foo::User.has_many :comments, :class_name => "Post"
         subclass = Class.new(Foo::User)
         subclass.relationships.object_id.should_not == Foo::User.relationships.object_id
         subclass.relationships[:has_many].length.should == 1
         subclass.relationships[:has_many].first[:class_name].should == "Post"
-      end
+      end # }}}
     end
   end
 
