@@ -75,6 +75,7 @@ For example, to add a API token header to your requests, you would do something 
 ```ruby
 class TokenAuthentication < Faraday::Middleware
   def initialize(app, options={})
+    @app = app
     @options = options
   end
 
