@@ -39,9 +39,9 @@ module Her
         # @private
         def sibling_class(name) # {{{
           if mod = self.containing_module
-            "#{mod.name}::#{name}".constantize rescue nil
-          else
-            name.constantize rescue nil
+            @sibling_class ||= {}
+            @sibling_class[mod] ||= {}
+            @sibling_class[mod][name] ||= "#{mod.name}::#{name}".constantize rescue nil
           end
         end # }}}
 
