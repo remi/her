@@ -29,8 +29,7 @@ module Her
       # Use setter methods of model for each key / value pair in params
       # Return key / value pairs for which no setter method was defined on the model
       def self.use_setter_methods(model, params) # {{{
-        setter_method_names = model.methods.select { |m| m.to_s.end_with?('=') }
-        setter_method_names.map! { |m| m.to_s }
+        setter_method_names = model.class.setter_method_names
         params.inject({}) do |memo, (key, value)|
           setter_method = key.to_s + '='
           if setter_method_names.include?(setter_method)
@@ -242,6 +241,13 @@ module Her
             new(parsed_data[:data])
           end
         end # }}}
+
+        def setter_method_names
+          @setter_method_names ||= instance_methods.inject(Set.new) do |memo, method_name|
+            memo << method_name.to_s if method_name.to_s.end_with?('=')
+            memo
+          end
+        end
       end
     end
   end
