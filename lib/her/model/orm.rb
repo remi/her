@@ -7,18 +7,16 @@ module Her
 
       # Initialize a new object with data received from an HTTP request
       # @private
-      def initialize(data={}) # {{{
+      def initialize(params={}) # {{{
         @data = {}
-        @metadata = data.delete(:_metadata) || {}
-        @errors = data.delete(:_errors) || {}
+        @metadata = params.delete(:_metadata) || {}
+        @errors = params.delete(:_errors) || {}
 
-        # Only keep the keys that don't have corresponding writer methods
-        cleaned_data = data.inject({}) do |memo, item|
-          key, value = item
-          send "#{key}=".to_sym, value unless value.nil?
-          writer_method_defined?(key) ? memo : memo.merge({ key => value })
-        end
-        @data.merge! self.class.parse_relationships(cleaned_data)
+        # Use setter methods first, then translate attributes of relationships
+        # into relationship instances, then merge the parsed_data into @data.
+        unset_data = Her::Model::ORM.use_setter_methods(self, params)
+        parsed_data = self.class.parse_relationships(unset_data)
+        @data.update(parsed_data)
       end # }}}
 
       # Initialize a collection of resources
@@ -26,6 +24,22 @@ module Her
       def self.initialize_collection(klass, parsed_data={}) # {{{
         collection_data = parsed_data[:data].map { |item_data| klass.new(item_data) }
         Her::Collection.new(collection_data, parsed_data[:metadata], parsed_data[:errors])
+      end # }}}
+
+      # Use setter methods of model for each key / value pair in params
+      # Return key / value pairs for which no setter method was defined on the model
+      def self.use_setter_methods(model, params) # {{{
+        setter_method_names = model.methods.select { |m| m.to_s.end_with?('=') }
+        setter_method_names.map! { |m| m.to_s }
+        params.inject({}) do |memo, (key, value)|
+          setter_method = key.to_s + '='
+          if setter_method_names.include?(setter_method)
+            model.send(setter_method, value)
+          else
+            memo[key] = value
+          end
+          memo
+        end
       end # }}}
 
       # Handles missing methods by routing them through @data
@@ -144,14 +158,6 @@ module Her
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params # {{{
         @data.dup
-      end # }}}
-
-      private
-
-      # @private
-      def writer_method_defined?(key) # {{{
-        self.class.instance_methods.include?("#{key}=".to_sym) || # Ruby 1.9
-          self.class.instance_methods.include?("#{key}=") # Ruby 1.8
       end # }}}
 
       module ClassMethods

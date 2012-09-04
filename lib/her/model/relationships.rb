@@ -21,8 +21,8 @@ module Her
         relationships.each_pair do |type, definitions|
           definitions.each do |relationship|
             name = relationship[:name]
+            next unless data[name]
             klass = self.nearby_class(relationship[:class_name])
-            next if !data.include?(name) or data[name].nil?
             data[name] = case type
               when :has_many
                 Her::Model::ORM.initialize_collection(klass, :data => data[name])
