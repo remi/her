@@ -62,9 +62,14 @@ module Her
         }.merge(attrs)
         (relationships[:has_many] ||= []) << attrs
 
-        define_method(name) do
+        define_method(name) do |*method_attrs|
+          method_attrs = method_attrs[0] || {}
           klass = self.class.nearby_class(attrs[:class_name])
-          @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
+          if method_attrs.any?
+            klass.get_collection("#{self.class.build_request_path(method_attrs.merge(:id => id))}#{attrs[:path]}")
+          else
+            @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
+          end
         end
       end # }}}
 
@@ -94,9 +99,14 @@ module Her
         }.merge(attrs)
         (relationships[:has_one] ||= []) << attrs
 
-        define_method(name) do
+        define_method(name) do |*method_attrs|
+          method_attrs = method_attrs[0] || {}
           klass = self.class.nearby_class(attrs[:class_name])
-          @data[name] ||= klass.get_resource("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
+          if method_attrs.any?
+            klass.get_resource("#{self.class.build_request_path(method_attrs.merge(:id => id))}#{attrs[:path]}")
+          else
+            @data[name] ||= klass.get_resource("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
+          end
         end
       end # }}}
 
@@ -127,9 +137,14 @@ module Her
         }.merge(attrs)
         (relationships[:belongs_to] ||= []) << attrs
 
-        define_method(name) do
+        define_method(name) do |*method_attrs|
+          method_attrs = method_attrs[0] || {}
           klass = self.class.nearby_class(attrs[:class_name])
-          @data[name] ||= klass.get_resource("#{klass.build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
+          if method_attrs.any?
+            klass.get_resource("#{klass.build_request_path(method_attrs.merge(:id => @data[attrs[:foreign_key].to_sym]))}")
+          else
+            @data[name] ||= klass.get_resource("#{klass.build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
+          end
         end
       end # }}}
 
