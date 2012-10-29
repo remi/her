@@ -53,7 +53,7 @@ module Her
       attrs[:url] = attrs.delete(:base_uri) if attrs.include?(:base_uri) # Support legacy :base_uri option
       @base_uri = attrs[:url]
       @options = attrs
-      @connection = Faraday.new(attrs) do |connection|
+      @connection = Faraday.new(attrs.slice(:url)) do |connection|
         yield connection if block_given?
       end
     end # }}}

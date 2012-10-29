@@ -4,6 +4,7 @@ require "multi_json"
 require "faraday"
 require "active_support"
 require "active_support/inflector"
+require "active_support/core_ext/hash"
 
 require "her/model"
 require "her/api"
