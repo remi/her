@@ -78,7 +78,7 @@ describe Her::Model::Relationships do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 2 }.to_json] }
           stub.get("/users/1/comments") { |env| [200, {}, [{ :id => 4, :body => "They're having a FIRESALE?" }].to_json] }
           stub.get("/users/2/comments") { |env| [200, {}, [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }].to_json] }
@@ -94,9 +94,11 @@ describe Her::Model::Relationships do
         has_one :role
         belongs_to :organization
       end
+      spawn_model "Foo::Comment" do
+        belongs_to :user
+      end
 
       spawn_model "Foo::Organization"
-      spawn_model "Foo::Comment"
       spawn_model "Foo::Role"
 
       @user_with_included_data = Foo::User.find(1)
@@ -108,6 +110,10 @@ describe Her::Model::Relationships do
       @user_with_included_data.comments.length.should == 2
       @user_with_included_data.comments.first.id.should == 2
       @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
+    end
+
+    it "does not refetch the parents models data if they have been fetched before" do
+      @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
     end
 
     it "fetches data that was not included through has_many" do
