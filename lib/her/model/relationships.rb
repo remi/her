@@ -56,9 +56,10 @@ module Her
       #   # Fetched via GET "/users/1/articles"
       def has_many(name, attrs={}) # {{{
         attrs = {
-          :class_name => name.to_s.classify,
-          :name => name,
-          :path => "/#{name}"
+          :class_name     => name.to_s.classify,
+          :name           => name,
+          :path           => "/#{name}",
+          :foreign_method => nil
         }.merge(attrs)
         (relationships[:has_many] ||= []) << attrs
 
@@ -71,9 +72,13 @@ module Her
             @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
           end
 
-          my_name = self.class.name.split('::').last.tableize.singularize
+          foreign_method = if attrs[:foreign_method]
+                             attrs[:foreign_method]
+                           else
+                             self.class.name.split('::').last.tableize.singularize
+                           end
           @data[name].each do |entry|
-            entry.send("#{my_name}=", self)
+            entry.send("#{foreign_method}=", self)
           end
 
           @data[name]
