@@ -207,20 +207,20 @@ describe Her::Model::ORM do
       @users[1].id.should == 2
     end # }}}
 
-    it "handles finding by an array of ids" do
+    it "handles finding by an array of ids" do # {{{
       @users = User.find([1, 2])
       @users.should be_kind_of(Array)
       @users.length.should == 2
       @users[0].id.should == 1
       @users[1].id.should == 2
-    end
+    end # }}}
 
-    it "handles finding by an array of ids of length 1" do
+    it "handles finding by an array of ids of length 1" do # {{{
       @users = User.find([1])
       @users.should be_kind_of(Array)
       @users.length.should == 1
       @users[0].id.should == 1
-    end
+    end # }}}
 
     it "handles finding with other parameters" do # {{{
       @users = User.all(:age => 42)
@@ -329,7 +329,7 @@ describe Her::Model::ORM do
             [200, {}, body]
           end
         end
-      end # }}}
+      end
 
       spawn_model "Foo::User" do
         def to_params
