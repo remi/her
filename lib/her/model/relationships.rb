@@ -68,10 +68,17 @@ module Her
           method_attrs = method_attrs[0] || {}
           klass = self.class.nearby_class(attrs[:class_name])
           if method_attrs.any?
-            klass.get_collection("#{self.class.build_request_path(method_attrs.merge(:id => id))}#{attrs[:path]}")
+            @data[name] = klass.get_collection("#{self.class.build_request_path(method_attrs.merge(:id => id))}#{attrs[:path]}")
           else
             @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
           end
+
+          my_name = self.class.name.split('::').last.tableize.singularize
+          @data[name].each do |entry|
+            entry.send("#{my_name}=", self)
+          end
+
+          @data[name]
         end
       end
 
