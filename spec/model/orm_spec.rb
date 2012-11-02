@@ -236,10 +236,12 @@ describe Her::Model::ORM do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.post("/companies") { |env| [200, {}, { :errors => ["name is required"] }.to_json] }
         end
       end
 
       spawn_model "Foo::User"
+      spawn_model "Foo::Company"
     end # }}}
 
     it "handle one-line resource creation" do # {{{
@@ -250,8 +252,13 @@ describe Her::Model::ORM do
 
     it "handle resource creation through Model.new + #save" do # {{{
       @user = Foo::User.new(:fullname => "Tobias Fünke")
-      @user.save
+      @user.save.should be_true
       @user.fullname.should == "Tobias Fünke"
+    end # }}}
+
+    it "returns false when #save gets errors" do # {{{
+      @company = Foo::Company.new
+      @company.save.should be_false
     end # }}}
   end
 

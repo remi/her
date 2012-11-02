@@ -114,8 +114,11 @@ module Her
             self.data = parsed_data[:data]
             self.metadata = parsed_data[:metadata]
             self.errors = parsed_data[:errors]
+
+            return false if self.errors.any?
           end
         end
+
         self
       end # }}}
 
