@@ -61,7 +61,7 @@ module Her
         def build_request_path(path=nil, parameters={}) # {{{
           unless path.is_a?(String)
             parameters = path || {}
-            path = parameters.include?(:id) ? resource_path : collection_path
+            path = parameters.include?(:id) && !parameters[:id].nil? ? resource_path : collection_path
           end
 
           path.gsub(/:([\w_]+)/) do
