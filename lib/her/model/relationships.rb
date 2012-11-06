@@ -56,9 +56,10 @@ module Her
       #   # Fetched via GET "/users/1/articles"
       def has_many(name, attrs={}) # {{{
         attrs = {
-          :class_name => name.to_s.classify,
-          :name => name,
-          :path => "/#{name}"
+          :class_name     => name.to_s.classify,
+          :name           => name,
+          :path           => "/#{name}",
+          :foreign_method => nil
         }.merge(attrs)
         (relationships[:has_many] ||= []) << attrs
 
@@ -66,10 +67,21 @@ module Her
           method_attrs = method_attrs[0] || {}
           klass = self.class.nearby_class(attrs[:class_name])
           if method_attrs.any?
-            klass.get_collection("#{self.class.build_request_path(method_attrs.merge(:id => id))}#{attrs[:path]}")
+            @data[name] = klass.get_collection("#{self.class.build_request_path(method_attrs.merge(:id => id))}#{attrs[:path]}")
           else
             @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
           end
+
+          foreign_method = if attrs[:foreign_method]
+                             attrs[:foreign_method]
+                           else
+                             self.class.name.split('::').last.tableize.singularize
+                           end
+          @data[name].each do |entry|
+            entry.send("#{foreign_method}=", self)
+          end
+
+          @data[name]
         end
       end # }}}
 

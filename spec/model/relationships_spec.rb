@@ -9,13 +9,13 @@ describe Her::Model::Relationships do
 
     it "handles a single 'has_many' relationship" do # {{{
       Foo::User.has_many :comments
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments" }]
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments", :foreign_method => nil }]
     end # }}}
 
     it "handles multiples 'has_many' relationship" do # {{{
       Foo::User.has_many :comments
       Foo::User.has_many :posts
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments" }, { :name => :posts, :class_name => "Post", :path => "/posts" }]
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments", :foreign_method => nil }, { :name => :posts, :class_name => "Post", :path => "/posts", :foreign_method => nil }]
     end # }}}
 
     it "handles a single 'has_one' relationship" do # {{{
@@ -47,9 +47,9 @@ describe Her::Model::Relationships do
     end # }}}
 
     it "handles a single 'has_many' relationship" do # {{{
-      Foo::User.has_many :comments, :class_name => "Post"
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Post", :path => "/comments" }]
-    end # }}}
+      Foo::User.has_many :comments, :class_name => "Post", :foreign_method => :admin
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Post", :path => "/comments", :foreign_method => :admin }]
+    end # }}
 
     it "handles a single 'has_one' relationship" do # {{{
       Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id"
@@ -78,12 +78,13 @@ describe Her::Model::Relationships do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!" }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak" }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 2 }.to_json] }
           stub.get("/users/1/comments") { |env| [200, {}, [{ :id => 4, :body => "They're having a FIRESALE?" }].to_json] }
           stub.get("/users/2/comments") { |env| [200, {}, [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }].to_json] }
           stub.get("/users/2/role") { |env| [200, {}, { :id => 2, :body => "User" }.to_json] }
           stub.get("/users/1/role") { |env| [200, {}, { :id => 3, :body => "User" }.to_json] }
+          stub.get("/users/1/posts") { |env| [200, {}, {:id => 1, :body => 'blogging stuff', :admin_id => 1 }.to_json] }
           stub.get("/organizations/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company Foo" }.to_json] }
           stub.get("/organizations/2") { |env| [200, {}, { :id => 2, :name => "Bluth Company" }.to_json] }
         end
@@ -93,10 +94,16 @@ describe Her::Model::Relationships do
         has_many :comments
         has_one :role
         belongs_to :organization
+        has_many :posts, :foreign_method => :admin
+      end
+      spawn_model "Foo::Comment" do
+        belongs_to :user
+      end
+      spawn_model "Foo::Post" do
+        belongs_to :admin, :class_name => 'Foo::User'
       end
 
       spawn_model "Foo::Organization"
-      spawn_model "Foo::Comment"
       spawn_model "Foo::Role"
 
       @user_with_included_data = Foo::User.find(1)
@@ -109,6 +116,14 @@ describe Her::Model::Relationships do
       @user_with_included_data.comments.first.id.should == 2
       @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
     end # }}}
+
+    it "does not refetch the parents models data if they have been fetched before" do
+      @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
+    end
+
+    it "uses the given foreign_method key to set the parent model" do
+      @user_with_included_data.posts.first.admin.object_id.should == @user_with_included_data.object_id
+    end
 
     it "fetches data that was not included through has_many" do # {{{
       @user_without_included_data.comments.first.should be_a(Foo::Comment)
