@@ -7,22 +7,22 @@ module Her
       #
       # @param [String] body The response body
       # @return [Mixed] the parsed response
-      def parse(body) # {{{
+      def parse(body)
         json = MultiJson.load(body, :symbolize_keys => true)
         {
           :data => json[:data],
           :errors => json[:errors],
           :metadata => json[:metadata]
         }
-      end # }}}
+      end
 
       # This method is triggered when the response has been received. It modifies
       # the value of `env[:body]`.
       #
       # @param [Hash] env The response environment
-      def on_complete(env) # {{{
+      def on_complete(env)
         env[:body] = parse(env[:body])
-      end # }}}
+      end
     end
   end
 end

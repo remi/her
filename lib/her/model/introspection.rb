@@ -11,13 +11,13 @@ module Her
       #
       #   @user = User.find(1)
       #   p @user # => #<User(/users/1) id=1 name="Tobias Fünke">
-      def inspect # {{{
+      def inspect
         "#<#{self.class}(#{request_path}) #{@data.inject([]) { |memo, item| key, value = item; memo << "#{key}=#{attribute_for_inspect(value)}"}.join(" ")}>"
-      end # }}}
+      end
 
       private
       # @private
-      def attribute_for_inspect(value) # {{{
+      def attribute_for_inspect(value)
         if value.is_a?(String) && value.length > 50
           "#{value[0..50]}...".inspect
         elsif value.is_a?(Date) || value.is_a?(Time)
@@ -25,32 +25,32 @@ module Her
         else
           value.inspect
         end
-      end # }}}
+      end
 
       module ClassMethods
         # Finds a class at the same level as this one or at the global level.
         # @private
-        def nearby_class(name) # {{{
+        def nearby_class(name)
           sibling_class(name) || name.constantize rescue nil
-        end # }}}
+        end
 
         protected
         # Looks for a class at the same level as this one with the given name.
         # @private
-        def sibling_class(name) # {{{
+        def sibling_class(name)
           if mod = self.containing_module
             @sibling_class ||= {}
             @sibling_class[mod] ||= {}
             @sibling_class[mod][name] ||= "#{mod.name}::#{name}".constantize rescue nil
           end
-        end # }}}
+        end
 
         # If available, returns the containing Module for this class.
         # @private
-        def containing_module # {{{
+        def containing_module
           return unless self.name =~ /::/
           self.name.split("::")[0..-2].join("::").constantize
-        end # }}}
+        end
       end
     end
   end

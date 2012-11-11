@@ -7,12 +7,12 @@ require "rspec/core/rake_task"
 task :default => :spec
 
 desc "Run all specs"
-RSpec::Core::RakeTask.new(:spec) do |task| # {{{
+RSpec::Core::RakeTask.new(:spec) do |task|
   task.pattern = "spec/**/*_spec.rb"
-end # }}}
+end
 
 desc "Generate YARD Documentation"
-YARD::Rake::YardocTask.new do |task| # {{{
+YARD::Rake::YardocTask.new do |task|
   task.options = [
     "-o", File.expand_path("../doc", __FILE__),
     "--readme=README.md",
@@ -24,4 +24,4 @@ YARD::Rake::YardocTask.new do |task| # {{{
     "--title=Her",
   ]
   task.files   = ["lib/**/*.rb"]
-end # }}}
+end

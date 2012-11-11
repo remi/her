@@ -4,8 +4,9 @@ module Her
     module Relationships
       # Return @her_relationships, lazily initialized with copy of the
       # superclass' her_relationships, or an empty hash.
+      #
       # @private
-      def relationships # {{{
+      def relationships
         @her_relationships ||= begin
           if superclass.respond_to?(:relationships)
             superclass.relationships.dup
@@ -13,11 +14,12 @@ module Her
             {}
           end
         end
-      end # }}}
+      end
 
       # Parse relationships data after initializing a new object
+      #
       # @private
-      def parse_relationships(data) # {{{
+      def parse_relationships(data)
         relationships.each_pair do |type, definitions|
           definitions.each do |relationship|
             name = relationship[:name]
@@ -34,7 +36,7 @@ module Her
           end
         end
         data
-      end # }}}
+      end
 
       # Define an *has_many* relationship.
       #
@@ -54,7 +56,7 @@ module Her
       #   @user = User.find(1)
       #   @user.articles # => [#<Article(articles/2) id=2 title="Hello world.">]
       #   # Fetched via GET "/users/1/articles"
-      def has_many(name, attrs={}) # {{{
+      def has_many(name, attrs={})
         attrs = {
           :class_name => name.to_s.classify,
           :name => name,
@@ -71,7 +73,7 @@ module Her
             @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
           end
         end
-      end # }}}
+      end
 
       # Define an *has_one* relationship.
       #
@@ -91,7 +93,7 @@ module Her
       #   @user = User.find(1)
       #   @user.organization # => #<Organization(organizations/2) id=2 name="Foobar Inc.">
       #   # Fetched via GET "/users/1/organization"
-      def has_one(name, attrs={}) # {{{
+      def has_one(name, attrs={})
         attrs = {
           :class_name => name.to_s.classify,
           :name => name,
@@ -108,7 +110,7 @@ module Her
             @data[name] ||= klass.get_resource("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
           end
         end
-      end # }}}
+      end
 
       # Define a *belongs_to* relationship.
       #
@@ -128,7 +130,7 @@ module Her
       #   @user = User.find(1)
       #   @user.team # => #<Team(teams/2) id=2 name="Developers">
       #   # Fetched via GET "/teams/2"
-      def belongs_to(name, attrs={}) # {{{
+      def belongs_to(name, attrs={})
         attrs = {
           :class_name => name.to_s.classify,
           :name => name,
@@ -146,17 +148,17 @@ module Her
             @data[name] ||= klass.get_resource("#{klass.build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
           end
         end
-      end # }}}
+      end
 
       # @private
-      def relationship_accessor(type, attrs) # {{{
+      def relationship_accessor(type, attrs)
         name = attrs[:name]
         class_name = attrs[:class_name]
         define_method(name) do
           klass = self.class.nearby_class(attrs[:class_name])
           @data[name] ||= klass.get_resource("#{klass.build_request_path(attrs[:path], :id => @data[attrs[:foreign_key].to_sym])}")
         end
-      end # }}}
+      end
     end
   end
 end

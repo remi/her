@@ -6,10 +6,10 @@ module Her
     attr_reader :base_uri, :connection, :options
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
-    def self.setup(attrs={}, &block) # {{{
+    def self.setup(attrs={}, &block)
       @@default_api = new
       @@default_api.setup(attrs, &block)
-    end # }}}
+    end
 
     # Setup the API connection.
     #
@@ -49,21 +49,21 @@ module Her
     #     connection.use MyCustomParser
     #     connection.use Faraday::Adapter::NetHttp
     #   end
-    def setup(attrs={}) # {{{
+    def setup(attrs={})
       attrs[:url] = attrs.delete(:base_uri) if attrs.include?(:base_uri) # Support legacy :base_uri option
       @base_uri = attrs[:url]
       @options = attrs
       @connection = Faraday.new(attrs.slice(:url, :ssl)) do |connection|
         yield connection if block_given?
       end
-    end # }}}
+    end
 
     # Define a custom parsing procedure. The procedure is passed the response object and is
     # expected to return a hash with three keys: a main data Hash, an errors Array
     # and a metadata Hash.
     #
     # @private
-    def request(attrs={}) # {{{
+    def request(attrs={})
       method = attrs.delete(:_method)
       path = attrs.delete(:_path)
       headers = attrs.delete(:_headers)
@@ -80,12 +80,12 @@ module Her
         end
       end
       response.env[:body]
-    end # }}}
+    end
 
     private
     # @private
-    def self.default_api(attrs={}) # {{{
+    def self.default_api(attrs={})
       defined?(@@default_api) ? @@default_api : nil
-    end # }}}
+    end
   end
 end

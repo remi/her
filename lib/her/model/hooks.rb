@@ -53,14 +53,14 @@ module Her
 
       # Wrap a block between “before” and “after” hooks
       # @private
-      def wrap_in_hooks(resource, *hooks) # {{{
+      def wrap_in_hooks(resource, *hooks)
         perform_before_hooks(resource, *hooks)
         yield(resource, resource.class)
         perform_after_hooks(resource, *hooks.reverse)
-      end # }}}
+      end
 
       # @private
-      def hooks # {{{
+      def hooks
         @her_hooks ||= begin
           if superclass.respond_to?(:hooks)
             superclass.hooks.dup
@@ -68,16 +68,16 @@ module Her
             {}
           end
         end
-      end # }}}
+      end
 
       private
       # @private
-      def set_hook(time, name, action) # {{{
+      def set_hook(time, name, action)
         (self.hooks["#{time}_#{name}".to_sym] ||= []) << action
-      end # }}}
+      end
 
       # @private
-      def perform_hook(record, time, name) # {{{
+      def perform_hook(record, time, name)
         Array(self.hooks["#{time}_#{name}".to_sym]).each do |hook|
           if hook.is_a? Symbol
             record.send(hook)
@@ -85,23 +85,23 @@ module Her
             hook.call(record)
           end
         end
-      end # }}}
+      end
 
       # Perform “after” hooks on a resource
       # @private
-      def perform_after_hooks(resource, *hooks) # {{{
+      def perform_after_hooks(resource, *hooks)
         hooks.each do |hook|
           perform_hook(resource, :after, hook)
         end
-      end # }}}
+      end
 
       # Perform “before” hooks on a resource
       # @private
-      def perform_before_hooks(resource, *hooks) # {{{
+      def perform_before_hooks(resource, *hooks)
         hooks.each do |hook|
           perform_hook(resource, :before, hook)
         end
-      end # }}}
+      end
     end
   end
 end

@@ -11,9 +11,9 @@ module Her
       #   end
       #
       #   User.find(1) # Fetched via GET /utilisateurs/1
-      def request_path # {{{
+      def request_path
         self.class.build_request_path(@data.dup)
-      end # }}}
+      end
 
       module ClassMethods
         # Defines a custom collection path for the resource
@@ -23,7 +23,7 @@ module Her
         #    include Her::Model
         #    collection_path "/users"
         #  end
-        def collection_path(path=nil) # {{{
+        def collection_path(path=nil)
           @her_collection_path ||= begin
             superclass.collection_path.dup if superclass.respond_to?(:collection_path)
           end
@@ -31,7 +31,7 @@ module Her
           return @her_collection_path unless path
           @her_resource_path = "#{path}/:id"
           @her_collection_path = path
-        end # }}}
+        end
 
         # Defines a custom resource path for the resource
         #
@@ -40,14 +40,14 @@ module Her
         #    include Her::Model
         #    resource_path "/users/:id"
         #  end
-        def resource_path(path=nil) # {{{
+        def resource_path(path=nil)
           @her_resource_path ||= begin
             superclass.resource_path.dup if superclass.respond_to?(:resource_path)
           end
 
           return @her_resource_path unless path
           @her_resource_path = path
-        end # }}}
+        end
 
         # Return a custom path based on the collection path and variable parameters
         #
@@ -58,7 +58,7 @@ module Her
         #   end
         #
         #   User.all # Fetched via GET /utilisateurs
-        def build_request_path(path=nil, parameters={}) # {{{
+        def build_request_path(path=nil, parameters={})
           unless path.is_a?(String)
             parameters = path || {}
             path = parameters.include?(:id) ? resource_path : collection_path
@@ -68,7 +68,7 @@ module Her
             # Look for :key or :_key, otherwise raise an exception
             parameters.delete($1.to_sym) || parameters.delete("_#{$1}".to_sym) || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path (#{path})."))
           end
-        end # }}}
+        end
       end
     end
   end
