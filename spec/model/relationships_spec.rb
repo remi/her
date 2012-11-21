@@ -9,13 +9,13 @@ describe Her::Model::Relationships do
 
     it "handles a single 'has_many' relationship" do
       Foo::User.has_many :comments
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments", :foreign_method => nil }]
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }]
     end
 
     it "handles multiples 'has_many' relationship" do
       Foo::User.has_many :comments
       Foo::User.has_many :posts
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments", :foreign_method => nil }, { :name => :posts, :class_name => "Post", :path => "/posts", :foreign_method => nil }]
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :class_name => "Post", :path => "/posts", :inverse_of => nil }]
     end
 
     it "handles a single 'has_one' relationship" do
@@ -47,8 +47,8 @@ describe Her::Model::Relationships do
     end
 
     it "handles a single 'has_many' relationship" do
-      Foo::User.has_many :comments, :class_name => "Post", :foreign_method => :admin
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Post", :path => "/comments", :foreign_method => :admin }]
+      Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Post", :path => "/comments", :inverse_of => :admin }]
     end
 
     it "handles a single 'has_one' relationship" do
@@ -94,7 +94,7 @@ describe Her::Model::Relationships do
         has_many :comments
         has_one :role
         belongs_to :organization
-        has_many :posts, :foreign_method => :admin
+        has_many :posts, :inverse_of => :admin
       end
       spawn_model "Foo::Comment" do
         belongs_to :user
@@ -121,7 +121,7 @@ describe Her::Model::Relationships do
       @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
     end
 
-    it "uses the given foreign_method key to set the parent model" do
+    it "uses the given inverse_of key to set the parent model" do
       @user_with_included_data.posts.first.admin.object_id.should == @user_with_included_data.object_id
     end
 

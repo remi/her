@@ -61,7 +61,7 @@ module Her
           :class_name     => name.to_s.classify,
           :name           => name,
           :path           => "/#{name}",
-          :foreign_method => nil
+          :inverse_of => nil
         }.merge(attrs)
         (relationships[:has_many] ||= []) << attrs
 
@@ -74,13 +74,13 @@ module Her
             @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
           end
 
-          foreign_method = if attrs[:foreign_method]
-                             attrs[:foreign_method]
+          inverse_of = if attrs[:inverse_of]
+                             attrs[:inverse_of]
                            else
                              self.class.name.split('::').last.tableize.singularize
                            end
           @data[name].each do |entry|
-            entry.send("#{foreign_method}=", self)
+            entry.send("#{inverse_of}=", self)
           end
 
           @data[name]
