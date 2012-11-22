@@ -65,6 +65,11 @@ module Her
         @data.include?(attribute_name)
       end
 
+      # Handles returning attribute value from data
+      def [](attribute_name)
+        @data[attribute_name]
+      end
+
       # Override the method to prevent from returning the object ID (in ruby-1.8.7)
       # @private
       def id
