@@ -60,6 +60,11 @@ module Her
         method.to_s.end_with?('=') || method.to_s.end_with?('?') || @data.include?(method) || super
       end
 
+      # Handles returning true for the accessible attributes
+      def has_key?(attribute_name)
+        @data.include?(attribute_name)
+      end
+
       # Override the method to prevent from returning the object ID (in ruby-1.8.7)
       # @private
       def id
