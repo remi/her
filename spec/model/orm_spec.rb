@@ -86,6 +86,12 @@ describe Her::Model::ORM do
       @new_user.should_not have_key(:unknown_method_for_a_user)
       @new_user.should have_key(:fullname)
     end
+
+    it "handles [] for getter" do
+      @new_user = Foo::User.new(:fullname => 'Mayonegg')
+      @new_user[:unknown_method_for_a_user].should be_nil
+      @new_user[:fullname].should == 'Mayonegg'
+    end
   end
 
   context "mapping data, metadata and error data to Ruby objects" do
