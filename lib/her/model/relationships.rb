@@ -12,7 +12,7 @@ module Her
 
       # Returns the resource/collection corresponding to the relationship_name relationship.
       def get_relationship(relationship_name)
-        public_send(relationship_name) if has_relationship?(relationship_name)
+        send(relationship_name) if has_relationship?(relationship_name)
       end
 
       module ClassMethods
