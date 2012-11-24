@@ -242,6 +242,7 @@ module Her
         def save_existing(id, params)
           resource = new(params.merge(:id => id))
           resource.save
+          resource
         end
 
         # Destroy an existing resource
