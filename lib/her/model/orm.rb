@@ -193,7 +193,7 @@ module Her
           params = ids.last.is_a?(Hash) ? ids.pop : {}
           results = ids.flatten.compact.uniq.map do |id|
             request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
-              new(parsed_data[:data])
+              new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
             end
           end
           if ids.length > 1 || ids.first.kind_of?(Array)
