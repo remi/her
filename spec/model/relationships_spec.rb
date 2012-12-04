@@ -167,6 +167,16 @@ describe Her::Model::Relationships do
     it "fetches belongs_to data even if it was included, only if called with parameters" do
       @user_with_included_data.organization(:foo_id => 1).name.should == "Bluth Company Foo"
     end
+
+    it "can tell if it has a relationship" do
+      @user_without_included_data.has_relationship?(:unknown_relationship).should be_false
+      @user_without_included_data.has_relationship?(:organization).should be_true
+    end
+
+    it "fetches the resource corresponding to a named relationship" do
+      @user_without_included_data.get_relationship(:unknown_relationship).should be_nil
+      @user_without_included_data.get_relationship(:organization).name.should == "Bluth Company"
+    end
   end
 
   context "handling relationships with details" do

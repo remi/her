@@ -24,12 +24,12 @@ module Her
     include Her::Model::ORM
     include Her::Model::Introspection
     include Her::Model::Paths
+    include Her::Model::Relationships
 
     # Class methods
     included do
       extend Her::Model::Base
       extend Her::Model::HTTP
-      extend Her::Model::Relationships
       extend Her::Model::Hooks
 
       # Define default settings
@@ -37,6 +37,22 @@ module Her
       collection_path "#{base_path}"
       resource_path "#{base_path}/:id"
       uses_api Her::API.default_api
+    end
+
+    # Returns true if attribute_name is
+    # * in orm data
+    # * a relationship
+    def has_key?(attribute_name)
+      has_data?(attribute_name) ||
+      has_relationship?(attribute_name)
+    end
+
+    # Returns
+    # * the value of the attribute_nane attribute if it's in orm data
+    # * the resource/collection corrsponding to attribute_name if it's a relationship
+    def [](attribute_name)
+      get_data(attribute_name) ||
+      get_relationship(attribute_name)
     end
   end
 end

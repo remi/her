@@ -61,12 +61,12 @@ module Her
       end
 
       # Handles returning true for the accessible attributes
-      def has_key?(attribute_name)
+      def has_data?(attribute_name)
         @data.include?(attribute_name)
       end
 
       # Handles returning attribute value from data
-      def [](attribute_name)
+      def get_data(attribute_name)
         @data[attribute_name]
       end
 
