@@ -134,7 +134,7 @@ module Her
 
         self.class.wrap_in_hooks(resource, *hooks) do |resource, klass|
           klass.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data|
-            self.data = parsed_data[:data]
+            self.data = parsed_data[:data] if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]
             self.errors = parsed_data[:errors]
 
