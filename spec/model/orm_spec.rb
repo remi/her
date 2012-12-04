@@ -81,16 +81,16 @@ describe Her::Model::ORM do
       @new_user.should respond_to(:fullname?)
     end
 
-    it "handles has_key for getter" do
+    it "handles has_data? for getter" do
       @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      @new_user.should_not have_key(:unknown_method_for_a_user)
-      @new_user.should have_key(:fullname)
+      @new_user.should_not have_data(:unknown_method_for_a_user)
+      @new_user.should have_data(:fullname)
     end
 
-    it "handles [] for getter" do
+    it "handles get_data for getter" do
       @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      @new_user[:unknown_method_for_a_user].should be_nil
-      @new_user[:fullname].should == 'Mayonegg'
+      @new_user.get_data(:unknown_method_for_a_user).should be_nil
+      @new_user.get_data(:fullname).should == 'Mayonegg'
     end
   end
 
