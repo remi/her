@@ -134,7 +134,7 @@ module Her
 
         self.class.wrap_in_hooks(resource, *hooks) do |resource, klass|
           klass.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data|
-            self.data = parsed_data[:data]
+            self.data = parsed_data[:data] if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]
             self.errors = parsed_data[:errors]
 
@@ -193,7 +193,7 @@ module Her
           params = ids.last.is_a?(Hash) ? ids.pop : {}
           results = ids.flatten.compact.uniq.map do |id|
             request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
-              new(parsed_data[:data])
+              new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
             end
           end
           if ids.length > 1 || ids.first.kind_of?(Array)
@@ -242,6 +242,7 @@ module Her
         def save_existing(id, params)
           resource = new(params.merge(:id => id))
           resource.save
+          resource
         end
 
         # Destroy an existing resource

@@ -11,6 +11,7 @@ describe Her::Model::Paths do
       describe "#build_request_path" do
         it "builds paths with defaults" do
           Foo::User.build_request_path(:id => "foo").should == "users/foo"
+          Foo::User.build_request_path(:id => nil).should == "users"
           Foo::User.build_request_path.should == "users"
         end
 

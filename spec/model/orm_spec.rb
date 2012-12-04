@@ -272,6 +272,12 @@ describe Her::Model::ORM do
       @company = Foo::Company.new
       @company.save.should be_false
     end
+
+    it "don't overwrite data if response is empty" do
+      @company = Foo::Company.new(:name => 'Company Inc.')
+      @company.save.should be_false
+      @company.name.should == "Company Inc."
+    end
   end
 
   context "updating resources" do
