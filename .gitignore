@@ -5,3 +5,4 @@ pkg/*
 .yardoc
 doc
 rake
+tmp
