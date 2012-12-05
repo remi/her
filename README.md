@@ -569,6 +569,9 @@ These fine folks helped with Her:
 * [@simonprevost](https://github.com/simonprevost)
 * [@jmlacroix](https://github.com/jmlacroix)
 * [@thomsbg](https://github.com/thomsbg)
+* [@calmyournerves](https://github.com/calmyournerves)
+* [@luflux](https://github.com/luxflux)
+* [@simonc](https://github.com/simonc)
 
 ## License
 
