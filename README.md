@@ -550,12 +550,7 @@ Yes please! Feel free to contribute and submit issues/pull requests [on GitHub](
 
 ### How to contribute
 
-* Fork the repository
-* Implement your feature or fix
-* Add examples that describe it (in the `spec` directory)
-* Make sure `bundle exec rake spec` passes after your modifications
-* Commit (bonus points for doing it in a `feature-*` branch)
-* Send a pull request!
+See [CONTRIBUTING.md](https://github.com/remiprev/her/blob/master/CONTRIBUTING.md).
 
 ### Contributors
 
