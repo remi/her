@@ -77,7 +77,7 @@ For example, to add a API token header to your requests in a Rails application, 
 class ApplicationController < ActionController::Base
   around_filter :do_with_authenticated_user
 
-  def as_authenticated_user
+  def do_with_authenticated_user
     Thread.current[:my_api_token] = session[:my_api_token]
     begin
       yield
