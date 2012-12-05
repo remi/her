@@ -192,6 +192,8 @@ end
 @tweets = Tweet.get("/statuses/home_timeline.json")
 ```
 
+See the *Authentication* middleware section for an example of how to pass different credentials based on the current user.
+
 ### Caching
 
 Again, using the `faraday_middleware` makes it very easy to cache requests and responses:
