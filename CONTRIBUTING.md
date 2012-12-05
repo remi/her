@@ -1,5 +1,7 @@
 # How to contribute
 
+_(This file is heavily based on [factory\_girl\_rails](https://github.com/thoughtbot/factory_girl_rails/blob/master/CONTRIBUTING.md)’s Contribution Guide)_
+
 We love pull requests. Here’s a quick guide:
 
 * Fork the repository.
