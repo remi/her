@@ -544,6 +544,12 @@ end
 * Better error handling
 * Better API documentation (using YARD)
 
+## Real life projects
+
+Most projects I know that use Her are internal or private projects but here’s a list of public ones:
+
+* [tumbz](https://github.com/remiprev/tumbz)
+
 ## Contribute
 
 Yes please! Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues).
