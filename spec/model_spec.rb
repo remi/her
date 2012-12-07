@@ -25,7 +25,7 @@ describe Her::Model do
     @user_without_included_data.should_not have_key(:unknown_method_for_a_user)
     @user_without_included_data.should have_key(:name)
   end
-
+  
   it "handles has_key? for relationships" do
     @user_without_included_data.should_not have_key(:unknown_method_for_a_user)
     @user_without_included_data.should have_key(:comments)
@@ -40,4 +40,9 @@ describe Her::Model do
     @user_without_included_data[:unknown_relationship].should be_nil
     @user_without_included_data[:comments].first.body.should == "They're having a FIRESALE?"
   end
+
+  it "handles .primary_key" do 
+    @user_without_included_data.should respond_to(:primary_key)
+  end
+
 end
