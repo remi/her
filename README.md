@@ -279,8 +279,8 @@ end
 If there’s relationship data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources is returned:
 
 ```ruby
-@user = User.find(1) 
-# { 
+@user = User.find(1)
+# {
 #   :data => {
 #     :id => 1,
 #     :name => "George Michael Bluth",
@@ -509,35 +509,7 @@ end
 
 ## Testing
 
-Using Faraday stubbing feature, it’s very easy to write tests for our models. For example, using [RSpec](https://github.com/rspec/rspec-core):
-
-```ruby
-# app/models/post.rb
-class Post
-  include Her::Model
-  custom_get :popular
-end
-
-# spec/models/post.rb
-describe Post do
-  before do
-    Her::API.setup :url => "http://api.example.com" do |connection|
-      connection.use Her::Middleware::FirstLevelParseJSON
-      connection.use Faraday::Request::UrlEncoded
-      connection.adapter :test do |stub|
-        stub.get("/users/popular") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
-      end
-    end
-  end
-
-  describe ".popular" do
-    it "should fetch all popular posts" do
-      @posts = Post.popular
-      @posts.length.should == 2
-    end
-  end
-end
-```
+See [TESTING.md](https://github.com/remiprev/her/blob/master/TESTING.md) to learn how to test models using stubbed HTTP requests.
 
 ## Things to be done
 
