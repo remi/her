@@ -5,7 +5,11 @@ module Her
       # Automatically inherit a superclass' api
       def her_api
         @her_api ||= begin
-          superclass.her_api if superclass.respond_to?(:her_api)
+          if superclass.respond_to?(:her_api)
+            superclass.her_api
+          else
+            Her::API.default_api
+          end
         end
       end
 
