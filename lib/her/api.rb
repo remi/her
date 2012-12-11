@@ -39,7 +39,7 @@ module Her
     #   class MyCustomParser < Faraday::Response::Middleware
     #     def on_complete(env)
     #       json = JSON.parse(env[:body], :symbolize_names => true)
-    #       errors = json.delete(:errors) || []
+    #       errors = json.delete(:errors) || {}
     #       metadata = json.delete(:metadata) || []
     #       env[:body] = { :data => json, :errors => errors, :metadata => metadata }
     #     end
@@ -59,7 +59,7 @@ module Her
     end
 
     # Define a custom parsing procedure. The procedure is passed the response object and is
-    # expected to return a hash with three keys: a main data Hash, an errors Array
+    # expected to return a hash with three keys: a main data Hash, an errors Hash
     # and a metadata Hash.
     #
     # @private

@@ -6,7 +6,7 @@ module Her
     def initialize(items=[], metadata={}, errors=[])
       super(items)
       @metadata = metadata || {}
-      @errors = errors || []
+      @errors = errors || {}
     end
   end
 end
