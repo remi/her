@@ -60,9 +60,9 @@ You can look into the `examples` directory for sample applications using Her. Fo
 
 ## History
 
-Most of Her’s core codebase was written on a Saturday morning ([first commit](https://github.com/remiprev/her/commit/689d8e88916dc2ad258e69a2a91a283f061cbef2) at 7am!) while I was visiting my girlfiend’s family in [Ayer’s Cliff](https://en.wikipedia.org/wiki/Ayer%27s_Cliff).
+I told myself a few months ago that it would be great to build a gem to replace Rails’ [ActiveResource](http://api.rubyonrails.org/classes/ActiveResource/Base.html) since it was barely maintained, lacking features and hard to extend/customize. I had built a few of these REST-powered ORMs for client projects before but I decided I wanted to write one for myself that I could release as an open-source project.
 
-I told myself a few weeks before that it would be great to build a gem to replace Rails’ [ActiveResource](http://api.rubyonrails.org/classes/ActiveResource/Base.html) since it was barely maintained, lacking features and hard to extend/customize. I had built a few of these REST-powered ORMs for client projects before but I decided I wanted to write one for myself that I could release as an open-source project.
+Most of Her’s core codebase was written on a Saturday morning ([first commit](https://github.com/remiprev/her/commit/689d8e88916dc2ad258e69a2a91a283f061cbef2) at 7am!) while I was visiting my girlfiend’s family in [Ayer’s Cliff](https://en.wikipedia.org/wiki/Ayer%27s_Cliff).
 
 ## Middleware
 
