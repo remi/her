@@ -49,6 +49,11 @@ describe Her::Model::ORM do
       @existing_user.new?.should be_false
     end
 
+    it "accepts new resource with strings as hash keys" do
+      @new_user = Foo::User.new('fullname' => "Tobias Fünke")
+      @new_user.fullname.should == "Tobias Fünke"
+    end
+
     it "handles method missing for getter" do
       @new_user = Foo::User.new(:fullname => 'Mayonegg')
       lambda { @new_user.unknown_method_for_a_user }.should raise_error(NoMethodError)
