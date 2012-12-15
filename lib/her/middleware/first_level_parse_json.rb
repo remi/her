@@ -8,7 +8,7 @@ module Her
       # @return [Mixed] the parsed response
       def parse(body)
         json = MultiJson.load(body, :symbolize_keys => true)
-        errors = json.delete(:errors) || []
+        errors = json.delete(:errors) || {}
         metadata = json.delete(:metadata) || []
         {
           :data => json,
