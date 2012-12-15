@@ -35,6 +35,9 @@ module Her
           if setter_method_names.include?(setter_method)
             model.send(setter_method, value)
           else
+            if key.is_a?(String)
+              key = key.to_sym
+            end
             memo[key] = value
           end
           memo
