@@ -4,6 +4,8 @@ module Her
     module ORM
       extend ActiveSupport::Concern
       attr_accessor :data, :metadata, :errors
+      alias :attributes :data
+      alias :attributes= :data=
 
       # Initialize a new object with data received from an HTTP request
       def initialize(params={})
@@ -62,6 +64,13 @@ module Her
       def respond_to?(method, include_private = false)
         method.to_s.end_with?('=') || method.to_s.end_with?('?') || @data.include?(method) || super
       end
+
+      # Assign new data to an instance
+      def assign_data(new_data)
+        new_data = Her::Model::ORM.use_setter_methods(self, new_data)
+        @data.update new_data
+      end
+      alias :assign_attributes :assign_data
 
       # Handles returning true for the accessible attributes
       def has_data?(attribute_name)

@@ -319,6 +319,26 @@ describe Her::Model::ORM do
     end
   end
 
+  context "assigning new resource data" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
+        end
+      end
+
+      spawn_model "Foo::User"
+      @user = Foo::User.find(1)
+    end
+
+    it "handles data update through #assign_attributes" do
+      @user.assign_attributes :active => true
+      @user.should be_active
+    end
+  end
+
   context "deleting resources" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|

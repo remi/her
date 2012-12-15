@@ -1,5 +1,39 @@
 # Features
 
+## Methods
+
+```ruby
+class User
+  include Her::Model
+end
+
+# Update a fetched resource
+user = User.find(1)
+user.fullname = "Lindsay Fünke"
+# OR user.assign_attributes :fullname => "Lindsay Fünke"
+user.save
+
+# Update a resource without fetching it
+User.save_existing(1, :fullname => "Lindsay Fünke")
+
+# Destroy a fetched resource
+user = User.find(1)
+user.destroy
+
+# Destroy a resource without fetching it
+User.destroy_existing(1)
+
+# Fetching a collection of resources
+User.all
+
+# Create a new resource
+User.create(:fullname => "Maeby Fünke")
+
+# Save a new resource
+user = User.new(:fullname => "Maeby Fünke")
+user.save
+```
+
 ## Relationships
 
 You can define `has_many`, `has_one` and `belongs_to` relationships in your models. The relationship data is handled in two different ways.
