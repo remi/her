@@ -181,3 +181,26 @@ end
 @user = User.find(1)
 # This request will be fetched from the cache
 ```
+
+Caching with Memcached (simple way)
+
+```ruby
+
+# In your gemfile add 
+
+gem "memcached"
+
+# initializers/her.rb
+
+require "memcached"
+
+$cache = Memcached::Rails.new("localhost:11211")
+
+Her::API.setup :url => "https://api.example.com" do |connection|
+  connection.use Faraday::Request::UrlEncoded
+  connection.use FaradayMiddleware::Caching, $cache
+  connection.use Her::Middleware::DefaultParseJSON
+  connection.use Faraday::Adapter::NetHttp
+end
+
+```
