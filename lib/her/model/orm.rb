@@ -221,7 +221,7 @@ module Her
         #   @users = User.all
         #   # Fetched via GET "/users"
         def all(params={})
-          request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data|
+          request(params.merge(:_method => :put, :_path => "#{build_request_path(params)}")) do |parsed_data|
             new_collection(parsed_data)
           end
         end
