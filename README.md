@@ -108,7 +108,7 @@ These fine folks helped with Her:
 * [@luflux](https://github.com/luxflux)
 * [@simonc](https://github.com/simonc)
 * [@pencil](https://github.com/pencil)
-* [@joanniclaborde](https://github.com/pencil)
+* [@joanniclaborde](https://github.com/joanniclaborde)
 
 ## License
 
