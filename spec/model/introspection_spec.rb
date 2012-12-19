@@ -19,14 +19,22 @@ describe Her::Model::Introspection do
     end
 
     describe "#inspect" do
-      it "outputs resource attributs for an existing resource" do
+      it "outputs resource attributes for an existing resource" do
         @user = Foo::User.find(1)
         ["#<Foo::User(users/1) name=\"Tobias Funke\" id=1>", "#<Foo::User(users/1) id=1 name=\"Tobias Funke\">"].should include(@user.inspect)
       end
 
-      it "outputs resource attributs for an not-saved-yet resource" do
+      it "outputs resource attributes for an not-saved-yet resource" do
         @user = Foo::User.new(:name => "Tobias Funke")
         @user.inspect.should == "#<Foo::User(users) name=\"Tobias Funke\">"
+      end
+
+      it "outputs resource attributes using getters" do
+        @user = Foo::User.new(:name => "Tobias Funke", :password => "Funke")
+        @user.instance_eval {def password; 'filtered'; end}
+        @user.inspect.should include("name=\"Tobias Funke\"")
+        @user.inspect.should include("password=\"filtered\"")
+        @user.inspect.should_not include("password=\"Funke\"")
       end
     end
   end
