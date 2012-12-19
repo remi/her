@@ -107,6 +107,8 @@ These fine folks helped with Her:
 * [@calmyournerves](https://github.com/calmyournerves)
 * [@luflux](https://github.com/luxflux)
 * [@simonc](https://github.com/simonc)
+* [@pencil](https://github.com/pencil)
+* [@joanniclaborde](https://github.com/pencil)
 
 ## License
 
