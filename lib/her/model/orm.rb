@@ -9,15 +9,7 @@ module Her
 
       # Initialize a new object with data received from an HTTP request
       def initialize(params={})
-        @data = {}
-        @metadata = params.delete(:_metadata) || {}
-        @errors = params.delete(:_errors) || {}
-
-        # Use setter methods first, then translate attributes of relationships
-        # into relationship instances, then merge the parsed_data into @data.
-        unset_data = Her::Model::ORM.use_setter_methods(self, params)
-        parsed_data = self.class.parse_relationships(unset_data)
-        @data.update(parsed_data)
+        reload_data({:data => params, :metadata => params.delete(:_metadata), :errors => params.delete(:_errors)})
       end
 
       # Initialize a collection of resources
@@ -67,10 +59,26 @@ module Her
 
       # Assign new data to an instance
       def assign_data(new_data)
-        new_data = Her::Model::ORM.use_setter_methods(self, new_data)
-        @data.update new_data
+        # Use setter methods first, then translate attributes of relationships
+        # into relationship instances, then merge the parsed_data into @data.
+        unset_data = Her::Model::ORM.use_setter_methods(self, new_data)
+        unset_data = self.class.parse_relationships(unset_data)
+        @data.update unset_data
       end
       alias :assign_attributes :assign_data
+
+      # Initialize instance with new data
+      def reload_data(new_data)
+        if new_data[:data].any?
+          self.data = {}
+          assign_data(new_data[:data])
+        else
+          self.data ||= {}
+        end
+
+        self.metadata = new_data[:metadata] || {}
+        self.errors   = new_data[:errors] || {}
+      end
 
       # Handles returning true for the accessible attributes
       def has_data?(attribute_name)
@@ -146,10 +154,7 @@ module Her
 
         self.class.wrap_in_hooks(resource, *hooks) do |resource, klass|
           klass.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data|
-            self.data = parsed_data[:data] if parsed_data[:data].any?
-            self.metadata = parsed_data[:metadata]
-            self.errors = parsed_data[:errors]
-
+            reload_data(parsed_data)
             return false if self.errors.any?
           end
         end
@@ -167,9 +172,7 @@ module Her
         resource = self
         self.class.wrap_in_hooks(resource, :destroy) do |resource, klass|
           klass.request(:_method => :delete, :_path => "#{request_path}") do |parsed_data|
-            self.data = parsed_data[:data]
-            self.metadata = parsed_data[:metadata]
-            self.errors = parsed_data[:errors]
+            reload_data(parsed_data)
           end
         end
         self
@@ -236,11 +239,7 @@ module Her
           wrap_in_hooks(resource, :create, :save) do |resource, klass|
             params = resource.to_params
             request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
-              resource.instance_eval do
-                @data = parsed_data[:data]
-                @metadata = parsed_data[:metadata]
-                @errors = parsed_data[:errors]
-              end
+              resource.reload_data(parsed_data)
             end
           end
           resource

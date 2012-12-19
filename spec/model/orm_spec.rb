@@ -325,17 +325,29 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => false }.to_json] }
         end
       end
 
       spawn_model "Foo::User"
+      spawn_model "Foo::Comment"
+      Foo::User.has_many :comments
+
       @user = Foo::User.find(1)
     end
 
     it "handles data update through #assign_attributes" do
-      @user.assign_attributes :active => true
+      @user.assign_attributes :active => true, :comments => [{ :id => 1, :body => 'Some text' }]
+      @user.fullname.should == "Tobias Fünke"
       @user.should be_active
+      @user.comments.first.body.should == 'Some text'
+    end
+
+    it "handles data update through #reload_data" do
+      @user.reload_data({:data => {:active => true, :comments => [{ :id => 1, :body => 'Some text' }]}})
+      @user.respond_to?(:fullname, true).should == false
+      @user.should be_active
+      @user.comments.first.body.should == 'Some text'
     end
   end
 
