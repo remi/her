@@ -1,7 +1,7 @@
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
 require "rspec"
-require "mocha_standalone"
+require "mocha/api"
 require "her"
 
 RSpec.configure do |c|
