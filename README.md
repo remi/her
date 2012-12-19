@@ -66,19 +66,19 @@ Most of Her’s core codebase was written on a Saturday morning ([first commit](
 
 ## Middleware
 
-See [MIDDLEWARE.md](https://github.com/remiprev/her/blob/master/MIDDLEWARE.md) to learn how to use [Faraday](https://github.com/technoweenie/faraday)’s middleware to customize how Her handles HTTP requests and responses.
+See [MIDDLEWARE.md](https://github.com/remiprev/her/blob/master/docs/MIDDLEWARE.md) to learn how to use [Faraday](https://github.com/technoweenie/faraday)’s middleware to customize how Her handles HTTP requests and responses.
 
 ## Features
 
-See [FEATURES.md](https://github.com/remiprev/her/blob/master/FEATURES.md) to learn about Her’s advanced features.
+See [FEATURES.md](https://github.com/remiprev/her/blob/master/docs/FEATURES.md) to learn about Her’s advanced features.
 
 ## Testing
 
-See [TESTING.md](https://github.com/remiprev/her/blob/master/TESTING.md) to learn how to test models using stubbed HTTP requests.
+See [TESTING.md](https://github.com/remiprev/her/blob/master/docs/TESTING.md) to learn how to test models using stubbed HTTP requests.
 
 ## Upgrade
 
-See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for backward compability issues.
+See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/docs/UPGRADE.md) for backward compability issues.
 
 ## Her IRL
 
@@ -90,7 +90,7 @@ Most projects I know that use Her are internal or private projects but here’s 
 
 Yes please! Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues).
 
-See [CONTRIBUTING.md](https://github.com/remiprev/her/blob/master/CONTRIBUTING.md) for best practices.
+See [CONTRIBUTING.md](https://github.com/remiprev/her/blob/master/docs/CONTRIBUTING.md) for best practices.
 
 ### Contributors
 
