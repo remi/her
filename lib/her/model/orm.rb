@@ -23,7 +23,11 @@ module Her
       # Initialize a collection of resources
       # @private
       def self.initialize_collection(klass, parsed_data={})
-        collection_data = parsed_data[:data].map { |item_data| klass.new(item_data) }
+        collection_data = parsed_data[:data].map do |item_data|
+          resource = klass.new(item_data)
+          klass.wrap_in_hooks(resource, :find)
+          resource
+        end
         Her::Collection.new(collection_data, parsed_data[:metadata], parsed_data[:errors])
       end
 
@@ -204,9 +208,12 @@ module Her
         def find(*ids)
           params = ids.last.is_a?(Hash) ? ids.pop : {}
           results = ids.flatten.compact.uniq.map do |id|
+            resource = nil
             request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
-              new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
+              resource = new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
+              wrap_in_hooks(resource, :find)
             end
+            resource
           end
           if ids.length > 1 || ids.first.kind_of?(Array)
             results
