@@ -35,6 +35,9 @@ module Her
       # @param [Symbol, &block] method A method or a block to be called
       def before_destroy(method=nil, &block); set_hook(:before, :destroy, method || block); end
 
+      # Do not add a *before find* callback. Only *after find* is supported.
+      def before_find(method=nil, &block); raise NoMethodError, "undefined method `before_find' for #{self}"; end
+
       # Add a *after save* callback. Triggered after a resource is created or updated.
       # @param [Symbol, &block] method A method or a block to be called
       def after_save(method=nil, &block); set_hook(:after, :save, method || block); end
@@ -51,11 +54,15 @@ module Her
       # @param [Symbol, &block] method A method or a block to be called
       def after_destroy(method=nil, &block); set_hook(:after, :destroy, method || block); end
 
+      # Add a *after find* callback. Triggered after a resource is found.
+      # @param [Symbol, &block] method A method or a block to be called
+      def after_find(method=nil, &block); set_hook(:after, :find, method || block); end
+
       # Wrap a block between “before” and “after” hooks
       # @private
       def wrap_in_hooks(resource, *hooks)
         perform_before_hooks(resource, *hooks)
-        yield(resource, resource.class)
+        yield(resource, resource.class) if block_given?
         perform_after_hooks(resource, *hooks.reverse)
       end
 
