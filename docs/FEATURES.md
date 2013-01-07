@@ -134,7 +134,7 @@ end
 # POST /users&fullname=Tobias+Fünke&internal_id=42
 
 @user = User.find(1)
-@user.fullname = "TOBIAS FUNKE"
+@user.fullname # => "TOBIAS FUNKE"
 ```
 
 The available hooks are:
