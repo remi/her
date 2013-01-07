@@ -1,5 +1,7 @@
 # Features
 
+Here’s a list of several useful features available in Her.
+
 ## Methods
 
 ```ruby
@@ -113,23 +115,39 @@ If there’s no relationship data in the resource, Her makes a HTTP request to r
 
 Subsequent calls to `#comments`, `#role` and `#organization` will not trigger extra HTTP requests and will return the cached objects.
 
-## Hooks
+## Hooks (callbacks)
 
-You can add *before* and *after* hooks to your models that are triggered on specific actions (`save`, `update`, `create`, `destroy`):
+You can add *before* and *after* hooks to your models that are triggered on specific actions. You can use symbols or blocks.
 
 ```ruby
 class User
   include Her::Model
   before_save :set_internal_id
+  after_find { |u| u.fullname.upcase! }
 
   def set_internal_id
     self.internal_id = 42 # Will be passed in the HTTP request
   end
 end
 
-@user = User.create(:fullname => "Tobias Fünke")
+@user = User.create(:fullname => "Tobias Funke")
 # POST /users&fullname=Tobias+Fünke&internal_id=42
+
+@user = User.find(1)
+@user.fullname = "TOBIAS FUNKE"
 ```
+
+The available hooks are:
+
+* `before_save`
+* `before_create`
+* `before_update`
+* `before_destroy`
+* `after_save`
+* `after_create`
+* `after_update`
+* `after_destroy`
+* `after_find`
 
 ## Custom requests
 
