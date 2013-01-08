@@ -1,3 +1,5 @@
+# Upgrade Her
+
 Here is a list of backward-incompatible changes that were introduced while Her is pre-1.0. After reaching 1.0, it will follow the [Semantic Versioning](http://semver.org/) system.
 
 ## 0.2.4
