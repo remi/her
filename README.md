@@ -630,6 +630,7 @@ See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/docs/UPGRADE.md
 Most projects I know that use Her are internal or private projects but here’s a list of public ones:
 
 * [tumbz](https://github.com/remiprev/tumbz)
+* [crowdher](https://github.com/simonprev/crowdher)
 
 ## History
 
