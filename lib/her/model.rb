@@ -32,6 +32,24 @@ module Her
       extend Her::Model::HTTP
       extend Her::Model::Hooks
 
+      def primary_key
+        @primary_key
+      end
+
+      def self.primary_key
+        @@primary_key
+      end
+
+      def primary_key=(id)
+        @primary_key = id
+      end
+
+      def self.primary_key=(id)
+        @@primary_key = id
+      end
+
+      self.primary_key = :id
+
       # Define default settings
       base_path = self.name.split("::").last.underscore.pluralize
       collection_path "#{base_path}"
