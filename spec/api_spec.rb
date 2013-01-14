@@ -17,6 +17,12 @@ describe Her::API do
         @api.base_uri.should == "https://api.example.com"
       end
 
+      it "supports the base_uri legacy option" do
+        @api = Her::API.new
+        @api.setup :base_uri => "https://api.example.com"
+        @api.base_uri.should == "https://api.example.com"
+      end
+
       it "sets custom middleware with #use" do
         class Foo; end;
         class Bar; end;
