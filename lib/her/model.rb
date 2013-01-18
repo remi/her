@@ -33,7 +33,8 @@ module Her
       extend Her::Model::Hooks
 
       # Define default settings
-      base_path = self.name.split("::").last.underscore.pluralize
+      self.element_name = self.name.split("::").last.underscore
+      base_path = element_name.pluralize
       collection_path "#{base_path}"
       resource_path "#{base_path}/:id"
       uses_api Her::API.default_api
