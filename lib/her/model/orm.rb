@@ -185,7 +185,7 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        @data.dup
+        include_root_in_json ? { element_name => @data.dup } : @data.dup
       end
 
       module ClassMethods

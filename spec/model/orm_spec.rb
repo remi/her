@@ -462,4 +462,17 @@ describe Her::Model::ORM do
       hash.should == { user => false }
     end
   end
+
+  context "when include_root_in_json is true" do
+    before do
+      spawn_model "Foo::User" do
+        self.include_root_in_json = true
+      end
+    end
+
+    it "#to_params wraps params" do
+      @new_user = Foo::User.new(:fullname => "Tobias Fünke")
+      @new_user.to_params.should == { 'user' => { fullname: "Tobias Fünke" } }
+    end
+  end
 end
