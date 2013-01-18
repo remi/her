@@ -133,8 +133,7 @@ describe Her::Model::ORM do
 
     it "handles error data on a resource" do
       @user = User.create(:name => "George Michael Bluth")
-      @user.errors.should == ["Yes", "Sir"]
-      @user.should be_invalid
+      @user.response_errors.should == ["Yes", "Sir"]
     end
   end
 
