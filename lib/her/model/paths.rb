@@ -15,7 +15,18 @@ module Her
         self.class.build_request_path(@data.dup)
       end
 
+      def element_name
+        self.class.element_name
+      end
+
+      def include_root_in_json
+        self.class.include_root_in_json
+      end
+
       module ClassMethods
+
+        attr_accessor :element_name, :include_root_in_json
+
         # Defines a custom collection path for the resource
         #
         # @example
