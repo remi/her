@@ -126,14 +126,14 @@ module Her
         resource = self
 
         if @data[:id]
-          hooks = [:update, :save]
+          callbacks = [:update, :save]
           method = :put
         else
-          hooks = [:create, :save]
+          callbacks = [:create, :save]
           method = :post
         end
 
-        run_callbacks(*hooks) do
+        run_callbacks(*callbacks) do
           self.class.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data, response|
             update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]

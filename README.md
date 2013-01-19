@@ -340,9 +340,9 @@ If there’s no relationship data in the resource, Her makes a HTTP request to r
 
 Subsequent calls to `#comments`, `#role` and `#organization` will not trigger extra HTTP requests and will return the cached objects.
 
-### Hooks (callbacks)
+### Callbacks
 
-You can add *before* and *after* hooks to your models that are triggered on specific actions. You can use symbols or blocks.
+You can add *before* and *after* callbacks to your models that are triggered on specific actions. You can use symbols or blocks.
 
 ```ruby
 class User
@@ -362,7 +362,7 @@ end
 @user.fullname # => "TOBIAS FUNKE"
 ```
 
-The available hooks are:
+The available callbacks are:
 
 * `before_save`
 * `before_create`
