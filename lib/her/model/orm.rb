@@ -185,7 +185,11 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        include_root_in_json ? { element_name => @data.dup } : @data.dup
+        if self.class.include_root_in_json
+          { (self.class.include_root_in_json == true ? self.class.root_element : self.class.include_root_in_json) => @data.dup }
+        else
+          @data.dup
+        end
       end
 
       module ClassMethods

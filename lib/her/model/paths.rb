@@ -15,17 +15,7 @@ module Her
         self.class.build_request_path(@data.dup)
       end
 
-      def element_name
-        self.class.element_name
-      end
-
-      def include_root_in_json
-        self.class.include_root_in_json
-      end
-
       module ClassMethods
-
-        attr_accessor :element_name, :include_root_in_json
 
         # Defines a custom collection path for the resource
         #
@@ -79,6 +69,18 @@ module Her
             # Look for :key or :_key, otherwise raise an exception
             parameters.delete($1.to_sym) || parameters.delete("_#{$1}".to_sym) || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path (#{path})."))
           end
+        end
+
+        # Return or change the value of `include_root_in_json`
+        def include_root_in_json(value=nil)
+          return @include_root_in_json if value.nil?
+          @include_root_in_json = value
+        end
+
+        # Return or change the value of `root_element`
+        def root_element(value=nil)
+          return @root_element if value.nil?
+          @root_element = value
         end
       end
     end

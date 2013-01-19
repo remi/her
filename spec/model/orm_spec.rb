@@ -464,15 +464,30 @@ describe Her::Model::ORM do
   end
 
   context "when include_root_in_json is true" do
-    before do
-      spawn_model "Foo::User" do
-        self.include_root_in_json = true
+    context "when include_root_in_json is true" do
+      before do
+        spawn_model "Foo::User" do
+          include_root_in_json true
+        end
+      end
+
+      it "wraps params in the element name" do
+        @new_user = Foo::User.new(:fullname => "Tobias Fünke")
+        @new_user.to_params.should == { 'user' => { :fullname => "Tobias Fünke" } }
       end
     end
 
-    it "#to_params wraps params" do
-      @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-      @new_user.to_params.should == { 'user' => { fullname: "Tobias Fünke" } }
+    context "when include_root_in_json is set to another value" do
+      before do
+        spawn_model "Foo::User" do
+          include_root_in_json :person
+        end
+      end
+
+      it "wraps params in the specified value" do
+        @new_user = Foo::User.new(:fullname => "Tobias Fünke")
+        @new_user.to_params.should == { :person => { :fullname => "Tobias Fünke" } }
+      end
     end
   end
 end

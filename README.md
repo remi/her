@@ -521,6 +521,30 @@ Category.all
 # GET https://other_api.example.com/categories
 ```
 
+### Wrap in JSON
+
+Currently, Her supports only *sending* JSON data wrapped in a root element, like so:
+
+```ruby
+class User
+  include Her::Model
+  include_root_in_json true
+end
+
+class Article
+  include Her::Model
+  include_root_in_json :post
+end
+
+User.create(:fullname => "Tobias Fünke")
+# POST { "user": { "fullname": "Tobias Fünke" } } to /users
+
+Article.create(:title => "Hello world.")
+# POST { "post": { "title": "Hello world." } } to /articles
+```
+
+Support for *parsing* JSON data with a root element is planned for a future version.
+
 ### SSL
 
 When initializing `Her::API`, you can pass any parameter supported by `Faraday.new`. So [to use HTTPS](https://github.com/technoweenie/faraday/wiki/Setting-up-SSL-certificates), you can use Faraday’s `:ssl` option.
@@ -662,6 +686,7 @@ These fine folks helped with Her:
 * [@pencil](https://github.com/pencil)
 * [@joanniclaborde](https://github.com/joanniclaborde)
 * [@seanreads](https://github.com/seanreads)
+* [@jonkarna](https://github.com/jonkarna)
 
 ## License
 
