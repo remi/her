@@ -43,7 +43,7 @@ module Her
                 when :has_many
                   Her::Model::ORM.initialize_collection(klass, :data => data[name])
                 when :has_one, :belongs_to
-                  klass.new(data[name])
+                  klass.new(klass.parse(data[name]))
                 else
                   nil
               end
