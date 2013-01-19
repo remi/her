@@ -398,7 +398,7 @@ Article.create(:title => "Hello world.")
 # POST { "post": { "title": "Hello world." } } to /articles
 ```
 
-##### Parsing
+#### Parsing
 
 If the API returns data wrapped in a *root* element based on the model name.
 
