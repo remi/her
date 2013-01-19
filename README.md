@@ -143,48 +143,6 @@ end
 
 Now, each HTTP request made by Her will have the `X-API-Token` header.
 
-### Parsing JSON data
-
-By default, Her handles JSON data. It expects the resource/collection data to be returned at the first level.
-
-```javascript
-// The response of GET /users/1
-{ "id" : 1, "name" : "Tobias Fünke" }
-
-// The response of GET /users
-[{ "id" : 1, "name" : "Tobias Fünke" }]
-```
-
-However, you can define your own parsing method using a response middleware. The middleware should set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code uses a custom middleware to parse the JSON data:
-
-```ruby
-# Expects responses like:
-#
-#     {
-#       "result": {
-#         "id": 1,
-#         "name": "Tobias Fünke"
-#       },
-#       "errors" => []
-#     }
-#
-class MyCustomParser < Faraday::Response::Middleware
-  def on_complete(env)
-    json = MultiJson.load(env[:body], :symbolize_keys => true)
-    env[:body] = {
-      :data => json[:result],
-      :errors => json[:errors],
-      :metadata => json[:metadata]
-    }
-  end
-end
-
-Her::API.setup :url => "https://api.example.com" do |connection|
-  connection.use MyCustomParser
-  connection.use Faraday::Adapter::NetHttp
-end
-```
-
 ### OAuth
 
 Using the `faraday_middleware` and `simple_oauth` gems, it’s fairly easy to use OAuth authentication with Her.
@@ -222,6 +180,50 @@ end
 ```
 
 See the *Authentication* middleware section for an example of how to pass different credentials based on the current user.
+
+### Parsing JSON data
+
+By default, Her handles JSON data. It expects the resource/collection data to be returned at the first level.
+
+```javascript
+// The response of GET /users/1
+{ "id" : 1, "name" : "Tobias Fünke" }
+
+// The response of GET /users
+[{ "id" : 1, "name" : "Tobias Fünke" }]
+```
+
+However, if you want Her to be able to parse the data from a single root element (usually based on the model name), you’ll have to use the `parse_root_in_json` method (See the **JSON attributes-wrapping** section).
+
+Also, you can define your own parsing method using a response middleware. The middleware should set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code uses a custom middleware to parse the JSON data:
+
+```ruby
+# Expects responses like:
+#
+#     {
+#       "result": {
+#         "id": 1,
+#         "name": "Tobias Fünke"
+#       },
+#       "errors" => []
+#     }
+#
+class MyCustomParser < Faraday::Response::Middleware
+  def on_complete(env)
+    json = MultiJson.load(env[:body], :symbolize_keys => true)
+    env[:body] = {
+      :data => json[:result],
+      :errors => json[:errors],
+      :metadata => json[:metadata]
+    }
+  end
+end
+
+Her::API.setup :url => "https://api.example.com" do |connection|
+  connection.use MyCustomParser
+  connection.use Faraday::Adapter::NetHttp
+end
+```
 
 ### Caching
 
