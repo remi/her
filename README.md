@@ -372,6 +372,58 @@ The available hooks are:
 * `after_destroy`
 * `after_find`
 
+### JSON attributes-wrapping
+
+Her supports *sending* and *parsing* JSON data wrapped in a root element (to be compatible with Rails’ `include_root_in_json` setting), like so:
+
+#### Sending
+
+If you want to send all data to your API wrapped in a *root* element based on the model name.
+
+```ruby
+class User
+  include Her::Model
+  include_root_in_json true
+end
+
+class Article
+  include Her::Model
+  include_root_in_json :post
+end
+
+User.create(:fullname => "Tobias Fünke")
+# POST { "user": { "fullname": "Tobias Fünke" } } to /users
+
+Article.create(:title => "Hello world.")
+# POST { "post": { "title": "Hello world." } } to /articles
+```
+
+##### Parsing
+
+If the API returns data wrapped in a *root* element based on the model name.
+
+```ruby
+class User
+  include Her::Model
+  parse_root_in_json true
+end
+
+class Article
+  include Her::Model
+  parse_root_in_json :post
+end
+
+# POST /users returns { "user": { "fullname": "Tobias Fünke" } }
+user = User.create(:fullname => "Tobias Fünke")
+user.fullname # => "Tobias Fünke"
+
+# POST /articles returns { "post": { "title": "Hello world." } }
+article = Article.create(:title => "Hello world.")
+article.title # => "Hello world."
+```
+
+Of course, you can use both `include_root_in_json` and `parse_root_in_json` at the same time.
+
 ### Custom requests
 
 You can easily define custom requests for your models using `custom_get`, `custom_post`, etc.
@@ -520,30 +572,6 @@ User.all
 Category.all
 # GET https://other_api.example.com/categories
 ```
-
-### Wrap in JSON
-
-Currently, Her supports only *sending* JSON data wrapped in a root element, like so:
-
-```ruby
-class User
-  include Her::Model
-  include_root_in_json true
-end
-
-class Article
-  include Her::Model
-  include_root_in_json :post
-end
-
-User.create(:fullname => "Tobias Fünke")
-# POST { "user": { "fullname": "Tobias Fünke" } } to /users
-
-Article.create(:title => "Hello world.")
-# POST { "post": { "title": "Hello world." } } to /articles
-```
-
-Support for *parsing* JSON data with a root element is planned for a future version.
 
 ### SSL
 

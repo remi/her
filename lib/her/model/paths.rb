@@ -71,12 +71,6 @@ module Her
           end
         end
 
-        # Return or change the value of `include_root_in_json`
-        def include_root_in_json(value=nil)
-          return @include_root_in_json if value.nil?
-          @include_root_in_json = value
-        end
-
         # Return or change the value of `root_element`
         def root_element(value=nil)
           return @root_element if value.nil?

@@ -24,7 +24,7 @@ module Her
       # @private
       def self.initialize_collection(klass, parsed_data={})
         collection_data = parsed_data[:data].map do |item_data|
-          resource = klass.new(item_data)
+          resource = klass.new(klass.parse(item_data))
           klass.wrap_in_hooks(resource, :find)
           resource
         end
@@ -150,7 +150,7 @@ module Her
 
         self.class.wrap_in_hooks(resource, *hooks) do |resource, klass|
           klass.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data|
-            self.data = parsed_data[:data] if parsed_data[:data].any?
+            self.data = self.class.parse(parsed_data[:data]) if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]
             self.errors = parsed_data[:errors]
 
@@ -171,7 +171,7 @@ module Her
         resource = self
         self.class.wrap_in_hooks(resource, :destroy) do |resource, klass|
           klass.request(:_method => :delete, :_path => "#{request_path}") do |parsed_data|
-            self.data = parsed_data[:data]
+            self.data = self.class.parse(parsed_data[:data])
             self.metadata = parsed_data[:metadata]
             self.errors = parsed_data[:errors]
           end
@@ -200,6 +200,17 @@ module Her
           Her::Model::ORM.initialize_collection(self, parsed_data)
         end
 
+        # Parse data before assigning it to a resource
+        #
+        # @param [Hash] data
+        def parse(data)
+          if parse_root_in_json
+            parse_root_in_json == true ? data[root_element.to_sym] : data[parse_root_in_json]
+          else
+            data
+          end
+        end
+
         # Fetch specific resource(s) by their ID
         #
         # @example
@@ -214,7 +225,7 @@ module Her
           results = ids.flatten.compact.uniq.map do |id|
             resource = nil
             request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
-              resource = new(parsed_data[:data].merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
+              resource = new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
               wrap_in_hooks(resource, :find)
             end
             resource
@@ -247,8 +258,9 @@ module Her
           wrap_in_hooks(resource, :create, :save) do |resource, klass|
             params = resource.to_params
             request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
+              data = parse(parsed_data[:data])
               resource.instance_eval do
-                @data = parsed_data[:data]
+                @data = data
                 @metadata = parsed_data[:metadata]
                 @errors = parsed_data[:errors]
               end
@@ -275,7 +287,7 @@ module Her
         #   # Called via DELETE "/users/1"
         def destroy_existing(id, params={})
           request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
-            new(parsed_data[:data])
+            new(parse(parsed_data[:data]))
           end
         end
 
@@ -285,6 +297,18 @@ module Her
             memo << method_name.to_s if method_name.to_s.end_with?('=')
             memo
           end
+        end
+
+        # Return or change the value of `include_root_in_json`
+        def include_root_in_json(value=nil)
+          return @include_root_in_json if value.nil?
+          @include_root_in_json = value
+        end
+
+        # Return or change the value of `parse_root_in`
+        def parse_root_in_json(value=nil)
+          return @parse_root_in_json if value.nil?
+          @parse_root_in_json = value
         end
       end
     end

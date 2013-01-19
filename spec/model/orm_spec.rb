@@ -490,4 +490,63 @@ describe Her::Model::ORM do
       end
     end
   end
+
+  context "when parse_root_in_json is set" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+    end
+
+    context "when parse_root_in_json is true" do
+      before do
+        Her::API.default_api.connection.adapter :test do |stub|
+          stub.post("/users") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
+          stub.get("/users") { |env| [200, {}, [{ :user => { :id => 1, :fullname => "Lindsay Fünke" } }].to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { :user => { :id => 1, :fullname => "Tobias Fünke Jr." } }.to_json] }
+        end
+
+        spawn_model("Foo::User") { parse_root_in_json true }
+      end
+
+      it "parse the data from the JSON root element after .create" do
+        @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
+        @new_user.fullname.should == "Lindsay Fünke"
+      end
+
+      it "parse the data from the JSON root element after .all" do
+        @users = Foo::User.all
+        @users.first.fullname.should == "Lindsay Fünke"
+      end
+
+      it "parse the data from the JSON root element after .find" do
+        @user = Foo::User.find(1)
+        @user.fullname.should == "Lindsay Fünke"
+      end
+
+      it "parse the data from the JSON root element after .save" do
+        @user = Foo::User.find(1)
+        @user.fullname = "Tobias Fünke"
+        @user.save
+        @user.fullname.should == "Tobias Fünke Jr."
+      end
+    end
+
+    context "when parse_root_in_json is set to a symbol" do
+      before do
+        Her::API.default_api.connection.adapter :test do |stub|
+          stub.post("/users") { |env| [200, {}, { :person => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
+        end
+
+        spawn_model("Foo::User") { parse_root_in_json :person }
+      end
+
+      it "parse the data with the symbol" do
+        @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
+        @new_user.fullname.should == "Lindsay Fünke"
+      end
+    end
+  end
 end
