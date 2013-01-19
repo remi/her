@@ -2,6 +2,8 @@
 require File.join(File.dirname(__FILE__), "spec_helper.rb")
 
 describe Her::API do
+  subject { Her::API.new }
+
   context "initialization" do
     describe ".setup" do
       it "creates a default connection" do
@@ -11,119 +13,118 @@ describe Her::API do
     end
 
     describe "#setup" do
-      it "sets a base URI" do
-        @api = Her::API.new
-        @api.setup :url => "https://api.example.com"
-        @api.base_uri.should == "https://api.example.com"
+      context "when using :url option" do
+        before { subject.setup :url => "https://api.example.com" }
+        its(:base_uri) { should == "https://api.example.com" }
       end
 
-      it "supports the base_uri legacy option" do
-        @api = Her::API.new
-        @api.setup :base_uri => "https://api.example.com"
-        @api.base_uri.should == "https://api.example.com"
+      context "when using the legacy :base_uri option" do
+        before { subject.setup :base_uri => "https://api.example.com" }
+        its(:base_uri) { should == "https://api.example.com" }
       end
 
-      it "sets custom middleware with #use" do
-        class Foo; end;
-        class Bar; end;
+      context "when setting custom middleware" do
+        before do
+          class Foo; end;
+          class Bar; end;
 
-        @api = Her::API.new
-        @api.setup :url => "https://api.example.com" do |builder|
-          builder.use Foo
-          builder.use Bar
+          subject.setup :url => "https://api.example.com" do |connection|
+            connection.use Foo
+            connection.use Bar
+          end
         end
-        @api.connection.builder.handlers.should == [Foo, Bar]
+
+        specify { subject.connection.builder.handlers.should == [Foo, Bar] }
       end
 
-      it "takes custom options" do
-        @api = Her::API.new
-        @api.setup :foo => { :bar => "baz" }, :url => "https://api.example.com"
-        @api.options.should == { :foo => { :bar => "baz" }, :url => "https://api.example.com" }
+      context "when setting custom options" do
+        before { subject.setup :foo => { :bar => "baz" }, :url => "https://api.example.com" }
+        its(:options) { should == { :foo => { :bar => "baz" }, :url => "https://api.example.com" } }
       end
     end
 
     describe "#request" do
-      it "makes HTTP requests" do
+      before do
         class SimpleParser < Faraday::Response::Middleware
           def on_complete(env)
             env[:body] = { :data => env[:body] }
           end
         end
-
-        @api = Her::API.new
-        @api.setup :url => "https://api.example.com" do |builder|
-          builder.use SimpleParser
-          builder.use Faraday::Request::UrlEncoded
-          builder.adapter :test do |stub|
-            stub.get("/foo") { |env| [200, {}, "Foo it is"] }
-          end
-        end
-
-        parsed_data = @api.request(:_method => :get, :_path => "/foo")
-        parsed_data[:data] == "Foo, it is."
       end
 
-      it "makes HTTP requests while specifying custom HTTP headers" do
-        class SimpleParser < Faraday::Response::Middleware
-          def on_complete(env)
-            env[:body] = { :data => env[:body] }
+      context "making HTTP requests" do
+        let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo") }
+        before do
+          subject.setup :url => "https://api.example.com" do |builder|
+            builder.use SimpleParser
+            builder.adapter(:test) { |stub| stub.get("/foo") { |env| [200, {}, "Foo, it is."] } }
           end
         end
 
-        @api = Her::API.new
-        @api.setup :url => "https://api.example.com" do |builder|
-          builder.use SimpleParser
-          builder.use Faraday::Request::UrlEncoded
-          builder.adapter :test do |stub|
-            stub.get("/foo") { |env| [200, {}, "Foo it is #{env[:request_headers]["X-Page"]}"] }
-          end
-        end
-
-        parsed_data = @api.request(:_method => :get, :_path => "/foo", :_headers => { "X-Page" => 2 })
-        parsed_data[:data] == "Foo, it is page 2."
+        specify { parsed_data[:data].should == "Foo, it is." }
       end
 
-      it "parses a request with the default parser" do
-        @api = Her::API.new
-        @api.setup :url => "https://api.example.com" do |builder|
-          builder.use Her::Middleware::FirstLevelParseJSON
-          builder.use Faraday::Request::UrlEncoded
-          builder.adapter :test do |stub|
-            stub.get("/users/1") { |env| [200, {}, MultiJson.dump({ :id => 1, :name => "George Michael Bluth", :errors => ["This is a single error"], :metadata => { :page => 1, :per_page => 10 } })] }
+      context "making HTTP requests while specifying custom HTTP headers" do
+        let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo", :_headers => { "X-Page" => 2 }) }
+
+        before do
+          subject.setup :url => "https://api.example.com" do |builder|
+            builder.use SimpleParser
+            builder.adapter(:test) { |stub| stub.get("/foo") { |env| [200, {}, "Foo, it is page #{env[:request_headers]["X-Page"]}."] } }
           end
         end
-        parsed_data = @api.request(:_method => :get, :_path => "users/1")
-        parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
-        parsed_data[:errors].should == ["This is a single error"]
-        parsed_data[:metadata].should == { :page => 1, :per_page => 10 }
+
+        specify { parsed_data[:data].should == "Foo, it is page 2." }
       end
 
-      it "parses a request with a custom parser" do
-        class CustomParser < Faraday::Response::Middleware
-          def on_complete(env)
-            json = MultiJson.load(env[:body], :symbolize_keys => true)
-            errors = json.delete(:errors) || []
-            metadata = json.delete(:metadata) || {}
-            env[:body] = {
-              :data => json,
-              :errors => errors,
-              :metadata => metadata,
-            }
+      context "parsing a request with the default parser" do
+        let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1") }
+        before do
+          subject.setup :url => "https://api.example.com" do |builder|
+            builder.use Her::Middleware::FirstLevelParseJSON
+            builder.adapter :test do |stub|
+              stub.get("/users/1") { |env| [200, {}, MultiJson.dump({ :id => 1, :name => "George Michael Bluth", :errors => ["This is a single error"], :metadata => { :page => 1, :per_page => 10 } })] }
+            end
           end
         end
 
-        @api = Her::API.new
-        @api.setup :url => "https://api.example.com" do |builder|
-          builder.use CustomParser
-          builder.use Faraday::Request::UrlEncoded
-          builder.adapter :test do |stub|
-            stub.get("/users/1") { |env| [200, {}, MultiJson.dump(:id => 1, :name => "George Michael Bluth")] }
+        specify do
+          parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
+          parsed_data[:errors].should == ["This is a single error"]
+          parsed_data[:metadata].should == { :page => 1, :per_page => 10 }
+        end
+      end
+
+      context "parsing a request with a custom parser" do
+        let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1") }
+        before do
+          class CustomParser < Faraday::Response::Middleware
+            def on_complete(env)
+              json = MultiJson.load(env[:body], :symbolize_keys => true)
+              errors = json.delete(:errors) || []
+              metadata = json.delete(:metadata) || {}
+              env[:body] = {
+                :data => json,
+                :errors => errors,
+                :metadata => metadata,
+              }
+            end
+          end
+
+          subject.setup :url => "https://api.example.com" do |builder|
+            builder.use CustomParser
+            builder.use Faraday::Request::UrlEncoded
+            builder.adapter :test do |stub|
+              stub.get("/users/1") { |env| [200, {}, MultiJson.dump(:id => 1, :name => "George Michael Bluth")] }
+            end
           end
         end
-        parsed_data = @api.request(:_method => :get, :_path => "users/1")
-        parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
-        parsed_data[:errors].should == []
-        parsed_data[:metadata].should == {}
+
+        specify do
+          parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
+          parsed_data[:errors].should == []
+          parsed_data[:metadata].should == {}
+        end
       end
     end
   end

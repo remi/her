@@ -11,6 +11,22 @@ module Her
       @@default_api.setup(attrs, &block)
     end
 
+    # Create a new API object. This is useful to create multiple APIs and use them with the `uses_api` method.
+    # If your application uses only one API, you should use Her::API.setup to configure the default API
+    #
+    # @example Setting up a new API
+    #   api = Her::API.new :url => "https://api.example" do |connection|
+    #     connection.use Faraday::Request::UrlEncoded
+    #     connection.use Her::Middleware::DefaultParseJSON
+    #   end
+    #
+    #   class User
+    #     uses_api api
+    #   end
+    def initialize(*args, &blk)
+      self.setup(*args, &blk)
+    end
+
     # Setup the API connection.
     #
     # @param [Hash] attrs the Faraday options
@@ -49,13 +65,14 @@ module Her
     #     connection.use MyCustomParser
     #     connection.use Faraday::Adapter::NetHttp
     #   end
-    def setup(attrs={})
+    def setup(attrs={}, &blk)
       attrs[:url] = attrs.delete(:base_uri) if attrs.include?(:base_uri) # Support legacy :base_uri option
       @base_uri = attrs[:url]
       @options = attrs
       @connection = Faraday.new(@options) do |connection|
         yield connection if block_given?
       end
+      self
     end
 
     # Define a custom parsing procedure. The procedure is passed the response object and is

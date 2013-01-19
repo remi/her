@@ -4,14 +4,14 @@ require "rspec"
 require "mocha/api"
 require "her"
 
-RSpec.configure do |c|
-  c.mock_with :mocha
+RSpec.configure do |config|
+  config.mock_with :mocha
 
-  c.before :each do
+  config.before :each do
     @globals = []
   end
 
-  c.after :each do
+  config.after :each do
     @globals.each do |global|
       Object.instance_eval { remove_const global } if Object.const_defined?(global)
     end

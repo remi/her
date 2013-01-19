@@ -56,7 +56,7 @@ module Her
       end
 
       # Make a GET request and return a collection of resources
-      def get_collection(path, attrs={})
+      def get_collection(path=nil, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
         get_raw(path, attrs) do |parsed_data|
           new_collection(parsed_data)
