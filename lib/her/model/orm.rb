@@ -11,6 +11,7 @@ module Her
       def initialize(params={})
         @metadata = params.delete(:_metadata) || {}
         @response_errors = params.delete(:_errors) || {}
+        @destroyed = params.delete(:_destroyed) || false
 
         update_data(params)
       end
@@ -108,6 +109,11 @@ module Her
         @data.hash
       end
 
+      # Return whether the object has been destroyed
+      def destroyed?
+        @destroyed
+      end
+
       # Save a resource
       #
       # @example Save a resource after fetching it
@@ -161,6 +167,7 @@ module Her
             update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]
             self.response_errors = parsed_data[:errors]
+            @destroyed = true
           end
         end
         self
@@ -291,7 +298,7 @@ module Her
         #   # Called via DELETE "/users/1"
         def destroy_existing(id, params={})
           request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data, response|
-            new(parse(parsed_data[:data]))
+            new(parse(parsed_data[:data]).merge(:_destroyed => true))
           end
         end
 

@@ -355,12 +355,14 @@ describe Her::Model::ORM do
     it "handle resource deletion through the .destroy class method" do
       @user = Foo::User.destroy_existing(1)
       @user.active.should be_false
+      @user.should be_destroyed
     end
 
     it "handle resource deletion through #destroy on an existing resource" do
       @user = Foo::User.find(1)
       @user.destroy
       @user.active.should be_false
+      @user.should be_destroyed
     end
   end
 
