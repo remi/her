@@ -126,20 +126,22 @@ module Her
         resource = self
 
         if @data[:id]
-          callbacks = [:update, :save]
+          callback = :update
           method = :put
         else
-          callbacks = [:create, :save]
+          callback = :create
           method = :post
         end
 
-        run_callbacks(*callbacks) do
-          self.class.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data, response|
-            update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
-            self.metadata = parsed_data[:metadata]
-            self.response_errors = parsed_data[:errors]
+        run_callbacks callback do
+          run_callbacks :save do
+            self.class.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data, response|
+              update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
+              self.metadata = parsed_data[:metadata]
+              self.response_errors = parsed_data[:errors]
 
-            return false if self.response_errors.any?
+              return false if self.response_errors.any?
+            end
           end
         end
 
@@ -255,14 +257,16 @@ module Her
         #   # Called via POST "/users/1"
         def create(params={})
           resource = new(params)
-          resource.run_callbacks :create, :save do
-            params = resource.to_params
-            request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data, response|
-              data = parse(parsed_data[:data])
-              resource.instance_eval do
-                update_data(data)
-                @metadata = parsed_data[:metadata]
-                @response_errors = parsed_data[:errors]
+          resource.run_callbacks :create do
+            resource.run_callbacks :save do
+              params = resource.to_params
+              request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data, response|
+                data = parse(parsed_data[:data])
+                resource.instance_eval do
+                  update_data(data)
+                  @metadata = parsed_data[:metadata]
+                  @response_errors = parsed_data[:errors]
+                end
               end
             end
           end
