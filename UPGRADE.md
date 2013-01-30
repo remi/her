@@ -2,6 +2,12 @@
 
 Here is a list of backward-incompatible changes that were introduced while Her is pre-1.0. After reaching 1.0, it will follow the [Semantic Versioning](http://semver.org/) system.
 
+## 0.5
+
+* Her is now compatible with `ActiveModel` and includes `ActiveModel::Validations`.
+
+  Before 0.5, the `errors` method on an object would return an error list received from the server (the `:errors` key defined by the parsing middleware). But now, `errors` returns the error list generated after calling the `valid?` method (or any other similar validation method from `ActiveModel::Validations`). The error list returned from the server is now accessible from the `server_errors` method.
+
 ## 0.2.4
 
 * Her no longer includes default middleware when making HTTP requests. The user has now to define all the needed middleware. Before:
