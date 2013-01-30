@@ -677,7 +677,7 @@ end
 
 ## Upgrade
 
-See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/docs/UPGRADE.md) for backward compability issues.
+See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for backward compability issues.
 
 ## Her IRL
 
@@ -696,7 +696,7 @@ Most of Her’s core codebase was written on a Saturday morning ([first commit](
 
 Yes please! Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues).
 
-See [CONTRIBUTING.md](https://github.com/remiprev/her/blob/master/docs/CONTRIBUTING.md) for best practices.
+See [CONTRIBUTING.md](https://github.com/remiprev/her/blob/master/CONTRIBUTING.md) for best practices.
 
 ### Contributors
 
