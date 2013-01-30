@@ -340,6 +340,23 @@ If there’s no relationship data in the resource, Her makes a HTTP request to r
 
 Subsequent calls to `#comments`, `#role` and `#organization` will not trigger extra HTTP requests and will return the cached objects.
 
+### Validations
+
+Her includes `ActiveModel::Validations` so you can declare validations the same way you do in Rails.
+
+```ruby
+class User
+  include Her::Model
+
+  attr_accessor :fullname, :email
+  validates :fullname, :presence => true
+  validates :email, :presence => true
+end
+
+@user = User.new(:fullname => "Tobias Fünke")
+@user.valid? # => false
+```
+
 ### Callbacks
 
 You can add *before* and *after* callbacks to your models that are triggered on specific actions. You can use symbols or blocks.
