@@ -5,6 +5,7 @@ require "her/model/relationships"
 require "her/model/hooks"
 require "her/model/introspection"
 require "her/model/paths"
+require "her/model/nested_attributes"
 
 module Her
   # This module is the main element of Her. After creating a Her::API object,
@@ -25,6 +26,7 @@ module Her
     include Her::Model::Introspection
     include Her::Model::Paths
     include Her::Model::Relationships
+    include Her::Model::NestedAttributes
 
     # Class methods
     included do
