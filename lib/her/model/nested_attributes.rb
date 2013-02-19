@@ -1,6 +1,8 @@
 module Her
   module Model
     module NestedAttributes
+      extend ActiveSupport::Concern
+
       module ClassMethods
         def accepts_nested_attributes_for(*relationship_names)
           relationship_names.each do |relationship_name|
