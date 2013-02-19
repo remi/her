@@ -29,4 +29,14 @@ describe Her::Middleware::FirstLevelParseJSON do
   it 'ensures the errors are a hash if there are no errors' do
     subject.parse(body_with_errors)[:errors].should eq({:name => [ 'not_valid', 'should_be_present']})
   end
+
+  context 'with status code 204' do
+    it 'returns an empty body' do
+      env = { :status => 204 }
+      subject.on_complete(env)
+      env[:body].tap do |json|
+        json[:data].should == { }
+      end
+    end
+  end
 end
