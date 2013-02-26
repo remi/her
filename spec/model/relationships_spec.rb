@@ -87,6 +87,9 @@ describe Her::Model::Relationships do
           stub.get("/users/1/posts") { |env| [200, {}, {:id => 1, :body => 'blogging stuff', :admin_id => 1 }.to_json] }
           stub.get("/organizations/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company Foo" }.to_json] }
           stub.get("/organizations/2") { |env| [200, {}, { :id => 2, :name => "Bluth Company" }.to_json] }
+          stub.post("/users") { |env| [200, {}, { :id => 5, :name => "Mr. Krabs", :comments => [{ :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
+          stub.put("/users/5") { |env| [200, {}, { :id => 5, :name => "Clancy Brown", :comments => [{ :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
+          stub.delete("/users/5") { |env| [200, {}, { :id => 5, :name => "Clancy Brown", :comments => [{ :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
         end
       end
 
@@ -109,6 +112,10 @@ describe Her::Model::Relationships do
       @user_with_included_data = Foo::User.find(1)
       @user_without_included_data = Foo::User.find(2)
     end
+
+    let(:user_with_included_data_after_create) { Foo::User.create }
+    let(:user_with_included_data_after_save_existing) { Foo::User.save_existing(5, :name => "Clancy Brown") }
+    let(:user_with_included_data_after_destroy) { Foo::User.new(:id => 5).destroy }
 
     it "maps an array of included data through has_many" do
       @user_with_included_data.comments.first.should be_a(Foo::Comment)
@@ -176,6 +183,25 @@ describe Her::Model::Relationships do
     it "fetches the resource corresponding to a named relationship" do
       @user_without_included_data.get_relationship(:unknown_relationship).should be_nil
       @user_without_included_data.get_relationship(:organization).name.should == "Bluth Company"
+    end
+
+    [:create, :save_existing, :destroy].each do |type|
+      context "after #{type}" do
+        let(:subject) { self.send("user_with_included_data_after_#{type}")}
+
+        it "maps an array of included data through has_many" do
+          subject.comments.first.should be_a(Foo::Comment)
+          subject.comments.length.should == 1
+          subject.comments.first.id.should == 99
+          subject.comments.first.body.should == "Rodríguez, nasibisibusi?"
+        end
+
+        it "maps an array of included data through has_one" do
+          subject.role.should be_a(Foo::Role)
+          subject.role.id.should == 1
+          subject.role.body.should == "Admin"
+        end
+      end
     end
   end
 

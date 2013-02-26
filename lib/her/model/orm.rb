@@ -9,15 +9,10 @@ module Her
 
       # Initialize a new object with data received from an HTTP request
       def initialize(params={})
-        @data = {}
         @metadata = params.delete(:_metadata) || {}
         @errors = params.delete(:_errors) || {}
 
-        # Use setter methods first, then translate attributes of relationships
-        # into relationship instances, then merge the parsed_data into @data.
-        unset_data = Her::Model::ORM.use_setter_methods(self, params)
-        parsed_data = self.class.parse_relationships(unset_data)
-        @data.update(parsed_data)
+        update_data(params)
       end
 
       # Initialize a collection of resources
@@ -150,7 +145,7 @@ module Her
 
         self.class.wrap_in_hooks(resource, *hooks) do |resource, klass|
           klass.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data|
-            self.data = self.class.parse(parsed_data[:data]) if parsed_data[:data].any?
+            update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]
             self.errors = parsed_data[:errors]
 
@@ -171,12 +166,22 @@ module Her
         resource = self
         self.class.wrap_in_hooks(resource, :destroy) do |resource, klass|
           klass.request(:_method => :delete, :_path => "#{request_path}") do |parsed_data|
-            self.data = self.class.parse(parsed_data[:data])
+            update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]
             self.errors = parsed_data[:errors]
           end
         end
         self
+      end
+
+      # @private
+      def update_data(raw_data)
+        @data ||= {}
+        # Use setter methods first, then translate attributes of relationships
+        # into relationship instances, then merge the parsed_data into @data.
+        unset_data = Her::Model::ORM.use_setter_methods(self, raw_data)
+        parsed_data = self.class.parse_relationships(unset_data)
+        @data.update(parsed_data)
       end
 
       # Convert into a hash of request parameters
@@ -260,7 +265,7 @@ module Her
             request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
               data = parse(parsed_data[:data])
               resource.instance_eval do
-                @data = data
+                update_data(data)
                 @metadata = parsed_data[:metadata]
                 @errors = parsed_data[:errors]
               end
