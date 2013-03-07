@@ -53,7 +53,7 @@ describe Her::API do
       end
 
       context "making HTTP requests" do
-        let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo") }
+        let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo")[:parsed_data] }
         before do
           subject.setup :url => "https://api.example.com" do |builder|
             builder.use SimpleParser
@@ -65,7 +65,7 @@ describe Her::API do
       end
 
       context "making HTTP requests while specifying custom HTTP headers" do
-        let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo", :_headers => { "X-Page" => 2 }) }
+        let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo", :_headers => { "X-Page" => 2 })[:parsed_data] }
 
         before do
           subject.setup :url => "https://api.example.com" do |builder|
@@ -78,7 +78,7 @@ describe Her::API do
       end
 
       context "parsing a request with the default parser" do
-        let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1") }
+        let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1")[:parsed_data] }
         before do
           subject.setup :url => "https://api.example.com" do |builder|
             builder.use Her::Middleware::FirstLevelParseJSON
@@ -96,7 +96,7 @@ describe Her::API do
       end
 
       context "parsing a request with a custom parser" do
-        let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1") }
+        let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1")[:parsed_data] }
         before do
           class CustomParser < Faraday::Response::Middleware
             def on_complete(env)

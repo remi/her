@@ -100,7 +100,7 @@ describe Her::Model::HTTP do
 
       context "with a return value" do
         subject { Foo::User.get_raw("/users") }
-        specify { subject[:data].should == [{ :id => 1 }] }
+        specify { subject[:parsed_data][:data].should == [{ :id => 1 }] }
       end
     end
 

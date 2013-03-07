@@ -96,7 +96,8 @@ module Her
           request.body = attrs
         end
       end
-      response.env[:body]
+
+      { :parsed_data => response.env[:body], :response => response }
     end
 
     private

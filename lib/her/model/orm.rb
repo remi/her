@@ -229,8 +229,12 @@ module Her
           params = ids.last.is_a?(Hash) ? ids.pop : {}
           results = ids.flatten.compact.uniq.map do |id|
             resource = nil
-            request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
-              resource = new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
+            request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data, response|
+              if response.success?
+                resource = new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
+              else
+                return nil
+              end
               wrap_in_hooks(resource, :find)
             end
             resource
@@ -248,7 +252,7 @@ module Her
         #   @users = User.all
         #   # Fetched via GET "/users"
         def all(params={})
-          request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data|
+          request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data, response|
             new_collection(parsed_data)
           end
         end
@@ -262,7 +266,7 @@ module Her
           resource = new(params)
           wrap_in_hooks(resource, :create, :save) do |resource, klass|
             params = resource.to_params
-            request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data|
+            request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data, response|
               data = parse(parsed_data[:data])
               resource.instance_eval do
                 update_data(data)
@@ -291,7 +295,7 @@ module Her
         #   User.destroy_existing(1)
         #   # Called via DELETE "/users/1"
         def destroy_existing(id, params={})
-          request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data|
+          request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data, response|
             new(parse(parsed_data[:data]))
           end
         end

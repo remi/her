@@ -21,11 +21,11 @@ module Her
       # Main request wrapper around Her::API. Used to make custom request to the API.
       # @private
       def request(attrs={})
-        parsed_data = her_api.request(attrs)
+        request = her_api.request(attrs)
         if block_given?
-          yield parsed_data
+          yield request[:parsed_data], request[:response]
         else
-          parsed_data
+          { :parsed_data => request[:parsed_data], :response => request[:response] }
         end
       end
 
@@ -40,7 +40,7 @@ module Her
       #   # Fetched via GET "/users/popular"
       def get(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        get_raw(path, attrs) do |parsed_data|
+        get_raw(path, attrs) do |parsed_data, response|
           if parsed_data[:data].is_a?(Array)
             new_collection(parsed_data)
           else
@@ -58,7 +58,7 @@ module Her
       # Make a GET request and return a collection of resources
       def get_collection(path=nil, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        get_raw(path, attrs) do |parsed_data|
+        get_raw(path, attrs) do |parsed_data, response|
           new_collection(parsed_data)
         end
       end
@@ -66,7 +66,7 @@ module Her
       # Make a GET request and return a collection of resources
       def get_resource(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        get_raw(path, attrs) do |parsed_data|
+        get_raw(path, attrs) do |parsed_data, response|
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
         end
       end
@@ -74,7 +74,7 @@ module Her
       # Make a POST request and return either a collection or a resource
       def post(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        post_raw(path, attrs) do |parsed_data|
+        post_raw(path, attrs) do |parsed_data, response|
           if parsed_data[:data].is_a?(Array)
             new_collection(parsed_data)
           else
@@ -92,7 +92,7 @@ module Her
       # Make a POST request and return a collection of resources
       def post_collection(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        post_raw(path, attrs) do |parsed_data|
+        post_raw(path, attrs) do |parsed_data, response|
           new_collection(parsed_data)
         end
       end
@@ -100,7 +100,7 @@ module Her
       # Make a POST request and return a collection of resources
       def post_resource(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        post_raw(path, attrs) do |parsed_data|
+        post_raw(path, attrs) do |parsed_data, response|
           new(parse(parsed_data[:data]))
         end
       end
@@ -108,7 +108,7 @@ module Her
       # Make a PUT request and return either a collection or a resource
       def put(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        put_raw(path, attrs) do |parsed_data|
+        put_raw(path, attrs) do |parsed_data, response|
           if parsed_data[:data].is_a?(Array)
             new_collection(parsed_data)
           else
@@ -126,7 +126,7 @@ module Her
       # Make a PUT request and return a collection of resources
       def put_collection(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        put_raw(path, attrs) do |parsed_data|
+        put_raw(path, attrs) do |parsed_data, response|
           new_collection(parsed_data)
         end
       end
@@ -134,7 +134,7 @@ module Her
       # Make a PUT request and return a collection of resources
       def put_resource(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        put_raw(path, attrs) do |parsed_data|
+        put_raw(path, attrs) do |parsed_data, response|
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
         end
       end
@@ -142,7 +142,7 @@ module Her
       # Make a PATCH request and return either a collection or a resource
       def patch(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        patch_raw(path, attrs) do |parsed_data|
+        patch_raw(path, attrs) do |parsed_data, response|
           if parsed_data[:data].is_a?(Array)
             new_collection(parsed_data)
           else
@@ -160,7 +160,7 @@ module Her
       # Make a PATCH request and return a collection of resources
       def patch_collection(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        patch_raw(path, attrs) do |parsed_data|
+        patch_raw(path, attrs) do |parsed_data, response|
           new_collection(parsed_data)
         end
       end
@@ -168,7 +168,7 @@ module Her
       # Make a PATCH request and return a collection of resources
       def patch_resource(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        patch_raw(path, attrs) do |parsed_data|
+        patch_raw(path, attrs) do |parsed_data, response|
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
         end
       end
@@ -176,7 +176,7 @@ module Her
       # Make a DELETE request and return either a collection or a resource
       def delete(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        delete_raw(path, attrs) do |parsed_data|
+        delete_raw(path, attrs) do |parsed_data, response|
           if parsed_data[:data].is_a?(Array)
             new_collection(parsed_data)
           else
@@ -194,7 +194,7 @@ module Her
       # Make a DELETE request and return a collection of resources
       def delete_collection(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        delete_raw(path, attrs) do |parsed_data|
+        delete_raw(path, attrs) do |parsed_data, response|
           new_collection(parsed_data)
         end
       end
@@ -202,7 +202,7 @@ module Her
       # Make a DELETE request and return a collection of resources
       def delete_resource(path, attrs={})
         path = "#{build_request_path(attrs)}/#{path}" if path.is_a?(Symbol)
-        delete_raw(path, attrs) do |parsed_data|
+        delete_raw(path, attrs) do |parsed_data, response|
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
         end
       end
