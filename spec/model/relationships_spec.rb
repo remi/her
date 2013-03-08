@@ -86,10 +86,17 @@ describe Her::Model::Relationships do
           stub.get("/users/1/role") { |env| [200, {}, { :id => 3, :body => "User" }.to_json] }
           stub.get("/users/1/posts") { |env| [200, {}, {:id => 1, :body => 'blogging stuff', :admin_id => 1 }.to_json] }
           stub.get("/organizations/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company Foo" }.to_json] }
-          stub.get("/organizations/2") { |env| [200, {}, { :id => 2, :name => "Bluth Company" }.to_json] }
           stub.post("/users") { |env| [200, {}, { :id => 5, :name => "Mr. Krabs", :comments => [{ :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
           stub.put("/users/5") { |env| [200, {}, { :id => 5, :name => "Clancy Brown", :comments => [{ :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
           stub.delete("/users/5") { |env| [200, {}, { :id => 5, :name => "Clancy Brown", :comments => [{ :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
+
+          stub.get("/organizations/2") do |env|
+            if env[:params]["admin"] == "true"
+              [200, {}, { :id => 2, :name => "Bluth Company (admin)" }.to_json]
+            else
+              [200, {}, { :id => 2, :name => "Bluth Company" }.to_json]
+            end
+          end
         end
       end
 
@@ -183,6 +190,10 @@ describe Her::Model::Relationships do
     it "fetches the resource corresponding to a named relationship" do
       @user_without_included_data.get_relationship(:unknown_relationship).should be_nil
       @user_without_included_data.get_relationship(:organization).name.should == "Bluth Company"
+    end
+
+    it "pass query string parameters when additional arguments are passed" do
+      @user_without_included_data.organization(:admin => true).name.should == "Bluth Company (admin)"
     end
 
     [:create, :save_existing, :destroy].each do |type|
