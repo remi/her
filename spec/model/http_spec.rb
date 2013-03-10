@@ -92,7 +92,7 @@ describe Her::Model::HTTP do
     describe :get_raw do
       context "with a block" do
         specify do
-          Foo::User.get_raw("/users") do |parsed_data|
+          Foo::User.get_raw("/users") do |parsed_data, response|
             parsed_data[:data].should == [{ :id => 1 }]
           end
         end
@@ -138,7 +138,7 @@ describe Her::Model::HTTP do
 
     describe :get_raw do
       specify do
-        Foo::User.get_raw(:popular) do |parsed_data|
+        Foo::User.get_raw(:popular) do |parsed_data, response|
           parsed_data[:data].should == [{ :id => 1 }, { :id => 2 }]
         end
       end
