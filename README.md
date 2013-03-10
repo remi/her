@@ -350,7 +350,7 @@ However, validations must be triggered manually — they are not run, for exampl
 class User
   include Her::Model
 
-  attr_accessor :fullname, :email
+  attributes :fullname, :email
   validates :fullname, :presence => true
   validates :email, :presence => true
 end
@@ -360,6 +360,29 @@ end
 
 @user.save
 # POST /users&fullname=Tobias+Fünke will still be called, even if the user is not valid
+```
+
+### Dirty attributes
+
+Her includes `ActiveModel::Dirty` so you can keep track of the attributes that have changed in an object.
+an object, or `#create` on a model class.
+
+```ruby
+class User
+  include Her::Model
+
+  attributes :fullname, :email
+end
+
+@user = User.new(:fullname => "Tobias Fünke")
+@user.fullname_changed? # => true
+@user.changes # => { :fullname => [nil, "Tobias Fünke"] }
+
+@user.save
+# POST /users&fullname=Tobias+Fünke
+
+@user.fullname_changed? # => false
+@user.changes # => {}
 ```
 
 ### Callbacks

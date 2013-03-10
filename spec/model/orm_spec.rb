@@ -464,6 +464,65 @@ describe Her::Model::ORM do
     end
   end
 
+  context "checking dirty attributes" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+        end
+      end
+
+      spawn_model "Foo::User" do
+        attributes :fullname, :email
+      end
+    end
+
+    context "for existing resource" do
+      it "tracks dirty attributes" do
+        user = Foo::User.find(1)
+        user.fullname = "Tobias Fünke"
+        user.fullname_changed?.should be_true
+        user.email_changed?.should be_false
+        user.should be_changed
+        user.save
+        user.should_not be_changed
+      end
+    end
+
+    context "for new resource" do
+      it "tracks dirty attributes" do
+        user = Foo::User.new
+        user.fullname = "Tobias Fünke"
+        user.fullname_changed?.should be_true
+        user.should be_changed
+        user.save
+        user.should_not be_changed
+      end
+    end
+  end
+
+  context "validating attributes" do
+    before do
+      spawn_model "Foo::User" do
+        attributes :fullname, :email
+        validates_presence_of :fullname
+        validates_presence_of :email
+      end
+    end
+
+    it "validates attributes when calling #valid?" do
+      user = Foo::User.new
+      user.should_not be_valid
+      user.fullname = "Tobias Fünke"
+      user.email = "tobias@bluthcompany.com"
+      user.should be_valid
+    end
+  end
+
   context "when include_root_in_json is true" do
     context "when include_root_in_json is true" do
       before do

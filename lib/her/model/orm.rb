@@ -50,7 +50,8 @@ module Her
       # @private
       def method_missing(method, *args, &blk)
         if method.to_s.end_with?('=')
-          @data[method.to_s.chomp('=').to_sym] = args.first
+          attribute = method.to_s.chomp('=').to_sym
+          @data[attribute] = args.first
         elsif method.to_s.end_with?('?')
           @data.include?(method.to_s.chomp('?').to_sym)
         elsif @data.include?(method)
@@ -63,6 +64,10 @@ module Her
       # Handles returning true for the cases handled by method_missing
       def respond_to?(method, include_private = false)
         method.to_s.end_with?('=') || method.to_s.end_with?('?') || @data.include?(method) || super
+      end
+
+      def respond_to_missing?(method, include_private = false)
+        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @data.include?(method) || @data.include?(method) || super
       end
 
       # Assign new data to an instance
@@ -145,6 +150,7 @@ module Her
               update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
               self.metadata = parsed_data[:metadata]
               self.response_errors = parsed_data[:errors]
+              self.changed_attributes.clear if self.changed_attributes.present?
 
               return false if self.response_errors.any?
             end
@@ -202,6 +208,30 @@ module Her
         # @param [Array] parsed_data
         def new_collection(parsed_data)
           Her::Model::ORM.initialize_collection(self, parsed_data)
+        end
+
+        # Define the attributes that will be used to track dirty attributes and validations
+        #
+        # @param [Array] attributes
+        def attributes(*attributes)
+          define_attribute_methods attributes
+
+          attributes.each do |attribute|
+            attribute = attribute.to_sym
+
+            define_method "#{attribute}".to_sym do
+              @data.include?(attribute) ? @data[attribute] : nil
+            end
+
+            define_method "#{attribute}=".to_sym do |value|
+              self.send("#{attribute}_will_change!".to_sym) if @data[attribute] != value
+              @data[attribute] = value
+            end
+
+            define_method "#{attribute}?".to_sym do
+              @data.include?(attribute)
+            end
+          end
         end
 
         # Parse data before assigning it to a resource
@@ -272,6 +302,7 @@ module Her
                   update_data(data)
                   @metadata = parsed_data[:metadata]
                   @response_errors = parsed_data[:errors]
+                  @changed_attributes.clear if @changed_attributes.present?
                 end
               end
             end
