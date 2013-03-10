@@ -365,7 +365,6 @@ end
 ### Dirty attributes
 
 Her includes `ActiveModel::Dirty` so you can keep track of the attributes that have changed in an object.
-an object, or `#create` on a model class.
 
 ```ruby
 class User
