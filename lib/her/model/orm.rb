@@ -235,7 +235,6 @@ module Her
               else
                 return nil
               end
-              wrap_in_hooks(resource, :find)
             end
             resource
           end
