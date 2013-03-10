@@ -344,6 +344,8 @@ Subsequent calls to `#comments`, `#role` and `#organization` will not trigger ex
 
 Her includes `ActiveModel::Validations` so you can declare validations the same way you do in Rails.
 
+However, validations must be triggered manually — they are not run, for example, when calling `#save` on an object, or `#create` on a model class.
+
 ```ruby
 class User
   include Her::Model
@@ -355,6 +357,9 @@ end
 
 @user = User.new(:fullname => "Tobias Fünke")
 @user.valid? # => false
+
+@user.save
+# POST /users&fullname=Tobias+Fünke will still be called, even if the user is not valid
 ```
 
 ### Callbacks
