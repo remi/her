@@ -17,6 +17,19 @@ module Her
 
       module ClassMethods
 
+        # Define the primary key field that will be used to find and save records
+        #
+        # @example
+        #  class User
+        #    include Her::Model
+        #    primary_key 'UserId'
+        #  end
+        #
+        # @param [Symbol] field
+        def primary_key(field = nil)
+          @her_primary_key = field.to_sym
+        end
+
         # Defines a custom collection path for the resource
         #
         # @example
@@ -41,6 +54,22 @@ module Her
         #    include Her::Model
         #    resource_path "/users/:id"
         #  end
+        #
+        # Note that, if used in combination with resource_path, you may specify
+        # either the real primary key or the string ':id'. For example:
+        #
+        # @example
+        #  class User
+        #    include Her::Model
+        #    primary_key 'user_id'
+        #
+        #    # This works because we'll have a user_id attribute
+        #    resource_path '/users/:user_id'
+        #
+        #    # This works because we replace :id with :user_id
+        #    resource_path '/users/:id'
+        #  end
+        #
         def resource_path(path=nil)
           @her_resource_path ||= begin
             superclass.resource_path.dup if superclass.respond_to?(:resource_path)
@@ -62,7 +91,15 @@ module Her
         def build_request_path(path=nil, parameters={})
           unless path.is_a?(String)
             parameters = path || {}
-            path = parameters.include?(:id) && !parameters[:id].nil? ? resource_path : collection_path
+            path =
+              if parameters.include?(@her_primary_key) && parameters[@her_primary_key]
+                resource_path.dup
+              else
+                collection_path.dup
+              end
+
+            # Replace :id with our actual primary key
+            path.gsub!(/(?<=\A|\/):id(?=\Z|\/)/, ":#@her_primary_key")
           end
 
           path.gsub(/:([\w_]+)/) do
