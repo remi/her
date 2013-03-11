@@ -103,10 +103,10 @@ module Her
       end
       alias :get_data :get_attribute
 
-      # Override the method to prevent from returning the object ID (in ruby-1.8.7)
+      # Override the method to prevent from returning the object ID
       # @private
       def id
-        attributes[:id] || super
+        attributes[self.class.primary_key] || super
       end
 
       # Return `true` if the other object is also a Her::Model and has matching data

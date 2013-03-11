@@ -53,6 +53,9 @@ module Her
       # Assign the default API
       uses_api Her::API.default_api
 
+      # Define the default primary key
+      primary_key :id
+
       # Configure ActiveModel callbacks
       extend ActiveModel::Callbacks
       define_model_callbacks :create, :update, :save, :find, :destroy

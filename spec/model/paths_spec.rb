@@ -137,6 +137,32 @@ describe Her::Model::Paths do
         end
       end
     end
+
+    context 'custom primary key' do
+      before do
+        spawn_model 'User' do
+          primary_key 'UserId'
+          resource_path 'users/:UserId'
+        end
+
+        spawn_model 'Customer' do
+          primary_key :customer_id
+          resource_path 'customers/:id'
+        end
+      end
+
+      describe '#build_request_path' do
+        it 'uses the correct primary key attribute' do
+          User.build_request_path(:UserId => 'foo').should == 'users/foo'
+          User.build_request_path(:id => 'foo').should == 'users'
+        end
+
+        it 'replaces :id with the appropriate primary key' do
+          Customer.build_request_path(:customer_id => 'joe').should == 'customers/joe'
+          Customer.build_request_path(:id => 'joe').should == 'customers'
+        end
+      end
+    end
   end
 
   context "making subdomain HTTP requests" do
