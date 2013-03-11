@@ -95,7 +95,7 @@ module Her
       # Override the method to prevent from returning the object ID (in ruby-1.8.7)
       # @private
       def id
-        attributes[:id] || super
+        attributes[self.class.primary_key_field] || super
       end
 
       # Return `true` if a resource was not saved yet
@@ -263,7 +263,7 @@ module Her
           params = ids.last.is_a?(Hash) ? ids.pop : {}
           results = ids.flatten.compact.uniq.map do |id|
             resource = nil
-            request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data, response|
+            request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(primary_key_field => id))}")) do |parsed_data, response|
               if response.success?
                 resource = new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
                 resource.run_callbacks :find

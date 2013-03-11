@@ -11,7 +11,8 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
           stub.get("/users") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
-          stub.get("/admin_users") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users") { |env| [200, {}, [{ :admin_id => 1, :name => "Tobias Fünke" }, { :admin_id => 2, :name => "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users/1") { |env| [200, {}, { :admin_id => 1, :name => "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -21,6 +22,7 @@ describe Her::Model::ORM do
 
       spawn_model "Foo::AdminUser" do
         uses_api api
+        primary_key :admin_id
       end
     end
 
@@ -28,6 +30,10 @@ describe Her::Model::ORM do
       @user = Foo::User.find(1)
       @user.id.should == 1
       @user.name.should == "Tobias Fünke"
+
+      @admin = Foo::AdminUser.find(1)
+      @admin.id.should == 1
+      @admin.name.should == "Tobias Fünke"
     end
 
     it "maps a collection of resources to an array of Ruby objects" do
