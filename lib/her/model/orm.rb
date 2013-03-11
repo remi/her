@@ -153,7 +153,7 @@ module Her
               self.response_errors = parsed_data[:errors]
               self.changed_attributes.clear if self.changed_attributes.present?
 
-              return false if self.response_errors.any?
+              return false if !response.success? || self.response_errors.any?
             end
           end
         end
