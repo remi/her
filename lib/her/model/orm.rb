@@ -32,6 +32,7 @@ module Her
       # @private
       def self.use_setter_methods(model, params)
         setter_method_names = model.class.setter_method_names
+        params ||= {}
         params.inject({}) do |memo, (key, value)|
           setter_method = key.to_s + '='
           if setter_method_names.include?(setter_method)
