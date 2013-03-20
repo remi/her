@@ -55,6 +55,14 @@ describe Her::Model::ORM do
       @existing_user.new?.should be_false
     end
 
+    it 'handles new resource with custom primary key' do
+      @new_user = Foo::AdminUser.new(:fullname => 'Lindsay Fünke', :id => -1)
+      @new_user.should be_new
+
+      @existing_user = Foo::AdminUser.find(1)
+      @existing_user.should_not be_new
+    end
+
     it "accepts new resource with strings as hash keys" do
       @new_user = Foo::User.new('fullname' => "Tobias Fünke")
       @new_user.fullname.should == "Tobias Fünke"

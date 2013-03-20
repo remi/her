@@ -100,7 +100,7 @@ module Her
 
       # Return `true` if a resource was not saved yet
       def new?
-        !attributes.include?(:id)
+        !attributes.include?(self.class.primary_key_field)
       end
 
       # Return `true` if the other object is also a Her::Model and has matching data
@@ -141,12 +141,12 @@ module Her
         params = to_params
         resource = self
 
-        if attributes[:id]
-          callback = :update
-          method = :put
-        else
+        if new?
           callback = :create
           method = :post
+        else
+          callback = :update
+          method = :put
         end
 
         run_callbacks callback do
@@ -321,7 +321,7 @@ module Her
         #   @user = User.save_existing(1, { :fullname => "Tobias Fünke" })
         #   # Called via PUT "/users/1"
         def save_existing(id, params)
-          resource = new(params.merge(:id => id))
+          resource = new(params.merge(primary_key_field => id))
           resource.save
           resource
         end
@@ -332,7 +332,7 @@ module Her
         #   User.destroy_existing(1)
         #   # Called via DELETE "/users/1"
         def destroy_existing(id, params={})
-          request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data, response|
+          request(params.merge(:_method => :delete, :_path => "#{build_request_path(params.merge(primary_key_field => id))}")) do |parsed_data, response|
             new(parse(parsed_data[:data]).merge(:_destroyed => true))
           end
         end
