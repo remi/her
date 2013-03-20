@@ -309,4 +309,54 @@ describe Her::Model::ORM do
       @user.should be_destroyed
     end
   end
+
+  context 'customizing HTTP methods' do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+    end
+
+    context 'create' do
+      before do
+        Her::API.default_api.connection.adapter :test do |stub|
+          stub.put('/users') { |env| [200, {}, { :id => 1, :fullname => 'Tobias Fünke' }.to_json] }
+        end
+
+        spawn_model 'Foo::User' do
+          attributes :fullname, :email
+          method_for :create, 'PUT'
+        end
+      end
+
+      it 'uses the custom method (PUT) instead of default method (POST)' do
+        user = Foo::User.new(:fullname => 'Tobias Fünke')
+        user.should be_new
+        user.save.should be_true
+      end
+    end
+
+    context 'update' do
+      before do
+        Her::API.default_api.connection.adapter :test do |stub|
+          stub.get('/users/1') { |env| [200, {}, { :id => 1, :fullname => 'Lindsay Fünke' }.to_json] }
+          stub.post('/users/1') { |env| [200, {}, { :id => 1, :fullname => 'Tobias Fünke' }.to_json] }
+        end
+
+        spawn_model 'Foo::User' do
+          attributes :fullname, :email
+          method_for :update, :post
+        end
+      end
+
+      it 'uses the custom method (POST) instead of default method (PUT)' do
+        user = Foo::User.find(1)
+        user.fullname.should eq 'Lindsay Fünke'
+        user.fullname = 'Toby Fünke'
+        user.save
+        user.fullname.should eq 'Tobias Fünke'
+      end
+    end
+  end
 end
