@@ -11,8 +11,11 @@ module Her
       #   end
       #
       #   User.find(1) # Fetched via GET /utilisateurs/1
-      def request_path
-        self.class.build_request_path(attributes.dup)
+      #
+      # @param [Hash] params An optional set of additional parameters for
+      #   path construction. These will not override attributes of the resource.
+      def request_path(params = {})
+        self.class.build_request_path(params.merge(attributes.dup))
       end
 
       module ClassMethods
