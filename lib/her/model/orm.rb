@@ -34,13 +34,8 @@ module Her
       #   @user.save
       #   # Called via POST "/users"
       def save
-        if new?
-          callback = :create
-          method = :post
-        else
-          callback = :update
-          method = :put
-        end
+        callback = new? ? :create : :update
+        method = self.class.method_for(callback)
 
         run_callbacks callback do
           run_callbacks :save do
@@ -160,6 +155,18 @@ module Her
           request(params.merge(:_method => :delete, :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
             new(parse(parsed_data[:data]).merge(:_destroyed => true))
           end
+        end
+
+        # Return or change the HTTP method used to create or update records
+        #
+        # @param [Symbol, String] action The behavior in question (`:create` or `:update`)
+        # @param [Symbol, String] method The HTTP method to use (`'PUT'`, `:post`, etc.)
+        def method_for(action, method = nil)
+          action = action.to_sym.downcase
+          @method_for ||= {:update => :put, :create => :post}
+
+          return @method_for[action] if method.nil?
+          @method_for[action] = method.to_sym.downcase
         end
       end
     end
