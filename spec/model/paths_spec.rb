@@ -61,7 +61,7 @@ describe Her::Model::Paths do
 
         it "raises exceptions when building a path without required custom variables" do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
-          expect { Foo::User.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError)
+          expect { Foo::User.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/utilisateurs/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
       end
     end
@@ -115,12 +115,12 @@ describe Her::Model::Paths do
 
         it "raises exceptions when building a path without required custom variables" do
           Foo::AdminUser.collection_path "/organizations/:organization_id/users"
-          expect { Foo::AdminUser.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError)
+          expect { Foo::AdminUser.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
 
         it "raises exceptions when building a relative path without required custom variables" do
           Foo::AdminUser.collection_path "organizations/:organization_id/users"
-          expect { Foo::AdminUser.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError)
+          expect { Foo::AdminUser.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
       end
     end
