@@ -145,7 +145,7 @@ describe Her::Model::ORM do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :friends => ["Maeby", "GOB", "Anne"] }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 1, :organization => true }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { :id => 1 }.to_json] }
         end
       end
 
@@ -161,11 +161,6 @@ describe Her::Model::ORM do
         def friends
           @data[:friends].map { |friend| "* #{friend}" }.join("\n")
         end
-
-        # Why would anybody want to do this? I don’t know.
-        def organization=(organization)
-          @data[:organization] = { :foo => :bar }
-        end
       end
     end
 
@@ -175,11 +170,6 @@ describe Her::Model::ORM do
       @user.instance_eval do
         @data[:friends] = ["Maeby", "GOB", "Anne"]
       end
-    end
-
-    it "handles custom setters with relationships" do
-      @user = User.find(2)
-      @user.organization.should == { :foo => :bar }
     end
 
     it "handles custom getters" do

@@ -251,7 +251,7 @@ describe Her::Model::Relationships do
     end
 
     it "does not map included data if it’s nil" do
-      @user_with_included_nil_data.organization.should be_nil
+      @user_with_included_nil_data.company.should be_nil
     end
 
     it "fetches data that was not included through belongs_to" do

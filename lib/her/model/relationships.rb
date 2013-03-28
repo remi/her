@@ -82,10 +82,16 @@ module Her
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
-            if method_attrs.any?
-              @data[name] = klass.get_collection("#{self.class.build_request_path(method_attrs.merge(:id => id))}#{attrs[:path]}", method_attrs)
-            else
-              @data[name] ||= klass.get_collection("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
+
+            if @data[name].blank? || method_attrs.any?
+              foreign_id = @data[:id]
+              return nil unless foreign_id.present?
+
+              @data[name] = if method_attrs.any?
+                klass.get_collection("#{self.class.build_request_path(method_attrs.merge(:id => foreign_id))}#{attrs[:path]}", method_attrs)
+              else
+                klass.get_collection("#{self.class.build_request_path(:id => foreign_id)}#{attrs[:path]}")
+              end
             end
 
             inverse_of = if attrs[:inverse_of]
@@ -130,11 +136,19 @@ module Her
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
-            if method_attrs.any?
-              klass.get_resource("#{self.class.build_request_path(method_attrs.merge(:id => id))}#{attrs[:path]}", method_attrs)
-            else
-              @data[name] ||= klass.get_resource("#{self.class.build_request_path(:id => id)}#{attrs[:path]}")
+
+            if @data[name].blank? || method_attrs.any?
+              foreign_id = @data[:id]
+              return nil unless foreign_id.present?
+
+              @data[name] = if method_attrs.any?
+                klass.get_resource("#{self.class.build_request_path(method_attrs.merge(:id => foreign_id))}#{attrs[:path]}", method_attrs)
+              else
+                klass.get_resource("#{self.class.build_request_path(:id => foreign_id)}#{attrs[:path]}")
+              end
             end
+
+            @data[name]
           end
         end
 
@@ -168,21 +182,19 @@ module Her
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
-            if method_attrs.any?
-              klass.get_resource("#{klass.build_request_path(method_attrs.merge(:id => @data[attrs[:foreign_key].to_sym]))}", method_attrs)
-            else
-              @data[name] ||= klass.get_resource("#{klass.build_request_path(:id => @data[attrs[:foreign_key].to_sym])}")
-            end
-          end
-        end
 
-        # @private
-        def relationship_accessor(type, attrs)
-          name = attrs[:name]
-          class_name = attrs[:class_name]
-          define_method(name) do
-            klass = self.class.nearby_class(attrs[:class_name])
-            @data[name] ||= klass.get_resource("#{klass.build_request_path(attrs[:path], :id => @data[attrs[:foreign_key].to_sym])}")
+            if @data[name].blank? || method_attrs.any?
+              foreign_id = @data[attrs[:foreign_key].to_sym]
+              return nil unless foreign_id.present?
+
+              @data[name] = if method_attrs.any?
+                klass.get_resource("#{klass.build_request_path(method_attrs.merge(:id => foreign_id))}", method_attrs)
+              else
+                klass.get_resource("#{klass.build_request_path(:id => foreign_id)}")
+              end
+            end
+
+            @data[name]
           end
         end
       end
