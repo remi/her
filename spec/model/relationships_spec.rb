@@ -9,35 +9,35 @@ describe Her::Model::Relationships do
 
     it "handles a single 'has_many' relationship" do
       Foo::User.has_many :comments
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }]
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }]
     end
 
     it "handles multiples 'has_many' relationship" do
       Foo::User.has_many :comments
       Foo::User.has_many :posts
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :class_name => "Post", :path => "/posts", :inverse_of => nil }]
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :class_name => "Post", :path => "/posts", :inverse_of => nil }]
     end
 
     it "handles a single 'has_one' relationship" do
       Foo::User.has_one :category
-      Foo::User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category", :path => "/category" }]
+      Foo::User.relationships[:has_one].should == [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }]
     end
 
     it "handles multiples 'has_one' relationship" do
       Foo::User.has_one :category
       Foo::User.has_one :role
-      Foo::User.relationships[:has_one].should == [{ :name => :category, :class_name => "Category", :path => "/category" }, { :name => :role, :class_name => "Role", :path => "/role" }]
+      Foo::User.relationships[:has_one].should == [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :class_name => "Role", :path => "/role" }]
     end
 
     it "handles a single belongs_to relationship" do
       Foo::User.belongs_to :organization
-      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }]
+      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }]
     end
 
     it "handles multiples 'belongs_to' relationship" do
       Foo::User.belongs_to :organization
       Foo::User.belongs_to :family
-      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }]
+      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }]
     end
   end
 
@@ -47,18 +47,18 @@ describe Her::Model::Relationships do
     end
 
     it "handles a single 'has_many' relationship" do
-      Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :class_name => "Post", :path => "/comments", :inverse_of => :admin }]
+      Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin, :data_key => :user_comments
+      Foo::User.relationships[:has_many].should == [{ :name => :comments, :data_key => :user_comments, :class_name => "Post", :path => "/comments", :inverse_of => :admin }]
     end
 
     it "handles a single 'has_one' relationship" do
-      Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id"
-      Foo::User.relationships[:has_one].should == [{ :name => :category, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }]
+      Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic
+      Foo::User.relationships[:has_one].should == [{ :name => :category, :data_key => :topic, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }]
     end
 
     it "handles a single belongs_to relationship" do
-      Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id"
-      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }]
+      Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org
+      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :data_key => :org, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }]
     end
 
     context "inheriting relationships from a superclass" do
@@ -226,15 +226,15 @@ describe Her::Model::Relationships do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company Inc." }, :organization_id => 1 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 }.to_json] }
-          stub.get("/users/3") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization => nil }.to_json] }
+          stub.get("/users/3") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :company => nil }.to_json] }
           stub.get("/companies/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company" }.to_json] }
         end
       end
 
       spawn_model "Foo::User" do
-        belongs_to :company, :path => "/organizations/:id", :foreign_key => :organization_id
+        belongs_to :company, :path => "/organizations/:id", :foreign_key => :organization_id, :data_key => :organization
       end
 
       spawn_model "Foo::Company"
@@ -244,11 +244,10 @@ describe Her::Model::Relationships do
       @user_with_included_nil_data = Foo::User.find(3)
     end
 
-    it "maps an array of included data through belongs_to", :focus => true do
+    it "maps an array of included data through belongs_to" do
       @user_with_included_data.company.should be_a(Foo::Company)
       @user_with_included_data.company.id.should == 1
-      p @user_with_included_data.company
-      @user_with_included_data.company.name.should == "Bluth Company"
+      @user_with_included_data.company.name.should == "Bluth Company Inc."
     end
 
     it "does not map included data if it’s nil" do

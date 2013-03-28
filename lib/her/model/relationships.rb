@@ -36,14 +36,17 @@ module Her
         def parse_relationships(data)
           relationships.each_pair do |type, definitions|
             definitions.each do |relationship|
-              name = relationship[:name]
-              next unless data[name]
+              data_key = relationship[:data_key]
+              next unless data[data_key]
+
               klass = self.nearby_class(relationship[:class_name])
+              name = relationship[:name]
+
               data[name] = case type
                 when :has_many
-                  Her::Model::ORM.initialize_collection(klass, :data => data[name])
+                  Her::Model::ORM.initialize_collection(klass, :data => data[data_key])
                 when :has_one, :belongs_to
-                  klass.new(data[name])
+                  klass.new(data[data_key])
                 else
                   nil
               end
@@ -74,6 +77,7 @@ module Her
           attrs = {
             :class_name     => name.to_s.classify,
             :name           => name,
+            :data_key       => name,
             :path           => "/#{name}",
             :inverse_of => nil
           }.merge(attrs)
@@ -83,30 +87,20 @@ module Her
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
 
-            return [] if @data.include?(name) && @data[name].empty? && method_attrs.empty?
+            return Her::Collection.new if @data.include?(name) && @data[name].empty? && method_attrs.empty?
 
             if @data[name].blank? || method_attrs.any?
-              foreign_id = @data[:id]
-              return nil unless foreign_id.present?
-
               path = begin
-                self.class.build_request_path(@data.merge(method_attrs.merge(:id => foreign_id)))
+                self.class.build_request_path(@data.merge(method_attrs))
               rescue Her::Errors::PathError
                 return nil
               end
 
-              @data[name] = if method_attrs.any?
-                klass.get_collection("#{path}#{attrs[:path]}", method_attrs)
-              else
-                klass.get_collection("#{path}#{attrs[:path]}")
-              end
+              @data[name] = klass.get_collection("#{path}#{attrs[:path]}", method_attrs)
             end
 
-            inverse_of = if attrs[:inverse_of]
-                               attrs[:inverse_of]
-                            else
-                             self.class.name.split('::').last.tableize.singularize
-                           end
+            inverse_of = attrs[:inverse_of] || self.class.name.split('::').last.tableize.singularize
+
             @data[name].each do |entry|
               entry.send("#{inverse_of}=", self)
             end
@@ -137,6 +131,7 @@ module Her
           attrs = {
             :class_name => name.to_s.classify,
             :name => name,
+            :data_key => name,
             :path => "/#{name}"
           }.merge(attrs)
           (relationships[:has_one] ||= []) << attrs
@@ -148,20 +143,13 @@ module Her
             return nil if @data.include?(name) && @data[name].nil? && method_attrs.empty?
 
             if @data[name].blank? || method_attrs.any?
-              foreign_id = @data[:id]
-              return nil unless foreign_id.present?
-
               path = begin
-                self.class.build_request_path(@data.merge(method_attrs.merge(:id => foreign_id)))
+                self.class.build_request_path(@data.merge(method_attrs))
               rescue Her::Errors::PathError
                 return nil
               end
 
-              @data[name] = if method_attrs.any?
-                klass.get_resource("#{path}#{attrs[:path]}", method_attrs)
-              else
-                klass.get_resource("#{path}#{attrs[:path]}")
-              end
+              @data[name] = klass.get_resource("#{path}#{attrs[:path]}", method_attrs)
             end
 
             @data[name]
@@ -190,6 +178,7 @@ module Her
           attrs = {
             :class_name => name.to_s.classify,
             :name => name,
+            :data_key => name,
             :foreign_key => "#{name}_id",
             :path => "/#{name.to_s.pluralize}/:id"
           }.merge(attrs)
@@ -202,20 +191,13 @@ module Her
             return nil if @data.include?(name) && @data[name].nil? && method_attrs.empty?
 
             if @data[name].blank? || method_attrs.any?
-              foreign_id = @data[attrs[:foreign_key].to_sym]
-              return nil unless foreign_id.present?
-
               path = begin
-                klass.build_request_path(@data.merge(method_attrs.merge(:id => foreign_id)))
+                klass.build_request_path(@data.merge(method_attrs.merge(:id => @data[attrs[:foreign_key].to_sym])))
               rescue Her::Errors::PathError
                 return nil
               end
 
-              @data[name] = if method_attrs.any?
-                klass.get_resource("#{path}", method_attrs)
-              else
-                klass.get_resource("#{path}")
-              end
+              @data[name] = klass.get_resource("#{path}", method_attrs)
             end
 
             @data[name]
