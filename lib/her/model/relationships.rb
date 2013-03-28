@@ -83,14 +83,22 @@ module Her
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
 
+            return [] if @data.include?(name) && @data[name].empty? && method_attrs.empty?
+
             if @data[name].blank? || method_attrs.any?
               foreign_id = @data[:id]
               return nil unless foreign_id.present?
 
+              path = begin
+                self.class.build_request_path(@data.merge(method_attrs.merge(:id => foreign_id)))
+              rescue Her::Errors::PathError
+                return nil
+              end
+
               @data[name] = if method_attrs.any?
-                klass.get_collection("#{self.class.build_request_path(method_attrs.merge(:id => foreign_id))}#{attrs[:path]}", method_attrs)
+                klass.get_collection("#{path}#{attrs[:path]}", method_attrs)
               else
-                klass.get_collection("#{self.class.build_request_path(:id => foreign_id)}#{attrs[:path]}")
+                klass.get_collection("#{path}#{attrs[:path]}")
               end
             end
 
@@ -137,14 +145,22 @@ module Her
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
 
+            return nil if @data.include?(name) && @data[name].nil? && method_attrs.empty?
+
             if @data[name].blank? || method_attrs.any?
               foreign_id = @data[:id]
               return nil unless foreign_id.present?
 
+              path = begin
+                self.class.build_request_path(@data.merge(method_attrs.merge(:id => foreign_id)))
+              rescue Her::Errors::PathError
+                return nil
+              end
+
               @data[name] = if method_attrs.any?
-                klass.get_resource("#{self.class.build_request_path(method_attrs.merge(:id => foreign_id))}#{attrs[:path]}", method_attrs)
+                klass.get_resource("#{path}#{attrs[:path]}", method_attrs)
               else
-                klass.get_resource("#{self.class.build_request_path(:id => foreign_id)}#{attrs[:path]}")
+                klass.get_resource("#{path}#{attrs[:path]}")
               end
             end
 
@@ -183,14 +199,22 @@ module Her
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
 
+            return nil if @data.include?(name) && @data[name].nil? && method_attrs.empty?
+
             if @data[name].blank? || method_attrs.any?
               foreign_id = @data[attrs[:foreign_key].to_sym]
               return nil unless foreign_id.present?
 
+              path = begin
+                klass.build_request_path(@data.merge(method_attrs.merge(:id => foreign_id)))
+              rescue Her::Errors::PathError
+                return nil
+              end
+
               @data[name] = if method_attrs.any?
-                klass.get_resource("#{klass.build_request_path(method_attrs.merge(:id => foreign_id))}", method_attrs)
+                klass.get_resource("#{path}", method_attrs)
               else
-                klass.get_resource("#{klass.build_request_path(:id => foreign_id)}")
+                klass.get_resource("#{path}")
               end
             end
 

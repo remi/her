@@ -244,9 +244,10 @@ describe Her::Model::Relationships do
       @user_with_included_nil_data = Foo::User.find(3)
     end
 
-    it "maps an array of included data through belongs_to" do
+    it "maps an array of included data through belongs_to", :focus => true do
       @user_with_included_data.company.should be_a(Foo::Company)
       @user_with_included_data.company.id.should == 1
+      p @user_with_included_data.company
       @user_with_included_data.company.name.should == "Bluth Company"
     end
 

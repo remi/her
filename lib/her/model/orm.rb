@@ -9,6 +9,7 @@ module Her
 
       # Initialize a new object with data received from an HTTP request
       def initialize(params={})
+        params ||= {}
         @metadata = params.delete(:_metadata) || {}
         @response_errors = params.delete(:_errors) || {}
         @destroyed = params.delete(:_destroyed) || false
@@ -54,7 +55,8 @@ module Her
           attribute = method.to_s.chomp('=').to_sym
           @data[attribute] = args.first
         elsif method.to_s.end_with?('?')
-          @data.include?(method.to_s.chomp('?').to_sym)
+          key = method.to_s.chomp('?').to_sym
+          @data.include?(key) && @data[key].present?
         elsif @data.include?(method)
           @data[method]
         else
