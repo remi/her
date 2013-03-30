@@ -296,16 +296,14 @@ If there’s association data in the resource, no extra HTTP request is made whe
 ```ruby
 @user = User.find(1)
 # {
-#   :data => {
-#     :id => 1,
-#     :name => "George Michael Bluth",
-#     :comments => [
-#       { :id => 1, :text => "Foo" },
-#       { :id => 2, :text => "Bar" }
-#     ],
-#     :role => { :id => 1, :name => "Admin" },
-#     :organization => { :id => 2, :name => "Bluth Company" }
-#   }
+#   :id => 1,
+#   :name => "George Michael Bluth",
+#   :comments => [
+#     { :id => 1, :text => "Foo" },
+#     { :id => 2, :text => "Bar" }
+#   ],
+#   :role => { :id => 1, :name => "Admin" },
+#   :organization => { :id => 2, :name => "Bluth Company" }
 # }
 @user.comments
 # [#<Comment id=1 text="Foo">, #<Comment id=2 text="Bar">]
@@ -319,7 +317,7 @@ If there’s no association data in the resource, Her makes a HTTP request to re
 
 ```ruby
 @user = User.find(1)
-# { :data => { :id => 1, :name => "George Michael Bluth", :organization_id => 2 }}
+# { :id => 1, :name => "George Michael Bluth", :organization_id => 2 }
 
 # has_many association:
 @user.comments
