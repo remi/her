@@ -232,7 +232,7 @@ module Her
             end
 
             define_method "#{attribute}?".to_sym do
-              @data.include?(attribute)
+              @data.include?(attribute) && @data[attribute].present?
             end
           end
         end
