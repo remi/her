@@ -2,6 +2,7 @@ $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
 require "rspec"
 require "mocha/api"
+require "yajl"
 require "her"
 
 RSpec.configure do |config|
@@ -16,6 +17,24 @@ RSpec.configure do |config|
       Object.instance_eval { remove_const global } if Object.const_defined?(global)
     end
   end
+
+  config.include(Module.new do
+    def stub_api_for(klass)
+      if klass.is_a?(String)
+        spawn_model(klass)
+        klass = klass.constantize
+      end
+
+      klass.uses_api (api = Her::API.new)
+
+      # Taken straight from Her's README.md!
+      api.setup :url => "http://api.example.com" do |c|
+        c.use Faraday::Request::UrlEncoded
+        c.use Her::Middleware::FirstLevelParseJSON
+        c.adapter(:test) { |s| yield(s) }
+      end
+    end
+  end)
 end
 
 class Hash

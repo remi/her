@@ -95,7 +95,7 @@ module Her
       # Override the method to prevent from returning the object ID (in ruby-1.8.7)
       # @private
       def id
-        attributes[:id] || super
+        attributes[:id] || nil
       end
 
       # Return `true` if a resource was not saved yet
