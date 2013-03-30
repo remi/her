@@ -1,7 +1,7 @@
 require "her/model/base"
 require "her/model/http"
 require "her/model/orm"
-require "her/model/relationships"
+require "her/model/associations"
 require "her/model/introspection"
 require "her/model/paths"
 require "her/model/nested_attributes"
@@ -25,7 +25,7 @@ module Her
     include Her::Model::ORM
     include Her::Model::Introspection
     include Her::Model::Paths
-    include Her::Model::Relationships
+    include Her::Model::Associations
     include Her::Model::NestedAttributes
     include ActiveModel::Validations
     include ActiveModel::Conversion
@@ -51,18 +51,18 @@ module Her
 
     # Returns true if attribute_name is
     # * in orm data
-    # * a relationship
+    # * an association
     def has_key?(attribute_name)
       has_data?(attribute_name) ||
-      has_relationship?(attribute_name)
+      has_association?(attribute_name)
     end
 
     # Returns
     # * the value of the attribute_nane attribute if it's in orm data
-    # * the resource/collection corrsponding to attribute_name if it's a relationship
+    # * the resource/collection corrsponding to attribute_name if it's an association
     def [](attribute_name)
       get_data(attribute_name) ||
-      get_relationship(attribute_name)
+      get_association(attribute_name)
     end
   end
 end

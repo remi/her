@@ -261,12 +261,12 @@ end
 
 Here’s a list of several useful features available in Her.
 
-### Relationships
+### Associations
 
-You can define `has_many`, `has_one` and `belongs_to` relationships in your models. The relationship data is handled in two different ways.
+You can define `has_many`, `has_one` and `belongs_to` associations in your models. The association data is handled in two different ways.
 
-1. If Her finds relationship data when parsing a resource, that data will be used to create the associated model objects on the resource.
-2. If no relationship data was included when parsing a resource, calling a method with the same name as the relationship will fetch the data (providing there’s an HTTP request available for it in the API).
+1. If Her finds association data when parsing a resource, that data will be used to create the associated model objects on the resource.
+2. If no association data was included when parsing a resource, calling a method with the same name as the association will fetch the data (providing there’s an HTTP request available for it in the API).
 
 For example:
 
@@ -291,7 +291,7 @@ class Organization
 end
 ```
 
-If there’s relationship data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources is returned:
+If there’s association data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources is returned:
 
 ```ruby
 @user = User.find(1)
@@ -315,23 +315,23 @@ If there’s relationship data in the resource, no extra HTTP request is made wh
 # #<Organization id=2 name="Bluth Company">
 ```
 
-If there’s no relationship data in the resource, Her makes a HTTP request to retrieve the data.
+If there’s no association data in the resource, Her makes a HTTP request to retrieve the data.
 
 ```ruby
 @user = User.find(1)
 # { :data => { :id => 1, :name => "George Michael Bluth", :organization_id => 2 }}
 
-# has_many relationship:
+# has_many association:
 @user.comments
 # GET /users/1/comments
 # [#<Comment id=1>, #<Comment id=2>]
 
-# has_one relationship:
+# has_one association:
 @user.role
 # GET /users/1/role
 # #<Role id=1>
 
-# belongs_to relationship:
+# belongs_to association:
 @user.organization
 # (the organization id comes from :organization_id, by default)
 # GET /organizations/2

@@ -185,10 +185,10 @@ module Her
       # @private
       def update_data(raw_data)
         @data ||= {}
-        # Use setter methods first, then translate attributes of relationships
-        # into relationship instances, then merge the parsed_data into @data.
+        # Use setter methods first, then translate attributes of associations
+        # into association instances, then merge the parsed_data into @data.
         unset_data = Her::Model::ORM.use_setter_methods(self, raw_data)
-        parsed_data = self.class.parse_relationships(unset_data)
+        parsed_data = self.class.parse_associations(unset_data)
         @data.update(parsed_data)
       end
 

@@ -1,78 +1,78 @@
 # encoding: utf-8
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
-describe Her::Model::Relationships do
-  context "setting relationships without details" do
+describe Her::Model::Associations do
+  context "setting associations without details" do
     before do
       spawn_model "Foo::User"
     end
 
-    it "handles a single 'has_many' relationship" do
+    it "handles a single 'has_many' association" do
       Foo::User.has_many :comments
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }]
+      Foo::User.associations[:has_many].should == [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }]
     end
 
-    it "handles multiples 'has_many' relationship" do
+    it "handles multiples 'has_many' association" do
       Foo::User.has_many :comments
       Foo::User.has_many :posts
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :class_name => "Post", :path => "/posts", :inverse_of => nil }]
+      Foo::User.associations[:has_many].should == [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :class_name => "Post", :path => "/posts", :inverse_of => nil }]
     end
 
-    it "handles a single 'has_one' relationship" do
+    it "handles a single 'has_one' association" do
       Foo::User.has_one :category
-      Foo::User.relationships[:has_one].should == [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }]
+      Foo::User.associations[:has_one].should == [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }]
     end
 
-    it "handles multiples 'has_one' relationship" do
+    it "handles multiples 'has_one' association" do
       Foo::User.has_one :category
       Foo::User.has_one :role
-      Foo::User.relationships[:has_one].should == [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :class_name => "Role", :path => "/role" }]
+      Foo::User.associations[:has_one].should == [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :class_name => "Role", :path => "/role" }]
     end
 
-    it "handles a single belongs_to relationship" do
+    it "handles a single belongs_to association" do
       Foo::User.belongs_to :organization
-      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }]
+      Foo::User.associations[:belongs_to].should == [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }]
     end
 
-    it "handles multiples 'belongs_to' relationship" do
+    it "handles multiples 'belongs_to' association" do
       Foo::User.belongs_to :organization
       Foo::User.belongs_to :family
-      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }]
+      Foo::User.associations[:belongs_to].should == [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }]
     end
   end
 
-  context "setting relationships with details" do
+  context "setting associations with details" do
     before do
       spawn_model "Foo::User"
     end
 
-    it "handles a single 'has_many' relationship" do
+    it "handles a single 'has_many' association" do
       Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin, :data_key => :user_comments
-      Foo::User.relationships[:has_many].should == [{ :name => :comments, :data_key => :user_comments, :class_name => "Post", :path => "/comments", :inverse_of => :admin }]
+      Foo::User.associations[:has_many].should == [{ :name => :comments, :data_key => :user_comments, :class_name => "Post", :path => "/comments", :inverse_of => :admin }]
     end
 
-    it "handles a single 'has_one' relationship" do
+    it "handles a single 'has_one' association" do
       Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic
-      Foo::User.relationships[:has_one].should == [{ :name => :category, :data_key => :topic, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }]
+      Foo::User.associations[:has_one].should == [{ :name => :category, :data_key => :topic, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }]
     end
 
-    it "handles a single belongs_to relationship" do
+    it "handles a single belongs_to association" do
       Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org
-      Foo::User.relationships[:belongs_to].should == [{ :name => :organization, :data_key => :org, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }]
+      Foo::User.associations[:belongs_to].should == [{ :name => :organization, :data_key => :org, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }]
     end
 
-    context "inheriting relationships from a superclass" do
-      it "copies relationships to the subclass" do
+    context "inheriting associations from a superclass" do
+      it "copies associations to the subclass" do
         Foo::User.has_many :comments, :class_name => "Post"
         subclass = Class.new(Foo::User)
-        subclass.relationships.object_id.should_not == Foo::User.relationships.object_id
-        subclass.relationships[:has_many].length.should == 1
-        subclass.relationships[:has_many].first[:class_name].should == "Post"
+        subclass.associations.object_id.should_not == Foo::User.associations.object_id
+        subclass.associations[:has_many].length.should == 1
+        subclass.associations[:has_many].first[:class_name].should == "Post"
       end
     end
   end
 
-  context "handling relationships without details" do
+  context "handling associations without details" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -186,14 +186,14 @@ describe Her::Model::Relationships do
       @user_with_included_data.organization(:foo_id => 1).name.should == "Bluth Company Foo"
     end
 
-    it "can tell if it has a relationship" do
-      @user_without_included_data.has_relationship?(:unknown_relationship).should be_false
-      @user_without_included_data.has_relationship?(:organization).should be_true
+    it "can tell if it has a association" do
+      @user_without_included_data.has_association?(:unknown_association).should be_false
+      @user_without_included_data.has_association?(:organization).should be_true
     end
 
-    it "fetches the resource corresponding to a named relationship" do
-      @user_without_included_data.get_relationship(:unknown_relationship).should be_nil
-      @user_without_included_data.get_relationship(:organization).name.should == "Bluth Company"
+    it "fetches the resource corresponding to a named association" do
+      @user_without_included_data.get_association(:unknown_association).should be_nil
+      @user_without_included_data.get_association(:organization).name.should == "Bluth Company"
     end
 
     it "pass query string parameters when additional arguments are passed" do
@@ -220,7 +220,7 @@ describe Her::Model::Relationships do
     end
   end
 
-  context "handling relationships with details" do
+  context "handling associations with details" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON

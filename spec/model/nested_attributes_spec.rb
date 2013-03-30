@@ -2,7 +2,7 @@
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::NestedAttributes do
-  context "with a belongs_to relation" do
+  context "with a belongs_to association" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -35,7 +35,7 @@ describe Her::Model::NestedAttributes do
     end
   end
 
-  context "with a has_one relation" do
+  context "with a has_one association" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -68,7 +68,7 @@ describe Her::Model::NestedAttributes do
     end
   end
 
-  context "with a has_many relation" do
+  context "with a has_many association" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON

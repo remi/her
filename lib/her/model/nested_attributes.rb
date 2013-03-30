@@ -4,52 +4,52 @@ module Her
       extend ActiveSupport::Concern
 
       module ClassMethods
-        def accepts_nested_attributes_for(*relationship_names)
-          relationship_names.each do |relationship_name|
+        def accepts_nested_attributes_for(*association_names)
+          association_names.each do |association_name|
             type = nil
-            [:belongs_to, :has_one, :has_many].each do |relation_type|
-              if !relationships[relation_type].nil? && relationships[relation_type].any? { |relation| relation[:name] == relationship_name }
-                type = relation_type
+            [:belongs_to, :has_one, :has_many].each do |association_type|
+              if !associations[association_type].nil? && associations[association_type].any? { |association| association[:name] == association_name }
+                type = association_type
               end
             end
             if type.nil?
-              raise(RelationshipUnknownError.new("Unknown relationship name :#{relationship_name}"))
+              raise(AssociationUnknownError.new("Unknown association name :#{association_name}"))
             end
             class_eval <<-eoruby, __FILE__, __LINE__ + 1
-              if method_defined?(:#{relationship_name}_attributes=)
-                remove_method(:#{relationship_name}_attributes=)
+              if method_defined?(:#{association_name}_attributes=)
+                remove_method(:#{association_name}_attributes=)
               end
-              def #{relationship_name}_attributes=(attributes)
-                assign_nested_attributes_for_#{type}_relationship(:#{relationship_name}, attributes)
+              def #{association_name}_attributes=(attributes)
+                assign_nested_attributes_for_#{type}_association(:#{association_name}, attributes)
               end
             eoruby
           end
         end
       end
 
-      def assign_nested_attributes_for_belongs_to_relationship(relationship_name, attributes)
-        assign_nested_attributes_for_simple_relationship(:belongs_to, relationship_name, attributes)
+      def assign_nested_attributes_for_belongs_to_association(association_name, attributes)
+        assign_nested_attributes_for_simple_association(:belongs_to, association_name, attributes)
       end
 
-      def assign_nested_attributes_for_has_one_relationship(relationship_name, attributes)
-        assign_nested_attributes_for_simple_relationship(:has_one, relationship_name, attributes)
+      def assign_nested_attributes_for_has_one_association(association_name, attributes)
+        assign_nested_attributes_for_simple_association(:has_one, association_name, attributes)
       end
 
-      def assign_nested_attributes_for_has_many_relationship(relationship_name, attributes)
-        relationship = self.class.relationships[:has_many].find { |relation| relation[:name] == relationship_name }
-        klass = self.class.nearby_class(relationship[:class_name])
-        self.send("#{relationship[:name]}=", Her::Model::ORM.initialize_collection(klass, :data => attributes))
+      def assign_nested_attributes_for_has_many_association(association_name, attributes)
+        association = self.class.associations[:has_many].find { |association| association[:name] == association_name }
+        klass = self.class.nearby_class(association[:class_name])
+        self.send("#{association[:name]}=", Her::Model::ORM.initialize_collection(klass, :data => attributes))
       end
 
       private
-      def assign_nested_attributes_for_simple_relationship(relationship_type, relationship_name, attributes)
-        relationship = self.class.relationships[relationship_type].find { |relation| relation[:name] == relationship_name }
-        if has_data?(relationship[:name])
-          self.send("#{relationship[:name]}").assign_data(attributes)
+      def assign_nested_attributes_for_simple_association(association_type, association_name, attributes)
+        association = self.class.associations[association_type].find { |association| association[:name] == association_name }
+        if has_data?(association[:name])
+          self.send("#{association[:name]}").assign_data(attributes)
         else
-          klass = self.class.nearby_class(relationship[:class_name])
+          klass = self.class.nearby_class(association[:class_name])
           instance = klass.new(klass.parse(attributes))
-          self.send("#{relationship[:name]}=", instance)
+          self.send("#{association[:name]}=", instance)
         end
       end
     end

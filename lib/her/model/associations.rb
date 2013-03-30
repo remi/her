@@ -1,46 +1,49 @@
 module Her
   module Model
-    # This module adds relationships to models
-    module Relationships
+    # This module adds associations to models
+    module Associations
       extend ActiveSupport::Concern
 
-      # Returns true if the model has a relationship_name relationship, false otherwise.
-      def has_relationship?(relationship_name)
-        relationships = self.class.relationships.values.flatten.map { |r| r[:name] }
-        relationships.include?(relationship_name)
+      # Returns true if the model has a association_name association, false otherwise.
+      def has_association?(association_name)
+        associations = self.class.associations.values.flatten.map { |r| r[:name] }
+        associations.include?(association_name)
       end
+      alias :has_relationship? :has_association?
 
-      # Returns the resource/collection corresponding to the relationship_name relationship.
-      def get_relationship(relationship_name)
-        send(relationship_name) if has_relationship?(relationship_name)
+      # Returns the resource/collection corresponding to the association_name association.
+      def get_association(association_name)
+        send(association_name) if has_association?(association_name)
       end
+      alias :get_relationship :get_association
 
       module ClassMethods
-        # Return @her_relationships, lazily initialized with copy of the
-        # superclass' her_relationships, or an empty hash.
+        # Return @her_associations, lazily initialized with copy of the
+        # superclass' her_associations, or an empty hash.
         #
         # @private
-        def relationships
-          @her_relationships ||= begin
-            if superclass.respond_to?(:relationships)
-              superclass.relationships.dup
+        def associations
+          @her_associations ||= begin
+            if superclass.respond_to?(:associations)
+              superclass.associations.dup
             else
               {}
             end
           end
         end
+        alias :relationships :associations
 
-        # Parse relationships data after initializing a new object
+        # Parse associations data after initializing a new object
         #
         # @private
-        def parse_relationships(data)
-          relationships.each_pair do |type, definitions|
-            definitions.each do |relationship|
-              data_key = relationship[:data_key]
+        def parse_associations(data)
+          associations.each_pair do |type, definitions|
+            definitions.each do |association|
+              data_key = association[:data_key]
               next unless data[data_key]
 
-              klass = self.nearby_class(relationship[:class_name])
-              name = relationship[:name]
+              klass = self.nearby_class(association[:class_name])
+              name = association[:name]
 
               data[name] = case type
                 when :has_many
@@ -55,7 +58,7 @@ module Her
           data
         end
 
-        # Define an *has_many* relationship.
+        # Define an *has_many* association.
         #
         # @param [Symbol] name The name of the model
         # @param [Hash] attrs Options (currently not used)
@@ -81,7 +84,7 @@ module Her
             :path           => "/#{name}",
             :inverse_of => nil
           }.merge(attrs)
-          (relationships[:has_many] ||= []) << attrs
+          (associations[:has_many] ||= []) << attrs
 
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
@@ -109,7 +112,7 @@ module Her
           end
         end
 
-        # Define an *has_one* relationship.
+        # Define an *has_one* association.
         #
         # @param [Symbol] name The name of the model
         # @param [Hash] attrs Options (currently not used)
@@ -134,7 +137,7 @@ module Her
             :data_key => name,
             :path => "/#{name}"
           }.merge(attrs)
-          (relationships[:has_one] ||= []) << attrs
+          (associations[:has_one] ||= []) << attrs
 
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
@@ -156,7 +159,7 @@ module Her
           end
         end
 
-        # Define a *belongs_to* relationship.
+        # Define a *belongs_to* association.
         #
         # @param [Symbol] name The name of the model
         # @param [Hash] attrs Options (currently not used)
@@ -182,7 +185,7 @@ module Her
             :foreign_key => "#{name}_id",
             :path => "/#{name.to_s.pluralize}/:id"
           }.merge(attrs)
-          (relationships[:belongs_to] ||= []) << attrs
+          (associations[:belongs_to] ||= []) << attrs
 
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
