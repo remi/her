@@ -48,17 +48,18 @@ module Her
         end
       end
 
-      # Handles missing methods by routing them through @data
+      # Handles missing methods
       # @private
       def method_missing(method, *args, &blk)
-        if method.to_s.end_with?('=')
-          attribute = method.to_s.chomp('=').to_sym
-          @data[attribute] = args.first
-        elsif method.to_s.end_with?('?')
-          key = method.to_s.chomp('?').to_sym
-          @data.include?(key) && @data[key].present?
-        elsif @data.include?(method)
-          @data[method]
+        if method.to_s =~ /[?=]$/ || attributes.include?(method)
+          # Extract the attribute
+          attribute = method.to_s.sub(/[?=]$/, '')
+
+          # Create a new `attribute` methods set
+          self.class.attributes(*attribute)
+
+          # Resend the method!
+          send(method, *args, &blk)
         else
           super
         end
@@ -66,11 +67,11 @@ module Her
 
       # Handles returning true for the cases handled by method_missing
       def respond_to?(method, include_private = false)
-        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @data.include?(method) || super
+        method.to_s.end_with?('=') || method.to_s.end_with?('?') || attributes.include?(method) || super
       end
 
       def respond_to_missing?(method, include_private = false)
-        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @data.include?(method) || @data.include?(method) || super
+        method.to_s.end_with?('=') || method.to_s.end_with?('?') || attributes.include?(method) || attributes.include?(method) || super
       end
 
       # Assign new data to an instance
