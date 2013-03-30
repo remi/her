@@ -12,7 +12,7 @@ module Her
       #
       #   User.find(1) # Fetched via GET /utilisateurs/1
       def request_path
-        self.class.build_request_path(@data.dup)
+        self.class.build_request_path(attributes.dup)
       end
 
       module ClassMethods

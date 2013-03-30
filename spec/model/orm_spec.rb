@@ -155,11 +155,11 @@ describe Her::Model::ORM do
 
         def friends=(val)
           val = val.gsub("\r", "").split("\n").map { |friend| friend.gsub(/^\s*\*\s*/, "") } if val and val.is_a?(String)
-          @data[:friends] = val
+          @attributes[:friends] = val
         end
 
         def friends
-          @data[:friends].map { |friend| "* #{friend}" }.join("\n")
+          @attributes[:friends].map { |friend| "* #{friend}" }.join("\n")
         end
       end
     end
@@ -168,7 +168,7 @@ describe Her::Model::ORM do
       @user = User.find(1)
       @user.friends.should == "* Maeby\n* GOB\n* Anne"
       @user.instance_eval do
-        @data[:friends] = ["Maeby", "GOB", "Anne"]
+        @attributes[:friends] = ["Maeby", "GOB", "Anne"]
       end
     end
 
@@ -177,7 +177,7 @@ describe Her::Model::ORM do
       @user.friends = "* George\n* Oscar\n* Lucille"
       @user.friends.should == "* George\n* Oscar\n* Lucille"
       @user.instance_eval do
-        @data[:friends] = ["George", "Oscar", "Lucille"]
+        @attributes[:friends] = ["George", "Oscar", "Lucille"]
       end
     end
   end

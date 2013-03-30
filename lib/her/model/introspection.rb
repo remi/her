@@ -12,7 +12,7 @@ module Her
       #   @user = User.find(1)
       #   p @user # => #<User(/users/1) id=1 name="Tobias Fünke">
       def inspect
-        "#<#{self.class}(#{request_path}) #{@data.keys.map { |k| "#{k}=#{attribute_for_inspect(send(k))}" }.join(" ")}>"
+        "#<#{self.class}(#{request_path}) #{attributes.keys.map { |k| "#{k}=#{attribute_for_inspect(send(k))}" }.join(" ")}>"
       end
 
       private

@@ -90,25 +90,25 @@ module Her
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
 
-            return Her::Collection.new if @data.include?(name) && @data[name].empty? && method_attrs.empty?
+            return Her::Collection.new if @attributes.include?(name) && @attributes[name].empty? && method_attrs.empty?
 
-            if @data[name].blank? || method_attrs.any?
+            if @attributes[name].blank? || method_attrs.any?
               path = begin
-                self.class.build_request_path(@data.merge(method_attrs))
+                self.class.build_request_path(@attributes.merge(method_attrs))
               rescue Her::Errors::PathError
                 return nil
               end
 
-              @data[name] = klass.get_collection("#{path}#{attrs[:path]}", method_attrs)
+              @attributes[name] = klass.get_collection("#{path}#{attrs[:path]}", method_attrs)
             end
 
             inverse_of = attrs[:inverse_of] || self.class.name.split('::').last.tableize.singularize
 
-            @data[name].each do |entry|
+            @attributes[name].each do |entry|
               entry.send("#{inverse_of}=", self)
             end
 
-            @data[name]
+            @attributes[name]
           end
         end
 
@@ -143,19 +143,19 @@ module Her
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
 
-            return nil if @data.include?(name) && @data[name].nil? && method_attrs.empty?
+            return nil if @attributes.include?(name) && @attributes[name].nil? && method_attrs.empty?
 
-            if @data[name].blank? || method_attrs.any?
+            if @attributes[name].blank? || method_attrs.any?
               path = begin
-                self.class.build_request_path(@data.merge(method_attrs))
+                self.class.build_request_path(@attributes.merge(method_attrs))
               rescue Her::Errors::PathError
                 return nil
               end
 
-              @data[name] = klass.get_resource("#{path}#{attrs[:path]}", method_attrs)
+              @attributes[name] = klass.get_resource("#{path}#{attrs[:path]}", method_attrs)
             end
 
-            @data[name]
+            @attributes[name]
           end
         end
 
@@ -191,19 +191,19 @@ module Her
             method_attrs = method_attrs[0] || {}
             klass = self.class.nearby_class(attrs[:class_name])
 
-            return nil if @data.include?(name) && @data[name].nil? && method_attrs.empty?
+            return nil if @attributes.include?(name) && @attributes[name].nil? && method_attrs.empty?
 
-            if @data[name].blank? || method_attrs.any?
+            if @attributes[name].blank? || method_attrs.any?
               path = begin
-                klass.build_request_path(@data.merge(method_attrs.merge(:id => @data[attrs[:foreign_key].to_sym])))
+                klass.build_request_path(@attributes.merge(method_attrs.merge(:id => @attributes[attrs[:foreign_key].to_sym])))
               rescue Her::Errors::PathError
                 return nil
               end
 
-              @data[name] = klass.get_resource("#{path}", method_attrs)
+              @attributes[name] = klass.get_resource("#{path}", method_attrs)
             end
 
-            @data[name]
+            @attributes[name]
           end
         end
       end

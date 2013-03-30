@@ -3,18 +3,18 @@ module Her
     # This module adds ORM-like capabilities to the model
     module ORM
       extend ActiveSupport::Concern
-      attr_accessor :data, :metadata, :response_errors
-      alias :attributes :data
-      alias :attributes= :data=
+      attr_accessor :attributes, :metadata, :response_errors
+      alias :data :attributes
+      alias :data= :attributes=
 
       # Initialize a new object with data received from an HTTP request
-      def initialize(params={})
-        params ||= {}
-        @metadata = params.delete(:_metadata) || {}
-        @response_errors = params.delete(:_errors) || {}
-        @destroyed = params.delete(:_destroyed) || false
+      def initialize(attributes={})
+        attributes ||= {}
+        @metadata = attributes.delete(:_metadata) || {}
+        @response_errors = attributes.delete(:_errors) || {}
+        @destroyed = attributes.delete(:_destroyed) || false
 
-        update_data(params)
+        update_attributes(attributes)
       end
 
       # Initialize a collection of resources
@@ -67,44 +67,45 @@ module Her
 
       # Handles returning true for the cases handled by method_missing
       def respond_to?(method, include_private = false)
-        method.to_s.end_with?('=') || method.to_s.end_with?('?') || attributes.include?(method) || super
+        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @attributes.include?(method) || super
       end
 
       def respond_to_missing?(method, include_private = false)
-        method.to_s.end_with?('=') || method.to_s.end_with?('?') || attributes.include?(method) || attributes.include?(method) || super
+        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @attributes.include?(method) || @attributes.include?(method) || super
       end
 
       # Assign new data to an instance
-      def assign_data(new_data)
-        new_data = Her::Model::ORM.use_setter_methods(self, new_data)
-        @data.update new_data
+      def assign_attributes(new_attributes)
+        new_attributes = Her::Model::ORM.use_setter_methods(self, new_attributes)
+        attributes.update new_attributes
       end
-      alias :assign_attributes :assign_data
+      alias :assign_data :assign_attributes
 
       # Handles returning true for the accessible attributes
-      def has_data?(attribute_name)
-        @data.include?(attribute_name)
+      def has_attribute?(attribute_name)
+        attributes.include?(attribute_name)
       end
+      alias :has_data? :has_attribute?
 
-      # Handles returning attribute value from data
-      def get_data(attribute_name)
-        @data[attribute_name]
+      def get_attribute(attribute_name)
+        attributes[attribute_name]
       end
+      alias :get_data :get_attribute
 
       # Override the method to prevent from returning the object ID (in ruby-1.8.7)
       # @private
       def id
-        @data[:id] || super
+        attributes[:id] || super
       end
 
       # Return `true` if a resource was not saved yet
       def new?
-        !@data.include?(:id)
+        !attributes.include?(:id)
       end
 
       # Return `true` if the other object is also a Her::Model and has matching data
       def ==(other)
-        other.is_a?(Her::Model) && @data == other.data
+        other.is_a?(Her::Model) && attributes == other.attributes
       end
 
       # Delegate to the == method
@@ -112,10 +113,10 @@ module Her
         self == other
       end
 
-      # Delegate to @data, allowing models to act correctly in code like:
+      # Delegate to @attributes, allowing models to act correctly in code like:
       #     [ Model.find(1), Model.find(1) ].uniq # => [ Model.find(1) ]
       def hash
-        @data.hash
+        attributes.hash
       end
 
       # Return whether the object has been destroyed
@@ -140,7 +141,7 @@ module Her
         params = to_params
         resource = self
 
-        if @data[:id]
+        if attributes[:id]
           callback = :update
           method = :put
         else
@@ -151,7 +152,7 @@ module Her
         run_callbacks callback do
           run_callbacks :save do
             self.class.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data, response|
-              update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
+              update_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
               self.metadata = parsed_data[:metadata]
               self.response_errors = parsed_data[:errors]
               self.changed_attributes.clear if self.changed_attributes.present?
@@ -174,7 +175,7 @@ module Her
         resource = self
         run_callbacks :destroy do
           self.class.request(:_method => :delete, :_path => "#{request_path}") do |parsed_data, response|
-            update_data(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
+            update_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]
             self.response_errors = parsed_data[:errors]
             @destroyed = true
@@ -184,13 +185,13 @@ module Her
       end
 
       # @private
-      def update_data(raw_data)
-        @data ||= {}
+      def update_attributes(raw_data)
+        @attributes ||= {}
         # Use setter methods first, then translate attributes of associations
-        # into association instances, then merge the parsed_data into @data.
-        unset_data = Her::Model::ORM.use_setter_methods(self, raw_data)
-        parsed_data = self.class.parse_associations(unset_data)
-        @data.update(parsed_data)
+        # into association instances, then merge the parsed_data into @attributes.
+        unset_attributes = Her::Model::ORM.use_setter_methods(self, raw_data)
+        parsed_attributes = self.class.parse_associations(unset_attributes)
+        attributes.update(parsed_attributes)
       end
 
       # Convert into a hash of request parameters
@@ -200,9 +201,9 @@ module Her
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
         if self.class.include_root_in_json
-          { (self.class.include_root_in_json == true ? self.class.root_element : self.class.include_root_in_json) => @data.dup }
+          { (self.class.include_root_in_json == true ? self.class.root_element : self.class.include_root_in_json) => attributes.dup }
         else
-          @data.dup
+          attributes.dup
         end
       end
 
@@ -224,16 +225,16 @@ module Her
             attribute = attribute.to_sym
 
             define_method "#{attribute}".to_sym do
-              @data.include?(attribute) ? @data[attribute] : nil
+              @attributes.include?(attribute) ? @attributes[attribute] : nil
             end
 
             define_method "#{attribute}=".to_sym do |value|
-              self.send("#{attribute}_will_change!".to_sym) if @data[attribute] != value
-              @data[attribute] = value
+              self.send("#{attribute}_will_change!".to_sym) if @attributes[attribute] != value
+              @attributes[attribute] = value
             end
 
             define_method "#{attribute}?".to_sym do
-              @data.include?(attribute) && @data[attribute].present?
+              @attributes.include?(attribute) && @attributes[attribute].present?
             end
           end
         end
@@ -303,7 +304,7 @@ module Her
               request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data, response|
                 data = parse(parsed_data[:data])
                 resource.instance_eval do
-                  update_data(data)
+                  update_attributes(data)
                   @metadata = parsed_data[:metadata]
                   @response_errors = parsed_data[:errors]
                   @changed_attributes.clear if @changed_attributes.present?
