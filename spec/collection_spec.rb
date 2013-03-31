@@ -6,7 +6,7 @@ describe Her::Collection do
   let(:metadata) { { :name => 'Testname' } }
   let(:errors) { { :name => ['not_present'] } }
 
-  describe "#new" do
+  describe :new do
     context "without parameters" do
       subject { Her::Collection.new }
 

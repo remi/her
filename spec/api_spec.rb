@@ -5,14 +5,12 @@ describe Her::API do
   subject { Her::API.new }
 
   context "initialization" do
-    describe ".setup" do
+    describe :setup do
       it "creates a default connection" do
         Her::API.setup :url => "https://api.example.com"
         Her::API.default_api.base_uri.should == "https://api.example.com"
       end
-    end
 
-    describe "#setup" do
       context "when using :url option" do
         before { subject.setup :url => "https://api.example.com" }
         its(:base_uri) { should == "https://api.example.com" }
@@ -43,7 +41,7 @@ describe Her::API do
       end
     end
 
-    describe "#request" do
+    describe :request do
       before do
         class SimpleParser < Faraday::Response::Middleware
           def on_complete(env)
@@ -52,7 +50,7 @@ describe Her::API do
         end
       end
 
-      context "making HTTP requests" do
+      context "when making HTTP requests" do
         let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo")[:parsed_data] }
         before do
           subject.setup :url => "https://api.example.com" do |builder|
@@ -64,7 +62,7 @@ describe Her::API do
         specify { parsed_data[:data].should == "Foo, it is." }
       end
 
-      context "making HTTP requests while specifying custom HTTP headers" do
+      context "when making HTTP requests while specifying custom HTTP headers" do
         let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo", :_headers => { "X-Page" => 2 })[:parsed_data] }
 
         before do
@@ -77,7 +75,7 @@ describe Her::API do
         specify { parsed_data[:data].should == "Foo, it is page 2." }
       end
 
-      context "parsing a request with the default parser" do
+      context "when parsing a request with the default parser" do
         let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1")[:parsed_data] }
         before do
           subject.setup :url => "https://api.example.com" do |builder|
@@ -95,7 +93,7 @@ describe Her::API do
         end
       end
 
-      context "parsing a request with a custom parser" do
+      context "when parsing a request with a custom parser" do
         let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1")[:parsed_data] }
         before do
           class CustomParser < Faraday::Response::Middleware

@@ -56,10 +56,12 @@ def spawn_model(klass, &block)
       submodel.class_eval(&block) if block_given?
     end
     @globals << base
+    submodel
   else
     Object.instance_eval { remove_const klass } if Object.const_defined?(klass)
     Object.const_set(klass, Class.new).send(:include, Her::Model)
     Object.const_get(klass).class_eval(&block) if block_given?
     @globals << klass.to_sym
+    Object.const_get(klass)
   end
 end
