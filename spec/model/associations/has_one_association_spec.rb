@@ -3,6 +3,9 @@ require File.join(File.dirname(__FILE__), "../../spec_helper.rb")
 
 describe Her::Model::Associations do
   context "for has_one association" do
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#has_one
+    #--------------------------------------------------------------------------------------------
     describe :has_one do
       before do
         spawn_model 'Foo::User'
@@ -47,6 +50,9 @@ describe Her::Model::Associations do
       end
     end
 
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#parse_associations
+    #--------------------------------------------------------------------------------------------
     describe :parse_associations do
       context "when association data is present" do
         context "without additional association options" do
@@ -55,11 +61,11 @@ describe Her::Model::Associations do
             spawn_model('Foo::Role')
 
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :role => { :id => 1, :name => "Admin" } }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :role => { :id => 1, :name => "Admin" } }
             end
 
             stub_api_for(Foo::Role) do |stub|
-              stub.get("/users/1/role") { |env| [200, {}, { :id => 2, :name => "Super Admin" }.to_json] }
+              stub.get("/users/1/role") { ok! :id => 2, :name => "Super Admin" }
             end
           end
 
@@ -80,7 +86,7 @@ describe Her::Model::Associations do
             spawn_model('Foo::UserRole')
 
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :user_role => { :id => 1, :name => "Admin" } }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :user_role => { :id => 1, :name => "Admin" } }
             end
           end
 
@@ -96,7 +102,7 @@ describe Her::Model::Associations do
           spawn_model('Foo::User') { has_one :role }
 
           stub_api_for(Foo::User) do |stub|
-            stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :role => nil }.to_json] }
+            stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :role => nil }
           end
         end
 
@@ -105,6 +111,9 @@ describe Her::Model::Associations do
       end
     end
 
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#fetch_association
+    #--------------------------------------------------------------------------------------------
     describe :fetch_association do
       context "without additional association options" do
         # TODO

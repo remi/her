@@ -3,6 +3,9 @@ require File.join(File.dirname(__FILE__), "../../spec_helper.rb")
 
 describe Her::Model::Associations do
   context "for belongs_to association" do
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#belongs_to
+    #--------------------------------------------------------------------------------------------
     describe :belongs_to do
       before do
         spawn_model 'Foo::User'
@@ -47,6 +50,9 @@ describe Her::Model::Associations do
       end
     end
 
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#parse_associations
+    #--------------------------------------------------------------------------------------------
     describe :parse_associations do
       context "when association data is present" do
         context "without additional association options" do
@@ -55,11 +61,11 @@ describe Her::Model::Associations do
             spawn_model('Foo::Organization')
 
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }
             end
 
             stub_api_for(Foo::Organization) do |stub|
-              stub.get("/organizations/1") { |env| [200, {}, { :id => 2, :name => "Sitwell Enterprises" }.to_json] }
+              stub.get("/organizations/1") { ok! :id => 2, :name => "Sitwell Enterprises" }
             end
           end
 
@@ -80,7 +86,7 @@ describe Her::Model::Associations do
             spawn_model('Foo::Business')
 
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :biz => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :biz => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }
             end
           end
 
@@ -97,7 +103,7 @@ describe Her::Model::Associations do
             spawn_model('Foo::User') { belongs_to :organization }
 
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => nil }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :organization => nil }
             end
           end
 
@@ -107,6 +113,9 @@ describe Her::Model::Associations do
       end
     end
 
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#fetch_association
+    #--------------------------------------------------------------------------------------------
     describe :fetch_association do
       context "without additional association options" do
         # TODO

@@ -4,6 +4,9 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::Associations do
   # See spec/model/associations/*.rb for additional specs
 
+  #--------------------------------------------------------------------------------------------
+  # Her::Model::Associations#has_association?
+  #--------------------------------------------------------------------------------------------
   describe :has_association? do
     subject { spawn_model('Foo::User') { has_many :comments }.new }
 
@@ -11,11 +14,14 @@ describe Her::Model::Associations do
     it { should_not have_association(:unknown_association) }
   end
 
+  #--------------------------------------------------------------------------------------------
+  # Her::Model::Associations#get_association
+  #--------------------------------------------------------------------------------------------
   describe :get_association do
     before do
       spawn_model('Foo::User') { has_many :comments }
       stub_api_for(Foo::User) do |stub|
-        stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [] }.to_json] }
+        stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :comments => [] }
       end
     end
 

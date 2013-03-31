@@ -7,14 +7,14 @@ describe Her::Model::ORM do
     # Her::Model::ORM::ClassMethods#find
     #--------------------------------------------------------------------------------------------
     describe :find do
-      before { spawn_model 'Foo::User' }
       subject { Foo::User.find(find_arguments) }
 
       context "with a single scalar argument" do
+        before { spawn_model 'Foo::User' }
         let(:find_arguments) { 1 }
         before do
           stub_api_for(Foo::User) do |stub|
-            stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+            stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke" }
           end
         end
 
@@ -23,12 +23,13 @@ describe Her::Model::ORM do
       end
 
       context "with an array argument" do
+        before { spawn_model 'Foo::User' }
         context "containing multiple elements" do
           let(:find_arguments) { [1,2] }
           before do
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-              stub.get("/users/2") { |env| [200, {}, { :id => 1, :name => "Lindsay Fünke" }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke" }
+              stub.get("/users/2") { ok! :id => 1, :name => "Lindsay Fünke" }
             end
           end
 
@@ -40,12 +41,32 @@ describe Her::Model::ORM do
           let(:find_arguments) { [1] }
           before do
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke" }
             end
           end
 
           it { should be_kind_of(Array) }
           its(:length) { should == 1 }
+        end
+      end
+
+      context "with path parameters" do
+        before do
+          spawn_model('Foo::User') { collection_path '/organizations/:organization_id/users' }
+
+          stub_api_for(Foo::User) do |stub|
+            stub.get("/organizations/2/users/1") { ok! :id => 1, :name => "Tobias Fünke" }
+          end
+        end
+
+        subject { Foo::User.find(find_arguments, find_extra_arguments) }
+
+        context "with :_organization_id parameter" do
+          let(:find_arguments) { 1 }
+          let(:find_extra_arguments) { { :_organization_id => 2 } }
+
+          its(:id) { should == 1 }
+          its(:name) { should == "Tobias Fünke" }
         end
       end
     end
@@ -54,21 +75,40 @@ describe Her::Model::ORM do
     # Her::Model::ORM::ClassMethods#all
     #--------------------------------------------------------------------------------------------
     describe :all do
-      before do
-        stub_api_for('Foo::AppUser') do |stub|
-          stub.get("/app_users") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
+      context "without extra parameters" do
+        before do
+          stub_api_for('Foo::AppUser') do |stub|
+            stub.get("/app_users") { ok! [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }] }
+          end
+        end
+
+        subject { Foo::AppUser.all }
+
+        its(:length) { should == 2 }
+
+        describe "first element" do
+          subject { Foo::AppUser.all.first }
+
+          its(:id) { should == 1 }
+          its(:name) { should == "Tobias Fünke" }
         end
       end
 
-      subject { Foo::AppUser.all }
+      context "with extra arguments" do
+        before do
+          spawn_model('Foo::User') { collection_path '/organizations/:organization_id/users' }
 
-      its(:length) { should == 2 }
+          stub_api_for(Foo::User) do |stub|
+            stub.get("/organizations/2/users") { ok! [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }] }
+          end
+        end
 
-      describe "first element" do
-        subject { Foo::AppUser.all.first }
+        subject { Foo::User.all(all_extra_arguments) }
 
-        its(:id) { should == 1 }
-        its(:name) { should == "Tobias Fünke" }
+        context "with :_organization_id parameter" do
+          let(:all_extra_arguments) { { :_organization_id => 2 } }
+          its(:length) { should == 2 }
+        end
       end
     end
 
@@ -100,28 +140,48 @@ describe Her::Model::ORM do
     # Her::Model::ORM::ClassMethods#create
     #--------------------------------------------------------------------------------------------
     describe :create do
-      context "with successful response" do
-        before do
-          stub_api_for('Foo::User') do |stub|
-            stub.post("/users") { |env| [200, {}, { :id => 1, :name => Faraday::Utils.parse_query(env[:body])['name'] }.to_json] }
+      context "without path parameters" do
+        context "with successful response" do
+          before do
+            stub_api_for('Foo::User') do |stub|
+              stub.post("/users") { |env| ok! :id => 1, :name => params(env)['name'] }
+            end
           end
+
+          subject { Foo::User.create(:name => "Tobias Fünke") }
+          its(:id) { should == 1 }
+          its(:name) { should == "Tobias Fünke" }
         end
 
-        subject { Foo::User.create(:name => "Tobias Fünke") }
-        its(:id) { should == 1 }
-        its(:name) { should == "Tobias Fünke" }
+        context "with erroneous response" do
+          before do
+            stub_api_for('Foo::User') do |stub|
+              stub.post("/users") { error! :errors => ['Name is required'] }
+            end
+          end
+
+          subject { Foo::User.create }
+          its(:id) { should be_nil }
+          its(:response_errors) { should == ['Name is required'] }
+        end
       end
 
-      context "with erroneous response" do
+      context "with path parameters" do
         before do
-          stub_api_for('Foo::User') do |stub|
-            stub.post("/users") { |env| [400, {}, { :errors => ['Name is required'] }.to_json] }
+          spawn_model('Foo::User') { collection_path '/organizations/:organization_id/users' }
+          stub_api_for(Foo::User) do |stub|
+            stub.post("/organizations/2/users") { |env| ok! :id => 1, :name => params(env)['name'] }
           end
         end
 
-        subject { Foo::User.create }
-        its(:id) { should be_nil }
-        its(:response_errors) { should == ['Name is required'] }
+        subject { Foo::User.create(arguments) }
+
+        context "with :_organization_id parameter" do
+          let(:arguments) { { :name => "Lindsay Fünke", :_organization_id => 2 } }
+
+          its(:name) { should == "Lindsay Fünke" }
+          it { should_not be_new }
+        end
       end
     end
 
@@ -132,7 +192,7 @@ describe Her::Model::ORM do
       context "with successful response" do
         before do
           stub_api_for('Foo::User') do |stub|
-            stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => Faraday::Utils.parse_query(env[:body])['name'] }.to_json] }
+            stub.put("/users/1") { |env| ok! :id => 1, :fullname => params(env)['name'] }
           end
         end
 
@@ -144,7 +204,7 @@ describe Her::Model::ORM do
       context "with erroneous response" do
         before do
           stub_api_for('Foo::User') do |stub|
-            stub.put("/users/1") { |env| [400, {}, { :errors => ['Name is invalid'] }.to_json] }
+            stub.put("/users/1") { error! :errors => ['Name is invalid'] }
           end
         end
 
@@ -161,7 +221,7 @@ describe Her::Model::ORM do
     describe :destroy_existing do
       before do
         stub_api_for('Foo::User') do |stub|
-          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+          stub.delete("/users/1") { ok! :id => 1, :fullname => "Lindsay Fünke", :active => false }
         end
       end
 
@@ -259,9 +319,7 @@ describe Her::Model::ORM do
     describe :include_root_in_json do
       context "when set to true" do
         before do
-          spawn_model 'Foo::User' do
-            include_root_in_json true
-          end
+          spawn_model('Foo::User') { include_root_in_json true }
         end
 
         subject { Foo::User.new(:fullname => "Tobias Fünke") }
@@ -271,9 +329,7 @@ describe Her::Model::ORM do
 
       context "when set to another value" do
         before do
-          spawn_model 'Foo::User' do
-            include_root_in_json :person
-          end
+          spawn_model('Foo::User') { include_root_in_json :person }
         end
 
         subject { Foo::User.new(:fullname => "Tobias Fünke") }
@@ -290,7 +346,7 @@ describe Her::Model::ORM do
         before do
           spawn_model('Foo::User') { parse_root_in_json true }
           stub_api_for(Foo::User) do |stub|
-            stub.get("/users/1") { |env| [200, {}, { :user => { :id => 1, :name => "Tobias Fünke" } }.to_json] }
+            stub.get("/users/1") { ok! :user => { :id => 1, :name => "Tobias Fünke" } }
           end
         end
 
@@ -303,7 +359,7 @@ describe Her::Model::ORM do
         before do
           spawn_model('Foo::User') { parse_root_in_json :person }
           stub_api_for(Foo::User) do |stub|
-            stub.get("/users/1") { |env| [200, {}, { :person => { :id => 1, :name => "Tobias Fünke" } }.to_json] }
+            stub.get("/users/1") { ok! :person => { :id => 1, :name => "Tobias Fünke" } }
           end
         end
 
@@ -332,7 +388,7 @@ describe Her::Model::ORM do
         end
 
         stub_api_for(Foo::User) do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :friends => ["Maeby", "GOB", "Anne"] }.to_json] }
+          stub.get("/users/1") { ok! :id => 1, :friends => ["Maeby", "GOB", "Anne"] }
         end
       end
 
@@ -369,9 +425,8 @@ describe Her::Model::ORM do
 
           context "with default to_params" do
             before do
-              spawn_model 'Foo::User'
-              stub_api_for(Foo::User) do |stub|
-                stub.post("/users") { |env| [200, {}, { :id => 1, :name => Faraday::Utils.parse_query(env[:body])['name'], :occupation => "Doctor" }.to_json] }
+              stub_api_for('Foo::User') do |stub|
+                stub.post("/users") { |env| ok! :id => 1, :name => params(env)['name'], :occupation => "Doctor" }
               end
 
               subject.save
@@ -391,7 +446,7 @@ describe Her::Model::ORM do
               end
 
               stub_api_for(Foo::User) do |stub|
-                stub.post("/users") { |env| [200, {}, { :id => 1, :name => Faraday::Utils.parse_query(env[:body])['name'], :occupation => "Doctor" }.to_json] }
+                stub.post("/users") { |env| ok! :id => 1, :name => params(env)['name'], :occupation => "Doctor" }
               end
 
               subject.save
@@ -406,7 +461,7 @@ describe Her::Model::ORM do
         context "with erroneous response" do
           before do
             stub_api_for(Foo::User) do |stub|
-              stub.post("/users") { |env| [400, {}, { :errors => ['Name is invalid'] }.to_json] }
+              stub.post("/users") { error! :errors => ['Name is invalid'] }
             end
           end
 
@@ -426,8 +481,8 @@ describe Her::Model::ORM do
         context "with successful response" do
           before do
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-              stub.put("/users/1") { |env| [200, {}, { :id => 1, :name => Faraday::Utils.parse_query(env[:body])['name'], :occupation => "Doctor" }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke" }
+              stub.put("/users/1") { |env| ok! :id => 1, :name => params(env)['name'], :occupation => "Doctor" }
             end
 
             subject.name = "Lindsay Fünke"
@@ -444,8 +499,8 @@ describe Her::Model::ORM do
         context "with erroneous response" do
           before do
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-              stub.put("/users/1") { |env| [400, {}, { :errors => ['Name is invalid'] }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke" }
+              stub.put("/users/1") { error! :errors => ['Name is invalid'] }
             end
           end
 
@@ -468,8 +523,8 @@ describe Her::Model::ORM do
     describe :destroy do
       before do
         stub_api_for('Foo::User') do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => true }.to_json] }
-          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+          stub.get("/users/1") { ok! :id => 1, :fullname => "Lindsay Fünke", :active => true }
+          stub.delete("/users/1") { ok! :id => 1, :fullname => "Lindsay Fünke", :active => false }
         end
 
         subject.destroy
@@ -502,12 +557,12 @@ describe Her::Model::ORM do
     describe :== do
       before do
         stub_api_for('Foo::User') do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.get("/users/1") { ok! :id => 1, :fullname => "Lindsay Fünke" }
+          stub.get("/users/2") { ok! :id => 1, :fullname => "Tobias Fünke" }
         end
 
         stub_api_for('Foo::Admin') do |stub|
-          stub.get("/admins/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+          stub.get("/admins/1") { ok! :id => 1, :fullname => "Lindsay Fünke" }
         end
       end
 

@@ -3,6 +3,9 @@ require File.join(File.dirname(__FILE__), "../../spec_helper.rb")
 
 describe Her::Model::Associations do
   context "for has_many association" do
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#has_many
+    #--------------------------------------------------------------------------------------------
     describe :has_many do
       before do
         spawn_model 'Foo::User'
@@ -47,6 +50,9 @@ describe Her::Model::Associations do
       end
     end
 
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#parse_associations
+    #--------------------------------------------------------------------------------------------
     describe :parse_associations do
       context "when association data is present" do
         context "without additional association options" do
@@ -55,11 +61,11 @@ describe Her::Model::Associations do
             spawn_model('Foo::Comment') { parse_root_in_json true }
 
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }] }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :comments => [{ :comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }] }
             end
 
             stub_api_for(Foo::Comment) do |stub|
-              stub.get("/users/1/comments") { |env| [200, {}, [].to_json] }
+              stub.get("/users/1/comments") { ok! [] }
             end
           end
 
@@ -82,7 +88,7 @@ describe Her::Model::Associations do
             spawn_model('Foo::UserComment') { parse_root_in_json true }
 
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :user_comments => [{ :user_comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :user_comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }] }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :user_comments => [{ :user_comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :user_comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }] }
             end
           end
 
@@ -101,7 +107,7 @@ describe Her::Model::Associations do
             spawn_model('Foo::User') { has_many :comments }
 
             stub_api_for(Foo::User) do |stub|
-              stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [] }.to_json] }
+              stub.get("/users/1") { ok! :id => 1, :name => "Tobias Fünke", :comments => [] }
             end
           end
 
@@ -112,6 +118,9 @@ describe Her::Model::Associations do
       end
     end
 
+    #--------------------------------------------------------------------------------------------
+    # Her::Model::Associations#fetch_association
+    #--------------------------------------------------------------------------------------------
     describe :fetch_association do
       context "without additional association options" do
         # TODO
