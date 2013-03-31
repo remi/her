@@ -5,6 +5,8 @@ require "mocha/api"
 require "yajl"
 require "her"
 
+Dir[File.join(File.dirname(__FILE__), "support/**/*.rb")].each {|f| require f}
+
 RSpec.configure do |config|
   config.mock_with :mocha
 
@@ -35,6 +37,8 @@ RSpec.configure do |config|
       end
     end
   end)
+
+  config.include Her::Testing::Macros
 end
 
 class Hash
