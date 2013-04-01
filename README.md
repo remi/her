@@ -338,6 +338,26 @@ If there’s no association data in the resource, Her makes a HTTP request to re
 
 Subsequent calls to `#comments`, `#role` and `#organization` will not trigger extra HTTP requests and will return the cached objects.
 
+#### Notes about paths
+
+Resources must always have all the attributes necessary to build their complete path. For example, if you have these models:
+
+```ruby
+class User
+  collection_path "organizations/:organization_id/users"
+end
+
+class Organization
+  has_many :users
+end
+```
+
+Her expects all `User` resources to have an `:organization_id` (or `:_organization_id`) attribute. Otherwise, calling mostly all methods, like `User.all`, will thrown an exception like this one:
+
+```ruby
+Her::Errors::PathError: Missing :_organization_id parameter to build the request path. Path is `organizations/:organization_id/users`. Parameters are `{ … }`.
+```
+
 ### Validations
 
 Her includes `ActiveModel::Validations` so you can declare validations the same way you do in Rails.
