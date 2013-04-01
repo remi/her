@@ -5,6 +5,7 @@ describe Her::Middleware::FirstLevelParseJSON do
   subject { described_class.new }
   let(:body_without_errors) { "{\"id\": 1, \"name\": \"Tobias Fünke\", \"metadata\": 3}" }
   let(:body_with_errors) { "{\"id\": 1, \"name\": \"Tobias Fünke\", \"errors\": { \"name\": [ \"not_valid\", \"should_be_present\" ] }, \"metadata\": 3}" }
+  let(:body_with_malformed_json) { "wut." }
 
   it "parses body as json" do
     subject.parse(body_without_errors).tap do |json|
@@ -28,6 +29,10 @@ describe Her::Middleware::FirstLevelParseJSON do
 
   it 'ensures the errors are a hash if there are no errors' do
     subject.parse(body_with_errors)[:errors].should eq({:name => [ 'not_valid', 'should_be_present']})
+  end
+
+  it 'ensures that malformed JSON throws an exception' do
+    expect { subject.parse(body_with_malformed_json) }.to raise_error(MultiJson::LoadError)
   end
 
   context 'with status code 204' do
