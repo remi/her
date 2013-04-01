@@ -340,14 +340,16 @@ Subsequent calls to `#comments`, `#role` and `#organization` will not trigger ex
 
 #### Notes about paths
 
-Resources must always have all the attributes necessary to build their complete path. For example, if you have these models:
+Resources must always have all the required attributes to build their complete path. For example, if you have these models:
 
 ```ruby
 class User
+  include Her::Model
   collection_path "organizations/:organization_id/users"
 end
 
 class Organization
+  include Her::Model
   has_many :users
 end
 ```
