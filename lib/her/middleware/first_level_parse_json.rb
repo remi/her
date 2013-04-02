@@ -8,6 +8,8 @@ module Her
       # @return [Mixed] the parsed response
       def parse(body)
         json = MultiJson.load(body, :symbolize_keys => true)
+        raise Her::Errors::ParseError, "Response from the API must behave like a Hash or an Array (last was: #{json.inspect})" unless json.is_a?(Hash) or json.is_a?(Array)
+
         errors = json.delete(:errors) || {}
         metadata = json.delete(:metadata) || []
         {
