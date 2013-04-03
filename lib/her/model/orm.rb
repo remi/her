@@ -265,7 +265,7 @@ module Her
             resource = nil
             request(params.merge(:_method => :get, :_path => "#{build_request_path(params.merge(:id => id))}")) do |parsed_data, response|
               if response.success?
-                resource = new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:data], :_errors => parsed_data[:errors])
+                resource = new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
                 resource.run_callbacks :find
               else
                 return nil
