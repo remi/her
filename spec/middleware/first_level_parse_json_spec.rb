@@ -7,6 +7,7 @@ describe Her::Middleware::FirstLevelParseJSON do
   let(:body_with_errors) { "{\"id\": 1, \"name\": \"Tobias Fünke\", \"errors\": { \"name\": [ \"not_valid\", \"should_be_present\" ] }, \"metadata\": 3}" }
   let(:body_with_malformed_json) { "wut." }
   let(:body_with_invalid_json) { "true" }
+  let(:nil_body) { nil }
 
   it "parses body as json" do
     subject.parse(body_without_errors).tap do |json|
@@ -38,6 +39,10 @@ describe Her::Middleware::FirstLevelParseJSON do
 
   it 'ensures that invalid JSON throws an exception' do
     expect { subject.parse(body_with_invalid_json) }.to raise_error(Her::Errors::ParseError, 'Response from the API must behave like a Hash or an Array (last JSON response was "true")')
+  end
+
+  it 'ensures that a nil response returns an empty hash' do
+    subject.parse(nil_body)[:data].should eq({})
   end
 
   context 'with status code 204' do

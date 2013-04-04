@@ -9,7 +9,7 @@ module Her
       def parse(body)
         json = parse_json(body)
         errors = json.delete(:errors) || {}
-        metadata = json.delete(:metadata) || []
+        metadata = json.delete(:metadata) || {}
         {
           :data => json,
           :errors => errors,
@@ -22,11 +22,11 @@ module Her
       #
       # @param [Hash] env The response environment
       def on_complete(env)
-        case env[:status]
+        env[:body] = case env[:status]
         when 204
-          env[:body] = parse('{}')
+          parse('{}')
         else
-          env[:body] = parse(env[:body])
+          parse(env[:body])
         end
       end
     end

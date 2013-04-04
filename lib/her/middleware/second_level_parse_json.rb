@@ -22,7 +22,12 @@ module Her
       #
       # @param [Hash] env The response environment
       def on_complete(env)
-        env[:body] = parse(env[:body])
+        env[:body] = case env[:status]
+        when 204
+          parse('{}')
+        else
+          parse(env[:body])
+        end
       end
     end
   end
