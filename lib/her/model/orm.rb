@@ -161,8 +161,8 @@ module Her
         # @param [Symbol, String] action The behavior in question (`:create` or `:update`)
         # @param [Symbol, String] method The HTTP method to use (`'PUT'`, `:post`, etc.)
         def method_for(action, method = nil)
+          @method_for ||= {}
           action = action.to_sym.downcase
-          @method_for ||= {:update => :put, :create => :post}
 
           return @method_for[action] if method.nil?
           @method_for[action] = method.to_sym.downcase

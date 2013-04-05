@@ -46,6 +46,8 @@ module Her
     included do
       # Assign the default API
       use_api Her::API.default_api
+      method_for :create, :post
+      method_for :update, :put
 
       # Define the default primary key
       primary_key :id
