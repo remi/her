@@ -103,7 +103,7 @@ module Her
               end
 
             # Replace :id with our actual primary key
-            path.gsub!(/(?<=\A|\/):id(?=\Z|\/)/, ":#{primary_key}")
+            path.gsub!(/(\A|\/):id(\Z|\/)/, "\\1:#{primary_key}\\2")
           end
 
           path.gsub(/:([\w_]+)/) do
