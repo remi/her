@@ -41,6 +41,16 @@ module Her
       extend ActiveModel::Callbacks
       define_model_callbacks :create, :update, :save, :find, :destroy
 
+      # Creates an id and to_param method proxying to  primary key
+      def self.primary_key(key)
+        define_method(:id) do
+          send(key.to_sym)
+        end
+        define_method(:to_param) do
+          send(key.to_sym)
+        end
+      end
+
       # Define default settings
       root_element self.name.split("::").last.underscore
       base_path = root_element.pluralize
