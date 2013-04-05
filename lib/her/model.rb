@@ -47,6 +47,7 @@ module Her
       collection_path "#{base_path}"
       resource_path "#{base_path}/:id"
       uses_api Her::API.default_api
+      primary_key 'id'
     end
 
     # Returns true if attribute_name is
