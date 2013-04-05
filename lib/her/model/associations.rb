@@ -195,7 +195,7 @@ module Her
 
             if @attributes[name].blank? || method_attrs.any?
               path = begin
-                klass.build_request_path(@attributes.merge(method_attrs.merge(klass.primary_key_field => @attributes[attrs[:foreign_key].to_sym])))
+                klass.build_request_path(@attributes.merge(method_attrs.merge(klass.primary_key => @attributes[attrs[:foreign_key].to_sym])))
               rescue Her::Errors::PathError
                 return nil
               end

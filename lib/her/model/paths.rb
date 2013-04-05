@@ -30,12 +30,8 @@ module Her
         #
         # @param [Symbol] field
         def primary_key(field = nil)
-          @her_primary_key = field
-        end
-
-        # Retrieve the primary key field that will be used to find and save records
-        def primary_key_field
-          @her_primary_key.to_sym
+          return @her_primary_key if field.nil?
+          @her_primary_key = field.to_sym
         end
 
         # Defines a custom collection path for the resource
@@ -100,14 +96,14 @@ module Her
           unless path.is_a?(String)
             parameters = path || {}
             path =
-              if parameters.include?(primary_key_field) && parameters[primary_key_field]
+              if parameters.include?(primary_key) && parameters[primary_key]
                 resource_path.dup
               else
                 collection_path.dup
               end
 
             # Replace :id with our actual primary key
-            path.gsub!(/(?<=\A|\/):id(?=\Z|\/)/, ":#{primary_key_field}")
+            path.gsub!(/(?<=\A|\/):id(?=\Z|\/)/, ":#{primary_key}")
           end
 
           path.gsub(/:([\w_]+)/) do
