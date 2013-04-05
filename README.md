@@ -102,31 +102,23 @@ Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send H
 
 Her doesn’t support authentication by default. However, it’s easy to implement one with request middleware. Using the `connection` block, we can add it to the middleware stack.
 
-For example, to add a API token header to your requests in a Rails application, you would do something like this:
+For example, to add a token header to your API requests in a Rails application, you could use the excellent [`request_store`](https://rubygems.org/gems/request_store) gem like this:
 
 ```ruby
 # app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
-  around_filter :do_with_authenticated_user
+  before_filter :set_user_api_token
 
-  def do_with_authenticated_user
-    Thread.current[:my_api_token] = session[:my_api_token]
-    begin
-      yield
-    ensure
-      Thread.current[:my_access_token] = nil
-    end
+  protected
+  def set_user_api_token
+    RequestStore.store[:my_api_token] = current_user.api_token # or something similar based on `session`
   end
 end
 
 # lib/my_token_authentication.rb
 class MyTokenAuthentication < Faraday::Middleware
-  def initialize(app, options={})
-    @app = app
-  end
-
   def call(env)
-    env[:request_headers]["X-API-Token"] = Thread.current[:my_api_token] if Thread.current[:my_api_token].present?
+    env[:request_headers]["X-API-Token"] = RequestStore.store[:my_api_token]
     @app.call(env)
   end
 end
@@ -136,6 +128,7 @@ require "lib/my_token_authentication"
 
 Her::API.setup :url => "https://api.example.com" do |connection|
   connection.use MyTokenAuthentication
+  connection.use Faraday::Request::UrlEncoded
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
 end
