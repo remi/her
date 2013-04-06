@@ -367,7 +367,7 @@ describe Her::Model::ORM do
 
     it "delegates eql? to ==" do
       other = Object.new
-      user.expects(:==).with(other).returns(true)
+      user.should_receive(:==).with(other).and_return(true)
       user.eql?(other).should be_true
     end
 
