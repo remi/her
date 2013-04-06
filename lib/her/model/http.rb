@@ -7,7 +7,7 @@ module Her
       module ClassMethods
         # Automatically inherit a superclass' api
         def her_api
-          @her_api ||= begin
+          @_her_api ||= begin
             if superclass.respond_to?(:her_api)
               superclass.her_api
             else
@@ -18,7 +18,7 @@ module Her
 
         # Link a model with a Her::API object
         def uses_api(api)
-          @her_api = api
+          @_her_api = api
         end
 
         # Main request wrapper around Her::API. Used to make custom request to the API.

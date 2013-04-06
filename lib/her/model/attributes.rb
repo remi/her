@@ -162,7 +162,7 @@ module Her
 
         # @private
         def setter_method_names
-          @setter_method_names ||= instance_methods.inject(Set.new) do |memo, method_name|
+          @_her_setter_method_names ||= instance_methods.inject(Set.new) do |memo, method_name|
             memo << method_name.to_s if method_name.to_s.end_with?('=')
             memo
           end

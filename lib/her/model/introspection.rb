@@ -30,24 +30,23 @@ module Her
       module ClassMethods
         # Finds a class at the same level as this one or at the global level.
         # @private
-        def nearby_class(name)
-          sibling_class(name) || name.constantize rescue nil
+        def her_nearby_class(name)
+          her_sibling_class(name) || name.constantize rescue nil
         end
 
         protected
         # Looks for a class at the same level as this one with the given name.
         # @private
-        def sibling_class(name)
-          if mod = self.containing_module
-            @sibling_class ||= {}
-            @sibling_class[mod] ||= {}
-            @sibling_class[mod][name] ||= "#{mod.name}::#{name}".constantize rescue nil
+        def her_sibling_class(name)
+          if mod = self.her_containing_module
+            @_her_sibling_class ||= Hash.new { Hash.new }
+            @_her_sibling_class[mod][name] ||= "#{mod.name}::#{name}".constantize rescue nil
           end
         end
 
         # If available, returns the containing Module for this class.
         # @private
-        def containing_module
+        def her_containing_module
           return unless self.name =~ /::/
           self.name.split("::")[0..-2].join("::").constantize
         end

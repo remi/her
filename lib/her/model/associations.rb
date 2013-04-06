@@ -18,12 +18,12 @@ module Her
       alias :get_relationship :get_association
 
       module ClassMethods
-        # Return @her_associations, lazily initialized with copy of the
+        # Return @_her_associations, lazily initialized with copy of the
         # superclass' her_associations, or an empty hash.
         #
         # @private
         def associations
-          @her_associations ||= begin
+          @_her_associations ||= begin
             if superclass.respond_to?(:associations)
               superclass.associations.dup
             else
@@ -42,7 +42,7 @@ module Her
               data_key = association[:data_key]
               next unless data[data_key]
 
-              klass = self.nearby_class(association[:class_name])
+              klass = self.her_nearby_class(association[:class_name])
               name = association[:name]
 
               data[name] = case type
@@ -88,7 +88,7 @@ module Her
 
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
-            klass = self.class.nearby_class(attrs[:class_name])
+            klass = self.class.her_nearby_class(attrs[:class_name])
 
             return Her::Collection.new if @attributes.include?(name) && @attributes[name].empty? && method_attrs.empty?
 
@@ -141,7 +141,7 @@ module Her
 
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
-            klass = self.class.nearby_class(attrs[:class_name])
+            klass = self.class.her_nearby_class(attrs[:class_name])
 
             return nil if @attributes.include?(name) && @attributes[name].nil? && method_attrs.empty?
 
@@ -189,7 +189,7 @@ module Her
 
           define_method(name) do |*method_attrs|
             method_attrs = method_attrs[0] || {}
-            klass = self.class.nearby_class(attrs[:class_name])
+            klass = self.class.her_nearby_class(attrs[:class_name])
 
             return nil if @attributes.include?(name) && @attributes[name].nil? && method_attrs.empty?
 

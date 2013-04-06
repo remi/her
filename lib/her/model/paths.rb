@@ -25,13 +25,13 @@ module Her
         #    collection_path "/users"
         #  end
         def collection_path(path=nil)
-          @her_collection_path ||= begin
+          @_her_collection_path ||= begin
             superclass.collection_path.dup if superclass.respond_to?(:collection_path)
           end
 
-          return @her_collection_path unless path
-          @her_resource_path = "#{path}/:id"
-          @her_collection_path = path
+          return @_her_collection_path unless path
+          @_her_resource_path = "#{path}/:id"
+          @_her_collection_path = path
         end
 
         # Defines a custom resource path for the resource
@@ -42,12 +42,12 @@ module Her
         #    resource_path "/users/:id"
         #  end
         def resource_path(path=nil)
-          @her_resource_path ||= begin
+          @_her_resource_path ||= begin
             superclass.resource_path.dup if superclass.respond_to?(:resource_path)
           end
 
-          return @her_resource_path unless path
-          @her_resource_path = path
+          return @_her_resource_path unless path
+          @_her_resource_path = path
         end
 
         # Return a custom path based on the collection path and variable parameters
