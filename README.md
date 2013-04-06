@@ -774,6 +774,7 @@ These fine folks helped with Her:
 * [@joanniclaborde](https://github.com/joanniclaborde)
 * [@seanreads](https://github.com/seanreads)
 * [@jonkarna](https://github.com/jonkarna)
+* [@aclevy](https://github.com/aclevy)
 
 ## License
 
