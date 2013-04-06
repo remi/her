@@ -2,6 +2,10 @@
 
 Here is a list of backward-incompatible changes that were introduced while Her is pre-1.0. After reaching 1.0, it will follow the [Semantic Versioning](http://semver.org/) system.
 
+## 0.5.4
+
+* Her does not support Ruby 1.8.7 anymore. You should upgrade to 1.9.2, 1.9.3 or 2.0.0.
+
 ## 0.5
 
 * Her is now compatible with `ActiveModel` and includes `ActiveModel::Validations`.
