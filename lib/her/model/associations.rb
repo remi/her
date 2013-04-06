@@ -47,7 +47,7 @@ module Her
 
               data[name] = case type
                 when :has_many
-                  Her::Model::ORM.initialize_collection(klass, :data => data[data_key])
+                  Her::Model::Attributes.initialize_collection(klass, :data => data[data_key])
                 when :has_one, :belongs_to
                   klass.new(data[data_key])
                 else

@@ -38,7 +38,7 @@ module Her
       def assign_nested_attributes_for_has_many_association(association_name, attributes)
         association = self.class.associations[:has_many].find { |association| association[:name] == association_name }
         klass = self.class.nearby_class(association[:class_name])
-        self.send("#{association[:name]}=", Her::Model::ORM.initialize_collection(klass, :data => attributes))
+        self.send("#{association[:name]}=", Her::Model::Attributes.initialize_collection(klass, :data => attributes))
       end
 
       private

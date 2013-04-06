@@ -1,6 +1,8 @@
 require "her/model/base"
 require "her/model/http"
+require "her/model/attributes"
 require "her/model/orm"
+require "her/model/parse"
 require "her/model/associations"
 require "her/model/introspection"
 require "her/model/paths"
@@ -22,7 +24,9 @@ module Her
     extend ActiveSupport::Concern
 
     # Instance methods
+    include Her::Model::Attributes
     include Her::Model::ORM
+    include Her::Model::Parse
     include Her::Model::Introspection
     include Her::Model::Paths
     include Her::Model::Associations

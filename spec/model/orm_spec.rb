@@ -48,55 +48,6 @@ describe Her::Model::ORM do
       @existing_user = Foo::User.find(1)
       @existing_user.new?.should be_false
     end
-
-    it "accepts new resource with strings as hash keys" do
-      @new_user = Foo::User.new('fullname' => "Tobias Fünke")
-      @new_user.fullname.should == "Tobias Fünke"
-    end
-
-    it "handles method missing for getter" do
-      @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      lambda { @new_user.unknown_method_for_a_user }.should raise_error(NoMethodError)
-      expect { @new_user.fullname }.to_not raise_error(NoMethodError)
-    end
-
-    it "handles method missing for setter" do
-      @new_user = Foo::User.new
-      expect { @new_user.fullname = "Tobias Fünke" }.to_not raise_error(NoMethodError)
-    end
-
-    it "handles method missing for query" do
-      @new_user = Foo::User.new
-      expect { @new_user.fullname? }.to_not raise_error(NoMethodError)
-    end
-
-    it "handles respond_to for getter" do
-      @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      @new_user.should_not respond_to(:unknown_method_for_a_user)
-      @new_user.should respond_to(:fullname)
-    end
-
-    it "handles respond_to for setter" do
-      @new_user = Foo::User.new
-      @new_user.should respond_to(:fullname=)
-    end
-
-    it "handles respond_to for query" do
-      @new_user = Foo::User.new
-      @new_user.should respond_to(:fullname?)
-    end
-
-    it "handles has_data? for getter" do
-      @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      @new_user.should_not have_data(:unknown_method_for_a_user)
-      @new_user.should have_data(:fullname)
-    end
-
-    it "handles get_data for getter" do
-      @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      @new_user.get_data(:unknown_method_for_a_user).should be_nil
-      @new_user.get_data(:fullname).should == 'Mayonegg'
-    end
   end
 
   context "mapping data, metadata and error data to Ruby objects" do
@@ -308,26 +259,6 @@ describe Her::Model::ORM do
     end
   end
 
-  context "assigning new resource data" do
-    before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
-        builder.use Faraday::Request::UrlEncoded
-        builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
-        end
-      end
-
-      spawn_model "Foo::User"
-      @user = Foo::User.find(1)
-    end
-
-    it "handles data update through #assign_attributes" do
-      @user.assign_attributes :active => true
-      @user.should be_active
-    end
-  end
-
   context "deleting resources" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
@@ -451,65 +382,6 @@ describe Her::Model::ORM do
       hash[Foo::User.find(1)] = false
       hash.size.should == 1
       hash.should == { user => false }
-    end
-  end
-
-  context "checking dirty attributes" do
-    before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
-        builder.use Faraday::Request::UrlEncoded
-        builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
-          stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
-          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
-        end
-      end
-
-      spawn_model "Foo::User" do
-        attributes :fullname, :email
-      end
-    end
-
-    context "for existing resource" do
-      it "tracks dirty attributes" do
-        user = Foo::User.find(1)
-        user.fullname = "Tobias Fünke"
-        user.fullname_changed?.should be_true
-        user.email_changed?.should be_false
-        user.should be_changed
-        user.save
-        user.should_not be_changed
-      end
-    end
-
-    context "for new resource" do
-      it "tracks dirty attributes" do
-        user = Foo::User.new
-        user.fullname = "Tobias Fünke"
-        user.fullname_changed?.should be_true
-        user.should be_changed
-        user.save
-        user.should_not be_changed
-      end
-    end
-  end
-
-  context "validating attributes" do
-    before do
-      spawn_model "Foo::User" do
-        attributes :fullname, :email
-        validates_presence_of :fullname
-        validates_presence_of :email
-      end
-    end
-
-    it "validates attributes when calling #valid?" do
-      user = Foo::User.new
-      user.should_not be_valid
-      user.fullname = "Tobias Fünke"
-      user.email = "tobias@bluthcompany.com"
-      user.should be_valid
     end
   end
 
