@@ -10,11 +10,7 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        if self.class.include_root_in_json
-          { (self.class.include_root_in_json == true ? self.class.root_element : self.class.include_root_in_json) => attributes.dup }
-        else
-          attributes.dup
-        end
+        self.class.include_root_in_json? ? { self.class.included_root_element => attributes.dup } : attributes.dup
       end
 
       module ClassMethods
@@ -22,23 +18,67 @@ module Her
         #
         # @param [Hash] data
         def parse(data)
-          if parse_root_in_json
-            parse_root_in_json == true ? data[root_element.to_sym] : data[parse_root_in_json]
-          else
-            data
-          end
+          parse_root_in_json? ? data[parsed_root_element] : data
         end
 
         # Return or change the value of `include_root_in_json`
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     include_root_in_json true
+        #   end
         def include_root_in_json(value=nil)
           return @include_root_in_json if value.nil?
           @include_root_in_json = value
         end
 
         # Return or change the value of `parse_root_in`
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     parse_root_in_json true
+        #   end
         def parse_root_in_json(value=nil)
           return @parse_root_in_json if value.nil?
           @parse_root_in_json = value
+        end
+
+        # Return or change the value of `root_element`
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     parse_root_in_json true
+        #     root_element :huh
+        #   end
+        #
+        #   user = User.find(1) # { :huh => { :id => 1, :name => "Tobias" } }
+        #   user.name # => "Tobias"
+        def root_element(value=nil)
+          return @root_element if value.nil?
+          @root_element = value
+        end
+
+        # @private
+        def parse_root_in_json?
+          @parse_root_in_json
+        end
+
+        # @private
+        def include_root_in_json?
+          @include_root_in_json
+        end
+
+        # @private
+        def included_root_element
+          include_root_in_json == true ? root_element.to_sym : include_root_in_json
+        end
+
+        # @private
+        def parsed_root_element
+          parse_root_in_json == true ? root_element.to_sym : parse_root_in_json
         end
       end
     end

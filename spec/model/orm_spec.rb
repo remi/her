@@ -395,7 +395,7 @@ describe Her::Model::ORM do
 
       it "wraps params in the element name" do
         @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-        @new_user.to_params.should == { 'user' => { :fullname => "Tobias Fünke" } }
+        @new_user.to_params.should == { :user => { :fullname => "Tobias Fünke" } }
       end
     end
 

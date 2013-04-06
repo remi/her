@@ -70,12 +70,6 @@ module Her
             parameters.delete($1.to_sym) || parameters.delete("_#{$1}".to_sym) || raise(Her::Errors::PathError, "Missing :_#{$1} parameter to build the request path. Path is `#{path}`. Parameters are `#{parameters.inspect}`.")
           end
         end
-
-        # Return or change the value of `root_element`
-        def root_element(value=nil)
-          return @root_element if value.nil?
-          @root_element = value
-        end
       end
     end
   end

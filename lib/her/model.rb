@@ -23,50 +23,39 @@ module Her
   module Model
     extend ActiveSupport::Concern
 
-    # Instance methods
+    # Her modules
+    include Her::Model::Base
     include Her::Model::Attributes
     include Her::Model::ORM
+    include Her::Model::HTTP
     include Her::Model::Parse
     include Her::Model::Introspection
     include Her::Model::Paths
     include Her::Model::Associations
     include Her::Model::NestedAttributes
+
+    # Supported ActiveModel modules
     include ActiveModel::Validations
     include ActiveModel::Conversion
     include ActiveModel::Dirty
+    include ActiveModel::Naming
+    include ActiveModel::Translation
 
     # Class methods
     included do
-      extend Her::Model::Base
-      extend Her::Model::HTTP
-      extend ActiveModel::Naming
-      extend ActiveModel::Translation
+      # Define the root element name, used when `parse_root_in_json` is set to `true`
+      root_element self.name.split("::").last.underscore.to_sym
 
+      # Define resource and collection paths
+      collection_path "#{root_element.to_s.pluralize}"
+      resource_path "#{root_element.to_s.pluralize}/:id"
+
+      # Assign the default API
+      uses_api Her::API.default_api
+
+      # Configure ActiveModel callbacks
       extend ActiveModel::Callbacks
       define_model_callbacks :create, :update, :save, :find, :destroy
-
-      # Define default settings
-      root_element self.name.split("::").last.underscore
-      base_path = root_element.pluralize
-      collection_path "#{base_path}"
-      resource_path "#{base_path}/:id"
-      uses_api Her::API.default_api
-    end
-
-    # Returns true if attribute_name is
-    # * in orm data
-    # * an association
-    def has_key?(attribute_name)
-      has_data?(attribute_name) ||
-      has_association?(attribute_name)
-    end
-
-    # Returns
-    # * the value of the attribute_nane attribute if it's in orm data
-    # * the resource/collection corrsponding to attribute_name if it's an association
-    def [](attribute_name)
-      get_data(attribute_name) ||
-      get_association(attribute_name)
     end
   end
 end
