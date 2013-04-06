@@ -70,6 +70,11 @@ module Her
             parameters.delete($1.to_sym) || parameters.delete("_#{$1}".to_sym) || raise(Her::Errors::PathError, "Missing :_#{$1} parameter to build the request path. Path is `#{path}`. Parameters are `#{parameters.inspect}`.")
           end
         end
+
+        # @private
+        def build_request_path_from_string_or_symbol(path, attrs={})
+          path.is_a?(Symbol) ? "#{build_request_path(attrs)}/#{path}" : path
+        end
       end
     end
   end
