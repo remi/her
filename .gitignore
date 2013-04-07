@@ -5,3 +5,4 @@ pkg/*
 rake
 tmp
 .env
+*.db
