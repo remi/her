@@ -11,6 +11,10 @@ class Consumer < Sinatra::Base
 
   helpers Sprockets::Helpers
 
+  before do
+    $strio.truncate(0)
+  end
+
   # GET /
   get '/' do
     haml :index
