@@ -65,12 +65,12 @@ module Her
         #
         # @example
         #   class User
-        #     include Her::API
+        #     include Her::Model
         #     has_many :articles
         #   end
         #
         #   class Article
-        #     include Her::API
+        #     include Her::Model
         #   end
         #
         #   @user = User.find(1)
@@ -115,16 +115,16 @@ module Her
         # Define an *has_one* association.
         #
         # @param [Symbol] name The name of the model
-        # @param [Hash] attrs Options (currently not used)
+        # @param [Hash] attrs Options
         #
         # @example
         #   class User
-        #     include Her::API
+        #     include Her::Model
         #     has_one :organization
         #   end
         #
         #   class Organization
-        #     include Her::API
+        #     include Her::Model
         #   end
         #
         #   @user = User.find(1)
@@ -162,19 +162,19 @@ module Her
         # Define a *belongs_to* association.
         #
         # @param [Symbol] name The name of the model
-        # @param [Hash] attrs Options (currently not used)
+        # @param [Hash] attrs Options
         #
         # @example
         #   class User
-        #     include Her::API
+        #     include Her::Model
         #     belongs_to :team, :class_name => "Group"
         #   end
         #
         #   class Group
-        #     include Her::API
+        #     include Her::Model
         #   end
         #
-        #   @user = User.find(1)
+        #   @user = User.find(1) # => #<User(users/1) id=1 team_id=2 name="Tobias">
         #   @user.team # => #<Team(teams/2) id=2 name="Developers">
         #   # Fetched via GET "/teams/2"
         def belongs_to(name, attrs={})
