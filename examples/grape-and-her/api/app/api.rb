@@ -18,7 +18,8 @@ class API < Grape::API
 
     desc 'Create a new user'
     post nil, :rabl => "users/show" do
-      @user = User.create(params[:user])
+      @user = User.new(params[:user])
+      error!({ :errors => @user.errors.full_messages }, 400) unless @user.save
     end
   end
 end

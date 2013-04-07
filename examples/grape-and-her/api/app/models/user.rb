@@ -3,7 +3,7 @@ class User < ActiveRecord::Base
   belongs_to :organization
 
   # Validations
-  validate :email, presence: true, email: true
-  validate :fullname, presence: true
-  validate :organization, presence: true
+  validates :email, presence: true
+  validates :fullname, presence: true
+  validates :organization, presence: true
 end
