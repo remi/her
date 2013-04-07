@@ -1,0 +1,2 @@
+api: bundle exec unicorn -p $API_PORT -c ./api/config/unicorn.rb -E $RACK_ENV
+consumer: bundle exec unicorn -p $CONSUMER_PORT -c ./consumer/config/unicorn.rb -E $RACK_ENV
