@@ -1,6 +1,9 @@
 class Organization
   include Her::Model
 
+  # Attributes
+  attributes :name
+
   # Associations
   has_many :users
 

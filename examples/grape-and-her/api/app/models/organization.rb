@@ -3,5 +3,5 @@ class Organization < ActiveRecord::Base
   has_many :users
 
   # Validations
-  validate :name, presence: true
+  validates :name, presence: true
 end
