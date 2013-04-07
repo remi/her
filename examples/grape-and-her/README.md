@@ -12,6 +12,9 @@ $ cd examples/grape-and-her
 $ cd api; bundle install; cd ..
 $ cd consumer; bundle install; cd ..
 
+# Create database
+$ cd api; sqlite3 db/development.db ""; bundle exec rake db:migrate; cd ..
+
 # Start foreman with the Procfile
 $ foreman start
 ```
