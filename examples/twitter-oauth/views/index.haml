@@ -1,9 +1,0 @@
-!!!
-%html
-%body
-  %ul
-    - @tweets.each do |tweet|
-      %li{ :style => "margin: 0 0 10px" }
-        %span= tweet.text
-        %br
-        %strong= tweet.username
