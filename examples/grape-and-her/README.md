@@ -1,18 +1,23 @@
 # Grape + Her example
 
-This is an example of how to use Her to consume a simple REST API.
+This is an example of how to use Her to consume a simple API. It consists of two separate applications, a REST API (powered by `grape` and `activerecord`) and a consumer application (powered by `sinatra` and `her`).
 
-## Usage
+![](http://i.imgur.com/AGfYwzl.png)
+
+## Installation and Usage
 
 ```shell
+# Clone the repository
+$ git clone git://github.com/remiprev/her.git
+
 # Go to the example directory
-$ cd examples/grape-and-her
+$ cd her/examples/grape-and-her
 
 # Go to each application and run `bundle install`
 $ cd api; bundle install; cd ..
 $ cd consumer; bundle install; cd ..
 
-# Create database
+# Create the API database
 $ cd api; sqlite3 db/development.db ""; bundle exec rake db:migrate; cd ..
 
 # Start foreman with the Procfile
