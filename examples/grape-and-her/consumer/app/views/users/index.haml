@@ -1,0 +1,27 @@
+%h2 Create new user
+
+- if @user.response_errors
+  %ul.errors
+    - @user.response_errors.each do |error|
+      %li= error
+
+%form{ url: "/users", method: 'post' }
+  %p
+    %label Email
+    %input{ type: 'email', name: 'user[email]', value: @user.email }
+  %p
+    %label Full Name
+    %input{ type: 'text', name: 'user[fullname]', value: @user.fullname }
+  %p
+    %label Organization
+    %input{ type: 'text', name: 'user[organization_id]', value: 1 }
+  %p
+    %button{ type: 'submit' } Create
+
+- if @users
+  %hr
+  %h3 Current users
+  %ul
+    - @users.each do |user|
+      %li
+        %a{ href: "/users/#{user.id}" }= user.email

@@ -1,0 +1,23 @@
+source 'https://rubygems.org'
+
+# Server
+gem 'unicorn'
+
+# Web
+gem 'sinatra'
+gem 'sinatra-reloader'
+gem 'haml'
+gem 'her'
+gem 'multi_json'
+
+# Assets
+gem 'sass'
+gem 'sprockets'
+gem 'sprockets-sass'
+gem 'sprockets-helpers'
+
+group :development do
+  gem 'pry'
+  gem 'rake'
+  gem 'foreman'
+end
