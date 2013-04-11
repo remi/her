@@ -491,7 +491,6 @@ You can easily define custom requests for your models using `custom_get`, `custo
 class User
   include Her::Model
   custom_get :popular, :unpopular
-  custom_get :me, :cached => true
   custom_post :from_default
 end
 
@@ -502,12 +501,6 @@ User.popular
 User.unpopular
 # GET /users/unpopular
 # [#<User id=3>, #<User id=4>]
-
-User.me
-# GET /users/me
-# #<User id=1>
-User.me # Once fetched, it doesn’t try to fetch it again
-# #<User id=1>
 
 User.from_default(:name => "Maeby Fünke")
 # POST /users/from_default?name=Maeby+Fünke

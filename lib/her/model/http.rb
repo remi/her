@@ -78,14 +78,7 @@ module Her
             paths.each do |path|
               metaclass.send(:define_method, path.to_sym) do |*attrs|
                 attrs = attrs.first || Hash.new
-
-                if attrs.present? || opts[:cache] != true
-                  send(method, path, attrs)
-                else
-                  cache_variable = "@#{path}".to_sym
-                  cached_data = (instance_variable_defined?(cache_variable) && instance_variable_get(cache_variable))
-                  cached_data || instance_variable_set(cache_variable, send(method, path, attrs))
-                end
+                send(method, path, attrs)
               end
             end
           end
