@@ -161,13 +161,27 @@ describe Her::Model::HTTP do
     subject { Foo::User }
 
     describe :custom_get do
-      before { Foo::User.custom_get :popular, :recent }
-      it { should respond_to(:popular) }
-      it { should respond_to(:recent) }
+      context "without cache" do
+        before { Foo::User.custom_get :popular, :recent }
+        it { should respond_to(:popular) }
+        it { should respond_to(:recent) }
 
-      context "making the HTTP request" do
-        subject { Foo::User.popular }
-        its(:length) { should == 2 }
+        context "making the HTTP request" do
+          subject { Foo::User.popular }
+          its(:length) { should == 2 }
+        end
+      end
+
+      context "with cache" do
+        before do
+          Foo::User.custom_get :popular, :recent, :cache => true
+          Foo::User.should_receive(:get).once.and_call_original
+        end
+
+        it "only calls the HTTP method once" do
+          Foo::User.popular
+          Foo::User.popular
+        end
       end
     end
 
