@@ -90,7 +90,9 @@ module Her
             method_attrs = method_attrs[0] || {}
             klass = self.class.her_nearby_class(attrs[:class_name])
 
-            return Her::Collection.new if @attributes.include?(name) && @attributes[name].empty? && method_attrs.empty?
+            if @attributes.include?(name) && @attributes[name].empty? && method_attrs.empty?
+              return Her::Collection.new(@attributes[name], @attributes[name].try(:metadata), @attributes[name].try(:errors), @attributes[name].try(:klass))
+            end
 
             if @attributes[name].blank? || method_attrs.any?
               path = begin
