@@ -34,7 +34,7 @@ module Her
         end
 
         def method_missing(method, *args, &blk)
-          fetch.send(method, *args)
+          fetch.send(method, *args, &blk)
         end
       end
     end
