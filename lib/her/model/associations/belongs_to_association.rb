@@ -11,16 +11,16 @@ module Her
         end
 
         def fetch
-          return nil if @parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @method_attrs.empty?
+          return nil if @parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @query_attrs.empty?
 
-          if @parent.attributes[@name].blank? || @method_attrs.any?
+          if @parent.attributes[@name].blank? || @query_attrs.any?
             path = begin
-              @klass.build_request_path(@parent.attributes.merge(@method_attrs.merge(@klass.primary_key => @parent.attributes[@opts[:foreign_key].to_sym])))
+              @klass.build_request_path(@parent.attributes.merge(@query_attrs.merge(@klass.primary_key => @parent.attributes[@opts[:foreign_key].to_sym])))
             rescue Her::Errors::PathError
               return nil
             end
 
-            @parent.attributes[@name] = @klass.get_resource("#{path}", @method_attrs)
+            @parent.attributes[@name] = @klass.get_resource("#{path}", @query_attrs)
           end
 
           @parent.attributes[@name]

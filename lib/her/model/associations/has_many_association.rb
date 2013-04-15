@@ -11,16 +11,16 @@ module Her
         end
 
         def fetch
-          return Her::Collection.new if @parent.attributes.include?(@name) && @parent.attributes[@name].empty? && @method_attrs.empty?
+          return Her::Collection.new if @parent.attributes.include?(@name) && @parent.attributes[@name].empty? && @query_attrs.empty?
 
-          if @parent.attributes[@name].blank? || @method_attrs.any?
+          if @parent.attributes[@name].blank? || @query_attrs.any?
             path = begin
-              @parent.request_path(@method_attrs)
+              @parent.request_path(@query_attrs)
             rescue Her::Errors::PathError
               return nil
             end
 
-            @parent.attributes[@name] = @klass.get_collection("#{path}#{@opts[:path]}", @method_attrs)
+            @parent.attributes[@name] = @klass.get_collection("#{path}#{@opts[:path]}", @query_attrs)
           end
 
           inverse_of = @opts[:inverse_of] || @parent.class.name.split('::').last.tableize.singularize

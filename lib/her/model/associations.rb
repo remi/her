@@ -91,8 +91,9 @@ module Her
           }.merge(attrs)
           (associations[:has_many] ||= []) << attrs
 
-          define_method(name) do |*method_attrs|
-            Her::Model::Associations::HasManyAssociation.new(self, attrs, *method_attrs)
+          define_method(name) do
+            cached_name = "@_her_association_#{name}".to_sym
+            (instance_variable_defined?(cached_name) && instance_variable_get(cached_name)) || instance_variable_set(cached_name, Her::Model::Associations::HasManyAssociation.new(self, attrs))
           end
         end
 
@@ -123,8 +124,9 @@ module Her
           }.merge(attrs)
           (associations[:has_one] ||= []) << attrs
 
-          define_method(name) do |*method_attrs|
-            Her::Model::Associations::HasOneAssociation.new(self, attrs, *method_attrs)
+          define_method(name) do
+            cached_name = "@_her_association_#{name}".to_sym
+            (instance_variable_defined?(cached_name) && instance_variable_get(cached_name)) || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.new(self, attrs))
           end
         end
 
@@ -156,8 +158,9 @@ module Her
           }.merge(attrs)
           (associations[:belongs_to] ||= []) << attrs
 
-          define_method(name) do |*method_attrs|
-            Her::Model::Associations::BelongsToAssociation.new(self, attrs, *method_attrs)
+          define_method(name) do
+            cached_name = "@_her_association_#{name}".to_sym
+            (instance_variable_defined?(cached_name) && instance_variable_get(cached_name)) || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, attrs))
           end
         end
       end

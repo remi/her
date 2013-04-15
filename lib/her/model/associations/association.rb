@@ -2,18 +2,29 @@ module Her
   module Model
     module Associations
       class Association
-        def initialize(parent, opts = {}, *method_attrs)
+        attr_accessor :query_attrs
+
+        def initialize(parent, opts = {})
           @parent = parent
           @opts = opts
-          @method_attrs = method_attrs[0] || {}
+          @query_attrs = {}
 
           @klass = @parent.class.her_nearby_class(@opts[:class_name])
           @name = @opts[:name]
         end
 
+        def where(attrs = {})
+          return self if attrs.blank?
+
+          association = clone.tap do |association|
+            association.query_attrs.merge!(attrs)
+          end
+        end
+
         def class
           fetch.class
         end
+        alias :all :where
 
         def nil?
           fetch.nil?
