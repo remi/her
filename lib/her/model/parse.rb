@@ -28,9 +28,13 @@ module Her
         #     include Her::Model
         #     include_root_in_json true
         #   end
-        def include_root_in_json(value=nil)
-          return @include_root_in_json if value.nil?
-          @include_root_in_json = value
+        def include_root_in_json(value = nil)
+          @_her_include_root_in_json ||= begin
+            superclass.include_root_in_json if superclass.respond_to?(:include_root_in_json)
+          end
+
+          return @_her_include_root_in_json unless value
+          @_her_include_root_in_json = value
         end
 
         # Return or change the value of `parse_root_in`
@@ -40,12 +44,16 @@ module Her
         #     include Her::Model
         #     parse_root_in_json true
         #   end
-        def parse_root_in_json(value=nil)
-          return @parse_root_in_json if value.nil?
-          @parse_root_in_json = value
+        def parse_root_in_json(value = nil)
+          @_her_parse_root_in_json ||= begin
+            superclass.parse_root_in_json if superclass.respond_to?(:parse_root_in_json)
+          end
+
+          return @_her_parse_root_in_json unless value
+          @_her_parse_root_in_json = value
         end
 
-        # Return or change the value of `root_element`
+        # Return or change the value of `root_element`. Always defaults to the base name of the class.
         #
         # @example
         #   class User
@@ -56,19 +64,22 @@ module Her
         #
         #   user = User.find(1) # { :huh => { :id => 1, :name => "Tobias" } }
         #   user.name # => "Tobias"
-        def root_element(value=nil)
-          return @root_element if value.nil?
-          @root_element = value
+        def root_element(value = nil)
+          if value.nil?
+            @_her_root_element ||= self.name.split("::").last.underscore.to_sym
+          else
+            @_her_root_element = value.to_sym
+          end
         end
 
         # @private
         def parse_root_in_json?
-          @parse_root_in_json
+          parse_root_in_json
         end
 
         # @private
         def include_root_in_json?
-          @include_root_in_json
+          include_root_in_json
         end
 
         # @private

@@ -28,6 +28,20 @@ describe Her::Model::Parse do
         @new_user.to_params.should == { :person => { :fullname => "Tobias Fünke" } }
       end
     end
+
+    context "when include_root_in_json is set in the parent class" do
+      before do
+        spawn_model("Foo::Model") { include_root_in_json true }
+
+        class User < Foo::Model; end
+        @spawned_models << :User
+      end
+
+      it "wraps params with the class name" do
+        @new_user = User.new(:fullname => "Tobias Fünke")
+        @new_user.to_params.should == { :user => { :fullname => "Tobias Fünke" } }
+      end
+    end
   end
 
   context "when parse_root_in_json is set" do
@@ -84,6 +98,26 @@ describe Her::Model::Parse do
 
       it "parse the data with the symbol" do
         @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
+        @new_user.fullname.should == "Lindsay Fünke"
+      end
+    end
+
+    context "when parse_root_in_json is set from the parent class" do
+      before do
+        Her::API.default_api.connection.adapter :test do |stub|
+          stub.post("/users") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
+        end
+
+        spawn_model("Foo::Model") { parse_root_in_json true }
+        class User < Foo::Model
+          collection_path "/users"
+        end
+
+        @spawned_models << :User
+      end
+
+      it "parse the data with the symbol" do
+        @new_user = User.create(:fullname => "Lindsay Fünke")
         @new_user.fullname.should == "Lindsay Fünke"
       end
     end

@@ -28,10 +28,14 @@ module Her
         #    primary_key 'UserId'
         #  end
         #
-        # @param [Symbol] field
-        def primary_key(field = nil)
-          return @her_primary_key if field.nil?
-          @her_primary_key = field.to_sym
+        # @param [Symbol] value
+        def primary_key(value = nil)
+          @_her_primary_key ||= begin
+            superclass.primary_key.to_sym if superclass.respond_to?(:primary_key)
+          end
+
+          return @_her_primary_key unless value
+          @_her_primary_key = value.to_sym
         end
 
         # Defines a custom collection path for the resource
@@ -41,7 +45,7 @@ module Her
         #    include Her::Model
         #    collection_path "/users"
         #  end
-        def collection_path(path=nil)
+        def collection_path(path = nil)
           @_her_collection_path ||= begin
             superclass.collection_path.dup if superclass.respond_to?(:collection_path)
           end
@@ -74,7 +78,7 @@ module Her
         #    resource_path '/users/:id'
         #  end
         #
-        def resource_path(path=nil)
+        def resource_path(path = nil)
           @_her_resource_path ||= begin
             superclass.resource_path.dup if superclass.respond_to?(:resource_path)
           end
