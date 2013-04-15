@@ -593,6 +593,27 @@ end
 # POST /organizations/2/users
 ```
 
+### Inheritance
+
+If all your models share the same settings, you might want to make them children of a class and only include `Her::Model` in that class.
+
+```ruby
+module MyAPI
+  class Model
+    include Her::Model
+
+    parse_root_in_json true
+    include_root_in_json true
+  end
+end
+
+class User < MyAPI::Model
+end
+
+User.find(1)
+# GET /users/1
+```
+
 ### Multiple APIs
 
 It is possible to use different APIs for different models. Instead of calling `Her::API.setup`, you can create instances of `Her::API`:

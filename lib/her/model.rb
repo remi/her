@@ -43,13 +43,6 @@ module Her
 
     # Class methods
     included do
-      # Define the root element name, used when `parse_root_in_json` is set to `true`
-      root_element self.name.split("::").last.underscore.to_sym
-
-      # Define resource and collection paths
-      collection_path "#{root_element.to_s.pluralize}"
-      resource_path "#{root_element.to_s.pluralize}/:id"
-
       # Assign the default API
       uses_api Her::API.default_api
 
