@@ -20,10 +20,10 @@ module Her
               return nil
             end
 
-            @parent.attributes[@name] = @klass.get_resource("#{path}", @query_attrs)
+            @klass.get_resource("#{path}", @query_attrs)
+          else
+            @parent.attributes[@name]
           end
-
-          @parent.attributes[@name]
         end
       end
     end

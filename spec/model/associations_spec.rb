@@ -156,6 +156,7 @@ describe Her::Model::Associations do
 
     it "maps an array of included data through has_one" do
       @user_with_included_data.role.should be_a(Foo::Role)
+      @user_with_included_data.role.object_id.should == @user_with_included_data.role.object_id
       @user_with_included_data.role.id.should == 1
       @user_with_included_data.role.body.should == "Admin"
     end
@@ -198,6 +199,7 @@ describe Her::Model::Associations do
 
     it "pass query string parameters when additional arguments are passed" do
       @user_without_included_data.organization.where(:admin => true).name.should == "Bluth Company (admin)"
+      @user_without_included_data.organization.name.should == "Bluth Company"
     end
 
     [:create, :save_existing, :destroy].each do |type|
