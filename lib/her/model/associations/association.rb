@@ -15,14 +15,7 @@ module Her
 
         def where(attrs = {})
           return self if attrs.blank?
-
-          association = clone.tap do |association|
-            association.query_attrs.merge!(attrs)
-          end
-        end
-
-        def class
-          fetch.class
+          self.clone.tap { |a| a.query_attrs = a.query_attrs.merge(attrs) }
         end
 
         def nil?
