@@ -12,7 +12,13 @@ module Her
       #   @user = User.find(1)
       #   p @user # => #<User(/users/1) id=1 name="Tobias Fünke">
       def inspect
-        "#<#{self.class}(#{request_path}) #{attributes.keys.map { |k| "#{k}=#{attribute_for_inspect(send(k))}" }.join(" ")}>"
+        resource_path = begin
+          request_path
+        rescue Her::Errors::PathError => e
+          "<unknown path, missing `#{e.missing_parameter}`>"
+        end
+
+        "#<#{self.class}(#{resource_path}) #{attributes.keys.map { |k| "#{k}=#{attribute_for_inspect(send(k))}" }.join(" ")}>"
       end
 
       private

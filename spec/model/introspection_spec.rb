@@ -12,10 +12,14 @@ describe Her::Model::Introspection do
           stub.get("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
           stub.put("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
           stub.delete("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
+          stub.get("/projects/1/comments") { |env| [200, {}, [{ :id => 1, :body => "Hello!" }].to_json] }
         end
       end
 
       spawn_model "Foo::User"
+      spawn_model "Foo::Comment" do
+        collection_path "projects/:project_id/comments"
+      end
     end
 
     describe "#inspect" do
@@ -35,6 +39,14 @@ describe Her::Model::Introspection do
         @user.inspect.should include("name=\"Tobias Funke\"")
         @user.inspect.should include("password=\"filtered\"")
         @user.inspect.should_not include("password=\"Funke\"")
+      end
+    end
+
+    describe "#inspect with errors in resource path" do
+      it "prints the resource path as “unknown”" do
+        @comment = Foo::Comment.all(:project_id => 1).first
+        path = '<unknown path, missing `project_id`>'
+        ["#<Foo::Comment(#{path}) body=\"Hello!\" id=1>", "#<Foo::Comment(#{path}) id=1 body=\"Hello!\">"].should include(@comment.inspect)
       end
     end
   end
