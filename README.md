@@ -593,6 +593,20 @@ end
 # POST /organizations/2/users
 ```
 
+### Custom primary keys
+
+If your record uses an attribute other than `:id` to identify itself, specify it using the `primary_key` method:
+
+```ruby
+class User
+  include Her::Model
+  primary_key :_id
+end
+
+user = User.find(1) # GET /users/1 returns { "_id": 1, "name": "Tobias" }
+user.save # PUT /users/1
+```
+
 ### Inheritance
 
 If all your models share the same settings, you might want to make them children of a class and only include `Her::Model` in that class.
