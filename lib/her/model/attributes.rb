@@ -22,6 +22,7 @@ module Her
       # @private
       def self.initialize_collection(klass, parsed_data={})
         collection_data = parsed_data[:data].map do |item_data|
+          klass = klass.class_for_data(klass.parse(item_data))
           resource = klass.new(klass.parse(item_data))
           resource.run_callbacks :find
           resource
@@ -158,6 +159,13 @@ module Her
               @attributes.include?(attribute) && @attributes[attribute].present?
             end
           end
+        end
+        
+        # Returns the class that should be instantiated to represent the given data
+        #
+        # @param [Array] parsed_data
+        def class_for_data(parsed_data)
+          self
         end
 
         # @private
