@@ -49,6 +49,10 @@ module Her
       # Define the default primary key
       primary_key :id
 
+      # Define default storage variables for errors and metadata
+      store_errors :response_errors
+      store_metadata :metadata
+
       # Configure ActiveModel callbacks
       extend ActiveModel::Callbacks
       define_model_callbacks :create, :update, :save, :find, :destroy
