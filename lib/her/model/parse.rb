@@ -36,6 +36,7 @@ module Her
           return @_her_include_root_in_json unless value
           @_her_include_root_in_json = value
         end
+        alias :include_root_in_json? :include_root_in_json
 
         # Return or change the value of `parse_root_in`
         #
@@ -52,6 +53,7 @@ module Her
           return @_her_parse_root_in_json unless value
           @_her_parse_root_in_json = value
         end
+        alias :parse_root_in_json? :parse_root_in_json
 
         # Return or change the value of `root_element`. Always defaults to the base name of the class.
         #
@@ -73,23 +75,13 @@ module Her
         end
 
         # @private
-        def parse_root_in_json?
-          parse_root_in_json
-        end
-
-        # @private
-        def include_root_in_json?
-          include_root_in_json
-        end
-
-        # @private
         def included_root_element
-          include_root_in_json == true ? root_element.to_sym : include_root_in_json
+          include_root_in_json == true ? root_element : include_root_in_json
         end
 
         # @private
         def parsed_root_element
-          parse_root_in_json == true ? root_element.to_sym : parse_root_in_json
+          parse_root_in_json == true ? root_element : parse_root_in_json
         end
       end
     end

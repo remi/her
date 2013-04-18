@@ -31,7 +31,7 @@ module Her
         # @param [Symbol] value
         def primary_key(value = nil)
           @_her_primary_key ||= begin
-            superclass.primary_key.to_sym if superclass.respond_to?(:primary_key)
+            superclass.primary_key if superclass.respond_to?(:primary_key)
           end
 
           return @_her_primary_key unless value
@@ -110,7 +110,8 @@ module Her
 
           path.gsub(/:([\w_]+)/) do
             # Look for :key or :_key, otherwise raise an exception
-            parameters.delete($1.to_sym) || parameters.delete("_#{$1}".to_sym) || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path. Path is `#{path}`. Parameters are `#{parameters.inspect}`.", $1))
+            value = $1.to_sym
+            parameters.delete(value) || parameters.delete(:"_#{value}") || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path. Path is `#{path}`. Parameters are `#{parameters.inspect}`.", $1))
           end
         end
 

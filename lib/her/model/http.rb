@@ -40,10 +40,10 @@ module Her
         # - <method>_collection(path, attrs, &block)
         # - <method>_resource(path, attrs, &block)
         # - custom_<method>(path, attrs)
-        %w{GET POST PUT PATCH DELETE}.map(&:downcase).map(&:to_sym).each do |method|
+        [:get, :post, :put, :patch, :delete].each do |method|
           define_method method do |path, attrs={}|
             path = build_request_path_from_string_or_symbol(path, attrs)
-            send("#{method}_raw".to_sym, path, attrs) do |parsed_data, response|
+            send(:"#{method}_raw", path, attrs) do |parsed_data, response|
               if parsed_data[:data].is_a?(Array)
                 new_collection(parsed_data)
               else
@@ -52,31 +52,31 @@ module Her
             end
           end
 
-          define_method "#{method}_raw".to_sym do |path, attrs={}, &block|
+          define_method :"#{method}_raw" do |path, attrs={}, &block|
             path = build_request_path_from_string_or_symbol(path, attrs)
             request(attrs.merge(:_method => method, :_path => path), &block)
           end
 
-          define_method "#{method}_collection".to_sym do |path=nil, attrs={}|
+          define_method :"#{method}_collection" do |path=nil, attrs={}|
             path = build_request_path_from_string_or_symbol(path, attrs)
-            send("#{method}_raw".to_sym, build_request_path_from_string_or_symbol(path, attrs), attrs) do |parsed_data, response|
+            send(:"#{method}_raw", build_request_path_from_string_or_symbol(path, attrs), attrs) do |parsed_data, response|
               new_collection(parsed_data)
             end
           end
 
-          define_method "#{method}_resource".to_sym do |path, attrs={}|
+          define_method :"#{method}_resource" do |path, attrs={}|
             path = build_request_path_from_string_or_symbol(path, attrs)
-            send("#{method}_raw".to_sym, path, attrs) do |parsed_data, response|
+            send(:"#{method}_raw", path, attrs) do |parsed_data, response|
               new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
             end
           end
 
-          define_method "custom_#{method}".to_sym do |*paths|
+          define_method :"custom_#{method}" do |*paths|
             metaclass = (class << self; self; end)
             opts = paths.last.is_a?(Hash) ? paths.pop : Hash.new
 
             paths.each do |path|
-              metaclass.send(:define_method, path.to_sym) do |*attrs|
+              metaclass.send(:define_method, path) do |*attrs|
                 attrs = attrs.first || Hash.new
                 send(method, path, attrs)
               end
