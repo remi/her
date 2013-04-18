@@ -140,14 +140,14 @@ describe Her::Model::Attributes do
   context "handling metadata and errors" do
     before do
       spawn_model 'Foo::User' do
-        store_errors :errors
+        store_response_errors :errors
         store_metadata :my_data
       end
 
       @user = Foo::User.new(:_errors => ["Foo", "Bar"], :_metadata => { :secret => true })
     end
 
-    it "should return errors stored in the method provided by `store_errors`" do
+    it "should return response_errors stored in the method provided by `store_response_errors`" do
       @user.errors.should == ["Foo", "Bar"]
     end
 

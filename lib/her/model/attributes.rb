@@ -168,21 +168,21 @@ module Her
           end
         end
 
-        def store_errors(value = nil)
-          if @_her_store_errors
-            remove_method @_her_store_errors
-            remove_method "#{@_her_store_errors}="
+        def store_response_errors(value = nil)
+          if @_her_store_response_errors
+            remove_method @_her_store_response_errors
+            remove_method "#{@_her_store_response_errors}="
           end
 
-          @_her_store_errors ||= begin
-            superclass.store_errors if superclass.respond_to?(:store_errors)
+          @_her_store_response_errors ||= begin
+            superclass.store_response_errors if superclass.respond_to?(:store_response_errors)
           end
 
-          return @_her_store_errors unless value
-          @_her_store_errors = value
+          return @_her_store_response_errors unless value
+          @_her_store_response_errors = value
 
-          define_method(@_her_store_errors) { @response_errors }
-          define_method("#{@_her_store_errors}=") { |value| @response_errors = value }
+          define_method(@_her_store_response_errors) { @response_errors }
+          define_method("#{@_her_store_response_errors}=") { |value| @response_errors = value }
         end
 
         def store_metadata(value = nil)

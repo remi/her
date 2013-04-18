@@ -12,6 +12,17 @@ Here is a list of backward-incompatible changes that were introduced while Her i
 
   Before 0.5, the `errors` method on an object would return an error list received from the server (the `:errors` key defined by the parsing middleware). But now, `errors` returns the error list generated after calling the `valid?` method (or any other similar validation method from `ActiveModel::Validations`). The error list returned from the server is now accessible from the `response_errors` method.
 
+  Since 0.5.5, Her provides a `store_response_errors` method, which allows you to choose the method which will return the response errors. You can use it to revert Her back to its original behavior (ie. `errors` returning the response errors):
+
+        class User
+          include Her::Model
+
+          store_response_errors :errors
+        end
+
+        user = User.create(:email => "foo") # POST /users returns { :errors => ["Email is invalid"] }
+        user.errors # => ["Email is invalid"]
+
 ## 0.2.4
 
 * Her no longer includes default middleware when making HTTP requests. The user has now to define all the needed middleware. Before:

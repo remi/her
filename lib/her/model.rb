@@ -50,7 +50,7 @@ module Her
       primary_key :id
 
       # Define default storage variables for errors and metadata
-      store_errors :response_errors
+      store_response_errors :response_errors
       store_metadata :metadata
 
       # Configure ActiveModel callbacks
