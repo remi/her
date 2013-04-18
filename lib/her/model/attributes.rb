@@ -160,18 +160,11 @@ module Her
           end
         end
 
-        # @private
-        def setter_method_names
-          @_her_setter_method_names ||= instance_methods.inject(Set.new) do |memo, method_name|
-            memo << method_name.to_s if method_name.to_s.end_with?('=')
-            memo
-          end
-        end
-
+        # Define the accessor in which the API response errors (obtained from the parsing middleware) will be stored
         def store_response_errors(value = nil)
           if @_her_store_response_errors
             remove_method @_her_store_response_errors
-            remove_method "#{@_her_store_response_errors}="
+            remove_method :"#{@_her_store_response_errors}="
           end
 
           @_her_store_response_errors ||= begin
@@ -182,13 +175,14 @@ module Her
           @_her_store_response_errors = value
 
           define_method(@_her_store_response_errors) { @response_errors }
-          define_method("#{@_her_store_response_errors}=") { |value| @response_errors = value }
+          define_method(:"#{@_her_store_response_errors}=") { |value| @response_errors = value }
         end
 
+        # Define the accessor in which the API response metadata (obtained from the parsing middleware) will be stored
         def store_metadata(value = nil)
           if @_her_store_metadata
             remove_method @_her_store_metadata
-            remove_method "#{@_her_store_metadata}="
+            remove_method :"#{@_her_store_metadata}="
           end
 
           @_her_store_metadata ||= begin
@@ -199,7 +193,15 @@ module Her
           @_her_store_metadata = value
 
           define_method(@_her_store_metadata) { @metadata }
-          define_method("#{@_her_store_metadata}=") { |value| @metadata = value }
+          define_method(:"#{@_her_store_metadata}=") { |value| @metadata = value }
+        end
+
+        # @private
+        def setter_method_names
+          @_her_setter_method_names ||= instance_methods.inject(Set.new) do |memo, method_name|
+            memo << method_name.to_s if method_name.to_s.end_with?('=')
+            memo
+          end
         end
       end
     end
