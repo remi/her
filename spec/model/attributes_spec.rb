@@ -136,4 +136,31 @@ describe Her::Model::Attributes do
       hash.should == { user => false }
     end
   end
+
+  context "handling metadata and errors" do
+    before do
+      spawn_model 'Foo::User' do
+        store_errors :errors
+        store_metadata :my_data
+      end
+
+      @user = Foo::User.new(:_errors => ["Foo", "Bar"], :_metadata => { :secret => true })
+    end
+
+    it "should return errors stored in the method provided by `store_errors`" do
+      @user.errors.should == ["Foo", "Bar"]
+    end
+
+    it "should remove the default method for errors" do
+      expect { @user.response_errors }.to raise_error(NoMethodError)
+    end
+
+    it "should return metadata stored in the method provided by `store_metadata`" do
+      @user.my_data.should == { :secret => true }
+    end
+
+    it "should remove the default method for metadata" do
+      expect { @user.metadata }.to raise_error(NoMethodError)
+    end
+  end
 end
