@@ -603,8 +603,8 @@ class User
   primary_key :_id
 end
 
-user = User.find(1) # GET /users/1 returns { "_id": 1, "name": "Tobias" }
-user.save # PUT /users/1
+user = User.find("4fd89a42ff204b03a905c535") # GET /users/1 returns { "_id": "4fd89a42ff204b03a905c535", "name": "Tobias" }
+user.save # PUT /users/4fd89a42ff204b03a905c535
 ```
 
 ### Inheritance
