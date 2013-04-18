@@ -4,7 +4,7 @@ module Her
     module Attributes
       extend ActiveSupport::Concern
 
-      attr_accessor :attributes, :metadata, :response_errors
+      attr_accessor :attributes
       alias :data :attributes
       alias :data= :attributes=
 
@@ -166,6 +166,40 @@ module Her
             memo << method_name.to_s if method_name.to_s.end_with?('=')
             memo
           end
+        end
+
+        def store_errors(value = nil)
+          if @_her_store_errors
+            remove_method @_her_store_errors
+            remove_method "#{@_her_store_errors}="
+          end
+
+          @_her_store_errors ||= begin
+            superclass.store_errors if superclass.respond_to?(:store_errors)
+          end
+
+          return @_her_store_errors unless value
+          @_her_store_errors = value
+
+          define_method(@_her_store_errors) { @response_errors }
+          define_method("#{@_her_store_errors}=") { |value| @response_errors = value }
+        end
+
+        def store_metadata(value = nil)
+          if @_her_store_metadata
+            remove_method @_her_store_metadata
+            remove_method "#{@_her_store_metadata}="
+          end
+
+          @_her_store_metadata ||= begin
+            superclass.store_metadata if superclass.respond_to?(:store_metadata)
+          end
+
+          return @_her_store_metadata unless value
+          @_her_store_metadata = value
+
+          define_method(@_her_store_metadata) { @metadata }
+          define_method("#{@_her_store_metadata}=") { |value| @metadata = value }
         end
       end
     end
