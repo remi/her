@@ -145,16 +145,16 @@ module Her
           attributes.each do |attribute|
             attribute = attribute.to_sym
 
-            define_method "#{attribute}".to_sym do
+            define_method attribute do
               @attributes.include?(attribute) ? @attributes[attribute] : nil
             end
 
-            define_method "#{attribute}=".to_sym do |value|
-              self.send("#{attribute}_will_change!".to_sym) if @attributes[attribute] != value
+            define_method :"#{attribute}=" do |value|
+              self.send(:"#{attribute}_will_change!") if @attributes[attribute] != value
               @attributes[attribute] = value
             end
 
-            define_method "#{attribute}?".to_sym do
+            define_method :"#{attribute}?" do
               @attributes.include?(attribute) && @attributes[attribute].present?
             end
           end
