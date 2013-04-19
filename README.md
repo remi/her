@@ -634,14 +634,14 @@ It is possible to use different APIs for different models. Instead of calling `H
 
 ```ruby
 # config/initializers/her.rb
-$my_api = Her::API.new
-$my_api.setup :url => "https://my_api.example.com" do |connection|
+MY_API = Her::API.new
+MY_API.setup :url => "https://my-api.example.com" do |connection|
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
 end
 
-$other_api = Her::API.new
-$other_api.setup :url => "https://other_api.example.com" do |connection|
+OTHER_API = Her::API.new
+OTHER_API.setup :url => "https://other-api.example.com" do |connection|
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
 end
@@ -652,19 +652,19 @@ You can then define which API a model will use:
 ```ruby
 class User
   include Her::Model
-  uses_api $my_api
+  use_api MY_API
 end
 
 class Category
   include Her::Model
-  uses_api $other_api
+  use_api OTHER_API
 end
 
 User.all
-# GET https://my_api.example.com/users
+# GET https://my-api.example.com/users
 
 Category.all
-# GET https://other_api.example.com/categories
+# GET https://other-api.example.com/categories
 ```
 
 ### SSL
@@ -704,7 +704,7 @@ In order to test them, we’ll have to stub the remote API requests. With [RSpec
 RSpec.configure do |config|
   config.include(Module.new do
     def stub_api_for(klass)
-      klass.uses_api (api = Her::API.new)
+      klass.use_api (api = Her::API.new)
 
       # Here, you would customize this for your own API (URL, middleware, etc)
       # like you have done in your application’s initializer

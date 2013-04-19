@@ -5,21 +5,17 @@ module Her
       extend ActiveSupport::Concern
 
       module ClassMethods
-        # Automatically inherit a superclass' api
-        def her_api
-          @_her_api ||= begin
-            if superclass.respond_to?(:her_api)
-              superclass.her_api
-            else
-              Her::API.default_api
-            end
+        # Change which API the model will use to make its HTTP requests
+        def use_api(value = nil)
+          @_her_use_api ||= begin
+            superclass.use_api if superclass.respond_to?(:use_api)
           end
-        end
 
-        # Link a model with a Her::API object
-        def uses_api(api)
-          @_her_api = api
+          return @_her_use_api unless value
+          @_her_use_api = value
         end
+        alias :her_api :use_api
+        alias :uses_api :use_api
 
         # Main request wrapper around Her::API. Used to make custom request to the API.
         # @private

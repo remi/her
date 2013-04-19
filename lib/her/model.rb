@@ -44,7 +44,7 @@ module Her
     # Class methods
     included do
       # Assign the default API
-      uses_api Her::API.default_api
+      use_api Her::API.default_api
 
       # Define the default primary key
       primary_key :id
