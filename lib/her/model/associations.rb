@@ -92,7 +92,7 @@ module Her
           (associations[:has_many] ||= []) << attrs
 
           define_method(name) do
-            cached_name = "@_her_association_#{name}".to_sym
+            cached_name = :"@_her_association_#{name}"
 
             cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
             cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasManyAssociation.new(self, attrs))
@@ -127,7 +127,7 @@ module Her
           (associations[:has_one] ||= []) << attrs
 
           define_method(name) do
-            cached_name = "@_her_association_#{name}".to_sym
+            cached_name = :"@_her_association_#{name}"
 
             cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
             cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.new(self, attrs))
@@ -163,7 +163,7 @@ module Her
           (associations[:belongs_to] ||= []) << attrs
 
           define_method(name) do
-            cached_name = "@_her_association_#{name}".to_sym
+            cached_name = :"@_her_association_#{name}"
 
             cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
             cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, attrs))
