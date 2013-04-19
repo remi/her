@@ -151,11 +151,12 @@ describe Her::Model::Associations do
     end
 
     it "fetches has_many data even if it was included, only if called with parameters" do
-      @user_with_included_data.comments(:foo_id => 1).length.should == 1
+      @user_with_included_data.comments.where(:foo_id => 1).length.should == 1
     end
 
     it "maps an array of included data through has_one" do
       @user_with_included_data.role.should be_a(Foo::Role)
+      @user_with_included_data.role.object_id.should == @user_with_included_data.role.object_id
       @user_with_included_data.role.id.should == 1
       @user_with_included_data.role.body.should == "Admin"
     end
@@ -167,7 +168,7 @@ describe Her::Model::Associations do
     end
 
     it "fetches has_one data even if it was included, only if called with parameters" do
-      @user_with_included_data.role(:foo_id => 2).id.should == 3
+      @user_with_included_data.role.where(:foo_id => 2).id.should == 3
     end
 
     it "maps an array of included data through belongs_to" do
@@ -183,7 +184,7 @@ describe Her::Model::Associations do
     end
 
     it "fetches belongs_to data even if it was included, only if called with parameters" do
-      @user_with_included_data.organization(:foo_id => 1).name.should == "Bluth Company Foo"
+      @user_with_included_data.organization.where(:foo_id => 1).name.should == "Bluth Company Foo"
     end
 
     it "can tell if it has a association" do
@@ -197,7 +198,8 @@ describe Her::Model::Associations do
     end
 
     it "pass query string parameters when additional arguments are passed" do
-      @user_without_included_data.organization(:admin => true).name.should == "Bluth Company (admin)"
+      @user_without_included_data.organization.where(:admin => true).name.should == "Bluth Company (admin)"
+      @user_without_included_data.organization.name.should == "Bluth Company"
     end
 
     [:create, :save_existing, :destroy].each do |type|
