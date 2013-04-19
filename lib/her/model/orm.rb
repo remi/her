@@ -19,7 +19,8 @@ module Her
         @destroyed == true
       end
 
-      # Save a resource
+      # Save a resource and return `false` if the response is not a successful one or
+      # if there are errors in the resource. Otherwise, return the newly updated resource
       #
       # @example Save a resource after fetching it
       #   @user = User.find(1)
@@ -33,9 +34,6 @@ module Her
       #   @user.save
       #   # Called via POST "/users"
       def save
-        params = to_params
-        resource = self
-
         if new?
           callback = :create
           method = :post
@@ -46,7 +44,7 @@ module Her
 
         run_callbacks callback do
           run_callbacks :save do
-            self.class.request(params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data, response|
+            self.class.request(to_params.merge(:_method => method, :_path => "#{request_path}")) do |parsed_data, response|
               assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
               self.metadata = parsed_data[:metadata]
               self.response_errors = parsed_data[:errors]
