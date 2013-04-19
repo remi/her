@@ -63,11 +63,40 @@ module Her
       # @example
       #   @user = User.where(:email => "tobias@bluth.com").create(:fullname => "Tobias Fünke")
       #   # Called via POST "/users/1" with `&email=tobias@bluth.com&fullname=Tobias+Fünke`
-      def create(params={})
-        resource = @parent.new(@query_attrs.merge(params))
+      def create(attrs = {})
+        resource = @parent.new(@query_attrs.merge(attrs))
         resource.save
 
         resource
+      end
+
+      # Fetch a resource and create it if it's not found
+      #
+      # @example
+      #   @user = User.where(:email => "remi@example.com").find_or_create
+      #
+      #   # Returns the first item of the collection if present:
+      #   # GET "/users?email=remi@example.com"
+      #
+      #   # If collection is empty:
+      #   # POST /users with `email=remi@example.com`
+      def first_or_create(attrs = {})
+        fetch.first || create(attrs)
+      end
+
+      # Fetch a resource and build it if it's not found
+      #
+      # @example
+      #   @user = User.where(:email => "remi@example.com").find_or_initialize
+      #
+      #   # Returns the first item of the collection if present:
+      #   # GET "/users?email=remi@example.com"
+      #
+      #   # If collection is empty:
+      #   @user.email # => "remi@example.com"
+      #   @user.new? # => true
+      def first_or_initialize(attrs = {})
+        fetch.first || build(attrs)
       end
     end
   end
