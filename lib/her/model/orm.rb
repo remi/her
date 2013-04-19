@@ -111,17 +111,18 @@ module Her
 
         # @private
         def where(attrs = {})
-          Relation.new(self).where(attrs)
+          scoped.where(attrs)
         end
-
-        # @private
-        def all
-          Relation.new(self).all
-        end
+        alias :all :where
 
         # @private
         def create(attrs = {})
-          Relation.new(self).create(attrs)
+          scoped.create(attrs)
+        end
+
+        # @private
+        def scoped
+          Relation.new(self)
         end
 
         # Save an existing resource and return it
