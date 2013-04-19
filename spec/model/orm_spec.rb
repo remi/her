@@ -194,7 +194,7 @@ describe Her::Model::ORM do
     end
 
     it "handles finding with other parameters" do
-      @users = User.all(:age => 42)
+      @users = User.where(:age => 42).all
       @users.should be_kind_of(Array)
       @users.should be_all { |u| u.age == 42 }
     end

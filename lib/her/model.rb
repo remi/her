@@ -1,6 +1,7 @@
 require "her/model/base"
 require "her/model/http"
 require "her/model/attributes"
+require "her/model/relation"
 require "her/model/orm"
 require "her/model/parse"
 require "her/model/associations"
