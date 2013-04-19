@@ -188,7 +188,7 @@ By default, Her handles JSON data. It expects the resource/collection data to be
 
 However, if you want Her to be able to parse the data from a single root element (usually based on the model name), you’ll have to use the `parse_root_in_json` method (See the **JSON attributes-wrapping** section).
 
-Also, you can define your own parsing method using a response middleware. The middleware should set `env[:body]` to a hash with three keys: `data`, `errors` and `metadata`. The following code uses a custom middleware to parse the JSON data:
+Also, you can define your own parsing method using a response middleware. The middleware should set `env[:body]` to a hash with three symbol keys: `:data`, `:errors` and `:metadata`. The following code uses a custom middleware to parse the JSON data:
 
 ```ruby
 # Expects responses like:
