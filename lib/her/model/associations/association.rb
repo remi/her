@@ -31,6 +31,12 @@ module Her
         end
 
         # @private
+        def ==(other)
+          fetch.eql?(other)
+        end
+        alias :eql? :==
+
+        # @private
         def method_missing(method, *args, &blk)
           fetch.send(method, *args, &blk)
         end

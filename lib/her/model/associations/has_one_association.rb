@@ -3,11 +3,13 @@ module Her
     module Associations
       class HasOneAssociation < Association
         def build(attributes = {})
-          # TODO
+          @klass.new(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
         end
 
         def create(attributes = {})
-          # TODO
+          resource = build(attributes)
+          @parent.attributes[@name] = resource if resource.save
+          resource
         end
 
         def fetch

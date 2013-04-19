@@ -3,11 +3,13 @@ module Her
     module Associations
       class BelongsToAssociation < Association
         def build(attributes = {})
-          # TODO
+          @klass.new(attributes)
         end
 
         def create(attributes = {})
-          # TODO
+          resource = build(attributes)
+          @parent.attributes[@name] = resource if resource.save
+          resource
         end
 
         def fetch

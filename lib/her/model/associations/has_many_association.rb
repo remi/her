@@ -3,11 +3,18 @@ module Her
     module Associations
       class HasManyAssociation < Association
         def build(attributes = {})
-          # TODO
+          @klass.new(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
         end
 
         def create(attributes = {})
-          # TODO
+          resource = build(attributes)
+
+          if resource.save
+            @parent.attributes[@name] ||= Her::Collection.new
+            @parent.attributes[@name] << resource
+          end
+
+          resource
         end
 
         def fetch
@@ -25,7 +32,7 @@ module Her
             @parent.attributes[@name]
           end
 
-          inverse_of = @opts[:inverse_of] || @parent.class.name.split('::').last.tableize.singularize
+          inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
           output.each { |entry| entry.send("#{inverse_of}=", @parent) }
 
           output

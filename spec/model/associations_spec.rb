@@ -262,4 +262,46 @@ describe Her::Model::Associations do
       @user_without_included_data.company.name.should == "Bluth Company"
     end
   end
+
+  context "building and creating association data" do
+    before do
+      spawn_model "Foo::Comment"
+      spawn_model "Foo::User" do
+        has_many :comments
+      end
+    end
+
+    context "with #build" do
+      it "takes the parent primary key" do
+        @comment = Foo::User.new(:id => 10).comments.build(:body => "Hello!")
+        @comment.body.should == "Hello!"
+        @comment.user_id.should == 10
+      end
+    end
+
+    context "with #create" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/10") { |env| [200, {}, { :id => 10 }.to_json] }
+            stub.post("/comments") { |env| [200, {}, { :id => 1, :body => Faraday::Utils.parse_query(env[:body])['body'], :user_id => Faraday::Utils.parse_query(env[:body])['user_id'].to_i }.to_json] }
+          end
+        end
+
+        Foo::User.use_api Her::API.default_api
+        Foo::Comment.use_api Her::API.default_api
+      end
+
+      it "takes the parent primary key and saves the resource" do
+        @user = Foo::User.find(10)
+        @comment = @user.comments.create(:body => "Hello!")
+        @comment.id.should == 1
+        @comment.body.should == "Hello!"
+        @comment.user_id.should == 10
+        @user.comments.should == [@comment]
+      end
+    end
+  end
 end
