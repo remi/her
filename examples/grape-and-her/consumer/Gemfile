@@ -7,7 +7,7 @@ gem 'unicorn'
 gem 'sinatra'
 gem 'sinatra-reloader'
 gem 'haml'
-gem 'her'
+gem 'her', :path => "../../.."
 gem 'multi_json'
 
 # Assets

@@ -1,0 +1,71 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activemodel (3.2.13)
+      activesupport (= 3.2.13)
+      builder (~> 3.0.0)
+    activerecord (3.2.13)
+      activemodel (= 3.2.13)
+      activesupport (= 3.2.13)
+      arel (~> 3.0.2)
+      tzinfo (~> 0.3.29)
+    activesupport (3.2.13)
+      i18n (= 0.6.1)
+      multi_json (~> 1.0)
+    arel (3.0.2)
+    backports (2.6.7)
+    builder (3.0.4)
+    descendants_tracker (0.0.1)
+    grape (0.4.1)
+      activesupport
+      builder
+      hashie (>= 1.2.0)
+      multi_json (>= 1.3.2)
+      multi_xml (>= 0.5.2)
+      rack (>= 1.3.0)
+      rack-accept
+      rack-mount
+      virtus
+    grape-rabl (0.2.0)
+      grape (~> 0.3)
+      i18n
+      rabl
+      tilt
+    hashie (2.0.3)
+    i18n (0.6.1)
+    kgio (2.8.0)
+    multi_json (1.7.2)
+    multi_xml (0.5.3)
+    portugal (0.0.3)
+      activerecord (>= 3.0.0)
+      rake
+    rabl (0.8.0)
+      activesupport (>= 2.3.14)
+    rack (1.5.2)
+    rack-accept (0.4.5)
+      rack (>= 0.4)
+    rack-mount (0.8.3)
+      rack (>= 1.0.0)
+    raindrops (0.10.0)
+    rake (10.0.4)
+    sqlite3 (1.3.7)
+    tilt (1.3.6)
+    tzinfo (0.3.37)
+    unicorn (4.6.2)
+      kgio (~> 2.6)
+      rack
+      raindrops (~> 0.7)
+    virtus (0.5.4)
+      backports (~> 2.6.1)
+      descendants_tracker (~> 0.0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activerecord (~> 3.2)
+  grape
+  grape-rabl
+  portugal
+  sqlite3
+  unicorn
