@@ -96,7 +96,7 @@ You can look into the `examples` directory for a sample application using Her. F
 
 ## Middleware
 
-Since Her relies on [Faraday](https://github.com/technoweenie/faraday) to send HTTP requests, you can choose the middleware used to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `connection` object and are able to customize the middleware stack used on each request and response.
+Since Her relies on [Faraday](https://github.com/lostisland/faraday) to send HTTP requests, you can choose the middleware used to handle requests and responses. Using the block in the `setup` call, you have access to Faraday’s `connection` object and are able to customize the middleware stack used on each request and response.
 
 ### Authentication
 
@@ -669,7 +669,7 @@ Category.all
 
 ### SSL
 
-When initializing `Her::API`, you can pass any parameter supported by `Faraday.new`. So [to use HTTPS](https://github.com/technoweenie/faraday/wiki/Setting-up-SSL-certificates), you can use Faraday’s `:ssl` option.
+When initializing `Her::API`, you can pass any parameter supported by `Faraday.new`. So [to use HTTPS](https://github.com/lostisland/faraday/wiki/Setting-up-SSL-certificates), you can use Faraday’s `:ssl` option.
 
 ```ruby
 ssl_options = { :ca_path => "/usr/lib/ssl/certs" }
