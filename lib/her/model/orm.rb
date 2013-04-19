@@ -128,20 +128,7 @@ module Her
         #   # Called via POST "/users/1"
         def create(params={})
           resource = new(params)
-          resource.run_callbacks :create do
-            resource.run_callbacks :save do
-              params = resource.to_params
-              request(params.merge(:_method => :post, :_path => "#{build_request_path(params)}")) do |parsed_data, response|
-                data = parse(parsed_data[:data])
-                resource.instance_eval do
-                  assign_attributes(data)
-                  @metadata = parsed_data[:metadata]
-                  @response_errors = parsed_data[:errors]
-                  @changed_attributes.clear if @changed_attributes.present?
-                end
-              end
-            end
-          end
+          resource.save
           resource
         end
 
