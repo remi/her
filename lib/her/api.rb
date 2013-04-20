@@ -65,13 +65,18 @@ module Her
     #     connection.use MyCustomParser
     #     connection.use Faraday::Adapter::NetHttp
     #   end
-    def setup(attrs={}, &blk)
+    def setup(attrs={})
       attrs[:url] = attrs.delete(:base_uri) if attrs.include?(:base_uri) # Support legacy :base_uri option
-      @base_uri = attrs[:url]
       @options = attrs
-      @connection = Faraday.new(@options) do |connection|
+      @base_uri = attrs[:url]
+
+      faraday_options = Faraday::ConnectionOptions.instance_methods
+      supported_options = attrs.select { |k,v| faraday_options.include?(k) }
+
+      @connection = Faraday.new(supported_options) do |connection|
         yield connection if block_given?
       end
+
       self
     end
 

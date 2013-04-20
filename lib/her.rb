@@ -1,7 +1,7 @@
 require "her/version"
 
 require "multi_json"
-require "faraday"
+require "faraday/autoload"
 require "active_support"
 require "active_support/inflector"
 require "active_support/core_ext/hash"

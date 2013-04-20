@@ -290,23 +290,5 @@ describe Her::Model::Paths do
         @users.first.fullname.should == "Tobias Fünke"
       end
     end
-
-    describe "fetching a resource with absolute path" do
-      it "maps a single resource to a Ruby object" do
-        Foo::User.resource_path '/api/' + Foo::User.resource_path
-        @user = Foo::User.find(1, :_organization_id => 2)
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
-      end
-    end
-
-    describe "fetching a collection with absolute path" do
-      it "maps a collection of resources to an array of Ruby objects" do
-        Foo::User.collection_path '/api/' + Foo::User.collection_path
-        @users = Foo::User.where(:_organization_id => 2).all
-        @users.length.should == 2
-        @users.first.fullname.should == "Tobias Fünke"
-      end
-    end
   end
 end
