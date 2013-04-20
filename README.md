@@ -18,7 +18,7 @@ First, you have to define which API your models will be bound to. For example, w
 
 ```ruby
 # config/initializers/her.rb
-Her::API.setup :url => "https://api.example.com" do |connection|
+Her::API.setup url: "https://api.example.com" do |connection|
   connection.use Faraday::Request::UrlEncoded
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
@@ -42,10 +42,10 @@ User.all
 User.find(1)
 # GET https://api.example.com/users/1 and return a User object
 
-@user = User.create(:fullname => "Tobias Fünke")
+@user = User.create(fullname: "Tobias Fünke")
 # POST "https://api.example.com/users" with the data and return a User object
 
-@user = User.new(:fullname => "Tobias Fünke")
+@user = User.new(fullname: "Tobias Fünke")
 @user.occupation = "actor"
 @user.save
 # POST https://api.example.com/users with the data and return a User object
@@ -68,11 +68,11 @@ end
 # Update a fetched resource
 user = User.find(1)
 user.fullname = "Lindsay Fünke"
-# OR user.assign_attributes :fullname => "Lindsay Fünke"
+# OR user.assign_attributes(fullname: "Lindsay Fünke")
 user.save
 
 # Update a resource without fetching it
-User.save_existing(1, :fullname => "Lindsay Fünke")
+User.save_existing(1, fullname: "Lindsay Fünke")
 
 # Destroy a fetched resource
 user = User.find(1)
@@ -83,13 +83,13 @@ User.destroy_existing(1)
 
 # Fetching a collection of resources
 User.all
-User.where(:moderator => 1).all
+User.where(moderator: 1).all
 
 # Create a new resource
-User.create(:fullname => "Maeby Fünke")
+User.create(fullname: "Maeby Fünke")
 
 # Save a new resource
-user = User.new(:fullname => "Maeby Fünke")
+user = User.new(fullname: "Maeby Fünke")
 user.save
 ```
 
@@ -127,7 +127,7 @@ end
 # config/initializers/her.rb
 require "lib/my_token_authentication"
 
-Her::API.setup :url => "https://api.example.com" do |connection|
+Her::API.setup url: "https://api.example.com" do |connection|
   connection.use MyTokenAuthentication
   connection.use Faraday::Request::UrlEncoded
   connection.use Her::Middleware::DefaultParseJSON
@@ -154,13 +154,13 @@ In your Ruby code:
 ```ruby
 # Create an application on `https://dev.twitter.com/apps` to set these values
 TWITTER_CREDENTIALS = {
-  :consumer_key => "",
-  :consumer_secret => "",
-  :token => "",
-  :token_secret => ""
+  consumer_key: "",
+  consumer_secret: "",
+  token: "",
+  token_secret: ""
 }
 
-Her::API.setup :url => "https://api.twitter.com/1/" do |connection|
+Her::API.setup url: "https://api.twitter.com/1/" do |connection|
   connection.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
@@ -199,21 +199,21 @@ Also, you can define your own parsing method using a response middleware. The mi
 #         "id": 1,
 #         "name": "Tobias Fünke"
 #       },
-#       "errors" => []
+#       "errors": []
 #     }
 #
 class MyCustomParser < Faraday::Response::Middleware
   def on_complete(env)
-    json = MultiJson.load(env[:body], :symbolize_keys => true)
+    json = MultiJson.load(env[:body], symbolize_keys: true)
     env[:body] = {
-      :data => json[:result],
-      :errors => json[:errors],
-      :metadata => json[:metadata]
+      data: json[:result],
+      errors: json[:errors],
+      metadata: json[:metadata]
     }
   end
 end
 
-Her::API.setup :url => "https://api.example.com" do |connection|
+Her::API.setup url: "https://api.example.com" do |connection|
   connection.use MyCustomParser
   connection.use Faraday::Adapter::NetHttp
 end
@@ -234,7 +234,7 @@ gem "memcached"
 In your Ruby code:
 
 ```ruby
-Her::API.setup :url => "https://api.example.com" do |connection|
+Her::API.setup url: "https://api.example.com" do |connection|
   connection.use FaradayMiddleware::Caching, Memcached::Rails.new('127.0.0.1:11211')
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
@@ -290,14 +290,14 @@ If there’s association data in the resource, no extra HTTP request is made whe
 ```ruby
 @user = User.find(1)
 # {
-#   :id => 1,
-#   :name => "George Michael Bluth",
-#   :comments => [
-#     { :id => 1, :text => "Foo" },
-#     { :id => 2, :text => "Bar" }
+#   "id": 1,
+#   "name": "George Michael Bluth",
+#   "comments": [
+#     { "id": 1, "text": "Foo" },
+#     { "id": 2, "text": "Bar" }
 #   ],
-#   :role => { :id => 1, :name => "Admin" },
-#   :organization => { :id => 2, :name => "Bluth Company" }
+#   "role": { "id": 1, "name": "Admin" },
+#   "organization": { "id": 2, "name": "Bluth Company" }
 # }
 @user.comments
 # [#<Comment id=1 text="Foo">, #<Comment id=2 text="Bar">]
@@ -311,14 +311,14 @@ If there’s no association data in the resource, Her makes a HTTP request to re
 
 ```ruby
 @user = User.find(1)
-# { :id => 1, :name => "George Michael Bluth", :organization_id => 2 }
+# { "id": 1, "name": "George Michael Bluth", "organization_id": 2 }
 
 # has_many association:
 @user.comments
 # GET /users/1/comments
 # [#<Comment id=1>, #<Comment id=2>]
 
-@user.comments.where(:approved => 1)
+@user.comments.where(approved: 1)
 # GET /users/1/comments?approved=1
 # [#<Comment id=1>]
 
@@ -369,11 +369,11 @@ class User
   include Her::Model
 
   attributes :fullname, :email
-  validates :fullname, :presence => true
-  validates :email, :presence => true
+  validates :fullname, presence: true
+  validates :email, presence: true
 end
 
-@user = User.new(:fullname => "Tobias Fünke")
+@user = User.new(fullname: "Tobias Fünke")
 @user.valid? # => false
 
 @user.save
@@ -391,7 +391,7 @@ class User
   attributes :fullname, :email
 end
 
-@user = User.new(:fullname => "Tobias Fünke")
+@user = User.new(fullname: "Tobias Fünke")
 @user.fullname_changed? # => true
 @user.changes # => { :fullname => [nil, "Tobias Fünke"] }
 
@@ -417,7 +417,7 @@ class User
   end
 end
 
-@user = User.create(:fullname => "Tobias Funke")
+@user = User.create(fullname: "Tobias Funke")
 # POST /users&fullname=Tobias+Fünke&internal_id=42
 
 @user = User.find(1)
@@ -455,10 +455,10 @@ class Article
   include_root_in_json :post
 end
 
-User.create(:fullname => "Tobias Fünke")
+User.create(fullname: "Tobias Fünke")
 # POST { "user": { "fullname": "Tobias Fünke" } } to /users
 
-Article.create(:title => "Hello world.")
+Article.create(title: "Hello world.")
 # POST { "post": { "title": "Hello world." } } to /articles
 ```
 
@@ -478,11 +478,11 @@ class Article
 end
 
 # POST /users returns { "user": { "fullname": "Tobias Fünke" } }
-user = User.create(:fullname => "Tobias Fünke")
+user = User.create(fullname: "Tobias Fünke")
 user.fullname # => "Tobias Fünke"
 
 # POST /articles returns { "post": { "title": "Hello world." } }
-article = Article.create(:title => "Hello world.")
+article = Article.create(title: "Hello world.")
 article.title # => "Hello world."
 ```
 
@@ -507,7 +507,7 @@ User.unpopular
 # GET /users/unpopular
 # [#<User id=3>, #<User id=4>]
 
-User.from_default(:name => "Maeby Fünke")
+User.from_default(name: "Maeby Fünke")
 # POST /users/from_default?name=Maeby+Fünke
 # #<User id=5 name="Maeby Fünke">
 ```
@@ -587,13 +587,13 @@ class User
   collection_path "/organizations/:organization_id/users"
 end
 
-@user = User.find(1, :_organization_id => 2)
+@user = User.find(1, _organization_id: 2)
 # GET /organizations/2/users/1
 
-@user = User.all(:_organization_id => 2)
+@user = User.all(_organization_id: 2)
 # GET /organizations/2/users
 
-@user = User.new(:fullname => "Tobias Fünke", :organization_id => 2)
+@user = User.new(fullname: "Tobias Fünke", organization_id: 2)
 @user.save
 # POST /organizations/2/users
 ```
@@ -640,13 +640,13 @@ It is possible to use different APIs for different models. Instead of calling `H
 ```ruby
 # config/initializers/her.rb
 MY_API = Her::API.new
-MY_API.setup :url => "https://my-api.example.com" do |connection|
+MY_API.setup url: "https://my-api.example.com" do |connection|
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
 end
 
 OTHER_API = Her::API.new
-OTHER_API.setup :url => "https://other-api.example.com" do |connection|
+OTHER_API.setup url: "https://other-api.example.com" do |connection|
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
 end
@@ -677,8 +677,8 @@ Category.all
 When initializing `Her::API`, you can pass any parameter supported by `Faraday.new`. So [to use HTTPS](https://github.com/lostisland/faraday/wiki/Setting-up-SSL-certificates), you can use Faraday’s `:ssl` option.
 
 ```ruby
-ssl_options = { :ca_path => "/usr/lib/ssl/certs" }
-Her::API.setup :url => "https://api.example.com", :ssl => ssl_options do |connection|
+ssl_options = { ca_path: "/usr/lib/ssl/certs" }
+Her::API.setup url: "https://api.example.com", ssl: ssl_options do |connection|
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
 end
@@ -713,7 +713,7 @@ RSpec.configure do |config|
 
       # Here, you would customize this for your own API (URL, middleware, etc)
       # like you have done in your application’s initializer
-      api.setup :url => "http://api.example.com" do |connection|
+      api.setup url: "http://api.example.com" do |connection|
         connection.use Her::Middleware::FirstLevelParseJSON
         connection.adapter(:test) { |s| yield(s) }
       end
@@ -729,7 +729,7 @@ Then, in your tests, we can specify what (fake) HTTP requests will return:
 describe User do
   before do
     stub_api_for(User) do |stub|
-      stub.get("/users/popular") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
+      stub.get("/users/popular") { |env| [200, {}, [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }].to_json] }
     end
   end
 
@@ -749,7 +749,7 @@ describe Post do
   describe :recent do
     before do
       stub_api_for(Post) do |stub|
-        stub.get("/posts/recent") { |env| [200, {}, [{ :id => 1 }, { :id => 2 }].to_json] }
+        stub.get("/posts/recent") { |env| [200, {}, [{ id: 1 }, { id: 2 }].to_json] }
       end
     end
 
@@ -761,7 +761,7 @@ describe Post do
   describe :archived do
     before do
       stub_api_for(Post) do |stub|
-        stub.get("/posts/archived") { |env| [200, {}, [{ :id => 1 }, { :id => 2 }].to_json] }
+        stub.get("/posts/archived") { |env| [200, {}, [{ id: 1 }, { id: 2 }].to_json] }
       end
     end
 
