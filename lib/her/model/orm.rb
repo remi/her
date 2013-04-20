@@ -101,6 +101,7 @@ module Her
             end
             resource
           end
+
           if ids.length > 1 || ids.first.kind_of?(Array)
             results
           else
@@ -108,26 +109,20 @@ module Her
           end
         end
 
-        # Fetch a collection of resources
-        #
-        # @example
-        #   @users = User.all
-        #   # Fetched via GET "/users"
-        def all(params={})
-          request(params.merge(:_method => :get, :_path => "#{build_request_path(params)}")) do |parsed_data, response|
-            new_collection(parsed_data)
-          end
+        # @private
+        def where(attrs = {})
+          scoped.where(attrs)
+        end
+        alias :all :where
+
+        # @private
+        def create(attrs = {})
+          scoped.create(attrs)
         end
 
-        # Create a resource and return it
-        #
-        # @example
-        #   @user = User.create({ :fullname => "Tobias Fünke" })
-        #   # Called via POST "/users/1"
-        def create(params={})
-          resource = new(params)
-          resource.save
-          resource
+        # @private
+        def scoped
+          Relation.new(self)
         end
 
         # Save an existing resource and return it
