@@ -1,9 +1,0 @@
-%h1= @user.fullname
-
-%ul.details
-  %li <strong>Email:</strong> #{@user.email}
-  %li <strong>Organization:</strong> <a href="/organizations/#{@user.organization_id}">#{@user.organization.name}</a>
-
-%hr
-.back
-  %p Back to <a href="/users">users</a>

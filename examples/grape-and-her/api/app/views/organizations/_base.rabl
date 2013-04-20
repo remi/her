@@ -1,2 +1,0 @@
-attribute :id
-attribute :name
