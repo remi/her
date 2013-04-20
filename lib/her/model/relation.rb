@@ -73,6 +73,7 @@ module Her
       #   @user = User.where(:email => "tobias@bluth.com").create(:fullname => "Tobias Fünke")
       #   # Called via POST "/users/1" with `&email=tobias@bluth.com&fullname=Tobias+Fünke`
       def create(attrs = {})
+        attrs ||= {}
         resource = @parent.new(@query_attrs.merge(attrs))
         resource.save
 

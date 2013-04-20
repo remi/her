@@ -109,25 +109,11 @@ module Her
           end
         end
 
-        # @private
-        def where(attrs = {})
-          scoped.where(attrs)
-        end
-        alias :all :where
-
-        # @private
-        def create(attrs = {})
-          scoped.create(attrs)
-        end
-
-        # @private
-        def page(page)
-          scoped.page(page)
-        end
-
-        # @private
-        def per_page(per_page)
-          scoped.per_page(per_page)
+        # Delegate the following methods to `scoped`
+        [:all, :where, :create, :page, :per_page].each do |method|
+          define_method method do |*attrs|
+            scoped.send(method, attrs.first)
+          end
         end
 
         # @private

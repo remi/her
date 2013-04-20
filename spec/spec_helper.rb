@@ -8,6 +8,7 @@ Dir[File.expand_path('../../spec/support/**/*.rb', __FILE__)].map(&method(:requi
 
 RSpec.configure do |config|
   config.include Her::Testing::Macros::ModelMacros
+  config.include Her::Testing::Macros::RequestMacros
 
   config.before :each do
     @spawned_models = []

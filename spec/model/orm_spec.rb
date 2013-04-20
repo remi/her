@@ -55,12 +55,6 @@ describe Her::Model::ORM do
       @existing_user.new?.should be_false
     end
 
-    it "handles new resource with build" do
-      @new_user = Foo::User.where(:fullname => "Tobias Fünke").build
-      @new_user.new?.should be_true
-      @new_user.fullname.should == "Tobias Fünke"
-    end
-
     it 'handles new resource with custom primary key' do
       @new_user = Foo::AdminUser.new(:fullname => 'Lindsay Fünke', :id => -1)
       @new_user.should be_new
@@ -240,20 +234,6 @@ describe Her::Model::ORM do
 
     it "handle one-line resource creation" do
       @user = Foo::User.create(:fullname => "Tobias Fünke", :email => "tobias@bluth.com")
-      @user.id.should == 1
-      @user.fullname.should == "Tobias Fünke"
-      @user.email.should == "tobias@bluth.com"
-    end
-
-    it "handle one-line resource creation with `where`" do
-      @user = Foo::User.where(:fullname => "Tobias Fünke").create(:email => "tobias@bluth.com")
-      @user.id.should == 1
-      @user.fullname.should == "Tobias Fünke"
-      @user.email.should == "tobias@bluth.com"
-    end
-
-    it "handle one-line resource creation with multiple `where`" do
-      @user = Foo::User.where(:fullname => "Tobias Fünke").where(:email => "tobias@bluth.com").create
       @user.id.should == 1
       @user.fullname.should == "Tobias Fünke"
       @user.email.should == "tobias@bluth.com"
