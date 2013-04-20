@@ -1,3 +1,8 @@
+require "her/model/associations/association"
+require "her/model/associations/belongs_to_association"
+require "her/model/associations/has_many_association"
+require "her/model/associations/has_one_association"
+
 module Her
   module Model
     # This module adds associations to models
@@ -86,29 +91,11 @@ module Her
           }.merge(attrs)
           (associations[:has_many] ||= []) << attrs
 
-          define_method(name) do |*method_attrs|
-            method_attrs = method_attrs[0] || {}
-            klass = self.class.her_nearby_class(attrs[:class_name])
+          define_method(name) do
+            cached_name = :"@_her_association_#{name}"
 
-            return Her::Collection.new if @attributes.include?(name) && @attributes[name].empty? && method_attrs.empty?
-
-            if @attributes[name].blank? || method_attrs.any?
-              path = begin
-                request_path(method_attrs)
-              rescue Her::Errors::PathError
-                return nil
-              end
-
-              @attributes[name] = klass.get_collection("#{path}#{attrs[:path]}", method_attrs)
-            end
-
-            inverse_of = attrs[:inverse_of] || self.class.name.split('::').last.tableize.singularize
-
-            @attributes[name].each do |entry|
-              entry.send("#{inverse_of}=", self)
-            end
-
-            @attributes[name]
+            cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
+            cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasManyAssociation.new(self, attrs))
           end
         end
 
@@ -139,23 +126,11 @@ module Her
           }.merge(attrs)
           (associations[:has_one] ||= []) << attrs
 
-          define_method(name) do |*method_attrs|
-            method_attrs = method_attrs[0] || {}
-            klass = self.class.her_nearby_class(attrs[:class_name])
+          define_method(name) do
+            cached_name = :"@_her_association_#{name}"
 
-            return nil if @attributes.include?(name) && @attributes[name].nil? && method_attrs.empty?
-
-            if @attributes[name].blank? || method_attrs.any?
-              path = begin
-                request_path(method_attrs)
-              rescue Her::Errors::PathError
-                return nil
-              end
-
-              @attributes[name] = klass.get_resource("#{path}#{attrs[:path]}", method_attrs)
-            end
-
-            @attributes[name]
+            cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
+            cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.new(self, attrs))
           end
         end
 
@@ -187,23 +162,11 @@ module Her
           }.merge(attrs)
           (associations[:belongs_to] ||= []) << attrs
 
-          define_method(name) do |*method_attrs|
-            method_attrs = method_attrs[0] || {}
-            klass = self.class.her_nearby_class(attrs[:class_name])
+          define_method(name) do
+            cached_name = :"@_her_association_#{name}"
 
-            return nil if @attributes.include?(name) && @attributes[name].nil? && method_attrs.empty?
-
-            if @attributes[name].blank? || method_attrs.any?
-              path = begin
-                klass.build_request_path(@attributes.merge(method_attrs.merge(klass.primary_key => @attributes[attrs[:foreign_key].to_sym])))
-              rescue Her::Errors::PathError
-                return nil
-              end
-
-              @attributes[name] = klass.get_resource("#{path}", method_attrs)
-            end
-
-            @attributes[name]
+            cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
+            cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, attrs))
           end
         end
       end

@@ -194,7 +194,7 @@ describe Her::Model::Paths do
 
     describe "fetching a collection" do
       it "maps a collection of resources to an array of Ruby objects" do
-        @users = Foo::User.all(:_organization_id => 2)
+        @users = Foo::User.where(:_organization_id => 2).all
         @users.length.should == 2
         @users.first.fullname.should == "Tobias Fünke"
       end
@@ -285,7 +285,7 @@ describe Her::Model::Paths do
 
     describe "fetching a collection" do
       it "maps a collection of resources to an array of Ruby objects" do
-        @users = Foo::User.all(:_organization_id => 2)
+        @users = Foo::User.where(:_organization_id => 2).all
         @users.length.should == 2
         @users.first.fullname.should == "Tobias Fünke"
       end
@@ -303,7 +303,7 @@ describe Her::Model::Paths do
     describe "fetching a collection with absolute path" do
       it "maps a collection of resources to an array of Ruby objects" do
         Foo::User.collection_path '/api/' + Foo::User.collection_path
-        @users = Foo::User.all(:_organization_id => 2)
+        @users = Foo::User.where(:_organization_id => 2).all
         @users.length.should == 2
         @users.first.fullname.should == "Tobias Fünke"
       end

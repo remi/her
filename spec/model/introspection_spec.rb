@@ -44,7 +44,7 @@ describe Her::Model::Introspection do
 
     describe "#inspect with errors in resource path" do
       it "prints the resource path as “unknown”" do
-        @comment = Foo::Comment.all(:project_id => 1).first
+        @comment = Foo::Comment.where(:project_id => 1).first
         path = '<unknown path, missing `project_id`>'
         ["#<Foo::Comment(#{path}) body=\"Hello!\" id=1>", "#<Foo::Comment(#{path}) id=1 body=\"Hello!\">"].should include(@comment.inspect)
       end

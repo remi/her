@@ -19,6 +19,11 @@ module Her
         get_attribute(attribute_name) ||
         get_association(attribute_name)
       end
+
+      # @private
+      def singularized_resource_name
+        self.class.name.split('::').last.tableize.singularize
+      end
     end
   end
 end

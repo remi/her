@@ -55,6 +55,12 @@ describe Her::Model::ORM do
       @existing_user.new?.should be_false
     end
 
+    it "handles new resource with build" do
+      @new_user = Foo::User.where(:fullname => "Tobias Fünke").build
+      @new_user.new?.should be_true
+      @new_user.fullname.should == "Tobias Fünke"
+    end
+
     it 'handles new resource with custom primary key' do
       @new_user = Foo::AdminUser.new(:fullname => 'Lindsay Fünke', :id => -1)
       @new_user.should be_new
@@ -157,6 +163,7 @@ describe Her::Model::ORM do
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :age => 42 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :age => 34 }.to_json] }
           stub.get("/users?age=42") { |env| [200, {}, [{ :id => 1, :age => 42 }].to_json] }
+          stub.get("/users?age=40") { |env| [200, {}, [{ :id => 1, :age => 40 }].to_json] }
         end
       end
 
@@ -194,9 +201,15 @@ describe Her::Model::ORM do
     end
 
     it "handles finding with other parameters" do
-      @users = User.all(:age => 42)
+      @users = User.where(:age => 42).all
       @users.should be_kind_of(Array)
       @users.should be_all { |u| u.age == 42 }
+    end
+
+    it "handles finding with other parameters and scoped" do
+      @users = User.scoped
+      @users.where(:age => 42).should be_all { |u| u.age == 42 }
+      @users.where(:age => 40).should be_all { |u| u.age == 40 }
     end
   end
 
@@ -206,7 +219,7 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => Faraday::Utils.parse_query(env[:body])['fullname'], :email => Faraday::Utils.parse_query(env[:body])['email'] }.to_json] }
           stub.post("/companies") { |env| [200, {}, { :errors => ["name is required"] }.to_json] }
         end
       end
@@ -216,9 +229,24 @@ describe Her::Model::ORM do
     end
 
     it "handle one-line resource creation" do
-      @user = Foo::User.create(:fullname => "Tobias Fünke")
+      @user = Foo::User.create(:fullname => "Tobias Fünke", :email => "tobias@bluth.com")
       @user.id.should == 1
       @user.fullname.should == "Tobias Fünke"
+      @user.email.should == "tobias@bluth.com"
+    end
+
+    it "handle one-line resource creation with `where`" do
+      @user = Foo::User.where(:fullname => "Tobias Fünke").create(:email => "tobias@bluth.com")
+      @user.id.should == 1
+      @user.fullname.should == "Tobias Fünke"
+      @user.email.should == "tobias@bluth.com"
+    end
+
+    it "handle one-line resource creation with multiple `where`" do
+      @user = Foo::User.where(:fullname => "Tobias Fünke").where(:email => "tobias@bluth.com").create
+      @user.id.should == 1
+      @user.fullname.should == "Tobias Fünke"
+      @user.email.should == "tobias@bluth.com"
     end
 
     it "handle resource creation through Model.new + #save" do

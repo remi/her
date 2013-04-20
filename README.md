@@ -83,6 +83,7 @@ User.destroy_existing(1)
 
 # Fetching a collection of resources
 User.all
+User.where(:moderator => 1).all
 
 # Create a new resource
 User.create(:fullname => "Maeby Fünke")
@@ -316,6 +317,10 @@ If there’s no association data in the resource, Her makes a HTTP request to re
 @user.comments
 # GET /users/1/comments
 # [#<Comment id=1>, #<Comment id=2>]
+
+@user.comments.where(:approved => 1)
+# GET /users/1/comments?approved=1
+# [#<Comment id=1>]
 
 # has_one association:
 @user.role
