@@ -93,7 +93,7 @@ user = User.new(fullname: "Maeby Fünke")
 user.save
 ```
 
-You can look into the `examples` directory for a sample application using Her. For a complete reference of all the methods you can use, check out [the documentation](http://rdoc.info/github/remiprev/her).
+You can look into the [`her-example`](https://github.com/remiprev/her-example) repository for a sample application using Her. For a complete reference of all the methods you can use, check out [the documentation](http://rdoc.info/github/remiprev/her).
 
 ## Middleware
 
