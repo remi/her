@@ -121,6 +121,16 @@ module Her
         end
 
         # @private
+        def page(page)
+          scoped.page(page)
+        end
+
+        # @private
+        def per_page(per_page)
+          scoped.per_page(per_page)
+        end
+
+        # @private
         def scoped
           Relation.new(self)
         end

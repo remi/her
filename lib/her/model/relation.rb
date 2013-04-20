@@ -21,6 +21,15 @@ module Her
       end
       alias :all :where
 
+      def page(page)
+        where(:page => page)
+      end
+
+      def per_page(per_page)
+        where(:per_page => per_page)
+      end
+      alias :per :per_page
+
       # Bubble all methods to the fetched collection
       def method_missing(method, *args, &blk)
         fetch.send(method, *args, &blk)
