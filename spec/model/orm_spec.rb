@@ -318,39 +318,4 @@ describe Her::Model::ORM do
       @user.should be_destroyed
     end
   end
-
-  context "saving resources with overridden to_params" do
-    before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
-        builder.use Faraday::Request::UrlEncoded
-        builder.adapter :test do |stub|
-          stub.post("/users") do |env|
-            body = {
-              :id => 1,
-              :fullname => Faraday::Utils.parse_query(env[:body])['fullname']
-            }.to_json
-            [200, {}, body]
-          end
-        end
-      end
-
-      spawn_model "Foo::User" do
-        def to_params
-          { :fullname => "Lindsay Fünke" }
-        end
-      end
-    end
-
-    it "changes the request parameters for one-line resource creation" do
-      @user = Foo::User.create(:fullname => "Tobias Fünke")
-      @user.fullname.should == "Lindsay Fünke"
-    end
-
-    it "changes the request parameters for Model.new + #save" do
-      @user = Foo::User.new(:fullname => "Tobias Fünke")
-      @user.save
-      @user.fullname.should == "Lindsay Fünke"
-    end
-  end
 end

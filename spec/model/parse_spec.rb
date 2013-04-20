@@ -2,8 +2,8 @@
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::Parse do
-  context "when include_root_in_json is true" do
-    context "when include_root_in_json is true" do
+  context "when include_root_in_json is set" do
+    context "to true" do
       before do
         spawn_model "Foo::User" do
           include_root_in_json true
@@ -16,7 +16,7 @@ describe Her::Model::Parse do
       end
     end
 
-    context "when include_root_in_json is set to another value" do
+    context "to a symbol" do
       before do
         spawn_model "Foo::User" do
           include_root_in_json :person
@@ -29,7 +29,7 @@ describe Her::Model::Parse do
       end
     end
 
-    context "when include_root_in_json is set in the parent class" do
+    context "in the parent class" do
       before do
         spawn_model("Foo::Model") { include_root_in_json true }
 
@@ -52,7 +52,7 @@ describe Her::Model::Parse do
       end
     end
 
-    context "when parse_root_in_json is true" do
+    context "to true" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
@@ -87,7 +87,7 @@ describe Her::Model::Parse do
       end
     end
 
-    context "when parse_root_in_json is set to a symbol" do
+    context "to a symbol" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { :person => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
@@ -102,7 +102,7 @@ describe Her::Model::Parse do
       end
     end
 
-    context "when parse_root_in_json is set from the parent class" do
+    context "in the parent class" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
@@ -120,6 +120,35 @@ describe Her::Model::Parse do
         @new_user = User.create(:fullname => "Lindsay Fünke")
         @new_user.fullname.should == "Lindsay Fünke"
       end
+    end
+  end
+
+  context "when to_params is set" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.post("/users") { |env| ok! :id => 1, :fullname => params(env)['fullname'] }
+        end
+      end
+
+      spawn_model "Foo::User" do
+        def to_params
+          { :fullname => "Lindsay Fünke" }
+        end
+      end
+    end
+
+    it "changes the request parameters for one-line resource creation" do
+      @user = Foo::User.create(:fullname => "Tobias Fünke")
+      @user.fullname.should == "Lindsay Fünke"
+    end
+
+    it "changes the request parameters for Model.new + #save" do
+      @user = Foo::User.new(:fullname => "Tobias Fünke")
+      @user.save
+      @user.fullname.should == "Lindsay Fünke"
     end
   end
 end
