@@ -205,16 +205,6 @@ describe Her::Model::ORM do
       @users.where(:age => 42).should be_all { |u| u.age == 42 }
       @users.where(:age => 40).should be_all { |u| u.age == 40 }
     end
-
-    it "handles finding with paging parameters" do
-      @users = User.page(2).per_page(20)
-      @users.query_attrs[:page].should == 2
-      @users.query_attrs[:per_page].should == 20
-
-      @users = User.all.page(2).per_page(20)
-      @users.query_attrs[:page].should == 2
-      @users.query_attrs[:per_page].should == 20
-    end
   end
 
   context "creating resources" do

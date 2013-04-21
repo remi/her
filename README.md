@@ -624,7 +624,12 @@ user.save # PUT /users/4fd89a42ff204b03a905c535
 
 ### Inheritance
 
-If all your models share the same settings, you might want to make them children of a class and only include `Her::Model` in that class.
+If all your models share the same settings, you might want to make them children of a class and only include `Her::Model` in that class. However, there are a few settings that don’t get passed to the children classes:
+
+* `root_element`
+* `collection_path` and `resource_path`
+
+Those settings are based on the class name, so you don’t have to redefine them each time you create a new children class (but you still can). Every other setting is inherited from the parent (associations, scopes, JSON settings, etc.).
 
 ```ruby
 module MyAPI
@@ -641,6 +646,29 @@ end
 
 User.find(1)
 # GET /users/1
+```
+
+### Scopes
+
+Just like with ActiveRecord, you can define named scopes for your models. Scopes are chainable and can be used within other scopes.
+
+```ruby
+class User
+  include Her::Model
+
+  scope :by_role, lambda { |role| where(:role => role) }
+  scope :admins, lambda { by_role('admin') }
+  scope :active, lambda { where(:active => 1) }
+end
+
+@admins = User.admins
+# GET /users?role=admin
+
+@moderators = User.by_role('moderator')
+# GET /users?role=moderator
+
+@active_admins = User.active.admins # @admins.active would have worked here too
+# GET /users?role=admin&active=1
 ```
 
 ### Multiple APIs

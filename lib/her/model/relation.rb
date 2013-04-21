@@ -17,20 +17,12 @@ module Her
       # Add a query string parameter
       def where(attrs = {})
         return self if attrs.blank?
-        self.clone.tap { |a| a.query_attrs = a.query_attrs.merge(attrs) }
+        self.clone.tap do |r|
+          r.query_attrs = r.query_attrs.merge(attrs)
+          r.clear_fetch_cache!
+        end
       end
-      alias :all :where
-
-      # Add a `page` query string parameter
-      def page(page)
-        where(:page => page)
-      end
-
-      # Add a `per_page` query string parameter
-      def per_page(per_page)
-        where(:per_page => per_page)
-      end
-      alias :per :per_page
+      alias all where
 
       # Bubble all methods to the fetched collection
       def method_missing(method, *args, &blk)
@@ -109,6 +101,10 @@ module Her
       #   @user.new? # => true
       def first_or_initialize(attrs = {})
         fetch.first || build(attrs)
+      end
+
+      def clear_fetch_cache!
+        instance_variable_set(:@_fetch, nil)
       end
     end
   end

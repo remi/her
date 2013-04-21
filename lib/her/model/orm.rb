@@ -109,16 +109,34 @@ module Her
           end
         end
 
-        # Delegate the following methods to `scoped`
-        [:all, :where, :create, :page, :per_page].each do |method|
-          define_method method do |*attrs|
-            scoped.send(method, attrs.first)
+        # Create a new chainable scope
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #
+        #     scope :admins, lambda { where(:admin => 1) }
+        #     scope :page, lambda { |page| where(:page => page) }
+        #   enc
+        #
+        #   User.admins # Called via GET "/users?admin=1"
+        #   User.page(2).all # Called via GET "/users?page=2"
+        def scope(name, code)
+          define_singleton_method(name) { |*args| instance_exec(*args, &code) }
+
+          Relation.instance_eval do
+            define_method(name) { |*args| instance_exec(*args, &code) }
           end
         end
 
         # @private
         def scoped
           Relation.new(self)
+        end
+
+        # Delegate the following methods to `scoped`
+        [:all, :where, :create].each do |method|
+          define_method(method) { |*attrs| scoped.send(method, attrs.first) }
         end
 
         # Save an existing resource and return it
