@@ -3,71 +3,80 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::Associations do
   context "setting associations without details" do
-    before do
-      spawn_model "Foo::User"
+    before { spawn_model "Foo::User" }
+    subject { Foo::User.associations }
+
+    context "single has_many association" do
+      before { Foo::User.has_many :comments }
+      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }] }
     end
 
-    it "handles a single 'has_many' association" do
-      Foo::User.has_many :comments
-      Foo::User.associations[:has_many].should == [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }]
+    context "multiple has_many associations" do
+      before do
+        Foo::User.has_many :comments
+        Foo::User.has_many :posts
+      end
+
+      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :class_name => "Post", :path => "/posts", :inverse_of => nil }] }
     end
 
-    it "handles multiples 'has_many' association" do
-      Foo::User.has_many :comments
-      Foo::User.has_many :posts
-      Foo::User.associations[:has_many].should == [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :class_name => "Post", :path => "/posts", :inverse_of => nil }]
+    context "single has_one association" do
+      before { Foo::User.has_one :category }
+      its([:has_one]) { should eql [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }] }
     end
 
-    it "handles a single 'has_one' association" do
-      Foo::User.has_one :category
-      Foo::User.associations[:has_one].should == [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }]
+    context "multiple has_one associations" do
+      before do
+        Foo::User.has_one :category
+        Foo::User.has_one :role
+      end
+
+      its([:has_one]) { should eql [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :class_name => "Role", :path => "/role" }] }
     end
 
-    it "handles multiples 'has_one' association" do
-      Foo::User.has_one :category
-      Foo::User.has_one :role
-      Foo::User.associations[:has_one].should == [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :class_name => "Role", :path => "/role" }]
+    context "single belongs_to association" do
+      before { Foo::User.belongs_to :organization }
+      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }] }
     end
 
-    it "handles a single belongs_to association" do
-      Foo::User.belongs_to :organization
-      Foo::User.associations[:belongs_to].should == [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }]
-    end
+    context "multiple belongs_to association" do
+      before do
+        Foo::User.belongs_to :organization
+        Foo::User.belongs_to :family
+      end
 
-    it "handles multiples 'belongs_to' association" do
-      Foo::User.belongs_to :organization
-      Foo::User.belongs_to :family
-      Foo::User.associations[:belongs_to].should == [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }]
+      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }] }
     end
   end
 
   context "setting associations with details" do
-    before do
-      spawn_model "Foo::User"
+    before { spawn_model "Foo::User" }
+    subject { Foo::User.associations }
+
+    context "in base class" do
+      context "single has_many association" do
+        before { Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin, :data_key => :user_comments }
+        its([:has_many]) { should eql [{ :name => :comments, :data_key => :user_comments, :class_name => "Post", :path => "/comments", :inverse_of => :admin }] }
+      end
+
+      context "signle has_one association" do
+        before { Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic }
+        its([:has_one]) { should eql [{ :name => :category, :data_key => :topic, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }] }
+      end
+
+      context "single belongs_to association" do
+        before { Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org }
+        its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :org, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }] }
+      end
     end
 
-    it "handles a single 'has_many' association" do
-      Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin, :data_key => :user_comments
-      Foo::User.associations[:has_many].should == [{ :name => :comments, :data_key => :user_comments, :class_name => "Post", :path => "/comments", :inverse_of => :admin }]
-    end
+    context "in parent class" do
+      before { Foo::User.has_many :comments, :class_name => "Post" }
 
-    it "handles a single 'has_one' association" do
-      Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic
-      Foo::User.associations[:has_one].should == [{ :name => :category, :data_key => :topic, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }]
-    end
-
-    it "handles a single belongs_to association" do
-      Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org
-      Foo::User.associations[:belongs_to].should == [{ :name => :organization, :data_key => :org, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }]
-    end
-
-    context "inheriting associations from a superclass" do
-      it "copies associations to the subclass" do
-        Foo::User.has_many :comments, :class_name => "Post"
-        subclass = Class.new(Foo::User)
-        subclass.associations.object_id.should_not == Foo::User.associations.object_id
-        subclass.associations[:has_many].length.should == 1
-        subclass.associations[:has_many].first[:class_name].should == "Post"
+      describe "associations accessor" do
+        subject { Class.new(Foo::User).associations }
+        its(:object_id) { should_not eql Foo::User.associations.object_id }
+      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
       end
     end
   end
