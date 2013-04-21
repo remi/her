@@ -656,9 +656,9 @@ Just like with ActiveRecord, you can define named scopes for your models. Scopes
 class User
   include Her::Model
 
-  scope :by_role, lambda { |role| where(:role => role) }
+  scope :by_role, lambda { |role| where(role: role) }
   scope :admins, lambda { by_role('admin') }
-  scope :active, lambda { where(:active => 1) }
+  scope :active, lambda { where(active: 1) }
 end
 
 @admins = User.admins
