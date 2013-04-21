@@ -50,7 +50,7 @@ module Her
       # Define the default primary key
       primary_key :id
 
-      # Define default storage variables for errors and metadata
+      # Define default storage accessors for errors and metadata
       store_response_errors :response_errors
       store_metadata :metadata
 
