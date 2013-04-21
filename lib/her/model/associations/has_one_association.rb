@@ -2,6 +2,25 @@ module Her
   module Model
     module Associations
       class HasOneAssociation < Association
+        def self.attach(klass, name, attrs)
+          attrs = {
+            :class_name => name.to_s.classify,
+            :name => name,
+            :data_key => name,
+            :path => "/#{name}"
+          }.merge(attrs)
+          klass.associations[:has_one] << attrs
+
+          klass.instance_eval do
+            define_method(name) do
+              cached_name = :"@_her_association_#{name}"
+
+              cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
+              cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.new(self, attrs))
+            end
+          end
+        end
+
         def build(attributes = {})
           @klass.new(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
         end

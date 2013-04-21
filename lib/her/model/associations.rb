@@ -29,11 +29,7 @@ module Her
         # @private
         def associations
           @_her_associations ||= begin
-            if superclass.respond_to?(:associations)
-              superclass.associations.dup
-            else
-              {}
-            end
+            superclass.respond_to?(:associations) ? superclass.associations.dup : Hash.new { |h,k| h[k] = [] }
           end
         end
         alias :relationships :associations
@@ -82,21 +78,7 @@ module Her
         #   @user.articles # => [#<Article(articles/2) id=2 title="Hello world.">]
         #   # Fetched via GET "/users/1/articles"
         def has_many(name, attrs={})
-          attrs = {
-            :class_name     => name.to_s.classify,
-            :name           => name,
-            :data_key       => name,
-            :path           => "/#{name}",
-            :inverse_of => nil
-          }.merge(attrs)
-          (associations[:has_many] ||= []) << attrs
-
-          define_method(name) do
-            cached_name = :"@_her_association_#{name}"
-
-            cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
-            cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasManyAssociation.new(self, attrs))
-          end
+          Her::Model::Associations::HasManyAssociation.attach(self, name, attrs)
         end
 
         # Define an *has_one* association.
@@ -118,20 +100,7 @@ module Her
         #   @user.organization # => #<Organization(organizations/2) id=2 name="Foobar Inc.">
         #   # Fetched via GET "/users/1/organization"
         def has_one(name, attrs={})
-          attrs = {
-            :class_name => name.to_s.classify,
-            :name => name,
-            :data_key => name,
-            :path => "/#{name}"
-          }.merge(attrs)
-          (associations[:has_one] ||= []) << attrs
-
-          define_method(name) do
-            cached_name = :"@_her_association_#{name}"
-
-            cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
-            cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.new(self, attrs))
-          end
+          Her::Model::Associations::HasOneAssociation.attach(self, name, attrs)
         end
 
         # Define a *belongs_to* association.
@@ -153,21 +122,7 @@ module Her
         #   @user.team # => #<Team(teams/2) id=2 name="Developers">
         #   # Fetched via GET "/teams/2"
         def belongs_to(name, attrs={})
-          attrs = {
-            :class_name => name.to_s.classify,
-            :name => name,
-            :data_key => name,
-            :foreign_key => "#{name}_id",
-            :path => "/#{name.to_s.pluralize}/:id"
-          }.merge(attrs)
-          (associations[:belongs_to] ||= []) << attrs
-
-          define_method(name) do
-            cached_name = :"@_her_association_#{name}"
-
-            cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
-            cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, attrs))
-          end
+          Her::Model::Associations::BelongsToAssociation.attach(self, name, attrs)
         end
       end
     end
