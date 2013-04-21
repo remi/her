@@ -51,7 +51,8 @@ module Her
       def fetch
         @_fetch ||= begin
           path = @parent.build_request_path(@query_attrs)
-          @parent.request(@query_attrs.merge(:_method => :get, :_path => path)) do |parsed_data, response|
+          method = @parent.method_for(:find)
+          @parent.request(@query_attrs.merge(:_method => method, :_path => path)) do |parsed_data, response|
             @parent.new_collection(parsed_data)
           end
         end

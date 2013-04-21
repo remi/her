@@ -48,6 +48,7 @@ module Her
       use_api Her::API.default_api
       method_for :create, :post
       method_for :update, :put
+      method_for :find, :get
 
       # Define the default primary key
       primary_key :id
