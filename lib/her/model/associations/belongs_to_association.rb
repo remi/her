@@ -2,6 +2,7 @@ module Her
   module Model
     module Associations
       class BelongsToAssociation < Association
+        # @private
         def self.attach(klass, name, attrs)
           attrs = {
             :class_name => name.to_s.classify,
@@ -32,6 +33,7 @@ module Her
           resource
         end
 
+        # @private
         def fetch
           foreign_key_value = @parent.attributes[@opts[:foreign_key].to_sym]
           return nil if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @query_attrs.empty?) || foreign_key_value.blank?

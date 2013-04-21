@@ -21,10 +21,12 @@ module Her
       end
       alias :all :where
 
+      # Add a `page` query string parameter
       def page(page)
         where(:page => page)
       end
 
+      # Add a `per_page` query string parameter
       def per_page(per_page)
         where(:per_page => per_page)
       end

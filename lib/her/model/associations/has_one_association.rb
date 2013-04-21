@@ -2,6 +2,7 @@ module Her
   module Model
     module Associations
       class HasOneAssociation < Association
+        # @private
         def self.attach(klass, name, attrs)
           attrs = {
             :class_name => name.to_s.classify,
@@ -31,6 +32,7 @@ module Her
           resource
         end
 
+        # @private
         def fetch
           return nil if @parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @query_attrs.empty?
 
