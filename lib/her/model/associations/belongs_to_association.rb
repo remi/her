@@ -45,7 +45,7 @@ module Her
               return nil
             end
 
-            @klass.get_resource("#{path}", @query_attrs)
+            @klass.get_resource(path, @query_attrs)
           else
             @parent.attributes[@name]
           end
