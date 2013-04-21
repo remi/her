@@ -48,17 +48,17 @@ User.find(1)
 # GET https://api.example.com/users/1 and return a User object
 
 @user = User.create(fullname: "Tobias Fünke")
-# POST "https://api.example.com/users" with the data and return a User object
+# POST "https://api.example.com/users" with `fullname=Tobias+Fünke` and return the saved User object
 
 @user = User.new(fullname: "Tobias Fünke")
 @user.occupation = "actor"
 @user.save
-# POST https://api.example.com/users with the data and return a User object
+# POST https://api.example.com/users with `fullname=Tobias+Fünke&occupation=actore` and return the saved User object
 
 @user = User.find(1)
 @user.fullname = "Lindsay Fünke"
 @user.save
-# PUT https://api.example.com/users/1 with the data and return+update the User object
+# PUT https://api.example.com/users/1 with `fullname=Lindsay+Fünke` and return the updated User object
 ```
 
 ### ActiveRecord-like methods
@@ -500,6 +500,7 @@ You can easily define custom requests for your models using `custom_get`, `custo
 ```ruby
 class User
   include Her::Model
+
   custom_get :popular, :unpopular
   custom_post :from_default
 end
@@ -513,7 +514,7 @@ User.unpopular
 # [#<User id=3>, #<User id=4>]
 
 User.from_default(name: "Maeby Fünke")
-# POST /users/from_default?name=Maeby+Fünke
+# POST /users/from_default with `name=Maeby+Fünke`
 # #<User id=5 name="Maeby Fünke">
 ```
 
@@ -533,7 +534,7 @@ User.get(:single_best)
 # #<User id=1>
 ```
 
-Also, `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data return from the HTTP request) can also be used. Other HTTP methods are supported (`post_raw`, `put_resource`, etc.).
+Also, `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data and the raw response from the HTTP request) can also be used. Other HTTP methods are supported (`post_raw`, `put_resource`, etc.).
 
 ```ruby
 class User
@@ -544,7 +545,7 @@ class User
   end
 
   def self.total
-    get_raw(:stats) do |parsed_data|
+    get_raw(:stats) do |parsed_data, response|
       parsed_data[:data][:total_users]
     end
   end
@@ -553,6 +554,7 @@ end
 User.popular
 # GET /users/popular
 # [#<User id=1>, #<User id=2>]
+
 User.total
 # GET /users/stats
 # => 42
@@ -600,7 +602,7 @@ end
 
 @user = User.new(fullname: "Tobias Fünke", organization_id: 2)
 @user.save
-# POST /organizations/2/users
+# POST /organizations/2/users with `fullname=Tobias+Fünke`
 ```
 
 ### Custom primary keys
