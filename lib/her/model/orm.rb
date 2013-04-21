@@ -136,7 +136,7 @@ module Her
 
         # Delegate the following methods to `scoped`
         [:all, :where, :create].each do |method|
-          define_method(method) { |*attrs| scoped.send(method, attrs.first) }
+          define_method(method) { |*attrs| scoped.send(method, *attrs) }
         end
 
         # Save an existing resource and return it

@@ -156,6 +156,7 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :age => 42 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :age => 34 }.to_json] }
+          stub.get("/users?age=42&foo=bar") { |env| [200, {}, [{ :id => 3, :age => 42 }].to_json] }
           stub.get("/users?age=42") { |env| [200, {}, [{ :id => 1, :age => 42 }].to_json] }
           stub.get("/users?age=40") { |env| [200, {}, [{ :id => 1, :age => 40 }].to_json] }
         end
@@ -195,9 +196,9 @@ describe Her::Model::ORM do
     end
 
     it "handles finding with other parameters" do
-      @users = User.where(:age => 42).all
+      @users = User.where(:age => 42, :foo => "bar").all
       @users.should be_kind_of(Array)
-      @users.should be_all { |u| u.age == 42 }
+      @users.first.id.should == 3
     end
 
     it "handles finding with other parameters and scoped" do
