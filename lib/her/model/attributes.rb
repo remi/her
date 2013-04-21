@@ -104,7 +104,7 @@ module Her
       # Override the method to prevent from returning the object ID
       # @private
       def id
-        attributes[self.class.primary_key] || super
+        attributes[self.class.primary_key]
       end
 
       # Return `true` if the other object is also a Her::Model and has matching data
