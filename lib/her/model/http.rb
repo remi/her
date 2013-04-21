@@ -3,6 +3,7 @@ module Her
     # This module interacts with Her::API to fetch HTTP data
     module HTTP
       extend ActiveSupport::Concern
+      METHODS = [:get, :post, :put, :patch, :delete]
 
       module ClassMethods
         # Change which API the model will use to make its HTTP requests
@@ -36,7 +37,7 @@ module Her
         # - <method>_collection(path, attrs, &block)
         # - <method>_resource(path, attrs, &block)
         # - custom_<method>(path, attrs)
-        [:get, :post, :put, :patch, :delete].each do |method|
+        METHODS.each do |method|
           define_method method do |path, attrs={}|
             path = build_request_path_from_string_or_symbol(path, attrs)
             send(:"#{method}_raw", path, attrs) do |parsed_data, response|
