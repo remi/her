@@ -47,7 +47,7 @@ module Her
         #  end
         def collection_path(path = nil)
           if path.nil?
-            @_her_collection_path ||= "#{root_element.to_s.pluralize}"
+            @_her_collection_path ||= root_element.to_s.pluralize
           else
             @_her_collection_path = path
             @_her_resource_path = "#{path}/:id"
