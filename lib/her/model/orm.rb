@@ -135,7 +135,7 @@ module Her
         end
 
         # Delegate the following methods to `scoped`
-        [:all, :where, :create].each do |method|
+        [:all, :where, :create, :build, :first_or_create, :first_or_initialize].each do |method|
           define_method(method) { |*attrs| scoped.send(method, *attrs) }
         end
 

@@ -103,6 +103,7 @@ module Her
         fetch.first || build(attrs)
       end
 
+      # @private
       def clear_fetch_cache!
         instance_variable_set(:@_fetch, nil)
       end
