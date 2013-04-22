@@ -40,6 +40,12 @@ module Her
         def method_missing(method, *args, &blk)
           fetch.send(method, *args, &blk)
         end
+
+        # ruby 1.8.7 compatibility
+        def id
+          fetch.send(:id)
+        end
+
       end
     end
   end

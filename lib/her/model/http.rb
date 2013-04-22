@@ -38,7 +38,8 @@ module Her
         # - <method>_resource(path, attrs, &block)
         # - custom_<method>(path, attrs)
         METHODS.each do |method|
-          define_method method do |path, attrs={}|
+          define_method method do |path, *attrs|
+            attrs = attrs.first || {}
             path = build_request_path_from_string_or_symbol(path, attrs)
             send(:"#{method}_raw", path, attrs) do |parsed_data, response|
               if parsed_data[:data].is_a?(Array)
@@ -49,19 +50,23 @@ module Her
             end
           end
 
-          define_method :"#{method}_raw" do |path, attrs={}, &block|
+          define_method :"#{method}_raw" do |path, *attrs, &block|
+            attrs = attrs.first || {}
             path = build_request_path_from_string_or_symbol(path, attrs)
             request(attrs.merge(:_method => method, :_path => path), &block)
           end
 
-          define_method :"#{method}_collection" do |path=nil, attrs={}|
+          define_method :"#{method}_collection" do |*args|
+            path  = args.first
+            attrs = args[1] || {}
             path = build_request_path_from_string_or_symbol(path, attrs)
             send(:"#{method}_raw", build_request_path_from_string_or_symbol(path, attrs), attrs) do |parsed_data, response|
               new_collection(parsed_data)
             end
           end
 
-          define_method :"#{method}_resource" do |path, attrs={}|
+          define_method :"#{method}_resource" do |path, *attrs|
+            attrs = attrs.first || {}
             path = build_request_path_from_string_or_symbol(path, attrs)
             send(:"#{method}_raw", path, attrs) do |parsed_data, response|
               new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
