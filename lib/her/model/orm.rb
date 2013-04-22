@@ -169,10 +169,10 @@ module Her
           @method_for ||= (superclass.respond_to?(:method_for) ? superclass.method_for : {})
           return @method_for if action.nil?
 
-          action = action.to_sym.downcase
+          action = action.to_s.downcase.to_sym
 
           return @method_for[action] if method.nil?
-          @method_for[action] = method.to_sym.downcase
+          @method_for[action] = method.to_s.downcase.to_sym
         end
       end
     end
