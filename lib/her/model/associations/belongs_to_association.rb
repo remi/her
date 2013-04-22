@@ -13,14 +13,14 @@ module Her
           }.merge(attrs)
           klass.associations[:belongs_to] << attrs
 
-          klass.instance_eval do
-            define_method(name) do
+          klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            def #{name}
               cached_name = :"@_her_association_#{name}"
 
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
-              cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, attrs))
+              cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, #{attrs.inspect}))
             end
-          end
+          RUBY
         end
 
         def build(attributes = {})

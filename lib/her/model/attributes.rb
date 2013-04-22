@@ -137,18 +137,20 @@ module Her
           attributes.each do |attribute|
             attribute = attribute.to_sym
 
-            define_method attribute do
-              @attributes.include?(attribute) ? @attributes[attribute] : nil
-            end
+            class_eval <<-RUBY, __FILE__, __LINE__ + 1
+              def #{attribute}
+                @attributes.include?(:'#{attribute}') ? @attributes[:'#{attribute}'] : nil
+              end
 
-            define_method :"#{attribute}=" do |value|
-              self.send(:"#{attribute}_will_change!") if @attributes[attribute] != value
-              @attributes[attribute] = value
-            end
+              def #{attribute}=(value)
+                self.send(:"#{attribute}_will_change!") if @attributes[:'#{attribute}'] != value
+                @attributes[:'#{attribute}'] = value
+              end
 
-            define_method :"#{attribute}?" do
-              @attributes.include?(attribute) && @attributes[attribute].present?
-            end
+              def #{attribute}?
+                @attributes.include?(:'#{attribute}') && @attributes[:'#{attribute}'].present?
+              end
+            RUBY
           end
         end
 
@@ -166,8 +168,15 @@ module Her
           return @_her_store_response_errors unless value
           @_her_store_response_errors = value
 
-          define_method(@_her_store_response_errors) { @response_errors }
-          define_method(:"#{@_her_store_response_errors}=") { |value| @response_errors = value }
+          class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            def #{@_her_store_response_errors}
+              @response_errors
+            end
+
+            def #{@_her_store_response_errors}=(value)
+              @response_errors = value
+            end
+          RUBY
         end
 
         # Define the accessor in which the API response metadata (obtained from the parsing middleware) will be stored
@@ -184,8 +193,15 @@ module Her
           return @_her_store_metadata unless value
           @_her_store_metadata = value
 
-          define_method(@_her_store_metadata) { @metadata }
-          define_method(:"#{@_her_store_metadata}=") { |value| @metadata = value }
+          class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            def #{@_her_store_metadata}
+              @metadata
+            end
+
+            def #{@_her_store_metadata}=(value)
+              @metadata = value
+            end
+          RUBY
         end
 
         # @private
