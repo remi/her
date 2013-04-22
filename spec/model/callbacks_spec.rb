@@ -15,6 +15,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     before do
       Her::API.default_api.connection.adapter :test do |stub|
         stub.post("/users") { |env| [200, {}, { :id => 1, :name => env[:body][:name] }.to_json] }
+        stub.put("/users/1") { |env| [200, {}, { :id => 1, :name => env[:body][:name] }.to_json] }
       end
     end
 
@@ -37,6 +38,23 @@ describe "Her::Model and ActiveModel::Callbacks" do
       end
 
       its(:name) { should == "TOBIAS FUNKE" }
+    end
+
+    context "when changing a value of an existing resource in a callback" do
+      before do
+        class Foo::User
+          before_save :alter_name
+          def alter_name
+            self.name = "Lumberjack" if persisted?
+          end
+        end
+      end
+
+      it "should call the server with the canged value" do
+        subject.name.should == "Tobias Funke"
+        subject.save
+        subject.name.should == "Lumberjack"
+      end
     end
   end
 
