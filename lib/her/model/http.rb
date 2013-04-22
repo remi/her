@@ -15,8 +15,8 @@ module Her
           return @_her_use_api unless value
           @_her_use_api = value
         end
-        alias :her_api :use_api
-        alias :uses_api :use_api
+        alias her_api use_api
+        alias uses_api use_api
 
         # Main request wrapper around Her::API. Used to make custom request to the API.
         # @private

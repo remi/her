@@ -44,8 +44,8 @@ module Her
       private
       def assign_nested_attributes_for_simple_association(association_type, association_name, attributes)
         association = self.class.associations[association_type].find { |association| association[:name] == association_name }
-        if has_data?(association[:name])
-          self.send(association[:name]).assign_data(attributes)
+        if has_attribute?(association[:name])
+          self.send(association[:name]).assign_attributes(attributes)
         else
           klass = self.class.her_nearby_class(association[:class_name])
           instance = klass.new(klass.parse(attributes))

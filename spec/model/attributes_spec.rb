@@ -48,16 +48,16 @@ describe Her::Model::Attributes do
       @new_user.should respond_to(:fullname?)
     end
 
-    it "handles has_data? for getter" do
+    it "handles has_attribute? for getter" do
       @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      @new_user.should_not have_data(:unknown_method_for_a_user)
-      @new_user.should have_data(:fullname)
+      @new_user.should_not have_attribute(:unknown_method_for_a_user)
+      @new_user.should have_attribute(:fullname)
     end
 
-    it "handles get_data for getter" do
+    it "handles get_attribute for getter" do
       @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      @new_user.get_data(:unknown_method_for_a_user).should be_nil
-      @new_user.get_data(:fullname).should == 'Mayonegg'
+      @new_user.get_attribute(:unknown_method_for_a_user).should be_nil
+      @new_user.get_attribute(:fullname).should == 'Mayonegg'
     end
   end
 

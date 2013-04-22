@@ -14,13 +14,11 @@ module Her
         associations = self.class.associations.values.flatten.map { |r| r[:name] }
         associations.include?(association_name)
       end
-      alias :has_relationship? :has_association?
 
       # Returns the resource/collection corresponding to the association_name association.
       def get_association(association_name)
         send(association_name) if has_association?(association_name)
       end
-      alias :get_relationship :get_association
 
       module ClassMethods
         # Return @_her_associations, lazily initialized with copy of the
@@ -32,7 +30,6 @@ module Her
             superclass.respond_to?(:associations) ? superclass.associations.dup : Hash.new { |h,k| h[k] = [] }
           end
         end
-        alias :relationships :associations
 
         # Parse associations data after initializing a new object
         #

@@ -18,7 +18,7 @@ module Her
           return self if attrs.blank?
           self.clone.tap { |a| a.query_attrs = a.query_attrs.merge(attrs) }
         end
-        alias :all :where
+        alias all where
 
         # @private
         def nil?
@@ -34,7 +34,7 @@ module Her
         def ==(other)
           fetch.eql?(other)
         end
-        alias :eql? :==
+        alias eql? ==
 
         # ruby 1.8.7 compatibility
         # @private

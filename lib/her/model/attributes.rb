@@ -3,10 +3,7 @@ module Her
     # This module handles all methods related to model attributes
     module Attributes
       extend ActiveSupport::Concern
-
       attr_accessor :attributes
-      alias :data :attributes
-      alias :data= :attributes=
 
       # Initialize a new object with data
       def initialize(attributes={})
@@ -84,22 +81,18 @@ module Her
         parsed_attributes = self.class.parse_associations(unset_attributes)
         attributes.update(parsed_attributes)
       end
-      alias :update_attributes :assign_attributes
-      alias :assign_data :assign_attributes
 
       # Handles returning true for the accessible attributes
       # @private
       def has_attribute?(attribute_name)
         attributes.include?(attribute_name)
       end
-      alias :has_data? :has_attribute?
 
       # Handles returning data for a specific attribute
       # @private
       def get_attribute(attribute_name)
         attributes[attribute_name]
       end
-      alias :get_data :get_attribute
 
       # Override the method to prevent from returning the object ID
       # @private
