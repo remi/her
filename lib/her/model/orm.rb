@@ -131,7 +131,7 @@ module Her
 
         # @private
         def scoped
-          @_her_default_scope ? @_her_default_scope : blank_relation
+          @_her_default_scope || blank_relation
         end
 
         # Define the default scope for the model
