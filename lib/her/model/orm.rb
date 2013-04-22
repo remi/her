@@ -34,13 +34,8 @@ module Her
       #   @user.save
       #   # Called via POST "/users"
       def save
-        if new?
-          callback = :create
-          method = :post
-        else
-          callback = :update
-          method = :put
-        end
+        callback = new? ? :create : :update
+        method = self.class.method_for(callback)
 
         run_callbacks callback do
           run_callbacks :save do
@@ -66,9 +61,9 @@ module Her
       #   @user.destroy
       #   # Called via DELETE "/users/1"
       def destroy
-        resource = self
+        method = self.class.method_for(:destroy)
         run_callbacks :destroy do
-          self.class.request(:_method => :delete, :_path => request_path) do |parsed_data, response|
+          self.class.request(:_method => method, :_path => request_path) do |parsed_data, response|
             assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             self.metadata = parsed_data[:metadata]
             self.response_errors = parsed_data[:errors]
@@ -92,7 +87,7 @@ module Her
           params = ids.last.is_a?(Hash) ? ids.pop : {}
           results = ids.flatten.compact.uniq.map do |id|
             resource = nil
-            request(params.merge(:_method => :get, :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
+            request(params.merge(:_method => method_for(:find), :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
               if response.success?
                 resource = new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
                 resource.run_callbacks :find
@@ -157,9 +152,21 @@ module Her
         #   User.destroy_existing(1)
         #   # Called via DELETE "/users/1"
         def destroy_existing(id, params={})
-          request(params.merge(:_method => :delete, :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
+          request(params.merge(:_method => method_for(:destroy), :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
             new(parse(parsed_data[:data]).merge(:_destroyed => true))
           end
+        end
+
+        # Return or change the HTTP method used to create or update records
+        #
+        # @param [Symbol, String] action The behavior in question (`:create` or `:update`)
+        # @param [Symbol, String] method The HTTP method to use (`'PUT'`, `:post`, etc.)
+        def method_for(action, method = nil)
+          @method_for ||= superclass.instance_variable_get('@method_for') || {}
+          action = action.to_sym.downcase
+
+          return @method_for[action] if method.nil?
+          @method_for[action] = method.to_sym.downcase
         end
       end
     end
