@@ -101,6 +101,35 @@ describe Her::Model::ORM do
       @user.response_errors.should == ["Yes", "Sir"]
     end
   end
+  
+  context "mapping data to Ruby objects of a custom subclass" do
+    before do
+      api = Her::API.new
+      api.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::SecondLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users") { |env| [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke", :type => "special" }], :metadata => {}, :errors => [] }.to_json] }
+        end
+      end
+      
+      spawn_model 'User' do
+        uses_api api
+        def self.class_for_data(data)
+          data[:type] == "special" ? SpecialUser : self
+        end
+      end
+      
+      class SpecialUser < User
+      end
+    end
+    
+    it "maps to objects of the specified subclass" do
+      @users = User.all
+      @users[0].should be_a(User)
+      @users[1].should be_a(SpecialUser)
+    end 
+  end
 
   context "defining custom getters and setters" do
     before do

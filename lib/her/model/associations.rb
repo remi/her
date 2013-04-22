@@ -50,7 +50,7 @@ module Her
                 when :has_many
                   Her::Model::Attributes.initialize_collection(klass, :data => data[data_key])
                 when :has_one, :belongs_to
-                  klass.new(data[data_key])
+                  klass.class_for_data(klass.parse(data[data_key])).new(data[data_key])
                 else
                   nil
               end

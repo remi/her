@@ -48,6 +48,7 @@ module Her
           self.send(association[:name]).assign_data(attributes)
         else
           klass = self.class.her_nearby_class(association[:class_name])
+          klass = klass.class_for_data(klass.parse(attributes))
           instance = klass.new(klass.parse(attributes))
           self.send("#{association[:name]}=", instance)
         end

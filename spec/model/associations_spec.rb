@@ -90,7 +90,7 @@ describe Her::Model::Associations do
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 2 }.to_json] }
           stub.get("/users/1/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }].to_json] }
-          stub.get("/users/2/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }].to_json] }
+          stub.get("/users/2/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?", type: 'spam' } }].to_json] }
           stub.get("/users/2/role") { |env| [200, {}, { :id => 2, :body => "User" }.to_json] }
           stub.get("/users/1/role") { |env| [200, {}, { :id => 3, :body => "User" }.to_json] }
           stub.get("/users/1/posts") { |env| [200, {}, {:id => 1, :body => 'blogging stuff', :admin_id => 1 }.to_json] }
@@ -118,6 +118,9 @@ describe Her::Model::Associations do
       spawn_model "Foo::Comment" do
         belongs_to :user
         parse_root_in_json true
+        def self.class_for_data(data)
+          data[:type] == 'spam' ? Foo::SpamComment : self
+        end
       end
       spawn_model "Foo::Post" do
         belongs_to :admin, :class_name => 'Foo::User'
@@ -128,6 +131,9 @@ describe Her::Model::Associations do
       end
 
       spawn_model "Foo::Role"
+      
+      class Foo::SpamComment < Foo::Comment
+      end
 
       @user_with_included_data = Foo::User.find(1)
       @user_without_included_data = Foo::User.find(2)
@@ -143,6 +149,12 @@ describe Her::Model::Associations do
       @user_with_included_data.comments.first.id.should == 2
       @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
     end
+    
+    it "maps association data to objects of a subclass if specified" do
+      @user_without_included_data.comments[0].should be_a(Foo::Comment)
+      @user_without_included_data.comments[1].should be_a(Foo::SpamComment)
+    end
+      
 
     it "does not refetch the parents models data if they have been fetched before" do
       @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
