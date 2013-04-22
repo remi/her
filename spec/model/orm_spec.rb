@@ -323,17 +323,31 @@ describe Her::Model::ORM do
         Her::API.default_api.connection.adapter :test do |stub|
           stub.put('/users') { |env| [200, {}, { :id => 1, :fullname => 'Tobias Fünke' }.to_json] }
         end
-
         spawn_model 'Foo::User' do
           attributes :fullname, :email
           method_for :create, 'PUT'
         end
       end
 
-      it 'uses the custom method (PUT) instead of default method (POST)' do
-        user = Foo::User.new(:fullname => 'Tobias Fünke')
-        user.should be_new
-        user.save.should be_true
+      context 'for top-level class' do
+        it 'uses the custom method (PUT) instead of default method (POST)' do
+          user = Foo::User.new(:fullname => 'Tobias Fünke')
+          user.should be_new
+          user.save.should be_true
+        end
+      end
+
+      context 'for children class' do
+        before do
+          class User < Foo::User; end
+          @spawned_models << :User
+        end
+
+        it 'uses the custom method (PUT) instead of default method (POST)' do
+          user = User.new(:fullname => 'Tobias Fünke')
+          user.should be_new
+          user.save.should be_true
+        end
       end
     end
 

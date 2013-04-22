@@ -161,8 +161,10 @@ module Her
         #
         # @param [Symbol, String] action The behavior in question (`:create` or `:update`)
         # @param [Symbol, String] method The HTTP method to use (`'PUT'`, `:post`, etc.)
-        def method_for(action, method = nil)
-          @method_for ||= superclass.instance_variable_get('@method_for') || {}
+        def method_for(action = nil, method = nil)
+          @method_for ||= (superclass.respond_to?(:method_for) ? superclass.method_for : {})
+          return @method_for if action.nil?
+
           action = action.to_sym.downcase
 
           return @method_for[action] if method.nil?
