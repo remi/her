@@ -118,11 +118,12 @@ module Her
         #   User.admins # Called via GET "/users?admin=1"
         #   User.page(2).all # Called via GET "/users?page=2"
         def scope(name, code)
-          # ruby 1.8.7 compatibility
-          (class << self; self end).send :define_method, name do |*args|
+          # Add the scope method to the class
+          (class << self; self end).define_method(name) do |*args|
             instance_exec(*args, &code)
           end
 
+          # Add the scope method to the Relation class
           Relation.instance_eval do
             define_method(name) { |*args| instance_exec(*args, &code) }
           end
