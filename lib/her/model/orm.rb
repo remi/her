@@ -153,7 +153,11 @@ module Her
 
         # Delegate the following methods to `scoped`
         [:all, :where, :create, :build, :first_or_create, :first_or_initialize].each do |method|
-          define_method(method) { |*attrs| scoped.send(method, *attrs) }
+          class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            def #{method}(*attrs)
+              scoped.send(#{method.to_sym.inspect}, *attrs)
+            end
+          RUBY
         end
 
         # Save an existing resource and return it
