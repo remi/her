@@ -131,7 +131,7 @@ module Her
 
         # @private
         def scoped
-          @her_default_scope ? @her_default_scope : blank_relation
+          @_her_default_scope ? @_her_default_scope : blank_relation
         end
 
         # Define the default scope for the model
@@ -146,9 +146,9 @@ module Her
         #   User.all # Called via GET "/users?admin=1"
         #   User.new.admin # => 1
         def default_scope(block=nil)
-          @her_default_scope ||= superclass.respond_to?(:default_scope) ? superclass.default_scope : scoped
-          @her_default_scope = @her_default_scope.instance_exec(&block) unless block.nil?
-          @her_default_scope
+          @_her_default_scope ||= superclass.respond_to?(:default_scope) ? superclass.default_scope : scoped
+          @_her_default_scope = @_her_default_scope.instance_exec(&block) unless block.nil?
+          @_her_default_scope
         end
 
         # Delegate the following methods to `scoped`
