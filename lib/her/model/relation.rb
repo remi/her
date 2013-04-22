@@ -9,6 +9,11 @@ module Her
         @query_attrs = {}
       end
 
+      # @private
+      def apply_to(attributes)
+        @query_attrs.merge(attributes)
+      end
+
       # Build a new resource
       def build(attrs = {})
         @parent.new(@query_attrs.merge(attrs))

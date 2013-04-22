@@ -133,4 +133,56 @@ describe Her::Model::Relation do
       @user.id.should == 4
     end
   end
+
+  describe :default_scope do
+    context "for new objects" do
+      before do
+        spawn_model 'Foo::User' do
+          default_scope lambda { where(:active => true) }
+          default_scope lambda { where(:admin => true) }
+        end
+      end
+
+      it "should apply the scope to the attributes" do
+        Foo::User.new.should be_active
+        Foo::User.new.should be_admin
+      end
+    end
+
+    context "for fetched resources" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.post("/users") { |env| ok! :id => 3, :active => (params(env)[:active] == "true" ? true : false) }
+          end
+        end
+
+        spawn_model 'Foo::User' do
+          default_scope lambda { where(:active => true) }
+        end
+      end
+
+      it("should apply the scope to the request") { Foo::User.create.should be_active }
+    end
+
+    context "for fetched collections" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users?active=true") { |env| ok! [{ :id => 3, :active => (params(env)[:active] == "true" ? true : false) }] }
+          end
+        end
+
+        spawn_model 'Foo::User' do
+          default_scope lambda { where(:active => true) }
+        end
+      end
+
+      it("should apply the scope to the request") { Foo::User.all.first.should be_active }
+    end
+  end
 end

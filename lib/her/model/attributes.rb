@@ -12,6 +12,7 @@ module Her
         @response_errors = attributes.delete(:_errors) || {}
         @destroyed = attributes.delete(:_destroyed) || false
 
+        attributes = self.class.default_scope.apply_to(attributes)
         assign_attributes(attributes)
       end
 
