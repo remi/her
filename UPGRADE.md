@@ -23,10 +23,6 @@ Here is a list of backward-incompatible changes that were introduced while Her i
         # To pass additional parameters to the HTTP request, we now have to do this
         comments = User.find(1).comments.where(:approved => 1)
 
-## 0.5.4
-
-* Her does not support Ruby 1.8.7 anymore. You should upgrade to 1.9.2, 1.9.3 or 2.0.0.
-
 ## 0.5
 
 * Her is now compatible with `ActiveModel` and includes `ActiveModel::Validations`.
