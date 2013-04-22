@@ -8,7 +8,7 @@ module Her
             base, submodel = klass.split(/::/).map{ |s| s.to_sym }
             Object.const_set(base, Module.new) unless Object.const_defined?(base)
             Object.const_get(base).module_eval do
-              remove_const submodel if constants.include?(submodel)
+              remove_const submodel if constants.map(&:to_sym).include?(submodel)
               submodel = const_set(submodel, Class.new)
               submodel.send(:include, Her::Model)
               submodel.class_eval(&block) if block_given?
