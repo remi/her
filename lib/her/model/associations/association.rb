@@ -36,16 +36,16 @@ module Her
         end
         alias :eql? :==
 
+        # ruby 1.8.7 compatibility
+        # @private
+        def id
+          fetch.id
+        end
+
         # @private
         def method_missing(method, *args, &blk)
           fetch.send(method, *args, &blk)
         end
-
-        # ruby 1.8.7 compatibility
-        def id
-          fetch.send(:id)
-        end
-
       end
     end
   end
