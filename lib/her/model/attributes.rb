@@ -169,13 +169,8 @@ module Her
           @_her_store_response_errors = value
 
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
-            def #{@_her_store_response_errors}
-              @response_errors
-            end
-
-            def #{@_her_store_response_errors}=(value)
-              @response_errors = value
-            end
+            def #{@_her_store_response_errors}; @response_errors; end
+            def #{@_her_store_response_errors}=(value); @response_errors = value; end
           RUBY
         end
 
@@ -194,13 +189,8 @@ module Her
           @_her_store_metadata = value
 
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
-            def #{@_her_store_metadata}
-              @metadata
-            end
-
-            def #{@_her_store_metadata}=(value)
-              @metadata = value
-            end
+            def #{@_her_store_metadata}; @metadata; end
+            def #{@_her_store_metadata}=(value); @metadata = value; end
           RUBY
         end
 
