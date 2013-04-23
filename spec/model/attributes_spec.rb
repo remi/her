@@ -18,7 +18,7 @@ describe Her::Model::Attributes do
 
     it "handles method missing for getter" do
       @new_user = Foo::User.new(:fullname => 'Mayonegg')
-      lambda { @new_user.unknown_method_for_a_user }.should raise_error(NoMethodError)
+      expect { @new_user.unknown_method_for_a_user }.to raise_error(NoMethodError)
       expect { @new_user.fullname }.to_not raise_error(NoMethodError)
     end
 
