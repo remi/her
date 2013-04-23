@@ -23,8 +23,9 @@ describe Her::Model::Relation do
       end
 
       it "fetches the data and passes query parameters" do
-        Her::Model::Relation.any_instance.should_receive(:fetch).once.and_call_original
+        Her::Model::Relation.any_instance.should_receive(:fetch).twice.and_call_original
         @users = Foo::User.where(:admin => 1)
+        @users.should respond_to :length
         @users.length.should == 1
       end
 
