@@ -75,7 +75,7 @@ module Her
         # @private
         def fetch
           foreign_key_value = @parent.attributes[@opts[:foreign_key].to_sym]
-          return nil if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @query_attrs.empty?) || foreign_key_value.blank?
+          return nil if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @query_attrs.empty?) || (@parent.persisted? && foreign_key_value.blank?)
 
           if @parent.attributes[@name].blank? || @query_attrs.any?
             path = begin
@@ -87,6 +87,15 @@ module Her
             @klass.get_resource(path, @query_attrs)
           else
             @parent.attributes[@name]
+          end
+        end
+
+        # @private
+        def assign_nested_attributes(attributes)
+          if @parent.attributes[@name].blank?
+            @parent.attributes[@name] = @klass.new(@klass.parse(attributes))
+          else
+            @parent.attributes[@name].assign_attributes(attributes)
           end
         end
       end

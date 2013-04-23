@@ -98,6 +98,11 @@ module Her
 
           output
         end
+
+        # @private
+        def assign_nested_attributes(attributes)
+          @parent.attributes[@name] = Her::Model::Attributes.initialize_collection(@klass, :data => attributes)
+        end
       end
     end
   end
