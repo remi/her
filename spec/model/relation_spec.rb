@@ -18,15 +18,15 @@ describe Her::Model::Relation do
       end
 
       it "doesn't fetch the data immediatly" do
-        Her::Model::Relation.any_instance.should_receive(:fetch).never
+        Foo::User.should_receive(:request).never
         @users = Foo::User.where(:admin => 1)
       end
 
       it "fetches the data and passes query parameters" do
-        Her::Model::Relation.any_instance.should_receive(:fetch).twice.and_call_original
+        Foo::User.should_receive(:request).once.and_call_original
         @users = Foo::User.where(:admin => 1)
-        @users.should respond_to :length
-        @users.length.should == 1
+        @users.should respond_to(:length)
+        @users.should have(1).items
       end
 
       it "chains multiple where statements" do

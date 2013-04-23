@@ -34,6 +34,7 @@ module Her
         fetch.send(method, *args, &blk)
       end
 
+      # @private
       def respond_to?(method, *args)
         super || fetch.respond_to?(method, *args)
       end
