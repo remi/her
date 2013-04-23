@@ -37,22 +37,11 @@ module Her
         def parse_associations(data)
           associations.each_pair do |type, definitions|
             definitions.each do |association|
-              data_key = association[:data_key]
-              next unless data[data_key]
-
-              klass = self.her_nearby_class(association[:class_name])
-              name = association[:name]
-
-              data[name] = case type
-                when :has_many
-                  Her::Model::Attributes.initialize_collection(klass, :data => data[data_key])
-                when :has_one, :belongs_to
-                  klass.new(data[data_key])
-                else
-                  nil
-              end
+              association_class = "her/model/associations/#{type}_association".classify.constantize
+              data.merge! association_class.parse(association, self, data)
             end
           end
+
           data
         end
 

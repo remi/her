@@ -22,6 +22,15 @@ module Her
           RUBY
         end
 
+        # @private
+        def self.parse(association, klass, data)
+          data_key = association[:data_key]
+          return {} unless data[data_key]
+
+          klass = klass.her_nearby_class(association[:class_name])
+          { association[:name] => klass.new(data[data_key]) }
+        end
+
         def build(attributes = {})
           @klass.new(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
         end
