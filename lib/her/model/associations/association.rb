@@ -14,6 +14,7 @@ module Her
           @name = @opts[:name]
         end
 
+        # Add query parameters to the HTTP request performed to fetch the data
         def where(attrs = {})
           return self if attrs.blank?
           self.clone.tap { |a| a.query_attrs = a.query_attrs.merge(attrs) }

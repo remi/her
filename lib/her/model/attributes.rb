@@ -6,6 +6,18 @@ module Her
       attr_accessor :attributes
 
       # Initialize a new object with data
+      #
+      # @param [Hash] attributes The attributes to initialize the object with
+      # @option attributes [Hash,Array] :_metadata
+      # @option attributes [Hash,Array] :_errors
+      # @option attributes [Boolean] :_destroyed
+      #
+      # @example
+      #   class User
+      #     include Her::Model
+      #   end
+      #
+      #  User.new(name: "Tobias") # => #<User name="Tobias">
       def initialize(attributes={})
         attributes ||= {}
         @metadata = attributes.delete(:_metadata) || {}
@@ -17,6 +29,7 @@ module Her
       end
 
       # Initialize a collection of resources
+      #
       # @private
       def self.initialize_collection(klass, parsed_data={})
         collection_data = parsed_data[:data].map do |item_data|
@@ -29,6 +42,7 @@ module Her
 
       # Use setter methods of model for each key / value pair in params
       # Return key / value pairs for which no setter method was defined on the model
+      #
       # @private
       def self.use_setter_methods(model, params)
         setter_method_names = model.class.setter_method_names
@@ -46,6 +60,7 @@ module Her
       end
 
       # Handles missing methods
+      #
       # @private
       def method_missing(method, *args, &blk)
         if method.to_s =~ /[?=]$/ || attributes.include?(method)
@@ -72,8 +87,16 @@ module Her
         method.to_s.end_with?('=') || method.to_s.end_with?('?') || @attributes.include?(method) || @attributes.include?(method) || super
       end
 
-      # Assign new attributes
-      # @private
+      # Assign new attributes to a resource
+      #
+      # @example
+      #   class User
+      #     include Her::Model
+      #   end
+      #
+      #   user = User.find(1) # => #<User id=1 name="Tobias">
+      #   user.assign_attributes(name: "Lindsay")
+      #   user.changes # => { :name => ["Tobias", "Lindsay"] }
       def assign_attributes(raw_data)
         @attributes ||= {}
         # Use setter methods first, then translate attributes of associations
@@ -84,30 +107,35 @@ module Her
       end
 
       # Handles returning true for the accessible attributes
+      #
       # @private
       def has_attribute?(attribute_name)
         attributes.include?(attribute_name)
       end
 
       # Handles returning data for a specific attribute
+      #
       # @private
       def get_attribute(attribute_name)
         attributes[attribute_name]
       end
 
       # Override the method to prevent from returning the object ID
+      #
       # @private
       def id
         attributes[self.class.primary_key]
       end
 
       # Return `true` if the other object is also a Her::Model and has matching data
+      #
       # @private
       def ==(other)
         other.is_a?(Her::Model) && attributes == other.attributes
       end
 
       # Delegate to the == method
+      #
       # @private
       def eql?(other)
         self == other
@@ -131,6 +159,12 @@ module Her
         # Define the attributes that will be used to track dirty attributes and validations
         #
         # @param [Array] attributes
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     attributes :name, :email
+        #   end
         def attributes(*attributes)
           define_attribute_methods attributes
 
@@ -155,6 +189,14 @@ module Her
         end
 
         # Define the accessor in which the API response errors (obtained from the parsing middleware) will be stored
+        #
+        # @param [Symbol] store_response_errors
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     store_response_errors :server_errors
+        #   end
         def store_response_errors(value = nil)
           if @_her_store_response_errors
             remove_method @_her_store_response_errors
@@ -175,6 +217,14 @@ module Her
         end
 
         # Define the accessor in which the API response metadata (obtained from the parsing middleware) will be stored
+        #
+        # @param [Symbol] store_metadata
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     store_metadata :server_data
+        #   end
         def store_metadata(value = nil)
           if @_her_store_metadata
             remove_method @_her_store_metadata

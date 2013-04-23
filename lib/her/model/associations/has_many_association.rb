@@ -32,10 +32,40 @@ module Her
           { association[:name] => Her::Model::Attributes.initialize_collection(klass, :data => data[data_key]) }
         end
 
+        # Initialize a new object with a foreign key to the parent
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     has_many :comments
+        #   end
+        #
+        #   class Comment
+        #     include Her::Model
+        #   end
+        #
+        #   user = User.find(1)
+        #   new_comment = user.comments.build(:body => "Hello!")
+        #   new_comment # => #<Comment user_id=1 body="Hello!">
         def build(attributes = {})
           @klass.new(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
         end
 
+        # Create a new object, save it and add it to the associated collection
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     has_many :comments
+        #   end
+        #
+        #   class Comment
+        #     include Her::Model
+        #   end
+        #
+        #   user = User.find(1)
+        #   user.comments.create(:body => "Hello!")
+        #   user.comments # => [#<Comment id=2 user_id=1 body="Hello!">]
         def create(attributes = {})
           resource = build(attributes)
 

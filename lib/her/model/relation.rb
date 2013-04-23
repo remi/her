@@ -30,6 +30,8 @@ module Her
       alias all where
 
       # Bubble all methods to the fetched collection
+      #
+      # @private
       def method_missing(method, *args, &blk)
         fetch.send(method, *args, &blk)
       end

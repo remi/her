@@ -7,6 +7,8 @@ module Her
       # Returns true if attribute_name is
       # * in resource attributes
       # * an association
+      #
+      # @private
       def has_key?(attribute_name)
         has_attribute?(attribute_name) ||
         has_association?(attribute_name)
@@ -15,6 +17,8 @@ module Her
       # Returns
       # * the value of the attribute_name attribute if it's in orm data
       # * the resource/collection corrsponding to attribute_name if it's an association
+      #
+      # @private
       def [](attribute_name)
         get_attribute(attribute_name) ||
         get_association(attribute_name)

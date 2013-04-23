@@ -7,6 +7,17 @@ module Her
 
       module ClassMethods
         # Change which API the model will use to make its HTTP requests
+        #
+        # @example
+        #   secondary_api = Her::API.new :url => "https://api.example" do |connection|
+        #     connection.use Faraday::Request::UrlEncoded
+        #     connection.use Her::Middleware::DefaultParseJSON
+        #   end
+        #
+        #   class User
+        #     include Her::Model
+        #     use_api secondary_api
+        #   end
         def use_api(value = nil)
           @_her_use_api ||= begin
             superclass.use_api if superclass.respond_to?(:use_api)
@@ -19,6 +30,7 @@ module Her
         alias uses_api use_api
 
         # Main request wrapper around Her::API. Used to make custom request to the API.
+        #
         # @private
         def request(attrs={})
           request = her_api.request(attrs)

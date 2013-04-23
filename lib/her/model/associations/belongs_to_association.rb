@@ -32,10 +32,40 @@ module Her
           { association[:name] => klass.new(data[data_key]) }
         end
 
+        # Initialize a new object
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     belongs_to :organization
+        #   end
+        #
+        #   class Organization
+        #     include Her::Model
+        #   end
+        #
+        #   user = User.find(1)
+        #   new_organization = user.organization.build(:name => "Foo Inc.")
+        #   new_organization # => #<Organization name="Foo Inc.">
         def build(attributes = {})
           @klass.new(attributes)
         end
 
+        # Create a new object, save it and associate it to the parent
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     belongs_to :organization
+        #   end
+        #
+        #   class Organization
+        #     include Her::Model
+        #   end
+        #
+        #   user = User.find(1)
+        #   user.organization.create(:name => "Foo Inc.")
+        #   user.organization # => #<Organization id=2 name="Foo Inc.">
         def create(attributes = {})
           resource = build(attributes)
           @parent.attributes[@name] = resource if resource.save

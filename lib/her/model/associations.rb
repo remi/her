@@ -10,12 +10,16 @@ module Her
       extend ActiveSupport::Concern
 
       # Returns true if the model has a association_name association, false otherwise.
+      #
+      # @private
       def has_association?(association_name)
         associations = self.class.associations.values.flatten.map { |r| r[:name] }
         associations.include?(association_name)
       end
 
       # Returns the resource/collection corresponding to the association_name association.
+      #
+      # @private
       def get_association(association_name)
         send(association_name) if has_association?(association_name)
       end
@@ -47,8 +51,11 @@ module Her
 
         # Define an *has_many* association.
         #
-        # @param [Symbol] name The name of the model
-        # @param [Hash] attrs Options (currently not used)
+        # @param [Symbol] name The name of the method added to resources
+        # @param [Hash] attrs Options
+        # @option attrs [String] :class_name The name of the class to map objects to
+        # @option attrs [Symbol] :data_key The attribute where the data is stored
+        # @option attrs [Path] :path The relative path where to fetch the data (defaults to `/{name}`)
         #
         # @example
         #   class User
@@ -69,8 +76,10 @@ module Her
 
         # Define an *has_one* association.
         #
-        # @param [Symbol] name The name of the model
-        # @param [Hash] attrs Options
+        # @param [Symbol] name The name of the method added to resources
+        # @option attrs [String] :class_name The name of the class to map objects to
+        # @option attrs [Symbol] :data_key The attribute where the data is stored
+        # @option attrs [Path] :path The relative path where to fetch the data (defaults to `/{name}`)
         #
         # @example
         #   class User
@@ -91,8 +100,11 @@ module Her
 
         # Define a *belongs_to* association.
         #
-        # @param [Symbol] name The name of the model
-        # @param [Hash] attrs Options
+        # @param [Symbol] name The name of the method added to resources
+        # @option attrs [String] :class_name The name of the class to map objects to
+        # @option attrs [Symbol] :data_key The attribute where the data is stored
+        # @option attrs [Path] :path The relative path where to fetch the data (defaults to `/{class_name}.pluralize/{id}`)
+        # @option attrs [Symbol] :foreign_key The foreign key used to build the `:id` part of the path (defaults to `{name}_id`)
         #
         # @example
         #   class User
