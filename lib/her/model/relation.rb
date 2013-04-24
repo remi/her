@@ -2,22 +2,22 @@ module Her
   module Model
     class Relation
       # @private
-      attr_accessor :query_attrs
+      attr_accessor :params
 
       # @private
       def initialize(parent)
         @parent = parent
-        @query_attrs = {}
+        @params = {}
       end
 
       # @private
       def apply_to(attributes)
-        @query_attrs.merge(attributes)
+        @params.merge(attributes)
       end
 
       # Build a new resource
-      def build(attrs = {})
-        @parent.new(@query_attrs.merge(attrs))
+      def build(attributes = {})
+        @parent.new(@params.merge(attributes))
       end
 
       # Add a query string parameter
@@ -29,10 +29,10 @@ module Her
       # @example
       #   @users = User.where(:approved => 1).all
       #   # Fetched via GET "/users?approved=1"
-      def where(attrs = {})
-        return self if attrs.blank?
+      def where(params = {})
+        return self if params.blank?
         self.clone.tap do |r|
-          r.query_attrs = r.query_attrs.merge(attrs)
+          r.params = r.params.merge(params)
           r.clear_fetch_cache!
         end
       end
@@ -65,9 +65,9 @@ module Her
       # @private
       def fetch
         @_fetch ||= begin
-          path = @parent.build_request_path(@query_attrs)
+          path = @parent.build_request_path(@params)
           method = @parent.method_for(:find)
-          @parent.request(@query_attrs.merge(:_method => method, :_path => path)) do |parsed_data, response|
+          @parent.request(@params.merge(:_method => method, :_path => path)) do |parsed_data, response|
             @parent.new_collection(parsed_data)
           end
         end
@@ -82,9 +82,9 @@ module Her
       # @example
       #   @user = User.where(:email => "tobias@bluth.com").create(:fullname => "Tobias Fünke")
       #   # Called via POST "/users/1" with `&email=tobias@bluth.com&fullname=Tobias+Fünke`
-      def create(attrs = {})
-        attrs ||= {}
-        resource = @parent.new(@query_attrs.merge(attrs))
+      def create(attributes = {})
+        attributes ||= {}
+        resource = @parent.new(@params.merge(attributes))
         resource.save
 
         resource
@@ -100,8 +100,8 @@ module Her
       #
       #   # If collection is empty:
       #   # POST /users with `email=remi@example.com`
-      def first_or_create(attrs = {})
-        fetch.first || create(attrs)
+      def first_or_create(attributes = {})
+        fetch.first || create(attributes)
       end
 
       # Fetch a resource and build it if it's not found
@@ -115,8 +115,8 @@ module Her
       #   # If collection is empty:
       #   @user.email # => "remi@example.com"
       #   @user.new? # => true
-      def first_or_initialize(attrs = {})
-        fetch.first || build(attrs)
+      def first_or_initialize(attributes = {})
+        fetch.first || build(attributes)
       end
 
       # @private

@@ -6,9 +6,9 @@ module Her
     attr_reader :base_uri, :connection, :options
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
-    def self.setup(attrs={}, &block)
+    def self.setup(opts={}, &block)
       @default_api = new
-      @default_api.setup(attrs, &block)
+      @default_api.setup(opts, &block)
     end
 
     # Create a new API object. This is useful to create multiple APIs and use them with the `uses_api` method.
@@ -29,9 +29,9 @@ module Her
 
     # Setup the API connection.
     #
-    # @param [Hash] attrs the Faraday options
-    # @option attrs [String] :url The main HTTP API root (eg. `https://api.example.com`)
-    # @option attrs [String] :ssl A hash containing [SSL options](https://github.com/technoweenie/faraday/wiki/Setting-up-SSL-certificates)
+    # @param [Hash] opts the Faraday options
+    # @option opts [String] :url The main HTTP API root (eg. `https://api.example.com`)
+    # @option opts [String] :ssl A hash containing [SSL options](https://github.com/technoweenie/faraday/wiki/Setting-up-SSL-certificates)
     #
     # @return Faraday::Connection
     #
@@ -65,10 +65,10 @@ module Her
     #     connection.use MyCustomParser
     #     connection.use Faraday::Adapter::NetHttp
     #   end
-    def setup(attrs={}, &blk)
-      attrs[:url] = attrs.delete(:base_uri) if attrs.include?(:base_uri) # Support legacy :base_uri option
-      @base_uri = attrs[:url]
-      @options = attrs
+    def setup(opts={}, &blk)
+      opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
+      @base_uri = opts[:url]
+      @options = opts
       @connection = Faraday.new(@options) do |connection|
         yield connection if block_given?
       end
@@ -80,20 +80,20 @@ module Her
     # and a metadata Hash.
     #
     # @private
-    def request(attrs={})
-      method = attrs.delete(:_method)
-      path = attrs.delete(:_path)
-      headers = attrs.delete(:_headers)
-      attrs.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
+    def request(opts={})
+      method = opts.delete(:_method)
+      path = opts.delete(:_path)
+      headers = opts.delete(:_headers)
+      opts.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
       response = @connection.send method do |request|
         request.headers.merge!(headers) if headers
         if method == :get
           # For GET requests, treat additional parameters as querystring data
-          request.url path, attrs
+          request.url path, opts
         else
           # For POST, PUT and DELETE requests, treat additional parameters as request body
           request.url path
-          request.body = attrs
+          request.body = opts
         end
       end
 
@@ -102,7 +102,7 @@ module Her
 
     private
     # @private
-    def self.default_api(attrs={})
+    def self.default_api(opts={})
       defined?(@default_api) ? @default_api : nil
     end
   end

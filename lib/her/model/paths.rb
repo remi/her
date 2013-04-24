@@ -110,8 +110,8 @@ module Her
         end
 
         # @private
-        def build_request_path_from_string_or_symbol(path, attrs={})
-          path.is_a?(Symbol) ? "#{build_request_path(attrs)}/#{path}" : path
+        def build_request_path_from_string_or_symbol(path, params={})
+          path.is_a?(Symbol) ? "#{build_request_path(params)}/#{path}" : path
         end
       end
     end

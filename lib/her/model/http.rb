@@ -7,11 +7,11 @@ module Her
 
       # For each HTTP method, define these class methods:
       #
-      # - <method>(path, attrs)
-      # - <method>_raw(path, attrs, &block)
-      # - <method>_collection(path, attrs, &block)
-      # - <method>_resource(path, attrs, &block)
-      # - custom_<method>(path, attrs)
+      # - <method>(path, params)
+      # - <method>_raw(path, params, &block)
+      # - <method>_collection(path, params, &block)
+      # - <method>_resource(path, params, &block)
+      # - custom_<method>(*paths)
       #
       # @example
       #   class User
@@ -48,8 +48,8 @@ module Her
         # Main request wrapper around Her::API. Used to make custom request to the API.
         #
         # @private
-        def request(attrs={})
-          request = her_api.request(attrs)
+        def request(params={})
+          request = her_api.request(params)
 
           if block_given?
             yield request[:parsed_data], request[:response]
@@ -60,9 +60,9 @@ module Her
 
         METHODS.each do |method|
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
-            def #{method}(path, attrs={})
-              path = build_request_path_from_string_or_symbol(path, attrs)
-              send(:'#{method}_raw', path, attrs) do |parsed_data, response|
+            def #{method}(path, params={})
+              path = build_request_path_from_string_or_symbol(path, params)
+              send(:'#{method}_raw', path, params) do |parsed_data, response|
                 if parsed_data[:data].is_a?(Array)
                   new_collection(parsed_data)
                 else
@@ -71,21 +71,21 @@ module Her
               end
             end
 
-            def #{method}_raw(path, attrs={}, &block)
-              path = build_request_path_from_string_or_symbol(path, attrs)
-              request(attrs.merge(:_method => #{method.to_sym.inspect}, :_path => path), &block)
+            def #{method}_raw(path, params={}, &block)
+              path = build_request_path_from_string_or_symbol(path, params)
+              request(params.merge(:_method => #{method.to_sym.inspect}, :_path => path), &block)
             end
 
-            def #{method}_collection(path, attrs={})
-              path = build_request_path_from_string_or_symbol(path, attrs)
-              send(:'#{method}_raw', build_request_path_from_string_or_symbol(path, attrs), attrs) do |parsed_data, response|
+            def #{method}_collection(path, params={})
+              path = build_request_path_from_string_or_symbol(path, params)
+              send(:'#{method}_raw', build_request_path_from_string_or_symbol(path, params), params) do |parsed_data, response|
                 new_collection(parsed_data)
               end
             end
 
-            def #{method}_resource(path, attrs={})
-              path = build_request_path_from_string_or_symbol(path, attrs)
-              send(:"#{method}_raw", path, attrs) do |parsed_data, response|
+            def #{method}_resource(path, params={})
+              path = build_request_path_from_string_or_symbol(path, params)
+              send(:"#{method}_raw", path, params) do |parsed_data, response|
                 new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
               end
             end
@@ -95,9 +95,9 @@ module Her
               opts = paths.last.is_a?(Hash) ? paths.pop : Hash.new
 
               paths.each do |path|
-                metaclass.send(:define_method, path) do |*attrs|
-                  attrs = attrs.first || Hash.new
-                  send(#{method.to_sym.inspect}, path, attrs)
+                metaclass.send(:define_method, path) do |*params|
+                  params = params.first || Hash.new
+                  send(#{method.to_sym.inspect}, path, params)
                 end
               end
             end

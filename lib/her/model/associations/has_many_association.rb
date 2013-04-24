@@ -3,22 +3,22 @@ module Her
     module Associations
       class HasManyAssociation < Association
         # @private
-        def self.attach(klass, name, attrs)
-          attrs = {
+        def self.attach(klass, name, opts)
+          opts = {
             :class_name     => name.to_s.classify,
             :name           => name,
             :data_key       => name,
             :path           => "/#{name}",
             :inverse_of => nil
-          }.merge(attrs)
-          klass.associations[:has_many] << attrs
+          }.merge(opts)
+          klass.associations[:has_many] << opts
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{name}
               cached_name = :"@_her_association_#{name}"
 
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
-              cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasManyAssociation.new(self, #{attrs.inspect}))
+              cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasManyAssociation.new(self, #{opts.inspect}))
             end
           RUBY
         end
@@ -79,16 +79,16 @@ module Her
 
         # @private
         def fetch
-          return Her::Collection.new if @parent.attributes.include?(@name) && @parent.attributes[@name].empty? && @query_attrs.empty?
+          return Her::Collection.new if @parent.attributes.include?(@name) && @parent.attributes[@name].empty? && @params.empty?
 
-          output = if @parent.attributes[@name].blank? || @query_attrs.any?
+          output = if @parent.attributes[@name].blank? || @params.any?
             path = begin
-              @parent.request_path(@query_attrs)
+              @parent.request_path(@params)
             rescue Her::Errors::PathError
               return nil
             end
 
-            @klass.get_collection("#{path}#{@opts[:path]}", @query_attrs)
+            @klass.get_collection("#{path}#{@opts[:path]}", @params)
           else
             @parent.attributes[@name]
           end

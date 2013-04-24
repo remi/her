@@ -3,22 +3,22 @@ module Her
     module Associations
       class BelongsToAssociation < Association
         # @private
-        def self.attach(klass, name, attrs)
-          attrs = {
+        def self.attach(klass, name, opts)
+          opts = {
             :class_name => name.to_s.classify,
             :name => name,
             :data_key => name,
             :foreign_key => "#{name}_id",
             :path => "/#{name.to_s.pluralize}/:id"
-          }.merge(attrs)
-          klass.associations[:belongs_to] << attrs
+          }.merge(opts)
+          klass.associations[:belongs_to] << opts
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{name}
               cached_name = :"@_her_association_#{name}"
 
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
-              cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, #{attrs.inspect}))
+              cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, #{opts.inspect}))
             end
           RUBY
         end
@@ -75,16 +75,16 @@ module Her
         # @private
         def fetch
           foreign_key_value = @parent.attributes[@opts[:foreign_key].to_sym]
-          return nil if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @query_attrs.empty?) || (@parent.persisted? && foreign_key_value.blank?)
+          return nil if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?) || (@parent.persisted? && foreign_key_value.blank?)
 
-          if @parent.attributes[@name].blank? || @query_attrs.any?
+          if @parent.attributes[@name].blank? || @params.any?
             path = begin
-              @klass.build_request_path(@parent.attributes.merge(@query_attrs.merge(@klass.primary_key => foreign_key_value)))
+              @klass.build_request_path(@parent.attributes.merge(@params.merge(@klass.primary_key => foreign_key_value)))
             rescue Her::Errors::PathError
               return nil
             end
 
-            @klass.get_resource(path, @query_attrs)
+            @klass.get_resource(path, @params)
           else
             @parent.attributes[@name]
           end

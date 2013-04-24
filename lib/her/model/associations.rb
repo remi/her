@@ -52,10 +52,10 @@ module Her
         # Define an *has_many* association.
         #
         # @param [Symbol] name The name of the method added to resources
-        # @param [Hash] attrs Options
-        # @option attrs [String] :class_name The name of the class to map objects to
-        # @option attrs [Symbol] :data_key The attribute where the data is stored
-        # @option attrs [Path] :path The relative path where to fetch the data (defaults to `/{name}`)
+        # @param [Hash] opts Options
+        # @option opts [String] :class_name The name of the class to map objects to
+        # @option opts [Symbol] :data_key The attribute where the data is stored
+        # @option opts [Path] :path The relative path where to fetch the data (defaults to `/{name}`)
         #
         # @example
         #   class User
@@ -70,16 +70,17 @@ module Her
         #   @user = User.find(1)
         #   @user.articles # => [#<Article(articles/2) id=2 title="Hello world.">]
         #   # Fetched via GET "/users/1/articles"
-        def has_many(name, attrs={})
-          Her::Model::Associations::HasManyAssociation.attach(self, name, attrs)
+        def has_many(name, opts={})
+          Her::Model::Associations::HasManyAssociation.attach(self, name, opts)
         end
 
         # Define an *has_one* association.
         #
         # @param [Symbol] name The name of the method added to resources
-        # @option attrs [String] :class_name The name of the class to map objects to
-        # @option attrs [Symbol] :data_key The attribute where the data is stored
-        # @option attrs [Path] :path The relative path where to fetch the data (defaults to `/{name}`)
+        # @param [Hash] opts Options
+        # @option opts [String] :class_name The name of the class to map objects to
+        # @option opts [Symbol] :data_key The attribute where the data is stored
+        # @option opts [Path] :path The relative path where to fetch the data (defaults to `/{name}`)
         #
         # @example
         #   class User
@@ -94,17 +95,18 @@ module Her
         #   @user = User.find(1)
         #   @user.organization # => #<Organization(organizations/2) id=2 name="Foobar Inc.">
         #   # Fetched via GET "/users/1/organization"
-        def has_one(name, attrs={})
-          Her::Model::Associations::HasOneAssociation.attach(self, name, attrs)
+        def has_one(name, opts={})
+          Her::Model::Associations::HasOneAssociation.attach(self, name, opts)
         end
 
         # Define a *belongs_to* association.
         #
         # @param [Symbol] name The name of the method added to resources
-        # @option attrs [String] :class_name The name of the class to map objects to
-        # @option attrs [Symbol] :data_key The attribute where the data is stored
-        # @option attrs [Path] :path The relative path where to fetch the data (defaults to `/{class_name}.pluralize/{id}`)
-        # @option attrs [Symbol] :foreign_key The foreign key used to build the `:id` part of the path (defaults to `{name}_id`)
+        # @param [Hash] opts Options
+        # @option opts [String] :class_name The name of the class to map objects to
+        # @option opts [Symbol] :data_key The attribute where the data is stored
+        # @option opts [Path] :path The relative path where to fetch the data (defaults to `/{class_name}.pluralize/{id}`)
+        # @option opts [Symbol] :foreign_key The foreign key used to build the `:id` part of the path (defaults to `{name}_id`)
         #
         # @example
         #   class User
@@ -119,8 +121,8 @@ module Her
         #   @user = User.find(1) # => #<User(users/1) id=1 team_id=2 name="Tobias">
         #   @user.team # => #<Team(teams/2) id=2 name="Developers">
         #   # Fetched via GET "/teams/2"
-        def belongs_to(name, attrs={})
-          Her::Model::Associations::BelongsToAssociation.attach(self, name, attrs)
+        def belongs_to(name, opts={})
+          Her::Model::Associations::BelongsToAssociation.attach(self, name, opts)
         end
       end
     end

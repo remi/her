@@ -3,13 +3,13 @@ module Her
     module Associations
       class Association
         # @private
-        attr_accessor :query_attrs
+        attr_accessor :params
 
         # @private
         def initialize(parent, opts = {})
           @parent = parent
           @opts = opts
-          @query_attrs = {}
+          @params = {}
 
           @klass = @parent.class.her_nearby_class(@opts[:class_name])
           @name = @opts[:name]
@@ -25,9 +25,9 @@ module Her
         #
         #   user = User.find(1)
         #   user.comments.where(:approved => 1) # Fetched via GET "/users/1/comments?approved=1
-        def where(attrs = {})
-          return self if attrs.blank?
-          self.clone.tap { |a| a.query_attrs = a.query_attrs.merge(attrs) }
+        def where(params = {})
+          return self if params.blank?
+          self.clone.tap { |a| a.params = a.params.merge(params) }
         end
         alias all where
 

@@ -63,7 +63,7 @@ module Her
       #
       # @private
       def method_missing(method, *args, &blk)
-        if method.to_s =~ /[?=]$/ || attributes.include?(method)
+        if method.to_s =~ /[?=]$/ || @attributes.include?(method)
           # Extract the attribute
           attribute = method.to_s.sub(/[?=]$/, '')
 
@@ -99,11 +99,14 @@ module Her
       #   user.changes # => { :name => ["Tobias", "Lindsay"] }
       def assign_attributes(new_attributes)
         @attributes ||= {}
-        # Use setter methods first, then translate attributes of associations
-        # into association instances, then merge the parsed_data into @attributes.
-        unset_attributes = Her::Model::Attributes.use_setter_methods(self, raw_data)
+        # Use setter methods first
+        unset_attributes = Her::Model::Attributes.use_setter_methods(self, new_attributes)
+
+        # Then translate attributes of associations into association instances
         parsed_attributes = self.class.parse_associations(unset_attributes)
-        attributes.merge(parsed_attributes)
+
+        # Then merge the parsed_data into @attributes.
+        @attributes.merge!(parsed_attributes)
       end
       alias attributes= assign_attributes
 
@@ -111,26 +114,26 @@ module Her
       #
       # @private
       def has_attribute?(attribute_name)
-        attributes.include?(attribute_name)
+        @attributes.include?(attribute_name)
       end
 
       # Handles returning data for a specific attribute
       #
       # @private
       def get_attribute(attribute_name)
-        attributes[attribute_name]
+        @attributes[attribute_name]
       end
 
       # Return the value of the model `primary_key` attribute
       def id
-        attributes[self.class.primary_key]
+        @attributes[self.class.primary_key]
       end
 
       # Return `true` if the other object is also a Her::Model and has matching data
       #
       # @private
       def ==(other)
-        other.is_a?(Her::Model) && attributes == other.attributes
+        other.is_a?(Her::Model) && @attributes == other.attributes
       end
 
       # Delegate to the == method
@@ -144,7 +147,7 @@ module Her
       #     [ Model.find(1), Model.find(1) ].uniq # => [ Model.find(1) ]
       # @private
       def hash
-        attributes.hash
+        @attributes.hash
       end
 
       module ClassMethods
