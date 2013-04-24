@@ -97,13 +97,13 @@ module Her
       #   user = User.find(1) # => #<User id=1 name="Tobias">
       #   user.assign_attributes(name: "Lindsay")
       #   user.changes # => { :name => ["Tobias", "Lindsay"] }
-      def assign_attributes(raw_data)
+      def assign_attributes(new_attributes)
         @attributes ||= {}
         # Use setter methods first, then translate attributes of associations
         # into association instances, then merge the parsed_data into @attributes.
         unset_attributes = Her::Model::Attributes.use_setter_methods(self, raw_data)
         parsed_attributes = self.class.parse_associations(unset_attributes)
-        attributes.update(parsed_attributes)
+        attributes.merge(parsed_attributes)
       end
       alias attributes= assign_attributes
 
@@ -121,9 +121,7 @@ module Her
         attributes[attribute_name]
       end
 
-      # Override the method to prevent from returning the object ID
-      #
-      # @private
+      # Return the value of the model `primary_key` attribute
       def id
         attributes[self.class.primary_key]
       end
@@ -153,6 +151,7 @@ module Her
         # Initialize a collection of resources with raw data from an HTTP request
         #
         # @param [Array] parsed_data
+        # @private
         def new_collection(parsed_data)
           Her::Model::Attributes.initialize_collection(self, parsed_data)
         end
@@ -160,7 +159,6 @@ module Her
         # Define the attributes that will be used to track dirty attributes and validations
         #
         # @param [Array] attributes
-        #
         # @example
         #   class User
         #     include Her::Model

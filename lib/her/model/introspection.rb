@@ -32,6 +32,7 @@ module Her
         end
       end
 
+      # @private
       module ClassMethods
         # Finds a class at the same level as this one or at the global level.
         #
