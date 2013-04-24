@@ -15,13 +15,13 @@ describe Her::Model::HTTP do
     context "when binding a model to an instance of Her::API" do
       before { Foo::User.uses_api api1 }
       subject { Foo::User.her_api }
-      its(:base_uri) { should == "https://api1.example.com" }
+      it { should == api1 }
     end
 
     context "when binding a model directly to Her::API" do
       before { spawn_model "Foo::User" }
       subject { Foo::User.her_api }
-      its(:base_uri) { should == "https://api.example.com" }
+      it { should == Her::API.default_api }
     end
 
     context "when binding two models to two different instances of Her::API" do
@@ -30,14 +30,14 @@ describe Her::Model::HTTP do
         Foo::Comment.uses_api api2
       end
 
-      specify { Foo::User.her_api.base_uri.should == "https://api1.example.com" }
-      specify { Foo::Comment.her_api.base_uri.should == "https://api2.example.com" }
+      specify { Foo::User.her_api.should == api1 }
+      specify { Foo::Comment.her_api.should == api2 }
     end
 
     context "binding one model to Her::API and another one to an instance of Her::API" do
       before { Foo::Comment.uses_api api2 }
-      specify { Foo::User.her_api.base_uri.should == "https://api.example.com" }
-      specify { Foo::Comment.her_api.base_uri.should == "https://api2.example.com" }
+      specify { Foo::User.her_api.should == Her::API.default_api }
+      specify { Foo::Comment.her_api.should == api2 }
     end
 
     context "when binding a model to its superclass' her_api" do

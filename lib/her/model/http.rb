@@ -36,7 +36,7 @@ module Her
         #   end
         def use_api(value = nil)
           @_her_use_api ||= begin
-            superclass.use_api if superclass.respond_to?(:use_api)
+            superclass.respond_to?(:use_api) ? superclass.use_api : Her::API.default_api
           end
 
           return @_her_use_api unless value

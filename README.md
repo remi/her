@@ -676,14 +676,12 @@ It is possible to use different APIs for different models. Instead of calling `H
 
 ```ruby
 # config/initializers/her.rb
-MY_API = Her::API.new
-MY_API.setup url: "https://my-api.example.com" do |connection|
+MY_API = Her::API.new(url: "https://my-api.example.com") do |connection|
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
 end
 
-OTHER_API = Her::API.new
-OTHER_API.setup url: "https://other-api.example.com" do |connection|
+OTHER_API = Her::API.new(url: "https://other-api.example.com") do |connection|
   connection.use Her::Middleware::DefaultParseJSON
   connection.use Faraday::Adapter::NetHttp
 end

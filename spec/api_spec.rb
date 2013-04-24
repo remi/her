@@ -2,33 +2,28 @@
 require File.join(File.dirname(__FILE__), "spec_helper.rb")
 
 describe Her::API do
-  subject { Her::API.new }
-
   context "initialization" do
     describe ".setup" do
       it "creates a default connection" do
         Her::API.setup :url => "https://api.example.com"
-        Her::API.default_api.base_uri.should == "https://api.example.com"
+        Her::API.default_api.connection.url_prefix.to_s.should == "https://api.example.com/"
       end
     end
 
     describe "#setup" do
       context "when using :url option" do
-        before { subject.setup :url => "https://api.example.com" }
-        its(:base_uri) { should == "https://api.example.com" }
-      end
-
-      context "when using the legacy :base_uri option" do
-        before { subject.setup :base_uri => "https://api.example.com" }
-        its(:base_uri) { should == "https://api.example.com" }
+        subject { described_class.setup :url => "https://api.example.com" }
+        specify { subject.connection.url_prefix.to_s.should == "https://api.example.com/" }
       end
 
       context "when setting custom middleware" do
         before do
           class Foo; end;
           class Bar; end;
+        end
 
-          subject.setup :url => "https://api.example.com" do |connection|
+        subject do
+          described_class.new :url => "https://api.example.com" do |connection|
             connection.use Foo
             connection.use Bar
           end
@@ -38,7 +33,7 @@ describe Her::API do
       end
 
       context "when setting custom options" do
-        before { subject.setup :foo => { :bar => "baz" }, :url => "https://api.example.com" }
+        subject { described_class.new :foo => { :bar => "baz" }, :url => "https://api.example.com" }
         its(:options) { should == { :foo => { :bar => "baz" }, :url => "https://api.example.com" } }
       end
     end
@@ -54,8 +49,8 @@ describe Her::API do
 
       context "making HTTP requests" do
         let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo")[:parsed_data] }
-        before do
-          subject.setup :url => "https://api.example.com" do |builder|
+        subject do
+          described_class.new :url => "https://api.example.com" do |builder|
             builder.use SimpleParser
             builder.adapter(:test) { |stub| stub.get("/foo") { |env| [200, {}, "Foo, it is."] } }
           end
@@ -67,8 +62,8 @@ describe Her::API do
       context "making HTTP requests while specifying custom HTTP headers" do
         let(:parsed_data) { subject.request(:_method => :get, :_path => "/foo", :_headers => { "X-Page" => 2 })[:parsed_data] }
 
-        before do
-          subject.setup :url => "https://api.example.com" do |builder|
+        subject do
+          described_class.new :url => "https://api.example.com" do |builder|
             builder.use SimpleParser
             builder.adapter(:test) { |stub| stub.get("/foo") { |env| [200, {}, "Foo, it is page #{env[:request_headers]["X-Page"]}."] } }
           end
@@ -79,8 +74,9 @@ describe Her::API do
 
       context "parsing a request with the default parser" do
         let(:parsed_data) { subject.request(:_method => :get, :_path => "users/1")[:parsed_data] }
-        before do
-          subject.setup :url => "https://api.example.com" do |builder|
+
+        subject do
+          described_class.setup :url => "https://api.example.com" do |builder|
             builder.use Her::Middleware::FirstLevelParseJSON
             builder.adapter :test do |stub|
               stub.get("/users/1") { |env| [200, {}, MultiJson.dump({ :id => 1, :name => "George Michael Bluth", :errors => ["This is a single error"], :metadata => { :page => 1, :per_page => 10 } })] }
@@ -110,8 +106,10 @@ describe Her::API do
               }
             end
           end
+        end
 
-          subject.setup :url => "https://api.example.com" do |builder|
+        subject do
+          described_class.new :url => "https://api.example.com" do |builder|
             builder.use CustomParser
             builder.use Faraday::Request::UrlEncoded
             builder.adapter :test do |stub|

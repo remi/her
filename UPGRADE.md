@@ -2,6 +2,29 @@
 
 Here is a list of backward-incompatible changes that were introduced while Her is pre-1.0. After reaching 1.0, it will follow the [Semantic Versioning](http://semver.org/) system.
 
+## Not released yet
+
+The `Her::API` class has been rewritten to remove useless code. From now on, there are two ways to initialize a `Her::API` object:
+
+```ruby
+# Define a default API for all models to use
+Her::API.setup :url => "http://api.example.com" do |connection|
+  # …
+end
+
+# Create a single API
+my_api = Her::API.new :url => "http://api.example.com" do |connection|
+  # …
+end
+
+class User
+  include Her::Model
+  use_api my_api
+end
+```
+
+No more `Her::API#setup` and `Her::API#base_uri` instance methods. You must pass the connection options in the constructor method.
+
 ## 0.6
 
 Associations have been refactored so that calling the association name method doesn’t immediately load or fetch the data.

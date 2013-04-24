@@ -46,8 +46,7 @@ module Her
 
     # Class methods
     included do
-      # Assign the default API
-      use_api Her::API.default_api
+      # TODO Move this to a default constant in the ORM module
       method_for :create, :post
       method_for :update, :put
       method_for :find, :get

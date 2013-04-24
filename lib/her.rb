@@ -6,6 +6,7 @@ require "active_support"
 require "active_support/inflector"
 require "active_support/core_ext/hash"
 
+require "her/deprecation"
 require "her/model"
 require "her/api"
 require "her/middleware"

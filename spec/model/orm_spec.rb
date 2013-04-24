@@ -4,8 +4,7 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::ORM do
   context "mapping data to Ruby objects" do
     before do
-      api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api = Her::API.new :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
@@ -66,8 +65,7 @@ describe Her::Model::ORM do
 
   context "mapping data, metadata and error data to Ruby objects" do
     before do
-      api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api = Her::API.new :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
@@ -104,8 +102,7 @@ describe Her::Model::ORM do
 
   context "defining custom getters and setters" do
     before do
-      api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api = Her::API.new :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
@@ -149,8 +146,7 @@ describe Her::Model::ORM do
 
   context "finding resources" do
     before do
-      api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api = Her::API.new :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
