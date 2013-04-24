@@ -10,7 +10,19 @@ describe Her::Model::Relation do
           builder.adapter :test do |stub|
             stub.get("/users?foo=1&bar=2") { |env| ok! [{ :id => 2, :fullname => "Tobias Fünke" }] }
             stub.get("/users?admin=1") { |env| ok! [{ :id => 1, :fullname => "Tobias Fünke" }] }
-            stub.get("/users") { |env| ok! [{ :id => 1, :fullname => "Tobias Fünke" }, { :id => 2, :fullname => "Lindsay Fünke" }] }
+
+            stub.get("/users") do |env|
+              ok! [
+                { :id => 1, :fullname => "Tobias Fünke" },
+                { :id => 2, :fullname => "Lindsay Fünke" },
+                @created_user,
+              ].compact
+            end
+
+            stub.post('/users') do |env|
+              @created_user = { :id => 3, :fullname => 'George Michael Bluth' }
+              ok! @created_user
+            end
           end
         end
 
@@ -32,6 +44,12 @@ describe Her::Model::Relation do
       it "chains multiple where statements" do
         @user = Foo::User.where(:foo => 1).where(:bar => 2).first
         @user.id.should == 2
+      end
+
+      it "does not reuse relations" do
+        Foo::User.all.should have(2).items
+        Foo::User.create(:fullname => 'George Michael Bluth').id.should == 3
+        Foo::User.all.should have(3).items
       end
     end
 
