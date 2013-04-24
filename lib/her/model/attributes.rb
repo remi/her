@@ -200,22 +200,7 @@ module Her
         #     store_response_errors :server_errors
         #   end
         def store_response_errors(value = nil)
-          if @_her_store_response_errors
-            remove_method @_her_store_response_errors
-            remove_method :"#{@_her_store_response_errors}="
-          end
-
-          @_her_store_response_errors ||= begin
-            superclass.store_response_errors if superclass.respond_to?(:store_response_errors)
-          end
-
-          return @_her_store_response_errors unless value
-          @_her_store_response_errors = value
-
-          class_eval <<-RUBY, __FILE__, __LINE__ + 1
-            def #{@_her_store_response_errors}; @response_errors; end
-            def #{@_her_store_response_errors}=(value); @response_errors = value; end
-          RUBY
+          store_her_data(:response_errors, value)
         end
 
         # Define the accessor in which the API response metadata (obtained from the parsing middleware) will be stored
@@ -228,22 +213,7 @@ module Her
         #     store_metadata :server_data
         #   end
         def store_metadata(value = nil)
-          if @_her_store_metadata
-            remove_method @_her_store_metadata
-            remove_method :"#{@_her_store_metadata}="
-          end
-
-          @_her_store_metadata ||= begin
-            superclass.store_metadata if superclass.respond_to?(:store_metadata)
-          end
-
-          return @_her_store_metadata unless value
-          @_her_store_metadata = value
-
-          class_eval <<-RUBY, __FILE__, __LINE__ + 1
-            def #{@_her_store_metadata}; @metadata; end
-            def #{@_her_store_metadata}=(value); @metadata = value; end
-          RUBY
+          store_her_data(:metadata, value)
         end
 
         # @private
@@ -252,6 +222,27 @@ module Her
             memo << method_name.to_s if method_name.to_s.end_with?('=')
             memo
           end
+        end
+
+        private
+        # @private
+        def store_her_data(name, value)
+          class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            if @_her_store_#{name} && value.present?
+              remove_method @_her_store_#{name}
+              remove_method @_her_store_#{name}.to_s + '='
+            end
+
+            @_her_store_#{name} ||= begin
+              superclass.store_#{name} if superclass.respond_to?(:store_#{name})
+            end
+
+            return @_her_store_#{name} unless value
+            @_her_store_#{name} = value
+
+            define_method(value) { @#{name} }
+            define_method(value.to_s+'=') { |value| @#{name} = value }
+          RUBY
         end
       end
     end
