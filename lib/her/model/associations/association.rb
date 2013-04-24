@@ -15,6 +15,15 @@ module Her
           @name = @opts[:name]
         end
 
+        # @private
+        def self.parse_single(association, klass, data)
+          data_key = association[:data_key]
+          return {} unless data[data_key]
+
+          klass = klass.her_nearby_class(association[:class_name])
+          { association[:name] => klass.new(data[data_key]) }
+        end
+
         # Add query parameters to the HTTP request performed to fetch the data
         #
         # @example

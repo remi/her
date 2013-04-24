@@ -23,12 +23,8 @@ module Her
         end
 
         # @private
-        def self.parse(association, klass, data)
-          data_key = association[:data_key]
-          return {} unless data[data_key]
-
-          klass = klass.her_nearby_class(association[:class_name])
-          { association[:name] => klass.new(data[data_key]) }
+        def self.parse(*args)
+          parse_single(*args)
         end
 
         # Initialize a new object with a foreign key to the parent
