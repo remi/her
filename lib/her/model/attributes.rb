@@ -3,7 +3,7 @@ module Her
     # This module handles all methods related to model attributes
     module Attributes
       extend ActiveSupport::Concern
-      attr_accessor :attributes
+      attr_reader :attributes
 
       # Initialize a new object with data
       #
@@ -105,6 +105,7 @@ module Her
         parsed_attributes = self.class.parse_associations(unset_attributes)
         attributes.update(parsed_attributes)
       end
+      alias attributes= assign_attributes
 
       # Handles returning true for the accessible attributes
       #
