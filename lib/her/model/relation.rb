@@ -1,6 +1,7 @@
 module Her
   module Model
     class Relation
+      # @private
       attr_accessor :query_attrs
 
       # @private
@@ -20,6 +21,14 @@ module Her
       end
 
       # Add a query string parameter
+      #
+      # @example
+      #   @users = User.all
+      #   # Fetched via GET "/users"
+      #
+      # @example
+      #   @users = User.where(:approved => 1).all
+      #   # Fetched via GET "/users?approved=1"
       def where(attrs = {})
         return self if attrs.blank?
         self.clone.tap do |r|
@@ -53,13 +62,7 @@ module Her
 
       # Fetch a collection of resources
       #
-      # @example
-      #   @users = User.all
-      #   # Fetched via GET "/users"
-      #
-      # @example
-      #   @users = User.where(:approved => 1).all
-      #   # Fetched via GET "/users?approved=1"
+      # @private
       def fetch
         @_fetch ||= begin
           path = @parent.build_request_path(@query_attrs)

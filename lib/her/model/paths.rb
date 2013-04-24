@@ -87,13 +87,7 @@ module Her
 
         # Return a custom path based on the collection path and variable parameters
         #
-        # @example
-        #   class User
-        #     include Her::Model
-        #     collection_path "/utilisateurs"
-        #   end
-        #
-        #   User.all # Fetched via GET /utilisateurs
+        # @private
         def build_request_path(path=nil, parameters={})
           unless path.is_a?(String)
             parameters = path || {}

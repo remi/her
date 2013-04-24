@@ -2,6 +2,7 @@ module Her
   module Model
     module Associations
       class Association
+        # @private
         attr_accessor :query_attrs
 
         # @private
@@ -15,6 +16,15 @@ module Her
         end
 
         # Add query parameters to the HTTP request performed to fetch the data
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     has_many :comments
+        #   end
+        #
+        #   user = User.find(1)
+        #   user.comments.where(:approved => 1) # Fetched via GET "/users/1/comments?approved=1
         def where(attrs = {})
           return self if attrs.blank?
           self.clone.tap { |a| a.query_attrs = a.query_attrs.merge(attrs) }

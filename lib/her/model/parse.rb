@@ -17,6 +17,7 @@ module Her
         # Parse data before assigning it to a resource, based on `parse_root_in_json`.
         #
         # @param [Hash] data
+        # @private
         def parse(data)
           parse_root_in_json? ? data[parsed_root_element] : data
         end

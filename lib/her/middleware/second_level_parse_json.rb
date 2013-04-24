@@ -7,6 +7,7 @@ module Her
       #
       # @param [String] body The response body
       # @return [Mixed] the parsed response
+      # @private
       def parse(body)
         json = parse_json(body)
 
@@ -21,6 +22,7 @@ module Her
       # the value of `env[:body]`.
       #
       # @param [Hash] env The response environment
+      # @private
       def on_complete(env)
         env[:body] = case env[:status]
         when 204

@@ -5,6 +5,22 @@ module Her
       extend ActiveSupport::Concern
       METHODS = [:get, :post, :put, :patch, :delete]
 
+      # For each HTTP method, define these class methods:
+      #
+      # - <method>(path, attrs)
+      # - <method>_raw(path, attrs, &block)
+      # - <method>_collection(path, attrs, &block)
+      # - <method>_resource(path, attrs, &block)
+      # - custom_<method>(path, attrs)
+      #
+      # @example
+      #   class User
+      #     include Her::Model
+      #     custom_get :active
+      #   end
+      #
+      #   User.get(:popular) # GET "/users/popular"
+      #   User.active # GET "/users/active"
       module ClassMethods
         # Change which API the model will use to make its HTTP requests
         #
@@ -42,13 +58,6 @@ module Her
           end
         end
 
-        # For each HTTP method, define these methods:
-        #
-        # - <method>(path, attrs)
-        # - <method>_raw(path, attrs, &block)
-        # - <method>_collection(path, attrs, &block)
-        # - <method>_resource(path, attrs, &block)
-        # - custom_<method>(path, attrs)
         METHODS.each do |method|
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{method}(path, attrs={})
