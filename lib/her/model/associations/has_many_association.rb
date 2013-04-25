@@ -8,6 +8,7 @@ module Her
             :class_name     => name.to_s.classify,
             :name           => name,
             :data_key       => name,
+            :default        => Her::Collection.new,
             :path           => "/#{name}",
             :inverse_of => nil
           }.merge(opts)
@@ -79,24 +80,10 @@ module Her
 
         # @private
         def fetch
-          return Her::Collection.new if @parent.attributes.include?(@name) && @parent.attributes[@name].empty? && @params.empty?
-
-          output = if @parent.attributes[@name].blank? || @params.any?
-            path = begin
-              @parent.request_path(@params)
-            rescue Her::Errors::PathError
-              return nil
-            end
-
-            @klass.get_collection("#{path}#{@opts[:path]}", @params)
-          else
-            @parent.attributes[@name]
+          super.tap do |o|
+            inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
+            o.each { |entry| entry.send("#{inverse_of}=", @parent) }
           end
-
-          inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
-          output.each { |entry| entry.send("#{inverse_of}=", @parent) }
-
-          output
         end
 
         # @private

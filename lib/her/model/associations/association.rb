@@ -33,6 +33,27 @@ module Her
           end
         end
 
+        # @private
+        def fetch(opts = {})
+          return @opts[:default].try(:dup) if @parent.attributes.include?(@name) && @parent.attributes[@name].empty? && @params.empty?
+
+          if @parent.attributes[@name].blank? || @params.any?
+            path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
+            @klass.get(path, @params)
+          else
+            @parent.attributes[@name]
+          end
+        end
+
+        # @private
+        def build_association_path(code)
+          begin
+            instance_exec(&code)
+          rescue Her::Errors::PathError
+            return nil
+          end
+        end
+
         # Add query parameters to the HTTP request performed to fetch the data
         #
         # @example

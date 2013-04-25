@@ -8,6 +8,7 @@ module Her
             :class_name => name.to_s.classify,
             :name => name,
             :data_key => name,
+            :default => nil,
             :path => "/#{name}"
           }.merge(opts)
           klass.associations[:has_one] << opts
@@ -65,23 +66,6 @@ module Her
           resource = build(attributes)
           @parent.attributes[@name] = resource if resource.save
           resource
-        end
-
-        # @private
-        def fetch
-          return nil if @parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?
-
-          if @parent.attributes[@name].blank? || @params.any?
-            path = begin
-              @parent.request_path(@params)
-            rescue Her::Errors::PathError
-              return nil
-            end
-
-            @klass.get_resource("#{path}#{@opts[:path]}", @params)
-          else
-            @parent.attributes[@name]
-          end
         end
 
         # @private

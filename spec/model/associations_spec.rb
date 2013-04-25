@@ -8,7 +8,7 @@ describe Her::Model::Associations do
 
     context "single has_many association" do
       before { Foo::User.has_many :comments }
-      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }] }
+      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Comment", :path => "/comments", :inverse_of => nil }] }
     end
 
     context "multiple has_many associations" do
@@ -17,12 +17,12 @@ describe Her::Model::Associations do
         Foo::User.has_many :posts
       end
 
-      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :class_name => "Post", :path => "/posts", :inverse_of => nil }] }
+      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :default => [], :class_name => "Post", :path => "/posts", :inverse_of => nil }] }
     end
 
     context "single has_one association" do
       before { Foo::User.has_one :category }
-      its([:has_one]) { should eql [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }] }
+      its([:has_one]) { should eql [{ :name => :category, :data_key => :category, :default => nil, :class_name => "Category", :path => "/category" }] }
     end
 
     context "multiple has_one associations" do
@@ -31,12 +31,12 @@ describe Her::Model::Associations do
         Foo::User.has_one :role
       end
 
-      its([:has_one]) { should eql [{ :name => :category, :data_key => :category, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :class_name => "Role", :path => "/role" }] }
+      its([:has_one]) { should eql [{ :name => :category, :data_key => :category, :default => nil, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :default => nil, :class_name => "Role", :path => "/role" }] }
     end
 
     context "single belongs_to association" do
       before { Foo::User.belongs_to :organization }
-      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }] }
+      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }] }
     end
 
     context "multiple belongs_to association" do
@@ -45,7 +45,7 @@ describe Her::Model::Associations do
         Foo::User.belongs_to :family
       end
 
-      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }] }
+      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :default => nil, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }] }
     end
   end
 
@@ -55,18 +55,18 @@ describe Her::Model::Associations do
 
     context "in base class" do
       context "single has_many association" do
-        before { Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin, :data_key => :user_comments }
-        its([:has_many]) { should eql [{ :name => :comments, :data_key => :user_comments, :class_name => "Post", :path => "/comments", :inverse_of => :admin }] }
+        before { Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin, :data_key => :user_comments, :default => {} }
+        its([:has_many]) { should eql [{ :name => :comments, :data_key => :user_comments, :default => {}, :class_name => "Post", :path => "/comments", :inverse_of => :admin }] }
       end
 
       context "signle has_one association" do
-        before { Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic }
-        its([:has_one]) { should eql [{ :name => :category, :data_key => :topic, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }] }
+        before { Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic, :default => nil }
+        its([:has_one]) { should eql [{ :name => :category, :data_key => :topic, :default => nil, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }] }
       end
 
       context "single belongs_to association" do
-        before { Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org }
-        its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :org, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }] }
+        before { Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org, :default => true }
+        its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :org, :default => true, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }] }
       end
     end
 
@@ -76,7 +76,7 @@ describe Her::Model::Associations do
       describe "associations accessor" do
         subject { Class.new(Foo::User).associations }
         its(:object_id) { should_not eql Foo::User.associations.object_id }
-      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
+      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
       end
     end
   end

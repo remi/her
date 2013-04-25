@@ -8,6 +8,7 @@ module Her
             :class_name => name.to_s.classify,
             :name => name,
             :data_key => name,
+            :default => nil,
             :foreign_key => "#{name}_id",
             :path => "/#{name.to_s.pluralize}/:id"
           }.merge(opts)
@@ -71,16 +72,12 @@ module Her
         # @private
         def fetch
           foreign_key_value = @parent.attributes[@opts[:foreign_key].to_sym]
-          return nil if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?) || (@parent.persisted? && foreign_key_value.blank?)
+          return @opts[:default].try(:dup) if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?) || (@parent.persisted? && foreign_key_value.blank?)
 
           if @parent.attributes[@name].blank? || @params.any?
-            path = begin
-              @klass.build_request_path(@parent.attributes.merge(@params.merge(@klass.primary_key => foreign_key_value)))
-            rescue Her::Errors::PathError
-              return nil
-            end
-
-            @klass.get_resource(path, @params)
+            path_params = @parent.attributes.merge(@params.merge(@klass.primary_key => foreign_key_value))
+            path = build_association_path lambda { @klass.build_request_path(path_params) }
+            @klass.get(path, @params)
           else
             @parent.attributes[@name]
           end
