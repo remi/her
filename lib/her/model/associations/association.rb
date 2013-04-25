@@ -24,6 +24,15 @@ module Her
           { association[:name] => klass.new(data[data_key]) }
         end
 
+        # @private
+        def assign_single_nested_attributes(attributes)
+          if @parent.attributes[@name].blank?
+            @parent.attributes[@name] = @klass.new(@klass.parse(attributes))
+          else
+            @parent.attributes[@name].assign_attributes(attributes)
+          end
+        end
+
         # Add query parameters to the HTTP request performed to fetch the data
         #
         # @example

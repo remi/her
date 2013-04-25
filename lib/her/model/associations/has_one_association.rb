@@ -86,11 +86,7 @@ module Her
 
         # @private
         def assign_nested_attributes(attributes)
-          if @parent.attributes[@name].blank?
-            @parent.attributes[@name] = @klass.new(@klass.parse(attributes))
-          else
-            @parent.attributes[@name].assign_attributes(attributes)
-          end
+          assign_single_nested_attributes(attributes)
         end
       end
     end
