@@ -30,6 +30,7 @@ module Her
       #   @users = User.where(:approved => 1).all
       #   # Fetched via GET "/users?approved=1"
       def where(params = {})
+        return self if params.blank? && @_fetch.blank?
         self.clone.tap do |r|
           r.params = r.params.merge(params)
           r.clear_fetch_cache!

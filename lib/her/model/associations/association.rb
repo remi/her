@@ -35,6 +35,7 @@ module Her
         #   user = User.find(1)
         #   user.comments.where(:approved => 1) # Fetched via GET "/users/1/comments?approved=1
         def where(params = {})
+          return self if params.blank? && @parent.attributes[@name].blank?
           self.clone.tap { |a| a.params = a.params.merge(params) }
         end
         alias all where
