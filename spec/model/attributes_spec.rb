@@ -163,4 +163,30 @@ describe Her::Model::Attributes do
       expect { @user.metadata }.to raise_error(NoMethodError)
     end
   end
+
+  context "handling custom methods" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :document => { :url => nil } }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :document => { :url => "http://example.com" } }.to_json] }
+        end
+      end
+
+      spawn_model 'Foo::User' do
+        def document?
+          document[:url].present?
+        end
+      end
+    end
+
+    it "let the user define custom methods" do
+      @user = Foo::User.find(1)
+      @user.document?.should be_false
+
+      @user = Foo::User.find(2)
+      @user.document?.should be_true
+    end
+  end
 end
