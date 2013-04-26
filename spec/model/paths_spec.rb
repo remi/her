@@ -190,6 +190,13 @@ describe Her::Model::Paths do
         @user.id.should == 1
         @user.fullname.should == "Tobias Fünke"
       end
+
+      it "maps a single resource using a scope to a Ruby object" do
+        Foo::User.scope :for_organization, lambda { |o| where(:organization_id => o) }
+        @user = Foo::User.for_organization(2).find(1)
+        @user.id.should == 1
+        @user.fullname.should == "Tobias Fünke"
+      end
     end
 
     describe "fetching a collection" do

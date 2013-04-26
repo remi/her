@@ -74,37 +74,6 @@ module Her
       end
 
       module ClassMethods
-        # Fetch specific resource(s) by their ID
-        #
-        # @example
-        #   @user = User.find(1)
-        #   # Fetched via GET "/users/1"
-        #
-        # @example
-        #   @users = User.find([1, 2])
-        #   # Fetched via GET "/users/1" and GET "/users/2"
-        def find(*ids)
-          params = ids.last.is_a?(Hash) ? ids.pop : {}
-          results = ids.flatten.compact.uniq.map do |id|
-            resource = nil
-            request(params.merge(:_method => method_for(:find), :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
-              if response.success?
-                resource = new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
-                resource.run_callbacks :find
-              else
-                return nil
-              end
-            end
-            resource
-          end
-
-          if ids.length > 1 || ids.first.kind_of?(Array)
-            results
-          else
-            results.first
-          end
-        end
-
         # Create a new chainable scope
         #
         # @example
@@ -152,7 +121,7 @@ module Her
         end
 
         # Delegate the following methods to `scoped`
-        [:all, :where, :create, :build, :first_or_create, :first_or_initialize].each do |method|
+        [:all, :where, :create, :build, :find, :first_or_create, :first_or_initialize].each do |method|
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{method}(*params)
               scoped.send(#{method.to_sym.inspect}, *params)
