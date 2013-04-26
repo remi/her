@@ -834,7 +834,7 @@ See [CONTRIBUTING.md](https://github.com/remiprev/her/blob/master/CONTRIBUTING.m
 
 ### Contributors
 
-These fine folks helped with Her:
+These [fine folks](https://github.com/remiprev/her/contributors) helped with Her:
 
 * [@jfcixmedia](https://github.com/jfcixmedia)
 * [@EtienneLem](https://github.com/EtienneLem)
