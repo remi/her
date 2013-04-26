@@ -164,32 +164,84 @@ describe Her::Model::Attributes do
     end
   end
 
-  context "handling custom methods" do
-    before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
-        builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :document => { :url => nil } }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :document => { :url => "http://example.com" } }.to_json] }
+  context "overwriting default attribute methods" do
+    context "for getter method" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :document => { :url => "http://example.com" } }.to_json] }
+          end
+        end
+
+        spawn_model 'Foo::User' do
+          def document
+            @attributes[:document][:url]
+          end
         end
       end
 
-      spawn_model 'Foo::User' do
-        def document?
-          document[:url].present?
-        end
+      it "bypasses Her's method" do
+        @user = Foo::User.find(1)
+        @user.document.should == "http://example.com"
+
+        @user = Foo::User.find(1)
+        @user.document.should == "http://example.com"
       end
     end
 
-    it "let the user define custom methods" do
-      @user = Foo::User.find(1)
-      @user.document?.should be_false
+    context "for setter method" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :document => { :url => "http://example.com" } }.to_json] }
+          end
+        end
 
-      @user = Foo::User.find(1)
-      @user.document?.should be_false
+        spawn_model 'Foo::User' do
+          def document=(document)
+            @attributes[:document] = document[:url]
+          end
+        end
+      end
 
-      @user = Foo::User.find(2)
-      @user.document?.should be_true
+      it "bypasses Her's method" do
+        @user = Foo::User.find(1)
+        @user.document.should == "http://example.com"
+
+        @user = Foo::User.find(1)
+        @user.document.should == "http://example.com"
+      end
+    end
+
+    context "for predicate method" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :document => { :url => nil } }.to_json] }
+            stub.get("/users/2") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :document => { :url => "http://example.com" } }.to_json] }
+          end
+        end
+
+        spawn_model 'Foo::User' do
+          def document?
+            document[:url].present?
+          end
+        end
+      end
+
+      it "byoasses Her's method" do
+        @user = Foo::User.find(1)
+        @user.document?.should be_false
+
+        @user = Foo::User.find(1)
+        @user.document?.should be_false
+
+        @user = Foo::User.find(2)
+        @user.document?.should be_true
+      end
     end
   end
 end
