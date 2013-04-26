@@ -163,6 +163,13 @@ module Her
           Her::Model::Attributes.initialize_collection(self, parsed_data)
         end
 
+        # Initialize a new object with the "raw" parsed_data from the parsing middleware
+        #
+        # @private
+        def new_from_parsed_data(parsed_data)
+          new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+        end
+
         # Define the attributes that will be used to track dirty attributes and validations
         #
         # @param [Array] attributes

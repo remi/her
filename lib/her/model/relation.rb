@@ -84,24 +84,27 @@ module Her
       #   # Fetched via GET "/users/1" and GET "/users/2"
       def find(*ids)
         params = @params.merge(ids.last.is_a?(Hash) ? ids.pop : {})
+
         results = ids.flatten.compact.uniq.map do |id|
           resource = nil
-          @parent.request(params.merge(:_method => @parent.method_for(:find), :_path => @parent.build_request_path(params.merge(@parent.primary_key => id)))) do |parsed_data, response|
+          request_params = params.merge(
+            :_method => @parent.method_for(:find),
+            :_path => @parent.build_request_path(params.merge(@parent.primary_key => id))
+          )
+
+          @parent.request(request_params) do |parsed_data, response|
             if response.success?
-              resource = @parent.new(@parent.parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+              resource = @parent.new_from_parsed_data(parsed_data)
               resource.run_callbacks :find
             else
               return nil
             end
           end
+
           resource
         end
 
-        if ids.length > 1 || ids.first.kind_of?(Array)
-          results
-        else
-          results.first
-        end
+        ids.length > 1 || ids.first.kind_of?(Array) ? results : results.first
       end
 
       # Create a resource and return it
