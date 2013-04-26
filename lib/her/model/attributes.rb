@@ -233,7 +233,7 @@ module Her
         def store_her_data(name, value)
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
             if @_her_store_#{name} && value.present?
-              remove_method @_her_store_#{name}
+              remove_method @_her_store_#{name}.to_sym
               remove_method @_her_store_#{name}.to_s + '='
             end
 

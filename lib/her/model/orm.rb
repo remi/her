@@ -42,11 +42,11 @@ module Her
             params = to_params
             self.class.request(to_params.merge(:_method => method, :_path => request_path)) do |parsed_data, response|
               assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
-              self.metadata = parsed_data[:metadata]
-              self.response_errors = parsed_data[:errors]
+              @metadata = parsed_data[:metadata]
+              @response_errors = parsed_data[:errors]
               self.changed_attributes.clear if self.changed_attributes.present?
 
-              return false if !response.success? || self.response_errors.any?
+              return false if !response.success? || @response_errors.any?
             end
           end
         end
@@ -65,8 +65,8 @@ module Her
         run_callbacks :destroy do
           self.class.request(:_method => method, :_path => request_path) do |parsed_data, response|
             assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
-            self.metadata = parsed_data[:metadata]
-            self.response_errors = parsed_data[:errors]
+            @metadata = parsed_data[:metadata]
+            @response_errors = parsed_data[:errors]
             @destroyed = true
           end
         end

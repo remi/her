@@ -139,6 +139,13 @@ describe Her::Model::Attributes do
 
   context "handling metadata and errors" do
     before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.adapter :test do |stub|
+          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+        end
+      end
+
       spawn_model 'Foo::User' do
         store_response_errors :errors
         store_metadata :my_data
@@ -161,6 +168,14 @@ describe Her::Model::Attributes do
 
     it "should remove the default method for metadata" do
       expect { @user.metadata }.to raise_error(NoMethodError)
+    end
+
+    it "should work with #save" do
+      @user.assign_attributes(:fullname => "Tobias Fünke")
+      @user.save
+      expect { @user.metadata }.to raise_error(NoMethodError)
+      @user.my_data.should be_empty
+      @user.errors.should be_empty
     end
   end
 
