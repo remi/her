@@ -10,7 +10,7 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        self.class.include_root_in_json? ? { self.class.included_root_element => attributes.dup } : attributes.dup
+        self.class.include_root_in_json? ? { self.class.included_root_element => attributes.dup.symbolize_keys } : attributes.dup.symbolize_keys
       end
 
       module ClassMethods

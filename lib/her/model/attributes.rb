@@ -3,7 +3,6 @@ module Her
     # This module handles all methods related to model attributes
     module Attributes
       extend ActiveSupport::Concern
-      attr_reader :attributes
 
       # Initialize a new object with data
       #
@@ -98,7 +97,7 @@ module Her
       #   user.assign_attributes(name: "Lindsay")
       #   user.changes # => { :name => ["Tobias", "Lindsay"] }
       def assign_attributes(new_attributes)
-        @attributes ||= {}
+        @attributes ||= attributes
         # Use setter methods first
         unset_attributes = Her::Model::Attributes.use_setter_methods(self, new_attributes)
 
@@ -109,6 +108,10 @@ module Her
         @attributes.merge!(parsed_attributes)
       end
       alias attributes= assign_attributes
+
+      def attributes
+        @attributes ||= HashWithIndifferentAccess.new
+      end
 
       # Handles returning true for the accessible attributes
       #
@@ -123,6 +126,7 @@ module Her
       def get_attribute(attribute_name)
         @attributes[attribute_name]
       end
+      alias attribute get_attribute
 
       # Return the value of the model `primary_key` attribute
       def id
@@ -174,17 +178,17 @@ module Her
             attribute = attribute.to_sym
 
             class_eval <<-RUBY, __FILE__, __LINE__ + 1
-              def #{attribute}
-                @attributes.include?(:'#{attribute}') ? @attributes[:'#{attribute}'] : nil
+              unless instance_methods.include?(:'#{attribute}=')
+                def #{attribute}=(value)
+                  self.send(:"#{attribute}_will_change!") if @attributes[:'#{attribute}'] != value
+                  @attributes[:'#{attribute}'] = value
+                end
               end
 
-              def #{attribute}=(value)
-                self.send(:"#{attribute}_will_change!") if @attributes[:'#{attribute}'] != value
-                @attributes[:'#{attribute}'] = value
-              end
-
-              def #{attribute}?
-                @attributes.include?(:'#{attribute}') && @attributes[:'#{attribute}'].present?
+              unless instance_methods.include?(:'#{attribute}?')
+                def #{attribute}?
+                  @attributes.include?(:'#{attribute}') && @attributes[:'#{attribute}'].present?
+                end
               end
             RUBY
           end

@@ -38,6 +38,7 @@ module Her
     include Her::Model::NestedAttributes
 
     # Supported ActiveModel modules
+    include ActiveModel::AttributeMethods
     include ActiveModel::Validations
     include ActiveModel::Conversion
     include ActiveModel::Dirty

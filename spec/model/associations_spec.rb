@@ -145,11 +145,11 @@ describe Her::Model::Associations do
     end
 
     it "does not refetch the parents models data if they have been fetched before" do
-      @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
+      @user_with_included_data.comments.first.user.fetch.object_id.should == @user_with_included_data.object_id
     end
 
     it "uses the given inverse_of key to set the parent model" do
-      @user_with_included_data.posts.first.admin.object_id.should == @user_with_included_data.object_id
+      @user_with_included_data.posts.first.admin.fetch.object_id.should == @user_with_included_data.object_id
     end
 
     it "fetches data that was not included through has_many" do

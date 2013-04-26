@@ -185,6 +185,9 @@ describe Her::Model::Attributes do
       @user = Foo::User.find(1)
       @user.document?.should be_false
 
+      @user = Foo::User.find(1)
+      @user.document?.should be_false
+
       @user = Foo::User.find(2)
       @user.document?.should be_true
     end
