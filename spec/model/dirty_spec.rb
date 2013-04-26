@@ -9,7 +9,9 @@ describe "Her::Model and ActiveModel::Dirty" do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { :id => 2, :fullname => "Maeby Fünke" }.to_json] }
           stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.put("/users/2") { |env| [400, {}, { :errors => ["Email cannot be blank"] }.to_json] }
           stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
         end
       end
@@ -20,14 +22,28 @@ describe "Her::Model and ActiveModel::Dirty" do
     end
 
     context "for existing resource" do
-      it "tracks dirty attributes" do
-        user = Foo::User.find(1)
-        user.fullname = "Tobias Fünke"
-        user.fullname_changed?.should be_true
-        user.email_changed?.should be_false
-        user.should be_changed
-        user.save
-        user.should_not be_changed
+      context "with successful save" do
+        it "tracks dirty attributes" do
+          user = Foo::User.find(1)
+          user.fullname = "Tobias Fünke"
+          user.fullname_changed?.should be_true
+          user.email_changed?.should be_false
+          user.should be_changed
+          user.save
+          user.should_not be_changed
+        end
+      end
+
+      context "with erroneous save" do
+        it "tracks dirty attributes" do
+          user = Foo::User.find(2)
+          user.fullname = "Tobias Fünke"
+          user.fullname_changed?.should be_true
+          user.email_changed?.should be_false
+          user.should be_changed
+          user.save
+          user.should be_changed
+        end
       end
     end
 

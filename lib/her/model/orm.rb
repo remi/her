@@ -44,9 +44,9 @@ module Her
               assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
               @metadata = parsed_data[:metadata]
               @response_errors = parsed_data[:errors]
-              self.changed_attributes.clear if self.changed_attributes.present?
 
               return false if !response.success? || @response_errors.any?
+              self.changed_attributes.clear if self.changed_attributes.present?
             end
           end
         end
