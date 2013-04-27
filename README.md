@@ -25,10 +25,10 @@ First, you have to define which API your models will be bound to. For example, w
 
 ```ruby
 # config/initializers/her.rb
-Her::API.setup url: "https://api.example.com" do |connection|
-  connection.use Faraday::Request::UrlEncoded
-  connection.use Her::Middleware::DefaultParseJSON
-  connection.use Faraday::Adapter::NetHttp
+Her::API.setup url: "https://api.example.com" do |c|
+  c.use Faraday::Request::UrlEncoded
+  c.use Her::Middleware::DefaultParseJSON
+  c.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -44,10 +44,10 @@ After that, using Her is very similar to many ActiveRecord-like ORMs:
 
 ```ruby
 User.all
-# GET https://api.example.com/users and return an array of User objects
+# GET "https://api.example.com/users" and return an array of User objects
 
 User.find(1)
-# GET https://api.example.com/users/1 and return a User object
+# GET "https://api.example.com/users/1" and return a User object
 
 @user = User.create(fullname: "Tobias Fünke")
 # POST "https://api.example.com/users" with `fullname=Tobias+Fünke` and return the saved User object
@@ -55,12 +55,12 @@ User.find(1)
 @user = User.new(fullname: "Tobias Fünke")
 @user.occupation = "actor"
 @user.save
-# POST https://api.example.com/users with `fullname=Tobias+Fünke&occupation=actore` and return the saved User object
+# POST "https://api.example.com/users" with `fullname=Tobias+Fünke&occupation=actor` and return the saved User object
 
 @user = User.find(1)
 @user.fullname = "Lindsay Fünke"
 @user.save
-# PUT https://api.example.com/users/1 with `fullname=Lindsay+Fünke` and return the updated User object
+# PUT "https://api.example.com/users/1" with `fullname=Lindsay+Fünke` and return the updated User object
 ```
 
 ### ActiveRecord-like methods
@@ -74,30 +74,37 @@ end
 
 # Update a fetched resource
 user = User.find(1)
-user.fullname = "Lindsay Fünke"
-# OR user.assign_attributes(fullname: "Lindsay Fünke")
+user.fullname = "Lindsay Fünke" # OR user.assign_attributes(fullname: "Lindsay Fünke")
 user.save
+# PUT "/users/1" with `fullname=Lindsay+Fünke`
 
 # Update a resource without fetching it
 User.save_existing(1, fullname: "Lindsay Fünke")
+# PUT "/users/1" with `fullname=Lindsay+Fünke`
 
 # Destroy a fetched resource
 user = User.find(1)
 user.destroy
+# DELETE "/users/1"
 
 # Destroy a resource without fetching it
 User.destroy_existing(1)
+# DELETE "/users/1"
 
 # Fetching a collection of resources
 User.all
+# GET "/users"
 User.where(moderator: 1).all
+# GET "/users?moderator=1"
 
 # Create a new resource
 User.create(fullname: "Maeby Fünke")
+# POST "/users" with `fullname=Maeby+Fünke`
 
 # Save a new resource
 user = User.new(fullname: "Maeby Fünke")
 user.save
+# POST "/users" with `fullname=Maeby+Fünke`
 ```
 
 You can look into the [`her-example`](https://github.com/remiprev/her-example) repository for a sample application using Her.
@@ -108,7 +115,7 @@ Since Her relies on [Faraday](https://github.com/lostisland/faraday) to send HTT
 
 ### Authentication
 
-Her doesn’t support authentication by default. However, it’s easy to implement one with request middleware. Using the `connection` block, we can add it to the middleware stack.
+Her doesn’t support authentication by default. However, it’s easy to implement one with request middleware. Using the `setup` block, we can add it to the middleware stack.
 
 For example, to add a token header to your API requests in a Rails application, you could use the excellent [`request_store`](https://rubygems.org/gems/request_store) gem like this:
 
@@ -134,11 +141,11 @@ end
 # config/initializers/her.rb
 require "lib/my_token_authentication"
 
-Her::API.setup url: "https://api.example.com" do |connection|
-  connection.use MyTokenAuthentication
-  connection.use Faraday::Request::UrlEncoded
-  connection.use Her::Middleware::DefaultParseJSON
-  connection.use Faraday::Adapter::NetHttp
+Her::API.setup url: "https://api.example.com" do |c|
+  c.use MyTokenAuthentication
+  c.use Faraday::Request::UrlEncoded
+  c.use Her::Middleware::DefaultParseJSON
+  c.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -167,10 +174,10 @@ TWITTER_CREDENTIALS = {
   token_secret: ""
 }
 
-Her::API.setup url: "https://api.twitter.com/1/" do |connection|
-  connection.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
-  connection.use Her::Middleware::DefaultParseJSON
-  connection.use Faraday::Adapter::NetHttp
+Her::API.setup url: "https://api.twitter.com/1/" do |c|
+  c.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+  c.use Her::Middleware::DefaultParseJSON
+  c.use Faraday::Adapter::NetHttp
 end
 
 class Tweet
@@ -202,10 +209,7 @@ Also, you can define your own parsing method using a response middleware. The mi
 # Expects responses like:
 #
 #     {
-#       "result": {
-#         "id": 1,
-#         "name": "Tobias Fünke"
-#       },
+#       "result": { "id": 1, "name": "Tobias Fünke" },
 #       "errors": []
 #     }
 #
@@ -220,9 +224,9 @@ class MyCustomParser < Faraday::Response::Middleware
   end
 end
 
-Her::API.setup url: "https://api.example.com" do |connection|
-  connection.use MyCustomParser
-  connection.use Faraday::Adapter::NetHttp
+Her::API.setup url: "https://api.example.com" do |c|
+  c.use MyCustomParser
+  c.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -241,10 +245,10 @@ gem "memcached"
 In your Ruby code:
 
 ```ruby
-Her::API.setup url: "https://api.example.com" do |connection|
-  connection.use FaradayMiddleware::Caching, Memcached::Rails.new('127.0.0.1:11211')
-  connection.use Her::Middleware::DefaultParseJSON
-  connection.use Faraday::Adapter::NetHttp
+Her::API.setup url: "https://api.example.com" do |c|
+  c.use FaradayMiddleware::Caching, Memcached::Rails.new('127.0.0.1:11211')
+  c.use Her::Middleware::DefaultParseJSON
+  c.use Faraday::Adapter::NetHttp
 end
 
 class User
@@ -252,7 +256,7 @@ class User
 end
 
 @user = User.find(1)
-# GET /users/1
+# GET "/users/1"
 
 @user = User.find(1)
 # This request will be fetched from memcached
@@ -264,12 +268,7 @@ Here’s a list of several useful features available in Her.
 
 ### Associations
 
-You can define `has_many`, `has_one` and `belongs_to` associations in your models. The association data is handled in two different ways.
-
-1. If Her finds association data when parsing a resource, that data will be used to create the associated model objects on the resource.
-2. If no association data was included when parsing a resource, calling a method with the same name as the association will fetch the data (providing there’s an HTTP request available for it in the API).
-
-For example:
+Examples use this code:
 
 ```ruby
 class User
@@ -292,10 +291,18 @@ class Organization
 end
 ```
 
-If there’s association data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources is returned:
+#### Fetching data
+
+You can define `has_many`, `has_one` and `belongs_to` associations in your models. The association data is handled in two different ways.
+
+1. If Her finds association data when parsing a resource, that data will be used to create the associated model objects on the resource.
+2. If no association data was included when parsing a resource, calling a method with the same name as the association will fetch the data (providing there’s an HTTP request available for it in the API).
+
+For example, if there’s association data in the resource, no extra HTTP request is made when calling the `#comments` method and an array of resources is returned:
 
 ```ruby
 @user = User.find(1)
+# GET "/users/1", response is:
 # {
 #   "id": 1,
 #   "name": "George Michael Bluth",
@@ -306,42 +313,59 @@ If there’s association data in the resource, no extra HTTP request is made whe
 #   "role": { "id": 1, "name": "Admin" },
 #   "organization": { "id": 2, "name": "Bluth Company" }
 # }
+
 @user.comments
-# [#<Comment id=1 text="Foo">, #<Comment id=2 text="Bar">]
+# => [#<Comment id=1 text="Foo">, #<Comment id=2 text="Bar">]
+
 @user.role
-# #<Role id=1 name="Admin">
+# => #<Role id=1 name="Admin">
+
 @user.organization
-# #<Organization id=2 name="Bluth Company">
+# => #<Organization id=2 name="Bluth Company">
 ```
 
 If there’s no association data in the resource, Her makes a HTTP request to retrieve the data.
 
 ```ruby
 @user = User.find(1)
-# { "id": 1, "name": "George Michael Bluth", "organization_id": 2 }
+# GET "/users/1", response is { "id": 1, "name": "George Michael Bluth", "organization_id": 2 }
 
 # has_many association:
 @user.comments
-# GET /users/1/comments
-# [#<Comment id=1>, #<Comment id=2>]
+# GET "/users/1/comments"
+# => [#<Comment id=1>, #<Comment id=2>]
 
 @user.comments.where(approved: 1)
-# GET /users/1/comments?approved=1
-# [#<Comment id=1>]
+# GET "/users/1/comments?approved=1"
+# => [#<Comment id=1>]
 
 # has_one association:
 @user.role
-# GET /users/1/role
-# #<Role id=1>
+# GET "/users/1/role"
+# => #<Role id=1>
 
 # belongs_to association:
 @user.organization
 # (the organization id comes from :organization_id, by default)
-# GET /organizations/2
-# #<Organization id=2>
+# GET "/organizations/2"
+# => #<Organization id=2>
 ```
 
 Subsequent calls to `#comments`, `#role` and `#organization` will not trigger extra HTTP requests and will return the cached objects.
+
+#### Creating data
+
+You can use the association methods to build new objects and save them.
+
+```ruby
+@user = User.find(1)
+@user.comments.build(body: "Just a draft")
+# => [#<Comment body="Just a draft">]
+
+@user.comments.create(body: "Hello world.")
+# POST "/users/1/comments" with `body=Hello+world.`
+# => [#<Comment id=3 body="Hello world.">]
+```
 
 #### Notes about paths
 
@@ -384,7 +408,7 @@ end
 @user.valid? # => false
 
 @user.save
-# POST /users&fullname=Tobias+Fünke will still be called, even if the user is not valid
+# POST "/users" with `fullname=Tobias+Fünke` will still be called, even if the user is not valid
 ```
 
 ### Dirty attributes
@@ -403,7 +427,7 @@ end
 @user.changes # => { :fullname => [nil, "Tobias Fünke"] }
 
 @user.save
-# POST /users&fullname=Tobias+Fünke
+# POST "/users" with `fullname=Tobias+Fünke`
 
 @user.fullname_changed? # => false
 @user.changes # => {}
@@ -425,7 +449,7 @@ class User
 end
 
 @user = User.create(fullname: "Tobias Funke")
-# POST /users&fullname=Tobias+Fünke&internal_id=42
+# POST "/users" with `fullname=Tobias+Fünke&internal_id=42`
 
 @user = User.find(1)
 @user.fullname # => "TOBIAS FUNKE"
@@ -463,10 +487,10 @@ class Article
 end
 
 User.create(fullname: "Tobias Fünke")
-# POST { "user": { "fullname": "Tobias Fünke" } } to /users
+# POST "/users" with `user[fullname]=Tobias+Fünke`
 
 Article.create(title: "Hello world.")
-# POST { "post": { "title": "Hello world." } } to /articles
+# POST "/articles" with `post[title]=Hello+world`
 ```
 
 #### Parsing
@@ -484,12 +508,12 @@ class Article
   parse_root_in_json :post
 end
 
-# POST /users returns { "user": { "fullname": "Tobias Fünke" } }
 user = User.create(fullname: "Tobias Fünke")
+# POST "/users" with `fullname=Tobias+Fünke`, response is { "user": { "fullname": "Tobias Fünke" } }
 user.fullname # => "Tobias Fünke"
 
-# POST /articles returns { "post": { "title": "Hello world." } }
 article = Article.create(title: "Hello world.")
+# POST "/articles" with `title=Hello+world.`, response is { "post": { "title": "Hello world." } }
 article.title # => "Hello world."
 ```
 
@@ -508,16 +532,16 @@ class User
 end
 
 User.popular
-# GET /users/popular
-# [#<User id=1>, #<User id=2>]
+# GET "/users/popular"
+# => [#<User id=1>, #<User id=2>]
 
 User.unpopular
-# GET /users/unpopular
-# [#<User id=3>, #<User id=4>]
+# GET "/users/unpopular"
+# => [#<User id=3>, #<User id=4>]
 
 User.from_default(name: "Maeby Fünke")
-# POST /users/from_default with `name=Maeby+Fünke`
-# #<User id=5 name="Maeby Fünke">
+# POST "/users/from_default" with `name=Maeby+Fünke`
+# => #<User id=5 name="Maeby Fünke">
 ```
 
 You can also use `get`, `post`, `put` or `delete` (which maps the returned data to either a collection or a resource).
@@ -528,23 +552,19 @@ class User
 end
 
 User.get(:popular)
-# GET /users/popular
-# [#<User id=1>, #<User id=2>]
+# GET "/users/popular"
+# => [#<User id=1>, #<User id=2>]
 
 User.get(:single_best)
-# GET /users/single_best
-# #<User id=1>
+# GET "/users/single_best"
+# => #<User id=1>
 ```
 
-Also, `get_collection` (which maps the returned data to a collection of resources), `get_resource` (which maps the returned data to a single resource) or `get_raw` (which yields the parsed data and the raw response from the HTTP request) can also be used. Other HTTP methods are supported (`post_raw`, `put_resource`, etc.).
+You can also use `get_raw` which yields the parsed data and the raw response from the HTTP request. Other HTTP methods are supported (`post_raw`, `put_raw`, etc.).
 
 ```ruby
 class User
   include Her::Model
-
-  def self.popular
-    get_collection(:popular)
-  end
 
   def self.total
     get_raw(:stats) do |parsed_data, response|
@@ -553,12 +573,8 @@ class User
   end
 end
 
-User.popular
-# GET /users/popular
-# [#<User id=1>, #<User id=2>]
-
 User.total
-# GET /users/stats
+# GET "/users/stats"
 # => 42
 ```
 
@@ -570,8 +586,8 @@ class User
 end
 
 User.get("/users/popular")
-# GET /users/popular
-# [#<User id=1>, #<User id=2>]
+# GET "/users/popular"
+# => [#<User id=1>, #<User id=2>]
 ```
 
 ### Custom paths
@@ -585,7 +601,7 @@ class User
 end
 
 @user = User.find(1)
-# GET /hello_users/1
+# GET "/hello_users/1"
 ```
 
 You can also include custom variables in your paths:
@@ -597,14 +613,14 @@ class User
 end
 
 @user = User.find(1, _organization_id: 2)
-# GET /organizations/2/users/1
+# GET "/organizations/2/users/1"
 
 @user = User.all(_organization_id: 2)
-# GET /organizations/2/users
+# GET "/organizations/2/users"
 
 @user = User.new(fullname: "Tobias Fünke", organization_id: 2)
 @user.save
-# POST /organizations/2/users with `fullname=Tobias+Fünke`
+# POST "/organizations/2/users" with `fullname=Tobias+Fünke`
 ```
 
 ### Custom primary keys
@@ -617,8 +633,11 @@ class User
   primary_key :_id
 end
 
-user = User.find("4fd89a42ff204b03a905c535") # GET /users/1 returns { "_id": "4fd89a42ff204b03a905c535", "name": "Tobias" }
-user.save # PUT /users/4fd89a42ff204b03a905c535
+user = User.find("4fd89a42ff204b03a905c535")
+# GET "/users/1", response is { "_id": "4fd89a42ff204b03a905c535", "name": "Tobias" }
+
+user.destroy
+# DELETE "/users/4fd89a42ff204b03a905c535"
 ```
 
 ### Inheritance
@@ -644,7 +663,7 @@ class User < MyAPI::Model
 end
 
 User.find(1)
-# GET /users/1
+# GET "/users/1"
 ```
 
 ### Scopes
@@ -661,13 +680,13 @@ class User
 end
 
 @admins = User.admins
-# GET /users?role=admin
+# GET "/users?role=admin"
 
 @moderators = User.by_role('moderator')
-# GET /users?role=moderator
+# GET "/users?role=moderator"
 
 @active_admins = User.active.admins # @admins.active would have worked here too
-# GET /users?role=admin&active=1
+# GET "/users?role=admin&active=1"
 ```
 
 A neat trick you can do with scopes is interact with complex paths.
@@ -681,10 +700,10 @@ class User
 end
 
 @user = User.for_organization(3).find(2)
-# GET /organizations/3/users/2
+# GET "/organizations/3/users/2"
 
 @user = User.for_organization(3).create(fullname: "Tobias Fünke")
-# POST /organizations/3 with `fullname=Tobias+Fünke`
+# POST "/organizations/3" with `fullname=Tobias+Fünke`
 ```
 
 ### Multiple APIs
@@ -694,15 +713,15 @@ It is possible to use different APIs for different models. Instead of calling `H
 ```ruby
 # config/initializers/her.rb
 MY_API = Her::API.new
-MY_API.setup url: "https://my-api.example.com" do |connection|
-  connection.use Her::Middleware::DefaultParseJSON
-  connection.use Faraday::Adapter::NetHttp
+MY_API.setup url: "https://my-api.example.com" do |c|
+  c.use Her::Middleware::DefaultParseJSON
+  c.use Faraday::Adapter::NetHttp
 end
 
 OTHER_API = Her::API.new
-OTHER_API.setup url: "https://other-api.example.com" do |connection|
-  connection.use Her::Middleware::DefaultParseJSON
-  connection.use Faraday::Adapter::NetHttp
+OTHER_API.setup url: "https://other-api.example.com" do |c|
+  c.use Her::Middleware::DefaultParseJSON
+  c.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -720,10 +739,10 @@ class Category
 end
 
 User.all
-# GET https://my-api.example.com/users
+# GET "https://my-api.example.com/users"
 
 Category.all
-# GET https://other-api.example.com/categories
+# GET "https://other-api.example.com/categories"
 ```
 
 ### SSL
@@ -732,9 +751,9 @@ When initializing `Her::API`, you can pass any parameter supported by `Faraday.n
 
 ```ruby
 ssl_options = { ca_path: "/usr/lib/ssl/certs" }
-Her::API.setup url: "https://api.example.com", ssl: ssl_options do |connection|
-  connection.use Her::Middleware::DefaultParseJSON
-  connection.use Faraday::Adapter::NetHttp
+Her::API.setup url: "https://api.example.com", ssl: ssl_options do |c|
+  c.use Her::Middleware::DefaultParseJSON
+  c.use Faraday::Adapter::NetHttp
 end
 ```
 
@@ -767,9 +786,9 @@ RSpec.configure do |config|
 
       # Here, you would customize this for your own API (URL, middleware, etc)
       # like you have done in your application’s initializer
-      api.setup url: "http://api.example.com" do |connection|
-        connection.use Her::Middleware::FirstLevelParseJSON
-        connection.adapter(:test) { |s| yield(s) }
+      api.setup url: "http://api.example.com" do |c|
+        c.use Her::Middleware::FirstLevelParseJSON
+        c.adapter(:test) { |s| yield(s) }
       end
     end
   end)
@@ -836,16 +855,18 @@ Most projects I know that use Her are internal or private projects but here’s 
 
 * [tumbz](https://github.com/remiprev/tumbz)
 * [crowdher](https://github.com/simonprev/crowdher)
+* [vodka](https://github.com/magnolia-fan/vodka)
+* [webistrano_cli](https://github.com/chytreg/webistrano_cli)
 
 ## History
 
 I told myself a few months ago that it would be great to build a gem to replace Rails’ [ActiveResource](http://api.rubyonrails.org/classes/ActiveResource/Base.html) since it was barely maintained (and now removed from Rails 4.0), lacking features and hard to extend/customize. I had built a few of these REST-powered ORMs for client projects before but I decided I wanted to write one for myself that I could release as an open-source project.
 
-Most of Her’s core codebase was written on a Saturday morning of April 2012 ([first commit](https://github.com/remiprev/her/commit/689d8e88916dc2ad258e69a2a91a283f061cbef2) at 7am!).
+Most of Her’s core concepts were written on a Saturday morning of April 2012 ([first commit](https://github.com/remiprev/her/commit/689d8e88916dc2ad258e69a2a91a283f061cbef2) at 7am!).
 
 ## Contribute
 
-Yes please! Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues).
+Yes please! Feel free to contribute and submit issues/pull requests [on GitHub](https://github.com/remiprev/her/issues). There’s no such thing as a bad pull request — even if it’s for a typo, a small improvement to the code or the documentation!
 
 See [CONTRIBUTING.md](https://github.com/remiprev/her/blob/master/CONTRIBUTING.md) for best practices.
 
