@@ -63,7 +63,7 @@ module Her
 
       # Configure ActiveModel callbacks
       extend ActiveModel::Callbacks
-      define_model_callbacks :create, :update, :save, :find, :destroy
+      define_model_callbacks :create, :update, :save, :find, :destroy, :initialize
     end
   end
 end

@@ -466,6 +466,7 @@ The available callbacks are:
 * `after_update`
 * `after_destroy`
 * `after_find`
+* `after_initialize`
 
 ### JSON attributes-wrapping
 

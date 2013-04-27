@@ -117,4 +117,29 @@ describe "Her::Model and ActiveModel::Callbacks" do
       its(:name) { should == "TOBIAS FUNKE" }
     end
   end
+
+  context :after_initialize do
+    subject { Foo::User.new(:name => "Tobias Funke") }
+
+    context "when using a symbol callback" do
+      before do
+        class Foo::User
+          after_initialize :alter_name
+          def alter_name; self.name.upcase!;  end
+        end
+      end
+
+      its(:name) { should == "TOBIAS FUNKE" }
+    end
+
+    context "when using a block callback" do
+      before do
+        class Foo::User
+          after_initialize lambda { self.name.upcase! }
+        end
+      end
+
+      its(:name) { should == "TOBIAS FUNKE" }
+    end
+  end
 end
