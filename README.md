@@ -670,6 +670,23 @@ end
 # GET /users?role=admin&active=1
 ```
 
+A neat trick you can do with scopes is interact with complex paths.
+
+```ruby
+class User
+  include Her::Model
+
+  collection_path "organizations/:organization_id/users"
+  scope :for_organization, -> { |id| where(organization_id: id) }
+end
+
+@user = User.for_organization(3).find(2)
+# GET /organizations/3/users/2
+
+@user = User.for_organization(3).create(fullname: "Tobias Fünke")
+# POST /organizations/3 with `fullname=Tobias+Fünke`
+```
+
 ### Multiple APIs
 
 It is possible to use different APIs for different models. Instead of calling `Her::API.setup`, you can create instances of `Her::API`:
