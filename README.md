@@ -360,11 +360,11 @@ You can use the association methods to build new objects and save them.
 ```ruby
 @user = User.find(1)
 @user.comments.build(body: "Just a draft")
-# => [#<Comment body="Just a draft">]
+# => [#<Comment body="Just a draft" user_id=1>]
 
 @user.comments.create(body: "Hello world.")
 # POST "/users/1/comments" with `body=Hello+world.`
-# => [#<Comment id=3 body="Hello world.">]
+# => [#<Comment id=3 body="Hello world." user_id=1>]
 ```
 
 #### Notes about paths
