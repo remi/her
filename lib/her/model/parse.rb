@@ -10,7 +10,7 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        self.class.include_root_in_json? ? { self.class.included_root_element => attributes.dup.symbolize_keys } : attributes.dup.symbolize_keys
+        self.class.to_params(self.attributes)
       end
 
       module ClassMethods
@@ -20,6 +20,11 @@ module Her
         # @private
         def parse(data)
           parse_root_in_json? ? data[parsed_root_element] : data
+        end
+
+        # @private
+        def to_params(attributes)
+          include_root_in_json? ? { included_root_element => attributes.dup.symbolize_keys } : attributes.dup.symbolize_keys
         end
 
         # Return or change the value of `include_root_in_json`

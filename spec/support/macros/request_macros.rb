@@ -11,7 +11,7 @@ module Her
         end
 
         def params(env)
-          @params ||= Faraday::Utils.parse_query(env[:body]).with_indifferent_access.merge(env[:params])
+          @params ||= Faraday::Utils.parse_nested_query(env[:body]).with_indifferent_access.merge(env[:params])
         end
       end
     end

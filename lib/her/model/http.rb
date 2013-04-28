@@ -62,6 +62,7 @@ module Her
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{method}(path, params={})
               path = build_request_path_from_string_or_symbol(path, params)
+              params = to_params(params) unless #{method.to_sym.inspect} == :get
               send(:'#{method}_raw', path, params) do |parsed_data, response|
                 if parsed_data[:data].is_a?(Array)
                   new_collection(parsed_data)
