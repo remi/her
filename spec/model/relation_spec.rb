@@ -204,4 +204,23 @@ describe Her::Model::Relation do
       it("should apply the scope to the request") { Foo::User.all.first.should be_active }
     end
   end
+
+  describe :map do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.adapter :test do |stub|
+          stub.get("/users") do |env|
+            ok! [{ :id => 1, :fullname => "Tobias Fünke" }, { :id => 2, :fullname => "Lindsay Fünke" }]
+          end
+        end
+      end
+
+      spawn_model 'Foo::User'
+    end
+
+    it "delegates the method to the fetched collection" do
+      Foo::User.all.map(&:fullname).should == ["Tobias Fünke", "Lindsay Fünke"]
+    end
+  end
 end
