@@ -448,7 +448,7 @@ class User
   end
 end
 
-@user = User.create(fullname: "Tobias Funke")
+@user = User.create(fullname: "Tobias Fünke")
 # POST "/users" with `fullname=Tobias+Fünke&internal_id=42`
 
 @user = User.find(1)
