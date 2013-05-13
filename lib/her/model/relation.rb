@@ -17,7 +17,7 @@ module Her
 
       # Build a new resource
       def build(attributes = {})
-        @parent.new(@params.merge(attributes))
+        @parent.build(@params.merge(attributes))
       end
 
       # Add a query string parameter
