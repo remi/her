@@ -61,6 +61,23 @@ module Her
         end
         alias parse_root_in_json? parse_root_in_json
 
+        # Return or change the value of `request_new_object_on_build`
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     request_new_object_on_build true
+        #   end
+        def request_new_object_on_build(value = nil)
+          @_her_request_new_object_on_build ||= begin
+            superclass.request_new_object_on_build if superclass.respond_to?(:request_new_object_on_build)
+          end
+
+          return @_her_request_new_object_on_build unless value
+          @_her_request_new_object_on_build = value
+        end
+        alias request_new_object_on_build? request_new_object_on_build
+
         # Return or change the value of `root_element`. Always defaults to the base name of the class.
         #
         # @example

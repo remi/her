@@ -45,7 +45,7 @@ module Her
         #   new_organization = user.organization.build(:name => "Foo Inc.")
         #   new_organization # => #<Organization name="Foo Inc.">
         def build(attributes = {})
-          @klass.new(attributes)
+          @klass.build(attributes)
         end
 
         # Create a new object, save it and associate it to the parent
