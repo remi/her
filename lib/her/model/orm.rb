@@ -165,6 +165,24 @@ module Her
           @method_for[action] = method.to_s.downcase.to_sym
         end
 
+        # Build a new resource with the given attributes.
+        # If the request_new_object_on_build flag is set, the new object is requested via API.
+        def build(attributes = {})
+          params = attributes
+          return self.new(params) unless self.request_new_object_on_build?
+
+          path = self.build_request_path(params.merge(self.primary_key => 'new'))
+          method = self.method_for(:new)
+
+          resource = nil
+          self.request(params.merge(:_method => method, :_path => path)) do |parsed_data, response|
+            if response.success?
+              resource = self.new_from_parsed_data(parsed_data)
+            end
+          end
+          resource
+        end
+
         private
         # @private
         def blank_relation

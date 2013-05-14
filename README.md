@@ -367,6 +367,20 @@ You can use the association methods to build new objects and save them.
 # => [#<Comment id=3 body="Hello world." user_id=1>]
 ```
 
+You can also explicitly request a new object via the API when using ``build``. This is useful if you're dealing with default attributes.
+
+```ruby
+class Comment
+  include Her::Model
+  request_new_object_on_build true
+end
+
+@user = User.find(1)
+@user.comments.build(body: "Just a draft")
+# GET "/users/1/comments/new" with `body=Just+a+draft.`
+# => [#<Comment id=nil body="Just a draft" archived=false user_id=1>]
+```
+
 #### Notes about paths
 
 Resources must always have all the required attributes to build their complete path. For example, if you have these models:

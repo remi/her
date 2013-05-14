@@ -208,6 +208,43 @@ describe Her::Model::ORM do
     end
   end
 
+  context "building resources" do
+    context "when request_new_object_on_build is not set (default)" do
+      before do
+        spawn_model("Foo::User")
+      end
+
+      it "builds a new resource without requesting it" do
+        Foo::User.should_not_receive(:request)
+        @new_user = Foo::User.build(:fullname => "Tobias Fünke")
+        @new_user.new?.should be_true
+        @new_user.fullname.should == "Tobias Fünke"
+      end
+    end
+
+    context "when request_new_object_on_build is set" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/new") { |env| ok! :id => nil, :fullname => params(env)[:fullname], :email => "tobias@bluthcompany.com" }
+          end
+        end
+
+        spawn_model("Foo::User") { request_new_object_on_build true }
+      end
+
+      it "requests a new resource" do
+        Foo::User.should_receive(:request).once.and_call_original
+        @new_user = Foo::User.build(:fullname => "Tobias Fünke")
+        @new_user.new?.should be_true
+        @new_user.fullname.should == "Tobias Fünke"
+        @new_user.email.should == "tobias@bluthcompany.com"
+      end
+    end
+  end
+
   context "creating resources" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|

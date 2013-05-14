@@ -53,6 +53,7 @@ module Her
       method_for :update, :put
       method_for :find, :get
       method_for :destroy, :delete
+      method_for :new, :get
 
       # Define the default primary key
       primary_key :id

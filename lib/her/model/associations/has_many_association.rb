@@ -49,7 +49,7 @@ module Her
         #   new_comment = user.comments.build(:body => "Hello!")
         #   new_comment # => #<Comment user_id=1 body="Hello!">
         def build(attributes = {})
-          @klass.new(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
+          @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
         end
 
         # Create a new object, save it and add it to the associated collection
