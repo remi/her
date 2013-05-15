@@ -36,6 +36,16 @@ module Her
           end
         end
 
+        # @private
+        def association_names
+          associations.inject([]) { |memo, (name, details)| memo << details }.flatten.map { |a| a[:name] }
+        end
+
+        # @private
+        def association_keys
+          associations.inject([]) { |memo, (name, details)| memo << details }.flatten.map { |a| a[:data_key] }
+        end
+
         # Parse associations data after initializing a new object
         #
         # @private
