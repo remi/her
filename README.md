@@ -905,6 +905,7 @@ These [fine folks](https://github.com/remiprev/her/contributors) helped with Her
 * [@seanreads](https://github.com/seanreads)
 * [@jonkarna](https://github.com/jonkarna)
 * [@aclevy](https://github.com/aclevy)
+* [@stevschmid](https://github.com/stevschmid)
 
 ## License
 
