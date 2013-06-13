@@ -180,4 +180,63 @@ describe Her::Model::Parse do
       @user.fullname.should == "Lindsay Fünke"
     end
   end
+
+  context "when parse_root_in_json set jsonapi to true" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.get("/users") { |env| [200, {},  { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
+        stub.get("/users/admins") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
+        stub.get("/users/1") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
+        stub.post("/users") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
+        stub.put("/users/1") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Tobias Fünke Jr." }] }.to_json] }
+      end
+
+      spawn_model("Foo::User") do
+        parse_root_in_json true, :format => :jsonapi
+        custom_get :admins
+      end
+    end
+
+    it "parse the data from the JSON root element after .create" do
+      @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
+      @new_user.fullname.should == "Lindsay Fünke"
+    end
+
+    it "parse the data from the JSON root element after an arbitrary HTTP request" do
+      @new_user = Foo::User.admins
+      @new_user.first.fullname.should == "Lindsay Fünke"
+    end
+
+    it "parse the data from the JSON root element after .all" do
+      @users = Foo::User.all
+      @users.first.fullname.should == "Lindsay Fünke"
+    end
+
+    it "parse the data from the JSON root element after .find" do
+      @user = Foo::User.find(1)
+      @user.fullname.should == "Lindsay Fünke"
+    end
+
+    it "parse the data from the JSON root element after .save" do
+      @user = Foo::User.find(1)
+      @user.fullname = "Tobias Fünke"
+      @user.save
+      @user.fullname.should == "Tobias Fünke Jr."
+    end
+
+    it "parse the data from the JSON root element after new/save" do
+      @user = Foo::User.new
+      @user.fullname = "Lindsay Fünke (before save)"
+      @user.save
+      @user.fullname.should == "Lindsay Fünke"
+    end
+
+  end
+
+
 end

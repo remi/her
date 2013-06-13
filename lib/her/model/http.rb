@@ -64,10 +64,14 @@ module Her
               path = build_request_path_from_string_or_symbol(path, params)
               params = to_params(params) unless #{method.to_sym.inspect} == :get
               send(:'#{method}_raw', path, params) do |parsed_data, response|
-                if parsed_data[:data].is_a?(Array)
+                if jsonapi_format?
                   new_collection(parsed_data)
                 else
-                  new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+                  if parsed_data[:data].is_a?(Array)
+                    new_collection(parsed_data)
+                  else
+                    new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+                  end
                 end
               end
             end

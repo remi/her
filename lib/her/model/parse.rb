@@ -51,15 +51,20 @@ module Her
         #     include Her::Model
         #     parse_root_in_json true
         #   end
-        def parse_root_in_json(value = nil)
+        def parse_root_in_json(value = nil, options = {})
           @_her_parse_root_in_json ||= begin
             superclass.parse_root_in_json if superclass.respond_to?(:parse_root_in_json)
           end
 
           return @_her_parse_root_in_json unless value
           @_her_parse_root_in_json = value
+          @_her_jsonapi_format = options[:format] == :jsonapi
         end
         alias parse_root_in_json? parse_root_in_json
+
+        def jsonapi_format?
+          @_her_jsonapi_format
+        end
 
         # Return or change the value of `request_new_object_on_build`
         #
@@ -91,7 +96,11 @@ module Her
         #   user.name # => "Tobias"
         def root_element(value = nil)
           if value.nil?
-            @_her_root_element ||= self.name.split("::").last.underscore.to_sym
+            if jsonapi_format?
+              @_her_root_element ||= self.name.split("::").last.pluralize.underscore.to_sym
+            else
+              @_her_root_element ||= self.name.split("::").last.underscore.to_sym
+            end
           else
             @_her_root_element = value.to_sym
           end
