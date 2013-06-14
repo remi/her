@@ -235,8 +235,38 @@ describe Her::Model::Parse do
       @user.save
       @user.fullname.should == "Lindsay Fünke"
     end
-
   end
 
+  context "when include_root_in_json set jsonapi to true" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
 
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.post("/users") { |env| [200, {}, { :users => [{ :id => 1, :fullname => params(env)[:users][:fullname] }] }.to_json] }
+        stub.post("/users/admins") { |env| [200, {}, { :users => [{ :id => 1, :fullname => params(env)[:users][:fullname] }] }.to_json] }
+      end
+    end
+
+    context "to true" do
+      before do
+        spawn_model "Foo::User" do
+          include_root_in_json true, format: :jsonapi
+          custom_post :admins
+        end
+      end
+
+      it "wraps params in the element name in `to_params`" do
+        @new_user = Foo::User.new(:fullname => "Tobias Fünke")
+        @new_user.to_params.should == { :users => [{ :fullname => "Tobias Fünke" }] }
+      end
+
+      # it "wraps params in the element name in `.create`" do
+      #   @new_user = Foo::User.admins(:fullname => "Tobias Fünke")
+      #   @new_user.fullname.should == "Tobias Fünke"
+      # end
+    end
+  end
 end

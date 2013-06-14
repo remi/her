@@ -24,7 +24,12 @@ module Her
 
         # @private
         def to_params(attributes)
-          include_root_in_json? ? { included_root_element => attributes.dup.symbolize_keys } : attributes.dup.symbolize_keys
+          if include_root_in_json?
+            data = jsonapi_format_include? ? [attributes.dup.symbolize_keys] : attributes.dup.symbolize_keys
+            { included_root_element => data }
+          else
+            attributes.dup.symbolize_keys
+          end
         end
 
         # Return or change the value of `include_root_in_json`
@@ -32,17 +37,22 @@ module Her
         # @example
         #   class User
         #     include Her::Model
-        #     include_root_in_json true
+        #     include_root_in_json true, format: jsonapi
         #   end
-        def include_root_in_json(value = nil)
+        def include_root_in_json(value = nil, options = {})
           @_her_include_root_in_json ||= begin
             superclass.include_root_in_json if superclass.respond_to?(:include_root_in_json)
           end
 
           return @_her_include_root_in_json unless value
           @_her_include_root_in_json = value
+          @_her_jsonapi_format_include = options[:format] == :jsonapi
         end
         alias include_root_in_json? include_root_in_json
+
+        def jsonapi_format_include?
+          @_her_jsonapi_format_include
+        end
 
         # Return or change the value of `parse_root_in`
         #
@@ -106,9 +116,18 @@ module Her
           end
         end
 
+        # Same as root_element, but separated option for include
+        def root_element_include
+          if jsonapi_format_include?
+            @_her_root_element_include ||= self.name.split("::").last.pluralize.underscore.to_sym
+          else
+            @_her_root_element_include ||= self.name.split("::").last.underscore.to_sym
+          end
+        end
+
         # @private
         def included_root_element
-          include_root_in_json == true ? root_element : include_root_in_json
+          include_root_in_json == true ? root_element_include : include_root_in_json
         end
 
         # @private
