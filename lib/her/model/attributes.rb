@@ -32,8 +32,9 @@ module Her
       #
       # @private
       def self.initialize_collection(klass, parsed_data={})
-        collection_data = parsed_data[:data].map do |item_data|
-          resource = klass.new(klass.parse(item_data))
+        collection_data = klass.extract_root_from_collection(parsed_data[:data]).map do |item_data|
+          #If data comes from jsonapi format, root element dont need to be parsed
+          resource = klass.jsonapi_format? ? klass.new(item_data) : klass.new(klass.parse(item_data))
           resource.run_callbacks :find
           resource
         end
@@ -168,7 +169,19 @@ module Her
         #
         # @private
         def new_from_parsed_data(parsed_data)
-          new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+          new(extract_array(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+        end
+
+        # Extracts the array wrapper if jsonapi format is enabled
+        # @param [Hash]
+        def extract_array(data)
+          jsonapi_format? ? parse(data).first : parse(data)
+        end
+
+        # Extracts the root element from a collection if jsonapi format is enabled
+        # @param [Hash]
+        def extract_root_from_collection(parsed_data)
+          jsonapi_format? ? parse(parsed_data) : parsed_data
         end
 
         # Define the attributes that will be used to track dirty attributes and validations
