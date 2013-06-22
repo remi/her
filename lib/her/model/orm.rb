@@ -115,7 +115,7 @@ module Her
         #   User.all # Called via GET "/users?admin=1"
         #   User.new.admin # => 1
         def default_scope(block=nil)
-          @_her_default_scope ||= superclass.respond_to?(:default_scope) ? superclass.default_scope : scoped
+          @_her_default_scope ||= (!respond_to?(:default_scope) && superclass.respond_to?(:default_scope)) ? superclass.default_scope : scoped
           @_her_default_scope = @_her_default_scope.instance_exec(&block) unless block.nil?
           @_her_default_scope
         end

@@ -125,6 +125,28 @@ describe Her::Model::Paths do
       end
     end
 
+    context "children model", focus: true do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/foo") { |env| [200, {}, { :id => 'foo' }.to_json] }
+          end
+        end
+
+        spawn_model("Foo::Model") { include_root_in_json true }
+
+        class User < Foo::Model; end
+        @spawned_models << :User
+      end
+
+      it "builds path using the children model name" do
+        User.find('foo').id.should == 'foo'
+        User.find('foo').id.should == 'foo'
+      end
+    end
+
     context "nested model" do
       before do
         spawn_model "Foo::User"
