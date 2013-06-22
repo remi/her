@@ -125,7 +125,7 @@ describe Her::Model::Paths do
       end
     end
 
-    context "children model", focus: true do
+    context "children model" do
       before do
         Her::API.setup :url => "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
