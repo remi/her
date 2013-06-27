@@ -12,7 +12,7 @@ module Her
             :path           => "/#{name}",
             :inverse_of => nil
           }.merge(opts)
-          klass.associations[:has_many] << opts
+          klass.associations[:has_many] << opts unless klass.associations[:has_many].include? opts
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{name}

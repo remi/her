@@ -12,7 +12,7 @@ module Her
             :foreign_key => "#{name}_id",
             :path => "/#{name.to_s.pluralize}/:id"
           }.merge(opts)
-          klass.associations[:belongs_to] << opts
+          klass.associations[:belongs_to] << opts unless klass.associations[:belongs_to].include? opts
 
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{name}
