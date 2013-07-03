@@ -84,6 +84,7 @@ module Her
       method = opts.delete(:_method)
       path = opts.delete(:_path)
       headers = opts.delete(:_headers)
+      parallel = opts.delete(:_parallel)
       opts.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
       response = @connection.send method do |request|
         request.headers.merge!(headers) if headers
@@ -97,7 +98,7 @@ module Her
         end
       end
 
-      { :parsed_data => response.env[:body], :response => response }
+      { :parsed_data => (parallel ? nil : response.env[:body]), :response => response }
     end
 
     private
