@@ -1,5 +1,20 @@
 module Her
   module Parallelization
+    # Enqueue and run in parallel several queries
+    # @example
+    #   module ParallelTest
+    #     extend Her::Parallelization
+    #   end
+    #
+    #   @response = ParallelTest.in_parallel do |queue|
+    #     queue.add User.where(name: 'jhon')
+    #     queue.add User.where(name: 'mary')
+    #     queue.add Foo::Comment.all
+    #   end
+    #
+    #   @response[:users].first.name => 'Jhon Smith'
+    #   @response[:'foo/comments'].first.comment => 'nice pic!'
+    #
     def in_parallel
       parallelizer = Parallelizer.new
       yield parallelizer if block_given?
