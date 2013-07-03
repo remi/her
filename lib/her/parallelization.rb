@@ -1,8 +1,9 @@
 module Her
   module Parallelization
-    def self.in_parallel
+    def in_parallel
       parallelizer = Parallelizer.new
       yield parallelizer if block_given?
+      return [] if parallelizer.queue.empty?
       responses = {}
       api = parallelizer.queue.first.parent.her_api
       api.connection.in_parallel do
@@ -26,7 +27,7 @@ module Her
       end
     end
 
-    def self.merge_responses(responses)
+    def merge_responses(responses)
       merged_responses = {}
 
       responses.each_pair do |relation, response|
