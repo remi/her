@@ -38,6 +38,25 @@ module Her
           @_her_primary_key = value.to_sym
         end
 
+        # Define the new record key field that will be used to identify if a
+        # record should be considered new or existing.
+        #
+        # @example
+        #  class User
+        #    include Her::Model
+        #    new_record_key 'user_id'
+        #  end
+        #
+        # @param [Symbol] value
+        def new_record_key(value = nil)
+          @_her_new_record_key ||= begin
+            superclass.new_record_key if superclass.respond_to?(:new_record_key)
+          end
+
+          return @_her_new_record_key unless value
+          @_her_new_record_key = value.to_sym
+        end
+
         # Defines a custom collection path for the resource
         #
         # @example

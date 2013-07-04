@@ -6,7 +6,7 @@ module Her
 
       # Return `true` if a resource was not saved yet
       def new?
-        id.nil?
+        new_record_key.nil?
       end
 
       # Return `true` if a resource is not `#new?`

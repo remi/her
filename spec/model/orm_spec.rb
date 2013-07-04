@@ -13,6 +13,7 @@ describe Her::Model::ORM do
           stub.get("/users") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
           stub.get("/admin_users") { |env| [200, {}, [{ :admin_id => 1, :name => "Tobias Fünke" }, { :admin_id => 2, :name => "Lindsay Fünke" }].to_json] }
           stub.get("/admin_users/1") { |env| [200, {}, { :admin_id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.get("/slug_users/slug") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -23,6 +24,12 @@ describe Her::Model::ORM do
       spawn_model "Foo::AdminUser" do
         uses_api api
         primary_key :admin_id
+      end
+
+      spawn_model "Foo::SlugUser" do
+        uses_api api
+        primary_key :slug
+        new_record_key :id
       end
     end
 
@@ -60,6 +67,14 @@ describe Her::Model::ORM do
       @new_user.should be_new
 
       @existing_user = Foo::AdminUser.find(1)
+      @existing_user.should_not be_new
+    end
+
+    it 'handles new resource with custom new resource key' do
+      @new_user = Foo::SlugUser.new(:fullname => 'Lindsay Fünke')
+      @new_user.should be_new
+
+      @existing_user = Foo::SlugUser.find('slug')
       @existing_user.should_not be_new
     end
   end

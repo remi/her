@@ -134,6 +134,11 @@ module Her
         @attributes[self.class.primary_key]
       end
 
+      # Return the value of the model `new_record_key` attribute
+      def new_record_key
+        @attributes[self.class.new_record_key || self.class.primary_key]
+      end
+
       # Return `true` if the other object is also a Her::Model and has matching data
       #
       # @private
