@@ -134,6 +134,11 @@ module Her
         @attributes[self.class.primary_key]
       end
 
+      # Return the value of the model `finder_key` attribute
+      def finder_key
+        @attributes[self.class.finder_key]
+      end
+
       # Return `true` if the other object is also a Her::Model and has matching data
       #
       # @private

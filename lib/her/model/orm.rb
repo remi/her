@@ -34,13 +34,19 @@ module Her
       #   @user.save
       #   # Called via POST "/users"
       def save
-        callback = new? ? :create : :update
+        if new?
+          callback = :create
+          path = collection_request_path
+        else
+          callback = :update
+          path = resource_request_path
+        end
         method = self.class.method_for(callback)
 
         run_callbacks callback do
           run_callbacks :save do
             params = to_params
-            self.class.request(to_params.merge(:_method => method, :_path => request_path)) do |parsed_data, response|
+            self.class.request(to_params.merge(:_method => method, :_path => path)) do |parsed_data, response|
               assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
               @metadata = parsed_data[:metadata]
               @response_errors = parsed_data[:errors]
@@ -71,7 +77,7 @@ module Her
       def destroy
         method = self.class.method_for(:destroy)
         run_callbacks :destroy do
-          self.class.request(:_method => method, :_path => request_path) do |parsed_data, response|
+          self.class.request(:_method => method, :_path => resource_request_path) do |parsed_data, response|
             assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             @metadata = parsed_data[:metadata]
             @response_errors = parsed_data[:errors]
@@ -154,7 +160,7 @@ module Her
         #   User.destroy_existing(1)
         #   # Called via DELETE "/users/1"
         def destroy_existing(id, params={})
-          request(params.merge(:_method => method_for(:destroy), :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
+          request(params.merge(:_method => method_for(:destroy), :_path => build_resource_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
             new(parse(parsed_data[:data]).merge(:_destroyed => true))
           end
         end
@@ -179,7 +185,7 @@ module Her
           params = attributes
           return self.new(params) unless self.request_new_object_on_build?
 
-          path = self.build_request_path(params.merge(self.primary_key => 'new'))
+          path = self.build_resource_request_path(params.merge(self.primary_key => 'new'))
           method = self.method_for(:new)
 
           resource = nil

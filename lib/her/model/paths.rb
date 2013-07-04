@@ -14,8 +14,12 @@ module Her
       #
       # @param [Hash] params An optional set of additional parameters for
       #   path construction. These will not override attributes of the resource.
-      def request_path(params = {})
-        self.class.build_request_path(params.merge(attributes.dup))
+      def collection_request_path(params = {})
+        self.class.build_collection_request_path(params.merge(attributes.dup))
+      end
+
+      def resource_request_path(params = {})
+        self.class.build_resource_request_path(params.merge(attributes.dup))
       end
 
       module ClassMethods
@@ -36,6 +40,28 @@ module Her
 
           return @_her_primary_key unless value
           @_her_primary_key = value.to_sym
+        end
+
+        # Define the field that will be used for finding records.
+        #
+        # @example
+        #  class User
+        #    include Her::Model
+        #    finder_key 'slug'
+        #  end
+        #
+        # @param [Symbol] value
+        def finder_key(value = nil)
+          @_her_finder_key ||= begin
+            if superclass.respond_to?(:finder_key)
+              superclass.finder_key
+            else
+              primary_key
+            end
+          end
+
+          return @_her_finder_key unless value
+          @_her_finder_key = value.to_sym
         end
 
         # Defines a custom collection path for the resource
@@ -88,17 +114,30 @@ module Her
         # Return a custom path based on the collection path and variable parameters
         #
         # @private
-        def build_request_path(path=nil, parameters={})
+        def build_resource_request_path(path=nil, parameters={})
           parameters = parameters.try(:with_indifferent_access)
 
           unless path.is_a?(String)
             parameters = path.try(:with_indifferent_access) || parameters
-            path =
-              if parameters.include?(primary_key) && parameters[primary_key]
-                resource_path.dup
-              else
-                collection_path.dup
-              end
+            path = resource_path.dup
+
+            # Replace :id with our actual finder key
+            path.gsub!(/(\A|\/):id(\Z|\/)/, "\\1:#{finder_key}\\2")
+          end
+
+          path.gsub(/:([\w_]+)/) do
+            # Look for :key or :_key, otherwise raise an exception
+            value = $1.to_sym
+            parameters.delete(value) || parameters.delete(:"_#{value}") || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path. Path is `#{path}`. Parameters are `#{parameters.symbolize_keys.inspect}`.", $1))
+          end
+        end
+
+        def build_collection_request_path(path=nil, parameters={})
+          parameters = parameters.try(:with_indifferent_access)
+
+          unless path.is_a?(String)
+            parameters = path.try(:with_indifferent_access) || parameters
+            path = collection_path.dup
 
             # Replace :id with our actual primary key
             path.gsub!(/(\A|\/):id(\Z|\/)/, "\\1:#{primary_key}\\2")
@@ -113,7 +152,10 @@ module Her
 
         # @private
         def build_request_path_from_string_or_symbol(path, params={})
-          path.is_a?(Symbol) ? "#{build_request_path(params)}/#{path}" : path
+          path.is_a?(Symbol) ? "#{build_collection_request_path(params)}/#{path}" : path
+        end
+
+        def substitute_params(path, params)
         end
       end
     end

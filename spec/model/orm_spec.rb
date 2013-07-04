@@ -13,6 +13,7 @@ describe Her::Model::ORM do
           stub.get("/users") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
           stub.get("/admin_users") { |env| [200, {}, [{ :admin_id => 1, :name => "Tobias Fünke" }, { :admin_id => 2, :name => "Lindsay Fünke" }].to_json] }
           stub.get("/admin_users/1") { |env| [200, {}, { :admin_id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.get("/slug_users/slug") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :slug => 'slug' }.to_json] }
         end
       end
 
@@ -23,6 +24,11 @@ describe Her::Model::ORM do
       spawn_model "Foo::AdminUser" do
         uses_api api
         primary_key :admin_id
+      end
+
+      spawn_model "Foo::SlugUser" do
+        uses_api api
+        finder_key :slug
       end
     end
 
@@ -60,6 +66,14 @@ describe Her::Model::ORM do
       @new_user.should be_new
 
       @existing_user = Foo::AdminUser.find(1)
+      @existing_user.should_not be_new
+    end
+
+    it 'handles new resource with custom new finder key' do
+      @new_user = Foo::SlugUser.new(:fullname => 'Lindsay Fünke', :slug => 'slug')
+      @new_user.should be_new
+
+      @existing_user = Foo::SlugUser.find('slug')
       @existing_user.should_not be_new
     end
   end
@@ -253,11 +267,15 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => Faraday::Utils.parse_query(env[:body])['fullname'], :email => Faraday::Utils.parse_query(env[:body])['email'] }.to_json] }
           stub.post("/companies") { |env| [200, {}, { :errors => ["name is required"] }.to_json] }
+          stub.post("/slug_users") { |env| [200, {}, { :id => 1, :fullname => Faraday::Utils.parse_query(env[:body])['fullname'], :email => Faraday::Utils.parse_query(env[:body])['email'],  :slug => Faraday::Utils.parse_query(env[:body])['slug']}.to_json] }
         end
       end
 
       spawn_model "Foo::User"
       spawn_model "Foo::Company"
+      spawn_model "Foo::SlugUser" do
+        finder_key :slug
+      end
     end
 
     it "handle one-line resource creation" do
@@ -265,6 +283,14 @@ describe Her::Model::ORM do
       @user.id.should == 1
       @user.fullname.should == "Tobias Fünke"
       @user.email.should == "tobias@bluth.com"
+    end
+
+    it "handles one-line resource creation with a slug" do
+      @user = Foo::SlugUser.create(:fullname => "Tobias Fünke", :email => "tobias@bluth.com", :slug => 'slug')
+      @user.id.should == 1
+      @user.fullname.should == "Tobias Fünke"
+      @user.email.should == "tobias@bluth.com"
+      @user.slug.should == "slug"
     end
 
     it "handle resource creation through Model.new + #save" do

@@ -13,7 +13,7 @@ module Her
       #   p @user # => #<User(/users/1) id=1 name="Tobias Fünke">
       def inspect
         resource_path = begin
-          request_path
+          new? ? collection_request_path : resource_request_path
         rescue Her::Errors::PathError => e
           "<unknown path, missing `#{e.missing_parameter}`>"
         end
