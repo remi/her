@@ -1,6 +1,5 @@
 # encoding: utf-8
 require 'spec_helper'
-require 'webmock'
 require 'typhoeus/adapters/faraday'
 
 describe Her::Parallelization do
@@ -17,23 +16,17 @@ describe Her::Parallelization do
       extend Her::Parallelization
     end
 
-    WebMock::API.stub_request(:get, "http://api.example.com/users?name=jhon").to_return({
-      :status => 200,
-      :body => '[{"id":1,"name":"Jhon Smith","age":30},{"id":2,"name":"Jhon AppleSeed","age":10}]',
-      :headers => {}
-    })
+    Typhoeus.stub("http://api.example.com/users?name=jhon").and_return(
+      Typhoeus::Response.new(code: 200, body: '[{"id":1,"name":"Jhon Smith","age":30},{"id":2,"name":"Jhon AppleSeed","age":10}]')
+    )
 
-    WebMock::API.stub_request(:get, "http://api.example.com/users?name=mary").to_return({
-      :status => 200,
-      :body => '[{"id":4,"name":"Mary Jones","age":45}]',
-      :headers => {}
-    })
+    Typhoeus.stub("http://api.example.com/users?name=mary").and_return(
+      Typhoeus::Response.new(code: 200, body: '[{"id":4,"name":"Mary Jones","age":45}]')
+    )
 
-    WebMock::API.stub_request(:get, "http://api.example.com/comments").to_return({
-      :status => 200,
-      :body => '[{"author":1,"comment":"bla bla bla"},{"author":2,"comment":"loren impsun"}]',
-      :headers => {}
-    })
+    Typhoeus.stub("http://api.example.com/comments").and_return(
+      Typhoeus::Response.new(code: 200, body: '[{"author":1,"comment":"bla bla bla"},{"author":2,"comment":"loren impsun"}]')
+    )
   end
 
   describe :in_parallel do

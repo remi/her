@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec", "~> 2.13"
   s.add_development_dependency "fivemat", "~> 1.2"
   s.add_development_dependency "json", "~> 1.7.7"
-  s.add_development_dependency "webmock", "~> 1.9.0"
   s.add_development_dependency "typhoeus", "~> 0.5.3"
 
   s.add_runtime_dependency "activemodel", ">= 3.0.0"
