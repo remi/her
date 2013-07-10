@@ -21,7 +21,12 @@ module Her
           return {} unless data[data_key]
 
           klass = klass.her_nearby_class(association[:class_name])
-          { association[:name] => klass.new(data[data_key]) }
+          if klass.parse_root_in_json
+            attributes = data[data_key][data_key]
+          else
+            attributes = data[data_key]
+          end
+          { association[:name] => klass.new(attributes) }
         end
 
         # @private
