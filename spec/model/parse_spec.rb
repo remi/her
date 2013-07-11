@@ -180,4 +180,30 @@ describe Her::Model::Parse do
       @user.fullname.should == "Lindsay Fünke"
     end
   end
+
+  context "parsing included associations" do
+    let(:blog_posts) { [{ :id => 1, :title => "Welcome To codinghell.ch", :user_id => 1 }, { :id => 2, :title => "How Awesome Is This", :user_id => 1 }] }
+
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :blog_posts => blog_posts }.to_json] }
+        end
+      end
+
+      spawn_model "Foo::User" do
+        has_many :blog_posts
+      end
+
+      spawn_model "Foo::BlogPost"
+
+      @user = Foo::User.find(1)
+    end
+
+    it 'creates the correct params' do
+      @user.to_params.has_key?(:blog_posts).should be_false
+    end
+  end
 end
