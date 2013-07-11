@@ -8,13 +8,13 @@ rvm:
 
 gemfile:
   - Gemfile
-  - gemfiles/activemodel-4.0.gemfile
+  - gemfiles/Gemfile.activemodel-4.0
 
 matrix:
   exclude:
   - rvm: 1.8.7
-    gemfile: gemfiles/activemodel-4.0.gemfile
+    gemfile: gemfiles/Gemfile.activemodel-4.0
   - rvm: 1.9.2
-    gemfile: gemfiles/activemodel-4.0.gemfile
+    gemfile: gemfiles/Gemfile.activemodel-4.0
 
 script: "echo 'COME ON!' && bundle exec rake spec"
