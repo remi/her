@@ -24,7 +24,8 @@ module Her
 
         # @private
         def to_params(attributes)
-          include_root_in_json? ? { included_root_element => attributes.dup.symbolize_keys } : attributes.dup.symbolize_keys
+          params = attributes.except(*associations.values.flatten.collect { |a| a[:data_key] }).symbolize_keys
+          include_root_in_json? ? { included_root_element => params } : params
         end
 
         # Return or change the value of `include_root_in_json`
