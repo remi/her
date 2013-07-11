@@ -91,6 +91,7 @@ describe Her::Model::Associations do
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 2 }.to_json] }
           stub.get("/users/1/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }].to_json] }
           stub.get("/users/2/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }].to_json] }
+          stub.get("/users/2/comments/5") { |env| [200, {}, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }.to_json] }
           stub.get("/users/2/role") { |env| [200, {}, { :id => 2, :body => "User" }.to_json] }
           stub.get("/users/1/role") { |env| [200, {}, { :id => 3, :body => "User" }.to_json] }
           stub.get("/users/1/posts") { |env| [200, {}, [{:id => 1, :body => 'blogging stuff', :admin_id => 1 }].to_json] }
@@ -209,6 +210,11 @@ describe Her::Model::Associations do
     it "pass query string parameters when additional arguments are passed" do
       @user_without_included_data.organization.where(:admin => true).name.should == "Bluth Company (admin)"
       @user_without_included_data.organization.name.should == "Bluth Company"
+    end
+
+    it "fetches data with the specified id when calling find" do
+      comment = @user_without_included_data.comments.find(5)
+      comment.id.should eq(5)
     end
 
     [:create, :save_existing, :destroy].each do |type|
