@@ -70,6 +70,22 @@ module Her
         end
         alias all where
 
+        # Fetches the data specified by id
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     has_many :comments
+        #   end
+        #
+        #   user = User.find(1)
+        #   user.comments.find(3) # Fetched via GET "/users/1/comments/3
+        def find(id)
+          return nil if id.blank?
+          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
+          @klass.get(path, @params)
+        end
+
         # @private
         def nil?
           fetch.nil?
