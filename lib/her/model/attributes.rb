@@ -32,7 +32,7 @@ module Her
       #
       # @private
       def self.initialize_collection(klass, parsed_data={})
-        collection_data = parsed_data[:data].map do |item_data|
+        collection_data = klass.extract_array(parsed_data).map do |item_data|
           resource = klass.new(klass.parse(item_data))
           resource.run_callbacks :find
           resource

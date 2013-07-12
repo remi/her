@@ -150,6 +150,50 @@ describe Her::Model::Parse do
         @new_user.fullname.should == "Lindsay Fünke"
       end
     end
+
+    context "to true with :format => :active_model_serializers" do
+      before do
+        Her::API.default_api.connection.adapter :test do |stub|
+          stub.post("/users") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
+          stub.get("/users") { |env| [200, {}, { :users => [ { :id => 1, :fullname => "Lindsay Fünke" } ] }.to_json] }
+          stub.get("/users/admins") { |env| [200, {}, { :users => [ { :id => 1, :fullname => "Lindsay Fünke" } ] }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { :user => { :id => 1, :fullname => "Tobias Fünke Jr." } }.to_json] }
+        end
+
+        spawn_model("Foo::User") do
+          parse_root_in_json true, :format => :active_model_serializers
+          custom_get :admins
+        end
+      end
+
+      it "parse the data from the JSON root element after .create" do
+        @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
+        @new_user.fullname.should == "Lindsay Fünke"
+      end
+
+      it "parse the data from the JSON root element after an arbitrary HTTP request" do
+        @users = Foo::User.admins
+        @users.first.fullname.should == "Lindsay Fünke"
+      end
+
+      it "parse the data from the JSON root element after .all" do
+        @users = Foo::User.all
+        @users.first.fullname.should == "Lindsay Fünke"
+      end
+
+      it "parse the data from the JSON root element after .find" do
+        @user = Foo::User.find(1)
+        @user.fullname.should == "Lindsay Fünke"
+      end
+
+      it "parse the data from the JSON root element after .save" do
+        @user = Foo::User.find(1)
+        @user.fullname = "Tobias Fünke"
+        @user.save
+        @user.fullname.should == "Tobias Fünke Jr."
+      end
+    end
   end
 
   context "when to_params is set" do
