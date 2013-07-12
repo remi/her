@@ -543,7 +543,7 @@ project you need to configure Her as follows:
 ```ruby
 class User
   include Her::Model
-  parse_root_in_json true, :format => :active_model_serializers
+  parse_root_in_json true, format: :active_model_serializers
 end
 
 user = Users.find(1)
