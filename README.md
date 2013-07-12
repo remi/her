@@ -534,6 +534,25 @@ article.title # => "Hello world."
 
 Of course, you can use both `include_root_in_json` and `parse_root_in_json` at the same time.
 
+#### ActiveModel::Serializers support
+
+If the API returns data in the default format used by the
+[ActiveModel::Serializers](https://github.com/rails-api/active_model_serializers)
+project you need to configure Her as follows:
+
+```ruby
+class User
+  include Her::Model
+  parse_root_in_json true, :format => :active_model_serializers
+end
+
+user = Users.find(1)
+# GET "/users/1", response is { "user": { "id": 1, "fullname": "Lindsay Fünke"} }
+
+users = Users.all
+# GET "/users", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke"}] }
+```
+
 ### Custom requests
 
 You can easily define custom requests for your models using `custom_get`, `custom_post`, etc.
@@ -906,6 +925,7 @@ These [fine folks](https://github.com/remiprev/her/contributors) helped with Her
 * [@jonkarna](https://github.com/jonkarna)
 * [@aclevy](https://github.com/aclevy)
 * [@stevschmid](https://github.com/stevschmid)
+* [@prognostikos](https://github.com/prognostikos)
 
 ## License
 
