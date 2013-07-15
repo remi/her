@@ -19,17 +19,17 @@ describe Her::Model::Attributes do
     it "handles method missing for getter" do
       @new_user = Foo::User.new(:fullname => 'Mayonegg')
       expect { @new_user.unknown_method_for_a_user }.to raise_error(NoMethodError)
-      expect { @new_user.fullname }.to_not raise_error(NoMethodError)
+      expect { @new_user.fullname }.not_to raise_error()
     end
 
     it "handles method missing for setter" do
       @new_user = Foo::User.new
-      expect { @new_user.fullname = "Tobias Fünke" }.to_not raise_error(NoMethodError)
+      expect { @new_user.fullname = "Tobias Fünke" }.not_to raise_error()
     end
 
     it "handles method missing for query" do
       @new_user = Foo::User.new
-      expect { @new_user.fullname? }.to_not raise_error(NoMethodError)
+      expect { @new_user.fullname? }.not_to raise_error()
     end
 
     it "handles respond_to for getter" do
@@ -113,7 +113,7 @@ describe Her::Model::Attributes do
     end
 
     it "returns false for a non-resource with the same data" do
-      fake_user = stub(:data => { :id => 1, :fullname => "Lindsay Fünke" })
+      fake_user = double(:data => { :id => 1, :fullname => "Lindsay Fünke" })
       user.should_not == fake_user
     end
 
