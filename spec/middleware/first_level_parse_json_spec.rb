@@ -7,6 +7,7 @@ describe Her::Middleware::FirstLevelParseJSON do
   let(:body_with_errors) { "{\"id\": 1, \"name\": \"Tobias Fünke\", \"errors\": { \"name\": [ \"not_valid\", \"should_be_present\" ] }, \"metadata\": 3}" }
   let(:body_with_malformed_json) { "wut." }
   let(:body_with_invalid_json) { "true" }
+  let(:empty_body) { '' }
   let(:nil_body) { nil }
 
   it "parses body as json" do
@@ -43,6 +44,10 @@ describe Her::Middleware::FirstLevelParseJSON do
 
   it 'ensures that a nil response returns an empty hash' do
     subject.parse(nil_body)[:data].should eq({})
+  end
+
+  it 'ensures that an empty response returns an empty hash' do
+    subject.parse(empty_body)[:data].should eq({})
   end
 
   context 'with status code 204' do
