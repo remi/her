@@ -14,5 +14,14 @@ module Her
 
     class ParseError < StandardError
     end
+
+    class ResourceInvalid < StandardError
+      attr_reader :resource
+      def initialize(resource)
+        @resource = resource
+        errors = @resource.response_errors.join(", ")
+        super("Remote validation failed: #{errors}")
+      end
+    end
   end
 end
