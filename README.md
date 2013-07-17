@@ -75,7 +75,7 @@ end
 # Update a fetched resource
 user = User.find(1)
 user.fullname = "Lindsay Fünke" # OR user.assign_attributes(fullname: "Lindsay Fünke")
-user.save
+user.save # returns false if it fails, errors in user.response_errors array
 # PUT "/users/1" with `fullname=Lindsay+Fünke`
 
 # Update a resource without fetching it
@@ -103,7 +103,7 @@ User.create(fullname: "Maeby Fünke")
 
 # Save a new resource
 user = User.new(fullname: "Maeby Fünke")
-user.save
+user.save! # raises Her::Errors::ResourceInvalid if it fails
 # POST "/users" with `fullname=Maeby+Fünke`
 ```
 
