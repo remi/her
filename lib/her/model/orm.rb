@@ -54,6 +54,14 @@ module Her
         self
       end
 
+      # Similar to save(), except that ResourceInvalid is raised if the save fails
+      def save!
+        if !self.save
+          raise Her::Errors::ResourceInvalid, self
+        end
+        self
+      end
+
       # Destroy a resource
       #
       # @example

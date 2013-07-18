@@ -273,9 +273,20 @@ describe Her::Model::ORM do
       @user.fullname.should == "Tobias Fünke"
     end
 
+    it "handle resource creation through Model.new + #save!" do
+      @user = Foo::User.new(:fullname => "Tobias Fünke")
+      @user.save!.should be_true
+      @user.fullname.should == "Tobias Fünke"
+    end
+
     it "returns false when #save gets errors" do
       @company = Foo::Company.new
       @company.save.should be_false
+    end
+
+    it "raises ResourceInvalid when #save! gets errors" do
+      @company = Foo::Company.new
+      expect { @company.save! }.to raise_error Her::Errors::ResourceInvalid, "Remote validation failed: name is required"
     end
 
     it "don't overwrite data if response is empty" do
