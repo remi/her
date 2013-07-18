@@ -217,6 +217,11 @@ describe Her::Model::Associations do
       comment.id.should eq(5)
     end
 
+    it "'s associations responds to #empty?" do
+      @user_without_included_data.organization.respond_to?(:empty?).should be_true
+      @user_without_included_data.organization.should_not be_empty
+    end
+
     [:create, :save_existing, :destroy].each do |type|
       context "after #{type}" do
         let(:subject) { self.send("user_with_included_data_after_#{type}")}

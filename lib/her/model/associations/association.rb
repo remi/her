@@ -92,6 +92,11 @@ module Her
         end
 
         # @private
+        def empty?
+          fetch.empty?
+        end
+
+        # @private
         def kind_of?(thing)
           fetch.kind_of?(thing)
         end
