@@ -22,7 +22,7 @@ module Her
 
           klass = klass.her_nearby_class(association[:class_name])
           if klass.parse_root_in_json
-            attributes = data[data_key][data_key]
+            attributes = data[data_key][data[data_key].keys.first]
           else
             attributes = data[data_key]
           end
