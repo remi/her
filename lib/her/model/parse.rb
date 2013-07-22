@@ -25,8 +25,8 @@ module Her
         # @private
         def to_params(attributes, changes={})
           filtered_attributes = attributes.dup.symbolize_keys
-          if Her::API.default_api.options[:send_only_modified_attributes]
-            changes.symbolize_keys.keys.inject({}) do |hash, attribute|
+          if her_api.options[:send_only_modified_attributes]
+            filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
               hash[attribute] = filtered_attributes[attribute]
               hash
             end
