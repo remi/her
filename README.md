@@ -674,6 +674,31 @@ user.destroy
 # DELETE "/users/4fd89a42ff204b03a905c535"
 ```
 
+### Custom new record identifier
+
+By default, the presence or absence of the `primary_key` field will be used to
+determine if a record is new or not.  In some cases, for example if you are
+using 'slugs' in your URLs, this is not desirable.  In this case you can
+specify a different field to use than `primary_key`.
+
+```ruby
+class User
+  include Her::Model
+  primary_key :slug
+  new_record_key :id
+end
+
+user = User.find("tobias")
+# GET "/users/1", response is { "id": 1, "name": "Tobias", "slug": "tobias" }
+
+user.new?
+# => false
+
+user = User.new(:slug => 'maeby')
+user.new?
+# => true
+```
+
 ### Inheritance
 
 If all your models share the same settings, you might want to make them children of a class and only include `Her::Model` in that class. However, there are a few settings that don’t get passed to the children classes:
