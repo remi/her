@@ -42,7 +42,7 @@ module Her
     include ActiveModel::Validations
     include ActiveModel::Conversion
     include ActiveModel::Dirty
-    include ActiveModel::Naming
+    extend ActiveModel::Naming
     include ActiveModel::Translation
 
     # Class methods
