@@ -21,7 +21,7 @@ module Her
           return {} unless data[data_key]
 
           klass = klass.her_nearby_class(association[:class_name])
-          if klass.parse_root_in_json
+          if klass.parse_root_in_json && data[data_key].keys.size <= 1
             attributes = data[data_key][data[data_key].keys.first]
           else
             attributes = data[data_key]
