@@ -40,7 +40,7 @@ module Her
           end
 
           unless value
-            return (@_her_use_api.class == Proc) ? @_her_use_api.call : @_her_use_api
+            return (@_her_use_api.respond_to? :call) ? @_her_use_api.call : @_her_use_api
           end
 
           @_her_use_api = value
