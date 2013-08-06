@@ -39,9 +39,13 @@ module Her
             superclass.use_api if superclass.respond_to?(:use_api)
           end
 
-          return @_her_use_api unless value
+          unless value
+            return (@_her_use_api.respond_to? :call) ? @_her_use_api.call : @_her_use_api
+          end
+
           @_her_use_api = value
         end
+
         alias her_api use_api
         alias uses_api use_api
 
