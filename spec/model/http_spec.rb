@@ -26,7 +26,7 @@ describe Her::Model::HTTP do
 
     context "when using a proc for uses_api" do
       before do
-        Foo::User.uses_api -> { Her::API.new url: 'http://api-lambda.example.com' }
+        Foo::User.uses_api lambda { Her::API.new url: 'http://api-lambda.example.com' }
       end
 
       specify { Foo::User.her_api.base_uri.should == 'http://api-lambda.example.com' }
