@@ -1,3 +1,4 @@
 /Gemfile.lock
 /pkg
 /tmp
+*.swp #ignore vim swap files
