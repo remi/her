@@ -36,7 +36,7 @@ describe Her::Model::Associations do
 
     context "single belongs_to association" do
       before { Foo::User.belongs_to :organization }
-      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }] }
+      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id", :ancestor => true }] }
     end
 
     context "multiple belongs_to association" do
@@ -45,7 +45,7 @@ describe Her::Model::Associations do
         Foo::User.belongs_to :family
       end
 
-      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :default => nil, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }] }
+      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id", :ancestor => true }, { :name => :family, :data_key => :family, :default => nil, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id", :ancestor => false }] }
     end
   end
 
@@ -65,8 +65,8 @@ describe Her::Model::Associations do
       end
 
       context "single belongs_to association" do
-        before { Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org, :default => true }
-        its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :org, :default => true, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }] }
+        before { Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org, :default => true, :ancestor => false }
+        its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :org, :default => true, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id", :ancestor => false }] }
       end
     end
 
@@ -324,4 +324,47 @@ describe Her::Model::Associations do
       end
     end
   end
+
+  context "multiple nested resources" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/sections") { |env| [200, {}, [{ :id => 1, :name => "A Section" }].to_json] }
+          stub.get("/sections/1/groups") { |env| [200, {}, [{ :id => 1, :name => "A Group", :section_id => 1 }].to_json] }
+          stub.get("/sections/1/groups/1/items") { |env| [200, {}, [{ :id => 1, :name => "An Item", :group_id => 1 }].to_json] }
+          stub.post("/sections/1/groups/1/items/1/parts") { |env| [200, {}, { :id => 1, :name => "A Part" }.to_json] }
+        end
+      end
+
+      spawn_model "Foo::Section" do
+        has_many :groups
+      end
+
+      spawn_model "Foo::Group" do
+        has_many :items
+        belongs_to :section, :class_name => 'Foo::Section'
+        collection_path "/sections/:section_id/groups"
+      end
+
+      spawn_model "Foo::Item" do
+        has_many :parts
+        belongs_to :group, :class_name => 'Foo::Group'
+        collection_path "/sections/:section_id/groups/:group_id/items"
+      end
+
+      spawn_model "Foo::Part" do
+        belongs_to :item, :class_name => 'Foo::Item'
+        collection_path "/sections/:section_id/groups/:group_id/items/:item_id/parts"
+      end
+    end
+
+    it "should set all the ancestor params automatically" do
+      part = Foo::Section.all.first.groups.all.first.items.all.first.parts.create(name: "A Part")
+      part.attributes.should == { "id" => 1, "name" => "A Part", "item_id" => 1, "group_id" => 1, "section_id" => 1 }
+    end
+
+  end
+
 end
