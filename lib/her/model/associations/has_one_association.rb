@@ -44,7 +44,7 @@ module Her
         #   new_role = user.role.build(:title => "moderator")
         #   new_role # => #<Role user_id=1 title="moderator">
         def build(attributes = {})
-          @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
+          @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_#{@parent.class.primary_key}" => @parent.id))
         end
 
         # Create a new object, save it and associate it to the parent
