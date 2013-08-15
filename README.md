@@ -242,13 +242,9 @@ class User
 end
 
 users = User.where(age: 13)
-
-users.to_a
-# loads resources
-
-users.to_a
-# returns cached resources
-``
+users.to_a # loads resources
+users.to_a # returns cached resources
+```
 
 This behaviour can be disabled with the following statement in the model:
 
@@ -259,15 +255,9 @@ class User
 end
 
 users = User.where(age: 13)
-
-users.to_a
-# loads resources
-
-users.to_a
-# also loads resources
-
-collection = users.to_a
-# cache resources manually if needed
+users.to_a # loads resources
+users.to_a # also loads resources
+collection = users.to_a # cache resources manually if needed
 ```
 
 #### External Caching
@@ -424,7 +414,7 @@ end
 class Item
   collection_path "/sections/:section_id/groups/:group_id/items"
   belongs_to :group
-  # ancestor: true is automatically set for the first belongs_to association on the model
+  # ancestor: true is automatically set for the first belongs_to association
 end
 
 Section.find(1).groups.find(1).items.build(name: "Pencil")
