@@ -232,6 +232,46 @@ end
 
 ### Caching
 
+#### Inline Caching
+
+Her has a builtin cache functionality that caches responses made on the same resource.
+
+```ruby
+class User
+  include Her::Model
+end
+
+users = User.where(age: 13)
+
+users.to_a
+# loads resources
+
+users.to_a
+# returns cached resources
+``
+
+This behaviour can be disabled with the following statement in the model:
+
+```ruby
+class User
+  include Her::Model
+  disable_inline_caching
+end
+
+users = User.where(age: 13)
+
+users.to_a
+# loads resources
+
+users.to_a
+# also loads resources
+
+collection = users.to_a
+# cache resources manually if needed
+```
+
+#### External Caching
+
 Again, using the `faraday_middleware` and `memcached` gems makes it very easy to cache requests and responses.
 
 In your Gemfile:
