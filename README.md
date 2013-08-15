@@ -407,6 +407,30 @@ You can use the association methods to build new objects and save them.
 # => [#<Comment id=3 body="Hello world." user_id=1>]
 ```
 
+The nested resource automatically receives the parents ids as an parameter. The retrieving of this parameters can be controlled with the ancestor flag on the belongs_to association:
+
+```ruby
+class Section
+  collection_path "/sections"
+  has_many :groups
+end
+
+class Group
+  collection_path "/sections/:section_id/groups"
+  has_many :items
+  belongs_to :section, ancestor: true
+end
+
+class Item
+  collection_path "/sections/:section_id/groups/:group_id/items"
+  belongs_to :group
+  # ancestor: true is automatically set for the first belongs_to association on the model
+end
+
+Section.find(1).groups.find(1).items.build(name: "Pencil")
+# => [#<Item name="Pencil" section_id=1 group_id=1>]
+```
+
 You can also explicitly request a new object via the API when using ``build``. This is useful if you're dealing with default attributes.
 
 ```ruby
