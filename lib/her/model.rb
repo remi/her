@@ -9,6 +9,7 @@ require "her/model/associations"
 require "her/model/introspection"
 require "her/model/paths"
 require "her/model/nested_attributes"
+require "her/model/inline_caching"
 require "active_model"
 
 module Her
@@ -36,6 +37,7 @@ module Her
     include Her::Model::Paths
     include Her::Model::Associations
     include Her::Model::NestedAttributes
+    include Her::Model::InlineCaching
 
     # Supported ActiveModel modules
     include ActiveModel::AttributeMethods
