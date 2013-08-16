@@ -8,60 +8,63 @@ describe Her::Model::Paths do
         spawn_model "Foo::User"
       end
 
-      describe "#build_request_path" do
+      describe "#build_*_request_path" do
         it "builds paths with defaults" do
-          Foo::User.build_request_path(:id => "foo").should == "users/foo"
-          Foo::User.build_request_path(:id => nil).should == "users"
-          Foo::User.build_request_path.should == "users"
+          Foo::User.build_resource_request_path(:id => "foo").should == "users/foo"
+          Foo::User.build_collection_request_path.should == "users"
         end
 
         it "builds paths with custom collection path" do
           Foo::User.collection_path "/utilisateurs"
-          Foo::User.build_request_path(:id => "foo").should == "/utilisateurs/foo"
-          Foo::User.build_request_path.should == "/utilisateurs"
+          Foo::User.build_resource_request_path(:id => "foo").should == "/utilisateurs/foo"
+          Foo::User.build_collection_request_path.should == "/utilisateurs"
         end
 
         it "builds paths with custom relative collection path" do
           Foo::User.collection_path "utilisateurs"
-          Foo::User.build_request_path(:id => "foo").should == "utilisateurs/foo"
-          Foo::User.build_request_path.should == "utilisateurs"
+          Foo::User.build_resource_request_path(:id => "foo").should == "utilisateurs/foo"
+          Foo::User.build_collection_request_path.should == "utilisateurs"
         end
 
         it "builds paths with custom collection path with multiple variables" do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
 
-          Foo::User.build_request_path(:id => "foo", :_organization_id => "acme").should == "/organizations/acme/utilisateurs/foo"
-          Foo::User.build_request_path(:_organization_id => "acme").should == "/organizations/acme/utilisateurs"
+          Foo::User.build_resource_request_path(:id => "foo", :_organization_id => "acme").should == "/organizations/acme/utilisateurs/foo"
+          Foo::User.build_collection_request_path(:_organization_id => "acme").should == "/organizations/acme/utilisateurs"
 
-          Foo::User.build_request_path(:id => "foo", :organization_id => "acme").should == "/organizations/acme/utilisateurs/foo"
-          Foo::User.build_request_path(:organization_id => "acme").should == "/organizations/acme/utilisateurs"
+          Foo::User.build_resource_request_path(:id => "foo", :organization_id => "acme").should == "/organizations/acme/utilisateurs/foo"
+          Foo::User.build_collection_request_path(:organization_id => "acme").should == "/organizations/acme/utilisateurs"
         end
 
         it "builds paths with custom relative collection path with multiple variables" do
           Foo::User.collection_path "organizations/:organization_id/utilisateurs"
 
-          Foo::User.build_request_path(:id => "foo", :_organization_id => "acme").should == "organizations/acme/utilisateurs/foo"
-          Foo::User.build_request_path(:_organization_id => "acme").should == "organizations/acme/utilisateurs"
+          Foo::User.build_resource_request_path(:id => "foo", :_organization_id => "acme").should == "organizations/acme/utilisateurs/foo"
+          Foo::User.build_collection_request_path(:_organization_id => "acme").should == "organizations/acme/utilisateurs"
 
-          Foo::User.build_request_path(:id => "foo", :organization_id => "acme").should == "organizations/acme/utilisateurs/foo"
-          Foo::User.build_request_path(:organization_id => "acme").should == "organizations/acme/utilisateurs"
+          Foo::User.build_resource_request_path(:id => "foo", :organization_id => "acme").should == "organizations/acme/utilisateurs/foo"
+          Foo::User.build_collection_request_path(:organization_id => "acme").should == "organizations/acme/utilisateurs"
         end
 
         it "builds paths with custom item path" do
           Foo::User.resource_path "/utilisateurs/:id"
-          Foo::User.build_request_path(:id => "foo").should == "/utilisateurs/foo"
-          Foo::User.build_request_path.should == "users"
+          Foo::User.build_resource_request_path(:id => "foo").should == "/utilisateurs/foo"
+          Foo::User.build_collection_request_path.should == "users"
         end
 
         it "builds paths with custom relative item path" do
           Foo::User.resource_path "utilisateurs/:id"
-          Foo::User.build_request_path(:id => "foo").should == "utilisateurs/foo"
-          Foo::User.build_request_path.should == "users"
+          Foo::User.build_resource_request_path(:id => "foo").should == "utilisateurs/foo"
+          Foo::User.build_collection_request_path.should == "users"
         end
 
         it "raises exceptions when building a path without required custom variables" do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
-          expect { Foo::User.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/utilisateurs/:id`. Parameters are `{:id=>\"foo\"}`.")
+          expect { Foo::User.build_resource_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/utilisateurs/:id`. Parameters are `{:id=>\"foo\"}`.")
+        end
+
+        it "raises an exception when trying to build a resource path without an id" do
+          expect { Foo::User.build_resource_request_path(:id => nil) }.to raise_error(Her::Errors::PathError)
         end
       end
     end
@@ -71,56 +74,56 @@ describe Her::Model::Paths do
         spawn_model "Foo::AdminUser"
       end
 
-      describe "#build_request_path" do
+      describe "#build_*_request_path" do
         it "builds paths with defaults" do
-          Foo::AdminUser.build_request_path(:id => "foo").should == "admin_users/foo"
-          Foo::AdminUser.build_request_path.should == "admin_users"
+          Foo::AdminUser.build_resource_request_path(:id => "foo").should == "admin_users/foo"
+          Foo::AdminUser.build_collection_request_path.should == "admin_users"
         end
 
         it "builds paths with custom collection path" do
           Foo::AdminUser.collection_path "/users"
-          Foo::AdminUser.build_request_path(:id => "foo").should == "/users/foo"
-          Foo::AdminUser.build_request_path.should == "/users"
+          Foo::AdminUser.build_resource_request_path(:id => "foo").should == "/users/foo"
+          Foo::AdminUser.build_collection_request_path.should == "/users"
         end
 
         it "builds paths with custom relative collection path" do
           Foo::AdminUser.collection_path "users"
-          Foo::AdminUser.build_request_path(:id => "foo").should == "users/foo"
-          Foo::AdminUser.build_request_path.should == "users"
+          Foo::AdminUser.build_resource_request_path(:id => "foo").should == "users/foo"
+          Foo::AdminUser.build_collection_request_path.should == "users"
         end
 
         it "builds paths with custom collection path with multiple variables" do
           Foo::AdminUser.collection_path "/organizations/:organization_id/users"
-          Foo::AdminUser.build_request_path(:id => "foo", :_organization_id => "acme").should == "/organizations/acme/users/foo"
-          Foo::AdminUser.build_request_path(:_organization_id => "acme").should == "/organizations/acme/users"
+          Foo::AdminUser.build_resource_request_path(:id => "foo", :_organization_id => "acme").should == "/organizations/acme/users/foo"
+          Foo::AdminUser.build_collection_request_path(:_organization_id => "acme").should == "/organizations/acme/users"
         end
 
         it "builds paths with custom relative collection path with multiple variables" do
           Foo::AdminUser.collection_path "organizations/:organization_id/users"
-          Foo::AdminUser.build_request_path(:id => "foo", :_organization_id => "acme").should == "organizations/acme/users/foo"
-          Foo::AdminUser.build_request_path(:_organization_id => "acme").should == "organizations/acme/users"
+          Foo::AdminUser.build_resource_request_path(:id => "foo", :_organization_id => "acme").should == "organizations/acme/users/foo"
+          Foo::AdminUser.build_collection_request_path(:_organization_id => "acme").should == "organizations/acme/users"
         end
 
         it "builds paths with custom item path" do
           Foo::AdminUser.resource_path "/users/:id"
-          Foo::AdminUser.build_request_path(:id => "foo").should == "/users/foo"
-          Foo::AdminUser.build_request_path.should == "admin_users"
+          Foo::AdminUser.build_resource_request_path(:id => "foo").should == "/users/foo"
+          Foo::AdminUser.build_collection_request_path.should == "admin_users"
         end
 
         it "builds paths with custom relative item path" do
           Foo::AdminUser.resource_path "users/:id"
-          Foo::AdminUser.build_request_path(:id => "foo").should == "users/foo"
-          Foo::AdminUser.build_request_path.should == "admin_users"
+          Foo::AdminUser.build_resource_request_path(:id => "foo").should == "users/foo"
+          Foo::AdminUser.build_collection_request_path.should == "admin_users"
         end
 
         it "raises exceptions when building a path without required custom variables" do
           Foo::AdminUser.collection_path "/organizations/:organization_id/users"
-          expect { Foo::AdminUser.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
+          expect { Foo::AdminUser.build_resource_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
 
         it "raises exceptions when building a relative path without required custom variables" do
           Foo::AdminUser.collection_path "organizations/:organization_id/users"
-          expect { Foo::AdminUser.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
+          expect { Foo::AdminUser.build_resource_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
       end
     end
@@ -152,10 +155,10 @@ describe Her::Model::Paths do
         spawn_model "Foo::User"
       end
 
-      describe "#build_request_path" do
+      describe "#build_*_request_path" do
         it "builds paths with defaults" do
-          Foo::User.build_request_path(:id => "foo").should == "users/foo"
-          Foo::User.build_request_path.should == "users"
+          Foo::User.build_resource_request_path(:id => "foo").should == "users/foo"
+          Foo::User.build_collection_request_path.should == "users"
         end
       end
     end
@@ -173,15 +176,15 @@ describe Her::Model::Paths do
         end
       end
 
-      describe '#build_request_path' do
+      describe '#build_*_request_path' do
         it 'uses the correct primary key attribute' do
-          User.build_request_path(:UserId => 'foo').should == 'users/foo'
-          User.build_request_path(:id => 'foo').should == 'users'
+          User.build_resource_request_path(:UserId => 'foo').should == 'users/foo'
+          User.build_collection_request_path(:id => 'foo').should == 'users'
         end
 
         it 'replaces :id with the appropriate primary key' do
-          Customer.build_request_path(:customer_id => 'joe').should == 'customers/joe'
-          Customer.build_request_path(:id => 'joe').should == 'customers'
+          Customer.build_resource_request_path(:customer_id => 'joe').should == 'customers/joe'
+          Customer.build_collection_request_path(:id => 'joe').should == 'customers'
         end
       end
     end

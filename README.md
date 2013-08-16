@@ -674,6 +674,21 @@ user.destroy
 # DELETE "/users/4fd89a42ff204b03a905c535"
 ```
 
+### Custom finder key
+
+In the case that your API does not use the resource's primary key to find
+records, you can specify a different field to use with `finder_key`.
+
+```ruby
+class User
+  include Her::Model
+  finder_key :slug
+end
+
+user = User.find("tobias")
+# GET "/users/tobias", response is { "id": 1, "name": "Tobias", "slug": "tobias" }
+```
+
 ### Inheritance
 
 If all your models share the same settings, you might want to make them children of a class and only include `Her::Model` in that class. However, there are a few settings that don’t get passed to the children classes:

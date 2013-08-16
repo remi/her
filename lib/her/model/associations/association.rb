@@ -38,7 +38,7 @@ module Her
           return @opts[:default].try(:dup) if @parent.attributes.include?(@name) && @parent.attributes[@name].empty? && @params.empty?
 
           if @parent.attributes[@name].blank? || @params.any?
-            path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
+            path = build_association_path lambda { "#{@parent.resource_request_path(@params)}#{@opts[:path]}" }
             @klass.get(path, @params)
           else
             @parent.attributes[@name]
@@ -82,7 +82,7 @@ module Her
         #   user.comments.find(3) # Fetched via GET "/users/1/comments/3
         def find(id)
           return nil if id.blank?
-          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
+          path = build_association_path lambda { "#{@parent.resource_request_path(@params)}#{@opts[:path]}/#{id}" }
           @klass.get(path, @params)
         end
 
