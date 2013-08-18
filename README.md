@@ -49,6 +49,9 @@ User.all
 User.find(1)
 # GET "https://api.example.com/users/1" and return a User object
 
+User.first
+# GET "https://api.example.com/users" and return first object in array
+
 @user = User.create(fullname: "Tobias Fünke")
 # POST "https://api.example.com/users" with `fullname=Tobias+Fünke` and return the saved User object
 

@@ -34,6 +34,9 @@ describe Her::Model::ORM do
       @admin = Foo::AdminUser.find(1)
       @admin.id.should == 1
       @admin.name.should == "Tobias Fünke"
+
+      @user = Foo::User.first
+      @user.id.should == 1
     end
 
     it "maps a collection of resources to an array of Ruby objects" do
