@@ -249,6 +249,7 @@ describe Her::Model::Associations do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company Inc." }, :organization_id => 1 }.to_json] }
+          stub.get("/users/4") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company Inc." } }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 }.to_json] }
           stub.get("/users/3") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :company => nil }.to_json] }
           stub.get("/companies/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company" }.to_json] }
@@ -264,6 +265,7 @@ describe Her::Model::Associations do
       @user_with_included_data = Foo::User.find(1)
       @user_without_included_data = Foo::User.find(2)
       @user_with_included_nil_data = Foo::User.find(3)
+      @user_with_included_data_but_no_fk = Foo::User.find(4)
     end
 
     it "maps an array of included data through belongs_to" do
@@ -280,6 +282,10 @@ describe Her::Model::Associations do
       @user_without_included_data.company.should be_a(Foo::Company)
       @user_without_included_data.company.id.should == 1
       @user_without_included_data.company.name.should == "Bluth Company"
+    end
+
+    it "does not require foreugn key to have nested object" do
+      @user_with_included_data_but_no_fk.company.name.should == "Bluth Company Inc."
     end
   end
 
