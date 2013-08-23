@@ -81,6 +81,29 @@ module Her
         self
       end
 
+      # Reload a resource
+      #
+      # @example
+      #   @user_a = User.find(1)
+      #   @user_b = User.find(1)
+      #   @user_a.name = "Peter Müller"
+      #   @user_a.save
+      #   @user_b.reload
+      #   # user_b is now synchronized again
+      def reload
+        method = self.class.method_for(:find)
+        run_callbacks :find do
+          self.class.request(:_method => method, :_path => request_path) do |parsed_data, response|
+            assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
+            @metadata = parsed_data[:metadata]
+            @response_errors = parsed_data[:errors]
+            return false if !response.success? || @response_errors.any?
+            self.changed_attributes.clear if self.changed_attributes.present?
+          end
+        end
+        self
+      end
+
       module ClassMethods
         # Create a new chainable scope
         #

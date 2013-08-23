@@ -64,6 +64,11 @@ User.first
 @user.fullname = "Lindsay Fünke"
 @user.save
 # PUT "https://api.example.com/users/1" with `fullname=Lindsay+Fünke` and return the updated User object
+
+@user = User.find(1)
+@user.fullname = "Lindsay Fünke"
+@user.reload
+# GET "https://api.example.com/users/1"
 ```
 
 ### ActiveRecord-like methods
