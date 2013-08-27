@@ -367,4 +367,32 @@ describe Her::Model::Associations do
 
   end
 
+  context "nested resources with parameter wrapping" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/sections") { |env| [200, {}, [{ :id => 1, :name => "A Section" }].to_json] }
+          stub.get("/sections/1/groups?group[type]=x") { |env| [200, {}, [{ :id => 1, :name => "A Group", :section_id => 1, type: :x }].to_json] }
+        end
+      end
+
+      spawn_model "Foo::Section" do
+        has_many :groups
+      end
+
+      spawn_model "Foo::Group" do
+        has_many :items
+        belongs_to :section, :class_name => 'Foo::Section'
+        wrap_parameters_for_requests true
+        collection_path "/sections/:section_id/groups"
+      end
+    end
+
+    it "should wrap parameters as requested" do
+      Foo::Section.all.first.groups.where(type: "x").size.should == 1
+    end
+  end
+
 end
