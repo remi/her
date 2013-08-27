@@ -546,7 +546,21 @@ The available callbacks are:
 
 ### JSON attributes-wrapping
 
-Her supports *sending* and *parsing* JSON data wrapped in a root element (to be compatible with Rails’ `include_root_in_json` setting), like so:
+Her supports *requesting*, *sending* and *parsing* JSON data wrapped in a root element (to be compatible with Rails’ `include_root_in_json` setting), like so:
+
+#### Requesting
+
+If you want to wrap request parameters in a *root* element based on the model name.
+
+```ruby
+class User
+  include Her::Model
+  wrap_parameters_for_requests true
+end
+
+User.where(language: "de").all
+# GET "/users?user[language]=de"
+```
 
 #### Sending
 

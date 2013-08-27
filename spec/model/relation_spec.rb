@@ -75,6 +75,29 @@ describe Her::Model::Relation do
         @users.length.should == 2
       end
     end
+
+    context "with wrapped parameters enabled" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.adapter :test do |stub|
+            stub.get("/users?user[language]=de") { |env| ok! [{ :id => 1, :fullname => "Tobias Fünke", language: "de" }] }
+          end
+        end
+
+        spawn_model("Foo::Model") do
+          wrap_parameters_for_requests true
+        end
+
+        class User < Foo::Model; end
+        @spawned_models << :User
+      end
+
+      it "should wrap the parameters as request" do
+        @users = User.where(language: "de").all
+        @users.length.should == 1
+      end
+    end
   end
 
   describe :create do

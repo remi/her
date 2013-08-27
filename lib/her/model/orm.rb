@@ -105,6 +105,23 @@ module Her
       end
 
       module ClassMethods
+        # Return or change the value of `wrap_parameters_for_requests`
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     wrap_parameters_for_requests true
+        #   end
+        def wrap_parameters_for_requests(value = nil)
+          @_her_wrap_parameters_for_requests ||= begin
+            superclass.wrap_parameters_for_requests if superclass.respond_to?(:wrap_parameters_for_requests)
+          end
+
+          return @_her_wrap_parameters_for_requests unless value
+          @_her_wrap_parameters_for_requests = value
+        end
+        alias wrap_parameters_for_requests? wrap_parameters_for_requests
+
         # Create a new chainable scope
         #
         # @example
