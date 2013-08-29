@@ -558,8 +558,16 @@ class User
   wrap_parameters_for_requests true
 end
 
+class Group
+  include Her::Model
+  wrap_parameters_for_request wrapper: :search, exclude: [:page]
+end
+
 User.where(language: "de").all
 # GET "/users?user[language]=de"
+
+Group.where(section: 5, page: 3).all
+# GET "/groups?search[section]=5&page=3
 ```
 
 #### Sending

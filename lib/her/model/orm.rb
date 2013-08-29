@@ -112,20 +112,28 @@ module Her
         #     include Her::Model
         #     wrap_parameters_for_requests true
         #   end
+        #
+        #   wrap_parameters_for_requests wrapper: :element, exclude: [:page, :per_page]
         def wrap_parameters_for_requests(value = nil)
           @_her_wrap_parameters_for_requests ||= begin
             superclass.wrap_parameters_for_requests if superclass.respond_to?(:wrap_parameters_for_requests)
           end
 
           return @_her_wrap_parameters_for_requests unless value
-          @_her_wrap_parameters_for_requests = value
+          @_her_wrap_parameters_for_requests = value.is_a?(TrueClass) ? {} : value
         end
-        alias wrap_parameters_for_requests? wrap_parameters_for_requests
 
         # @private
         def wrap_parameters_if_requested params
           return {} if params.empty?
-          wrap_parameters_for_requests? ? { root_element => params } : params
+          config = wrap_parameters_for_requests
+          if config.is_a?(Hash)
+            wrapper = config.key?(:wrapper) ? config[:wrapper] : root_element
+            excluded = config.key?(:exclude) ? params.extract!(*config[:exclude]) : {}
+            { wrapper => params }.merge(excluded)
+          else
+            params
+          end
         end
 
         # Create a new chainable scope

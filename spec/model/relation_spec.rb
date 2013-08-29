@@ -82,20 +82,33 @@ describe Her::Model::Relation do
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
             stub.get("/users?user[language]=de") { |env| ok! [{ :id => 1, :fullname => "Tobias Fünke", language: "de" }] }
+            stub.get("/groups?search[language]=de") { |env| ok! [{ :id => 1, :fullname => "Magdeburg", language: "de" }] }
+            stub.get("/groups?search[language]=de&section=5") { |env| ok! [{ :id => 1, :fullname => "Magdeburg", language: "de" }] }
           end
         end
 
-        spawn_model("Foo::Model") do
+        spawn_model("Foo::User") do
           wrap_parameters_for_requests true
         end
 
-        class User < Foo::Model; end
-        @spawned_models << :User
+        spawn_model("Foo::Group") do
+          wrap_parameters_for_requests wrapper: :search, exclude: [:section]
+        end
       end
 
       it "should wrap the parameters as request" do
-        @users = User.where(language: "de").all
+        @users = Foo::User.where(language: "de").all
         @users.length.should == 1
+      end
+
+      it "should use specified wrapper" do
+        @groups = Foo::Group.where(language: "de").all
+        @groups.length.should == 1
+      end
+
+      it "should extract specified items" do
+        @groups = Foo::Group.where(language: "de", section: 5).all
+        @groups.length.should == 1
       end
     end
   end
