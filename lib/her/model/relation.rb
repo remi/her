@@ -69,7 +69,7 @@ module Her
         else
           path = @parent.build_request_path(@params)
           method = @parent.method_for(:find)
-          col = @parent.request(wrap_if_requested(@params).merge(:_method => method, :_path => path)) do |parsed_data, response|
+          col = @parent.request(@parent.wrap_parameters_if_requested(@params).merge(:_method => method, :_path => path)) do |parsed_data, response|
             @parent.new_collection(parsed_data)
           end
           @_fetch = col if !@parent.inline_caching_disabled?
@@ -160,12 +160,6 @@ module Her
       # @private
       def clear_fetch_cache!
         instance_variable_set(:@_fetch, nil)
-      end
-
-      # @private
-      def wrap_if_requested params
-        return {} if params.empty?
-        @parent.wrap_parameters_for_requests? ? { @parent.root_element => params } : params
       end
     end
   end

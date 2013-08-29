@@ -122,6 +122,12 @@ module Her
         end
         alias wrap_parameters_for_requests? wrap_parameters_for_requests
 
+        # @private
+        def wrap_parameters_if_requested params
+          return {} if params.empty?
+          wrap_parameters_for_requests? ? { root_element => params } : params
+        end
+
         # Create a new chainable scope
         #
         # @example

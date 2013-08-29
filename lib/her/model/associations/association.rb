@@ -39,7 +39,7 @@ module Her
 
           if @parent.attributes[@name].blank? || @params.any?
             path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
-            @klass.get(path, wrap_if_requested(@params))
+            @klass.get(path, @klass.wrap_parameters_if_requested(@params))
           else
             @parent.attributes[@name]
           end
@@ -116,12 +116,6 @@ module Her
         # @private
         def method_missing(method, *args, &blk)
           fetch.send(method, *args, &blk)
-        end
-
-        # @private
-        def wrap_if_requested params
-          return {} if params.empty?
-          @klass.wrap_parameters_for_requests? ? { @klass.root_element => params } : params
         end
       end
     end
