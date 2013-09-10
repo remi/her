@@ -224,4 +224,25 @@ describe Her::Model::Parse do
       @user.fullname.should == "Lindsay Fünke"
     end
   end
+
+  context 'when send_only_modified_attributes is set' do
+    before do
+      Her::API.setup :url => "https://api.example.com", :send_only_modified_attributes => true do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      spawn_model "Foo::User" do
+        include_root_in_json true
+
+        attributes :first_name, :last_name
+      end
+    end
+
+    it 'only sends the attributes that were modified' do
+      user = Foo::User.new
+      user.first_name = 'Someone'
+      expect(user.to_params).to eql(:user => {:first_name => 'Someone'})
+    end
+  end
 end

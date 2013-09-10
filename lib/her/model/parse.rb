@@ -10,7 +10,7 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        self.class.to_params(self.attributes)
+        self.class.to_params(self.attributes, self.changes)
       end
 
       module ClassMethods
@@ -23,8 +23,15 @@ module Her
         end
 
         # @private
-        def to_params(attributes)
-          include_root_in_json? ? { included_root_element => attributes.dup.symbolize_keys } : attributes.dup.symbolize_keys
+        def to_params(attributes, changes={})
+          filtered_attributes = attributes.dup.symbolize_keys
+          if her_api.options[:send_only_modified_attributes]
+            filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
+              hash[attribute] = filtered_attributes[attribute]
+              hash
+            end
+          end
+          include_root_in_json? ? { included_root_element => filtered_attributes } : filtered_attributes
         end
 
         # Return or change the value of `include_root_in_json`
