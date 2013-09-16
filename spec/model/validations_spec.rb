@@ -20,6 +20,13 @@ describe "Her::Model and ActiveModel::Validations" do
       user.email = "tobias@bluthcompany.com"
       user.should be_valid
     end
+
+    it "validates attributes when calling #save" do
+      user = Foo::User.new
+      user.save.should be_false
+      user.errors.full_messages.should include("Fullname can't be blank")
+      user.errors.full_messages.should include("Email can't be blank")
+    end
   end
 
   context "handling server errors" do
