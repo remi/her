@@ -11,7 +11,7 @@ describe "Her::Model and ActiveModel::Dirty" do
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :fullname => "Maeby Fünke" }.to_json] }
           stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
-          stub.put("/users/2") { |env| [400, {}, { :errors => ["Email cannot be blank"] }.to_json] }
+          stub.put("/users/2") { |env| [400, {}, { :errors => { :email => ["cannot be blank"] } }.to_json] }
           stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
         end
       end

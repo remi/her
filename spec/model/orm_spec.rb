@@ -257,7 +257,7 @@ describe Her::Model::ORM do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => Faraday::Utils.parse_query(env[:body])['fullname'], :email => Faraday::Utils.parse_query(env[:body])['email'] }.to_json] }
-          stub.post("/companies") { |env| [200, {}, { :errors => ["name is required"] }.to_json] }
+          stub.post("/companies") { |env| [200, {}, { :errors =>{ :name => ["is required"] } }.to_json] }
         end
       end
 
@@ -291,7 +291,7 @@ describe Her::Model::ORM do
 
     it "raises ResourceInvalid when #save! gets errors" do
       @company = Foo::Company.new
-      expect { @company.save! }.to raise_error Her::Errors::ResourceInvalid, "Remote validation failed: name is required"
+      expect { @company.save! }.to raise_error Her::Errors::ResourceInvalid, "Remote validation failed: Name is required"
     end
 
     it "don't overwrite data if response is empty" do
