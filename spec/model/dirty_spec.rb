@@ -23,10 +23,10 @@ describe "Her::Model and ActiveModel::Dirty" do
 
     context "for existing resource" do
       let(:user) { Foo::User.find(1) }
-        it "has no changes" do
-          user.changes.should be_empty
-          user.should_not be_changed
-        end
+      it "has no changes" do
+        user.changes.should be_empty
+        user.should_not be_changed
+      end
       context "with successful save" do
         it "tracks dirty attributes" do
           user.fullname = "Tobias Fünke"
