@@ -36,6 +36,11 @@ describe "Her::Model and ActiveModel::Dirty" do
           user.save
           user.should_not be_changed
         end
+        it "tracks previous changes" do
+          user.fullname = "Tobias Fünke"
+          user.save
+          user.previous_changes.should eq({"fullname"=>"Lindsay Fünke"})
+        end
       end
 
       context "with erroneous save" do
