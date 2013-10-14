@@ -25,6 +25,7 @@ module Her
 
         attributes = self.class.default_scope.apply_to(attributes)
         assign_attributes(attributes)
+        @changed_attributes = {}
         run_callbacks :initialize
       end
 

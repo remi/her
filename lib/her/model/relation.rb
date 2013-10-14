@@ -95,7 +95,6 @@ module Her
           @parent.request(request_params) do |parsed_data, response|
             if response.success?
               resource = @parent.new_from_parsed_data(parsed_data)
-              resource.instance_variable_set(:@changed_attributes, {})
               resource.run_callbacks :find
             else
               return nil
