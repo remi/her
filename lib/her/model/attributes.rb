@@ -78,11 +78,6 @@ module Her
       end
 
       # @private
-      def respond_to?(method, include_private = false)
-        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @attributes.include?(method) || super
-      end
-
-      # @private
       def respond_to_missing?(method, include_private = false)
         method.to_s.end_with?('=') || method.to_s.end_with?('?') || @attributes.include?(method) || super
       end
