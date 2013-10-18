@@ -26,8 +26,13 @@ First, you have to define which API your models will be bound to. For example, w
 ```ruby
 # config/initializers/her.rb
 Her::API.setup url: "https://api.example.com" do |c|
+  # Request
   c.use Faraday::Request::UrlEncoded
+
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -142,9 +147,14 @@ end
 require "lib/my_token_authentication"
 
 Her::API.setup url: "https://api.example.com" do |c|
+  # Request
   c.use MyTokenAuthentication
   c.use Faraday::Request::UrlEncoded
+
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -175,8 +185,13 @@ TWITTER_CREDENTIALS = {
 }
 
 Her::API.setup url: "https://api.twitter.com/1/" do |c|
+  # Request
   c.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 
@@ -225,7 +240,10 @@ class MyCustomParser < Faraday::Response::Middleware
 end
 
 Her::API.setup url: "https://api.example.com" do |c|
+  # Response
   c.use MyCustomParser
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -246,8 +264,13 @@ In your Ruby code:
 
 ```ruby
 Her::API.setup url: "https://api.example.com" do |c|
+  # Request
   c.use FaradayMiddleware::Caching, Memcached::Rails.new('127.0.0.1:11211')
+
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 
@@ -748,13 +771,19 @@ It is possible to use different APIs for different models. Instead of calling `H
 # config/initializers/her.rb
 MY_API = Her::API.new
 MY_API.setup url: "https://my-api.example.com" do |c|
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 
 OTHER_API = Her::API.new
 OTHER_API.setup url: "https://other-api.example.com" do |c|
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -786,7 +815,10 @@ When initializing `Her::API`, you can pass any parameter supported by `Faraday.n
 ```ruby
 ssl_options = { ca_path: "/usr/lib/ssl/certs" }
 Her::API.setup url: "https://api.example.com", ssl: ssl_options do |c|
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
