@@ -232,15 +232,17 @@ describe Her::Model::Parse do
         builder.use Faraday::Request::UrlEncoded
       end
 
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.get("/users/1") { |env| [200, {}, { :id => 1, :first_name => "Gooby", :last_name => "Pls" }.to_json] }
+      end
+
       spawn_model "Foo::User" do
         include_root_in_json true
-
-        attributes :first_name, :last_name
       end
     end
 
     it 'only sends the attributes that were modified' do
-      user = Foo::User.new
+      user = Foo::User.find 1
       user.first_name = 'Someone'
       expect(user.to_params).to eql(:user => {:first_name => 'Someone'})
     end
