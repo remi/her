@@ -58,9 +58,8 @@ describe "Her::Model and ActiveModel::Dirty" do
 
     context "for new resource" do
       let(:user) { Foo::User.new(:fullname => "Lindsay Fünke") }
-      it "has no changes" do
-        user.changes.should be_empty
-        user.should_not be_changed
+      it "has changes" do
+        user.should be_changed
       end
       it "tracks dirty attributes" do
         user.fullname = "Tobias Fünke"
