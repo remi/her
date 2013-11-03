@@ -72,7 +72,8 @@ module Her
         # @private
         def fetch
           foreign_key_value = @parent.attributes[@opts[:foreign_key].to_sym]
-          return @opts[:default].try(:dup) if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?) || (@parent.persisted? && foreign_key_value.blank?)
+          data_key_value = @parent.attributes[@opts[:data_key].to_sym]
+          return @opts[:default].try(:dup) if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?) || (@parent.persisted? && foreign_key_value.blank? && data_key_value.blank?)
 
           if @parent.attributes[@name].blank? || @params.any?
             path_params = @parent.attributes.merge(@params.merge(@klass.primary_key => foreign_key_value))
