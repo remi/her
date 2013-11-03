@@ -41,15 +41,13 @@ module Her
         #     include Her::Model
         #     include_root_in_json true
         #   end
-        def include_root_in_json(value = nil)
-          @_her_include_root_in_json ||= begin
-            superclass.include_root_in_json if superclass.respond_to?(:include_root_in_json)
-          end
-
-          return @_her_include_root_in_json unless value
+        def include_root_in_json(value)
           @_her_include_root_in_json = value
         end
-        alias include_root_in_json? include_root_in_json
+
+        def include_root_in_json?
+          @_her_include_root_in_json || (superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?)
+        end
 
         # Return or change the value of `parse_root_in`
         #
@@ -58,16 +56,14 @@ module Her
         #     include Her::Model
         #     parse_root_in_json true
         #   end
-        def parse_root_in_json(value = nil, options = {})
-          @_her_parse_root_in_json ||= begin
-            superclass.parse_root_in_json if superclass.respond_to?(:parse_root_in_json)
-          end
-
-          return @_her_parse_root_in_json unless value
+        def parse_root_in_json(value, options = {})
           @_her_parse_root_in_json = value
           @_her_parse_root_in_json_format = options[:format]
         end
-        alias parse_root_in_json? parse_root_in_json
+
+        def parse_root_in_json?
+          @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
+        end
 
         # Return or change the value of `request_new_object_on_build`
         #
@@ -77,14 +73,12 @@ module Her
         #     request_new_object_on_build true
         #   end
         def request_new_object_on_build(value = nil)
-          @_her_request_new_object_on_build ||= begin
-            superclass.request_new_object_on_build if superclass.respond_to?(:request_new_object_on_build)
-          end
-
-          return @_her_request_new_object_on_build unless value
           @_her_request_new_object_on_build = value
         end
-        alias request_new_object_on_build? request_new_object_on_build
+
+        def request_new_object_on_build?
+          @_her_request_new_object_on_build || (superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?)
+        end
 
         # Return or change the value of `root_element`. Always defaults to the base name of the class.
         #
@@ -139,17 +133,17 @@ module Her
 
         # @private
         def included_root_element
-          include_root_in_json == true ? root_element : include_root_in_json
+          include_root_in_json? == true ? root_element : include_root_in_json?
         end
 
         # @private
         def parsed_root_element
-          parse_root_in_json == true ? root_element : parse_root_in_json
+          parse_root_in_json? == true ? root_element : parse_root_in_json?
         end
 
         # @private
         def active_model_serializers_format?
-          @_her_parse_root_in_json_format == :active_model_serializers
+          @_her_parse_root_in_json_format == :active_model_serializers || (superclass.respond_to?(:active_model_serializers_format?) && superclass.active_model_serializers_format?)
         end
       end
     end

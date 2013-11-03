@@ -135,9 +135,10 @@ describe Her::Model::Parse do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
+          stub.get("/users") { |env| [200, {}, { :users => [ { :id => 1, :fullname => "Lindsay Fünke" } ] }.to_json] }
         end
 
-        spawn_model("Foo::Model") { parse_root_in_json true }
+        spawn_model("Foo::Model") { parse_root_in_json true, format: :active_model_serializers }
         class User < Foo::Model
           collection_path "/users"
         end
@@ -148,6 +149,11 @@ describe Her::Model::Parse do
       it "parse the data with the symbol" do
         @new_user = User.create(:fullname => "Lindsay Fünke")
         @new_user.fullname.should == "Lindsay Fünke"
+      end
+
+      it "parses the collection of data" do
+        @users = User.all
+        @users.first.fullname.should == "Lindsay Fünke"
       end
     end
 
