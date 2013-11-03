@@ -1,5 +1,8 @@
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
+require 'coveralls'
+Coveralls.wear!
+
 require "rspec"
 require "her"
 
