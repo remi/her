@@ -194,6 +194,7 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :age => 42 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :age => 34 }.to_json] }
+          stub.get("/users?id[]=1&id[]=2") { |env| [200, {}, [{ :id => 1, :age => 42 }, { :id => 2, :age => 34 }].to_json] }
           stub.get("/users?age=42&foo=bar") { |env| [200, {}, [{ :id => 3, :age => 42 }].to_json] }
           stub.get("/users?age=42") { |env| [200, {}, [{ :id => 1, :age => 42 }].to_json] }
           stub.get("/users?age=40") { |env| [200, {}, [{ :id => 1, :age => 40 }].to_json] }
@@ -231,6 +232,22 @@ describe Her::Model::ORM do
       @users.should be_kind_of(Array)
       @users.length.should == 1
       @users[0].id.should == 1
+    end
+
+    it "handles finding by an array id param of length 2" do
+      @users = User.find(id: [1, 2])
+      @users.should be_kind_of(Array)
+      @users.length.should == 2
+      @users[0].id.should == 1
+      @users[1].id.should == 2
+    end
+
+    it 'handles finding with id parameter as an array' do
+      @users = User.where(id: [1, 2])
+      @users.should be_kind_of(Array)
+      @users.length.should == 2
+      @users[0].id.should == 1
+      @users[1].id.should == 2
     end
 
     it "handles finding with other parameters" do
