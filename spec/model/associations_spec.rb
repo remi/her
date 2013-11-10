@@ -329,5 +329,18 @@ describe Her::Model::Associations do
         @user.comments.should == [@comment]
       end
     end
+
+    context "with #new" do
+      it "creates nested models from hash attibutes" do
+        user = Foo::User.new(:name => "vic", :comments => [{:text => "hello"}])
+        user.comments.first.text.should == "hello"
+      end
+
+      it "assigns nested models if given as already constructed objects" do
+        bye = Foo::Comment.new(:text => "goodbye")
+        user = Foo::User.new(:name => 'vic', :comments => [bye])
+        user.comments.first.text.should == 'goodbye'
+      end
+    end
   end
 end
