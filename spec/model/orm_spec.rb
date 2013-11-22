@@ -34,6 +34,9 @@ describe Her::Model::ORM do
       @admin = Foo::AdminUser.find(1)
       @admin.id.should == 1
       @admin.name.should == "Tobias Fünke"
+
+      @user = Foo::User.first
+      @user.id.should == 1
     end
 
     it "maps a collection of resources to an array of Ruby objects" do
@@ -476,4 +479,29 @@ describe Her::Model::ORM do
       end
     end
   end
+
+  context "reloading resources" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.put('/users/1') { |env| [200, {}, { :id => 1, :fullname => 'Peter Müller' }.to_json] }
+        end
+      end
+
+      spawn_model "Foo::User"
+    end
+
+    it "should synchronize a model with the API" do
+      @user = Foo::User.find(1)
+      @user.fullname = "Peter Müller"
+      @user.fullname.should == "Peter Müller"
+      @user.reload
+      @user.fullname.should == "Tobias Fünke"
+    end
+
+  end
+
 end

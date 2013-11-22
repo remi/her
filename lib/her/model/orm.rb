@@ -84,7 +84,61 @@ module Her
         self
       end
 
+      # Reload a resource
+      #
+      # @example
+      #   @user_a = User.find(1)
+      #   @user_b = User.find(1)
+      #   @user_a.name = "Peter Müller"
+      #   @user_a.save
+      #   @user_b.reload
+      #   # user_b is now synchronized again
+      def reload
+        method = self.class.method_for(:find)
+        run_callbacks :find do
+          self.class.request(:_method => method, :_path => request_path) do |parsed_data, response|
+            assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
+            @metadata = parsed_data[:metadata]
+            @response_errors = parsed_data[:errors]
+            return false if !response.success? || @response_errors.any?
+            self.changed_attributes.clear if self.changed_attributes.present?
+          end
+        end
+        self
+      end
+
       module ClassMethods
+        # Return or change the value of `wrap_parameters_for_requests`
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     wrap_parameters_for_requests true
+        #   end
+        #
+        #   wrap_parameters_for_requests wrapper: :element, exclude: [:page, :per_page]
+        def wrap_parameters_for_requests(value = nil)
+          @_her_wrap_parameters_for_requests ||= begin
+            superclass.wrap_parameters_for_requests if superclass.respond_to?(:wrap_parameters_for_requests)
+          end
+
+          return @_her_wrap_parameters_for_requests unless value
+          @_her_wrap_parameters_for_requests = value.is_a?(TrueClass) ? {} : value
+        end
+
+        # @private
+        def wrap_parameters_if_requested params
+          return {} if params.empty?
+          config = wrap_parameters_for_requests
+          if config.is_a?(Hash)
+            wrapper = config.key?(:wrapper) ? config[:wrapper] : root_element
+            excluded = config.key?(:exclude) ? params.extract!(*config[:exclude]) : {}
+            { wrapper => params }.merge(excluded)
+          else
+            params
+          end
+        end
+
         # Create a new chainable scope
         #
         # @example
@@ -132,7 +186,7 @@ module Her
         end
 
         # Delegate the following methods to `scoped`
-        [:all, :where, :create, :build, :find, :first_or_create, :first_or_initialize].each do |method|
+        [:first, :all, :where, :create, :build, :find, :first_or_create, :first_or_initialize].each do |method|
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{method}(*params)
               scoped.send(#{method.to_sym.inspect}, *params)

@@ -24,6 +24,15 @@ module Her
         send(association_name) if has_association?(association_name)
       end
 
+      def get_ancestor_params
+        ancestor_params = Hash.new
+        self.class.associations[:belongs_to].each do |association|
+          ancestor_params.merge!(self.send(association[:name]).get_ancestor_params) if association[:ancestor]
+        end
+        ancestor_params[:"#{self.singularized_resource_name}_#{self.class.primary_key}"] = self.id
+        ancestor_params
+      end
+
       module ClassMethods
         # Return @_her_associations, lazily initialized with copy of the
         # superclass' her_associations, or an empty hash.

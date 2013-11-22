@@ -64,12 +64,16 @@ module Her
       #
       # @private
       def fetch
-        @_fetch ||= begin
+        if !@parent.inline_caching_disabled? && @_fetch
+          return @_fetch
+        else
           path = @parent.build_request_path(@params)
           method = @parent.method_for(:find)
-          @parent.request(@params.merge(:_method => method, :_path => path)) do |parsed_data, response|
+          col = @parent.request(@parent.wrap_parameters_if_requested(@params).merge(:_method => method, :_path => path)) do |parsed_data, response|
             @parent.new_collection(parsed_data)
           end
+          @_fetch = col if !@parent.inline_caching_disabled?
+          return col
         end
       end
 

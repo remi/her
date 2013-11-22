@@ -54,6 +54,9 @@ User.all
 User.find(1)
 # GET "https://api.example.com/users/1" and return a User object
 
+User.first
+# GET "https://api.example.com/users" and return first object in array
+
 @user = User.create(fullname: "Tobias Fünke")
 # POST "https://api.example.com/users" with `fullname=Tobias+Fünke` and return the saved User object
 
@@ -66,6 +69,11 @@ User.find(1)
 @user.fullname = "Lindsay Fünke"
 @user.save
 # PUT "https://api.example.com/users/1" with `fullname=Lindsay+Fünke` and return the updated User object
+
+@user = User.find(1)
+@user.fullname = "Lindsay Fünke"
+@user.reload
+# GET "https://api.example.com/users/1"
 ```
 
 ### ActiveRecord-like methods
@@ -250,6 +258,36 @@ end
 
 ### Caching
 
+#### Inline Caching
+
+Her has a builtin cache functionality that caches responses made on the same resource.
+
+```ruby
+class User
+  include Her::Model
+end
+
+users = User.where(age: 13)
+users.to_a # loads resources
+users.to_a # returns cached resources
+```
+
+This behaviour can be disabled with the following statement in the model:
+
+```ruby
+class User
+  include Her::Model
+  disable_inline_caching
+end
+
+users = User.where(age: 13)
+users.to_a # loads resources
+users.to_a # also loads resources
+collection = users.to_a # cache resources manually if needed
+```
+
+#### External Caching
+
 Again, using the `faraday_middleware` and `memcached` gems makes it very easy to cache requests and responses.
 
 In your Gemfile:
@@ -390,6 +428,30 @@ You can use the association methods to build new objects and save them.
 # => [#<Comment id=3 body="Hello world." user_id=1>]
 ```
 
+The nested resource automatically receives the parents ids as an parameter. The retrieving of this parameters can be controlled with the ancestor flag on the belongs_to association:
+
+```ruby
+class Section
+  collection_path "/sections"
+  has_many :groups
+end
+
+class Group
+  collection_path "/sections/:section_id/groups"
+  has_many :items
+  belongs_to :section, ancestor: true
+end
+
+class Item
+  collection_path "/sections/:section_id/groups/:group_id/items"
+  belongs_to :group
+  # ancestor: true is automatically set for the first belongs_to association
+end
+
+Section.find(1).groups.find(1).items.build(name: "Pencil")
+# => [#<Item name="Pencil" section_id=1 group_id=1>]
+```
+
 You can also explicitly request a new object via the API when using ``build``. This is useful if you're dealing with default attributes.
 
 ```ruby
@@ -507,7 +569,29 @@ The available callbacks are:
 
 ### JSON attributes-wrapping
 
-Her supports *sending* and *parsing* JSON data wrapped in a root element (to be compatible with Rails’ `include_root_in_json` setting), like so:
+Her supports *requesting*, *sending* and *parsing* JSON data wrapped in a root element (to be compatible with Rails’ `include_root_in_json` setting), like so:
+
+#### Requesting
+
+If you want to wrap request parameters in a *root* element based on the model name.
+
+```ruby
+class User
+  include Her::Model
+  wrap_parameters_for_requests true
+end
+
+class Group
+  include Her::Model
+  wrap_parameters_for_request wrapper: :search, exclude: [:page]
+end
+
+User.where(language: "de").all
+# GET "/users?user[language]=de"
+
+Group.where(section: 5, page: 3).all
+# GET "/groups?search[section]=5&page=3
+```
 
 #### Sending
 
