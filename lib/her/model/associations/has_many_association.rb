@@ -48,6 +48,8 @@ module Her
         #   user = User.find(1)
         #   new_comment = user.comments.build(:body => "Hello!")
         #   new_comment # => #<Comment user_id=1 body="Hello!">
+        # TODO: This only merges the id of the parents, handle the case
+        #       where this is more deeply nested
         def build(attributes = {})
           @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
         end
@@ -88,7 +90,8 @@ module Her
 
         # @private
         def assign_nested_attributes(attributes)
-          @parent.attributes[@name] = Her::Model::Attributes.initialize_collection(@klass, :data => attributes.values)
+          #@parent.attributes[@name] = Her::Model::Attributes.initialize_collection(@klass, :data => attributes.values)
+          @parent.attributes[@name] = attributes.values
         end
       end
     end
