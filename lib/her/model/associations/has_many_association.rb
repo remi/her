@@ -88,7 +88,7 @@ module Her
 
         # @private
         def assign_nested_attributes(attributes)
-          @parent.attributes[@name] = Her::Model::Attributes.initialize_collection(@klass, :data => attributes)
+          @parent.attributes[@name] = Her::Model::Attributes.initialize_collection(@klass, :data => attributes.values)
         end
       end
     end
