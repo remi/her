@@ -90,8 +90,8 @@ module Her
 
         # @private
         def assign_nested_attributes(attributes)
-          #@parent.attributes[@name] = Her::Model::Attributes.initialize_collection(@klass, :data => attributes.values)
-          @parent.attributes[@name] = attributes.values
+          data = attributes.is_a?(Hash) ? attributes.values : attributes
+          @parent.attributes[@name] = Her::Model::Attributes.initialize_collection(@klass, :data => data)
         end
       end
     end
