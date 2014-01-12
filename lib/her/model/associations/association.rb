@@ -26,7 +26,11 @@ module Her
           return {} unless data[data_key]
 
           klass = klass.her_nearby_class(association[:class_name])
-          { association[:name] => klass.new(data[data_key]) }
+          if data[data_key].kind_of?(klass)
+            { association[:name] => data[data_key] }
+          else
+            { association[:name] => klass.new(data[data_key]) }
+          end
         end
 
         # @private

@@ -59,7 +59,7 @@ describe Her::Model::Associations do
         its([:has_many]) { should eql [{ :name => :comments, :data_key => :user_comments, :default => {}, :class_name => "Post", :path => "/comments", :inverse_of => :admin }] }
       end
 
-      context "signle has_one association" do
+      context "single has_one association" do
         before { Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic, :default => nil }
         its([:has_one]) { should eql [{ :name => :category, :data_key => :topic, :default => nil, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }] }
       end
@@ -374,6 +374,19 @@ describe Her::Model::Associations do
         @comment.body.should == "Hello!"
         @comment.user_id.should == 10
         @user.comments.should == [@comment]
+      end
+    end
+
+    context "with #new" do
+      it "creates nested models from hash attibutes" do
+        user = Foo::User.new(:name => "vic", :comments => [{:text => "hello"}])
+        user.comments.first.text.should == "hello"
+      end
+
+      it "assigns nested models if given as already constructed objects" do
+        bye = Foo::Comment.new(:text => "goodbye")
+        user = Foo::User.new(:name => 'vic', :comments => [bye])
+        user.comments.first.text.should == 'goodbye'
       end
     end
   end
