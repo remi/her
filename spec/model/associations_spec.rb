@@ -146,11 +146,11 @@ describe Her::Model::Associations do
     end
 
     it "does not refetch the parents models data if they have been fetched before" do
-      @user_with_included_data.comments.first.user.fetch.object_id.should == @user_with_included_data.object_id
+      @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
     end
 
     it "uses the given inverse_of key to set the parent model" do
-      @user_with_included_data.posts.first.admin.fetch.object_id.should == @user_with_included_data.object_id
+      @user_with_included_data.posts.first.admin.object_id.should == @user_with_included_data.object_id
     end
 
     it "fetches data that was not included through has_many" do
@@ -286,6 +286,53 @@ describe Her::Model::Associations do
 
     it "does not require foreugn key to have nested object" do
       @user_with_included_data_but_no_fk.company.name.should == "Bluth Company Inc."
+    end
+  end
+
+  context "object returned by the association method" do
+    before do
+      spawn_model "Foo::Role" do
+        def present?
+          "of_course"
+        end
+      end
+      spawn_model "Foo::User" do
+        has_one :role
+      end
+    end
+
+    let(:associated_value) { Foo::Role.new }
+    let(:user_with_role) do
+      Foo::User.new.tap { |user| user.role = associated_value }
+    end
+
+    subject { user_with_role.role }
+
+    it "doesnt mask the object's basic methods" do
+      subject.class.should == Foo::Role
+    end
+
+    it "doesnt mask core methods like extend" do
+      committer = Module.new
+      subject.extend  committer
+      associated_value.should be_kind_of committer
+    end
+
+    it "can return the association object" do
+      subject.association.should be_kind_of Her::Model::Associations::Association
+    end
+
+    it "still can call fetch via the association" do
+      subject.association.fetch.should eq associated_value
+    end
+
+    it "calls missing methods on associated value" do
+      subject.present?.should == "of_course"
+    end
+
+    it "can use association methods like where" do
+      subject.where(role: 'committer').association.
+        params.should include :role
     end
   end
 

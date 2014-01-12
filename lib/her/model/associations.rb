@@ -1,4 +1,5 @@
 require "her/model/associations/association"
+require "her/model/associations/association_proxy"
 require "her/model/associations/belongs_to_association"
 require "her/model/associations/has_many_association"
 require "her/model/associations/has_one_association"

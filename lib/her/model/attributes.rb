@@ -184,6 +184,7 @@ module Her
             class_eval <<-RUBY, __FILE__, __LINE__ + 1
               unless instance_methods.include?(:'#{attribute}=')
                 def #{attribute}=(value)
+                  @attributes[:'#{attribute}'] = nil unless @attributes.include?(:'#{attribute}')
                   self.send(:"#{attribute}_will_change!") if @attributes[:'#{attribute}'] != value
                   @attributes[:'#{attribute}'] = value
                 end

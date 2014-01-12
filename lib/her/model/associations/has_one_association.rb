@@ -2,6 +2,7 @@ module Her
   module Model
     module Associations
       class HasOneAssociation < Association
+
         # @private
         def self.attach(klass, name, opts)
           opts = {
@@ -18,7 +19,7 @@ module Her
               cached_name = :"@_her_association_#{name}"
 
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
-              cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.new(self, #{opts.inspect}))
+              cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.proxy(self, #{opts.inspect}))
             end
           RUBY
         end
