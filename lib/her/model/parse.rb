@@ -44,7 +44,7 @@ module Her
             next if params.empty?
             if association[:class_name].constantize.include_root_in_json?
               root = association[:class_name].constantize.root_element
-              hash[association[:data_key]] = params.map{ |n| n[root] }
+              hash[association[:data_key]] = params.map { |n| n[root] }
             else
               hash[association[:data_key]] = params
             end
