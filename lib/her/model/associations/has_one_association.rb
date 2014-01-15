@@ -17,7 +17,6 @@ module Her
           klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{name}
               cached_name = :"@_her_association_#{name}"
-
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
               cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.proxy(self, #{opts.inspect}))
             end
@@ -67,6 +66,18 @@ module Her
           resource = build(attributes)
           @parent.attributes[@name] = resource if resource.save
           resource
+        end
+
+        # If we have already loaded this assocation we do not need to refetch
+        # it.
+        #
+        # @private
+        def fetch(opts = {})
+          @has_one_relationships ||= Hash.new do |h, key|
+            h[key] = super
+          end
+
+          @has_one_relationships[@params]
         end
 
         # @private

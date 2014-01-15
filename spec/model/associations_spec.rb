@@ -76,7 +76,7 @@ describe Her::Model::Associations do
       describe "associations accessor" do
         subject { Class.new(Foo::User).associations }
         its(:object_id) { should_not eql Foo::User.associations.object_id }
-      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
+        its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
       end
     end
   end
@@ -239,6 +239,53 @@ describe Her::Model::Associations do
           subject.role.body.should == "Admin"
         end
       end
+    end
+  end
+
+  context "handling associations without refetching data" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
+
+          stub.get('/users/1/hero') do |env|
+            if env[:params]['with_param'] == "true"
+              [200, {}, { }.to_json]
+            else
+              [200, {}, { :id => 1, :name => "Carl Weathers", user_id: 1 }.to_json]
+            end
+          end
+        end
+      end
+
+      spawn_model "Foo::User" do
+        has_one :hero
+      end
+
+      spawn_model "Foo::Hero" do
+        attributes :name
+        belongs_to :user
+      end
+    end
+
+    it "it should not refetch data once it has loaded a has one relationship" do
+      hero = Foo::User.find(1).hero
+
+      hero.assign_attributes(name: 'changed')
+      hero.valid?
+      hero.name.should == 'changed'
+    end
+
+    it "it should refetch the data when the scope changes" do
+      hero1 = Foo::User.find(1).hero
+      hero1.assign_attributes(name: 'changed')
+
+      hero2 = Foo::User.find(1).hero.where(with_param: true)
+
+      hero2.name.should be_nil
+      hero1.name.should == 'changed'
     end
   end
 
