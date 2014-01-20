@@ -19,7 +19,7 @@ module Her
       attr_reader :resource
       def initialize(resource)
         @resource = resource
-        errors = @resource.response_errors.join(", ")
+        errors = @resource.errors.full_messages.join(", ")
         super("Remote validation failed: #{errors}")
       end
     end

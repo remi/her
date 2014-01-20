@@ -72,7 +72,7 @@ describe Her::Model::ORM do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("/users") { |env| [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], :metadata => { :total_pages => 10, :next_page => 2 }, :errors => ["Oh", "My", "God"] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
+          stub.post("/users") { |env| [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => { :title => ["should not be blank"] } }.to_json] }
         end
       end
 
@@ -98,7 +98,12 @@ describe Her::Model::ORM do
 
     it "handles error data on a resource" do
       @user = User.create(:name => "George Michael Bluth")
-      @user.response_errors.should == ["Yes", "Sir"]
+      @user.response_errors.should == { :title => ["should not be blank"] }
+    end
+
+    it "adds resource errors to base" do
+      @user = User.create(:name => "George Michael Bluth")
+      @user.errors.full_messages.should == ["Title should not be blank"]
     end
   end
 
@@ -307,7 +312,7 @@ describe Her::Model::ORM do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => Faraday::Utils.parse_query(env[:body])['fullname'], :email => Faraday::Utils.parse_query(env[:body])['email'] }.to_json] }
-          stub.post("/companies") { |env| [200, {}, { :errors => ["name is required"] }.to_json] }
+          stub.post("/companies") { |env| [200, {}, { :errors =>{ :name => ["is required"] } }.to_json] }
         end
       end
 
@@ -341,7 +346,7 @@ describe Her::Model::ORM do
 
     it "raises ResourceInvalid when #save! gets errors" do
       @company = Foo::Company.new
-      expect { @company.save! }.to raise_error Her::Errors::ResourceInvalid, "Remote validation failed: name is required"
+      expect { @company.save! }.to raise_error Her::Errors::ResourceInvalid, "Remote validation failed: Name is required"
     end
 
     it "don't overwrite data if response is empty" do

@@ -44,6 +44,7 @@ module Her
               assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
               @metadata = parsed_data[:metadata]
               @response_errors = parsed_data[:errors]
+              add_errors_to_base if @response_errors.any?
 
               return false if !response.success? || @response_errors.any?
               if self.changed_attributes.present?
@@ -82,6 +83,14 @@ module Her
           end
         end
         self
+      end
+
+      private
+      # @private
+      def add_errors_to_base
+        @response_errors.each do |attr, messages|
+          [*messages].map { |msg| self.errors.add(attr, msg) }
+        end
       end
 
       module ClassMethods
