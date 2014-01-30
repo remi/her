@@ -16,12 +16,21 @@ module Her
         end
 
         # @private
+        def self.proxy(parent, opts = {})
+          AssociationProxy.new new(parent, opts)
+        end
+
+        # @private
         def self.parse_single(association, klass, data)
           data_key = association[:data_key]
           return {} unless data[data_key]
 
           klass = klass.her_nearby_class(association[:class_name])
-          { association[:name] => klass.new(data[data_key]) }
+          if data[data_key].kind_of?(klass)
+            { association[:name] => data[data_key] }
+          else
+            { association[:name] => klass.new(data[data_key]) }
+          end
         end
 
         # @private
@@ -66,36 +75,26 @@ module Her
         #   user.comments.where(:approved => 1) # Fetched via GET "/users/1/comments?approved=1
         def where(params = {})
           return self if params.blank? && @parent.attributes[@name].blank?
-          self.clone.tap { |a| a.params = a.params.merge(params) }
+          AssociationProxy.new self.clone.tap { |a| a.params = a.params.merge(params) }
         end
         alias all where
 
-        # @private
-        def nil?
-          fetch.nil?
+        # Fetches the data specified by id
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     has_many :comments
+        #   end
+        #
+        #   user = User.find(1)
+        #   user.comments.find(3) # Fetched via GET "/users/1/comments/3
+        def find(id)
+          return nil if id.blank?
+          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
+          @klass.get(path, @params)
         end
 
-        # @private
-        def kind_of?(thing)
-          fetch.kind_of?(thing)
-        end
-
-        # @private
-        def ==(other)
-          fetch.eql?(other)
-        end
-        alias eql? ==
-
-        # ruby 1.8.7 compatibility
-        # @private
-        def id
-          fetch.id
-        end
-
-        # @private
-        def method_missing(method, *args, &blk)
-          fetch.send(method, *args, &blk)
-        end
       end
     end
   end

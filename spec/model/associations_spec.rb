@@ -59,7 +59,7 @@ describe Her::Model::Associations do
         its([:has_many]) { should eql [{ :name => :comments, :data_key => :user_comments, :default => {}, :class_name => "Post", :path => "/comments", :inverse_of => :admin }] }
       end
 
-      context "signle has_one association" do
+      context "single has_one association" do
         before { Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic, :default => nil }
         its([:has_one]) { should eql [{ :name => :category, :data_key => :topic, :default => nil, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }] }
       end
@@ -91,6 +91,7 @@ describe Her::Model::Associations do
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 2 }.to_json] }
           stub.get("/users/1/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }].to_json] }
           stub.get("/users/2/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }].to_json] }
+          stub.get("/users/2/comments/5") { |env| [200, {}, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }.to_json] }
           stub.get("/users/2/role") { |env| [200, {}, { :id => 2, :body => "User" }.to_json] }
           stub.get("/users/1/role") { |env| [200, {}, { :id => 3, :body => "User" }.to_json] }
           stub.get("/users/1/posts") { |env| [200, {}, [{:id => 1, :body => 'blogging stuff', :admin_id => 1 }].to_json] }
@@ -145,11 +146,11 @@ describe Her::Model::Associations do
     end
 
     it "does not refetch the parents models data if they have been fetched before" do
-      @user_with_included_data.comments.first.user.fetch.object_id.should == @user_with_included_data.object_id
+      @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
     end
 
     it "uses the given inverse_of key to set the parent model" do
-      @user_with_included_data.posts.first.admin.fetch.object_id.should == @user_with_included_data.object_id
+      @user_with_included_data.posts.first.admin.object_id.should == @user_with_included_data.object_id
     end
 
     it "fetches data that was not included through has_many" do
@@ -211,6 +212,16 @@ describe Her::Model::Associations do
       @user_without_included_data.organization.name.should == "Bluth Company"
     end
 
+    it "fetches data with the specified id when calling find" do
+      comment = @user_without_included_data.comments.find(5)
+      comment.id.should eq(5)
+    end
+
+    it "'s associations responds to #empty?" do
+      @user_without_included_data.organization.respond_to?(:empty?).should be_true
+      @user_without_included_data.organization.should_not be_empty
+    end
+
     [:create, :save_existing, :destroy].each do |type|
       context "after #{type}" do
         let(:subject) { self.send("user_with_included_data_after_#{type}")}
@@ -238,6 +249,7 @@ describe Her::Model::Associations do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company Inc." }, :organization_id => 1 }.to_json] }
+          stub.get("/users/4") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company Inc." } }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 }.to_json] }
           stub.get("/users/3") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :company => nil }.to_json] }
           stub.get("/companies/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company" }.to_json] }
@@ -253,6 +265,7 @@ describe Her::Model::Associations do
       @user_with_included_data = Foo::User.find(1)
       @user_without_included_data = Foo::User.find(2)
       @user_with_included_nil_data = Foo::User.find(3)
+      @user_with_included_data_but_no_fk = Foo::User.find(4)
     end
 
     it "maps an array of included data through belongs_to" do
@@ -269,6 +282,57 @@ describe Her::Model::Associations do
       @user_without_included_data.company.should be_a(Foo::Company)
       @user_without_included_data.company.id.should == 1
       @user_without_included_data.company.name.should == "Bluth Company"
+    end
+
+    it "does not require foreugn key to have nested object" do
+      @user_with_included_data_but_no_fk.company.name.should == "Bluth Company Inc."
+    end
+  end
+
+  context "object returned by the association method" do
+    before do
+      spawn_model "Foo::Role" do
+        def present?
+          "of_course"
+        end
+      end
+      spawn_model "Foo::User" do
+        has_one :role
+      end
+    end
+
+    let(:associated_value) { Foo::Role.new }
+    let(:user_with_role) do
+      Foo::User.new.tap { |user| user.role = associated_value }
+    end
+
+    subject { user_with_role.role }
+
+    it "doesnt mask the object's basic methods" do
+      subject.class.should == Foo::Role
+    end
+
+    it "doesnt mask core methods like extend" do
+      committer = Module.new
+      subject.extend  committer
+      associated_value.should be_kind_of committer
+    end
+
+    it "can return the association object" do
+      subject.association.should be_kind_of Her::Model::Associations::Association
+    end
+
+    it "still can call fetch via the association" do
+      subject.association.fetch.should eq associated_value
+    end
+
+    it "calls missing methods on associated value" do
+      subject.present?.should == "of_course"
+    end
+
+    it "can use association methods like where" do
+      subject.where(role: 'committer').association.
+        params.should include :role
     end
   end
 
@@ -310,6 +374,19 @@ describe Her::Model::Associations do
         @comment.body.should == "Hello!"
         @comment.user_id.should == 10
         @user.comments.should == [@comment]
+      end
+    end
+
+    context "with #new" do
+      it "creates nested models from hash attibutes" do
+        user = Foo::User.new(:name => "vic", :comments => [{:text => "hello"}])
+        user.comments.first.text.should == "hello"
+      end
+
+      it "assigns nested models if given as already constructed objects" do
+        bye = Foo::Comment.new(:text => "goodbye")
+        user = Foo::User.new(:name => 'vic', :comments => [bye])
+        user.comments.first.text.should == 'goodbye'
       end
     end
   end

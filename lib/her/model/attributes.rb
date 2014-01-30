@@ -33,9 +33,12 @@ module Her
       # @private
       def self.initialize_collection(klass, parsed_data={})
         collection_data = klass.extract_root_from_collection(parsed_data[:data]).map do |item_data|
-          #If data comes from jsonapi format, root element dont need to be parsed
-          resource = klass.jsonapi_format? ? klass.new(item_data) : klass.new(klass.parse(item_data))
-          resource.run_callbacks :find
+          if item_data.kind_of?(klass)
+            resource = item_data
+          else
+            resource = klass.jsonapi_format? ? klass.new(item_data) : klass.new(klass.parse(item_data))
+            resource.run_callbacks :find
+          end
           resource
         end
         Her::Collection.new(collection_data, parsed_data[:metadata], parsed_data[:errors])
@@ -79,13 +82,8 @@ module Her
       end
 
       # @private
-      def respond_to?(method, include_private = false)
-        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @attributes.include?(method) || super
-      end
-
-      # @private
       def respond_to_missing?(method, include_private = false)
-        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @attributes.include?(method) || @attributes.include?(method) || super
+        method.to_s.end_with?('=') || method.to_s.end_with?('?') || @attributes.include?(method) || super
       end
 
       # Assign new attributes to a resource
@@ -169,7 +167,8 @@ module Her
         #
         # @private
         def new_from_parsed_data(parsed_data)
-          new(extract_array(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+          parsed_data = parsed_data.with_indifferent_access
+          new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
         end
 
         # Extracts the array wrapper if jsonapi format is enabled
@@ -201,6 +200,7 @@ module Her
             class_eval <<-RUBY, __FILE__, __LINE__ + 1
               unless instance_methods.include?(:'#{attribute}=')
                 def #{attribute}=(value)
+                  @attributes[:'#{attribute}'] = nil unless @attributes.include?(:'#{attribute}')
                   self.send(:"#{attribute}_will_change!") if @attributes[:'#{attribute}'] != value
                   @attributes[:'#{attribute}'] = value
                 end

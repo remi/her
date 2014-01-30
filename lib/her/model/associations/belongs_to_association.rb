@@ -2,6 +2,7 @@ module Her
   module Model
     module Associations
       class BelongsToAssociation < Association
+
         # @private
         def self.attach(klass, name, opts)
           opts = {
@@ -19,7 +20,7 @@ module Her
               cached_name = :"@_her_association_#{name}"
 
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
-              cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.new(self, #{opts.inspect}))
+              cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.proxy(self, #{opts.inspect}))
             end
           RUBY
         end
@@ -72,7 +73,8 @@ module Her
         # @private
         def fetch
           foreign_key_value = @parent.attributes[@opts[:foreign_key].to_sym]
-          return @opts[:default].try(:dup) if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?) || (@parent.persisted? && foreign_key_value.blank?)
+          data_key_value = @parent.attributes[@opts[:data_key].to_sym]
+          return @opts[:default].try(:dup) if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?) || (@parent.persisted? && foreign_key_value.blank? && data_key_value.blank?)
 
           if @parent.attributes[@name].blank? || @params.any?
             path_params = @parent.attributes.merge(@params.merge(@klass.primary_key => foreign_key_value))

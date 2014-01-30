@@ -42,12 +42,13 @@ module Her
     #   class MyAuthentication < Faraday::Middleware
     #     def call(env)
     #       env[:request_headers]["X-API-Token"] = "bb2b2dd75413d32c1ac421d39e95b978d1819ff611f68fc2fdd5c8b9c7331192"
-    #       @all.call(env)
+    #       @app.call(env)
     #     end
     #   end
     #   Her::API.setup :url => "https://api.example.com" do |connection|
     #     connection.use Faraday::Request::UrlEncoded
     #     connection.use Her::Middleware::DefaultParseJSON
+    #     connection.use MyAuthentication
     #     connection.use Faraday::Adapter::NetHttp
     #   end
     #

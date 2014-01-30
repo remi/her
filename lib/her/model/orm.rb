@@ -46,11 +46,22 @@ module Her
               @response_errors = parsed_data[:errors]
 
               return false if !response.success? || @response_errors.any?
-              self.changed_attributes.clear if self.changed_attributes.present?
+              if self.changed_attributes.present?
+                @previously_changed = self.changed_attributes.clone
+                self.changed_attributes.clear
+              end
             end
           end
         end
 
+        self
+      end
+
+      # Similar to save(), except that ResourceInvalid is raised if the save fails
+      def save!
+        if !self.save
+          raise Her::Errors::ResourceInvalid, self
+        end
         self
       end
 
@@ -115,7 +126,7 @@ module Her
         #   User.all # Called via GET "/users?admin=1"
         #   User.new.admin # => 1
         def default_scope(block=nil)
-          @_her_default_scope ||= superclass.respond_to?(:default_scope) ? superclass.default_scope : scoped
+          @_her_default_scope ||= (!respond_to?(:default_scope) && superclass.respond_to?(:default_scope)) ? superclass.default_scope : scoped
           @_her_default_scope = @_her_default_scope.instance_exec(&block) unless block.nil?
           @_her_default_scope
         end

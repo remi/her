@@ -84,6 +84,7 @@ module Her
       #   # Fetched via GET "/users/1" and GET "/users/2"
       def find(*ids)
         params = @params.merge(ids.last.is_a?(Hash) ? ids.pop : {})
+        ids = Array(params[@parent.primary_key]) if params.key?(@parent.primary_key)
 
         results = ids.flatten.compact.uniq.map do |id|
           resource = nil
@@ -95,6 +96,7 @@ module Her
           @parent.request(request_params) do |parsed_data, response|
             if response.success?
               resource = @parent.new_from_parsed_data(parsed_data)
+              resource.instance_variable_set(:@changed_attributes, {})
               resource.run_callbacks :find
             else
               return nil

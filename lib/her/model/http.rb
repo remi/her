@@ -39,9 +39,13 @@ module Her
             superclass.use_api if superclass.respond_to?(:use_api)
           end
 
-          return @_her_use_api unless value
+          unless value
+            return (@_her_use_api.respond_to? :call) ? @_her_use_api.call : @_her_use_api
+          end
+
           @_her_use_api = value
         end
+
         alias her_api use_api
         alias uses_api use_api
 
@@ -64,7 +68,7 @@ module Her
               path = build_request_path_from_string_or_symbol(path, params)
               params = to_params(params) unless #{method.to_sym.inspect} == :get
               send(:'#{method}_raw', path, params) do |parsed_data, response|
-                if jsonapi_format?
+                if parsed_data[:data].is_a?(Array) || active_model_serializers_format? || jsonapi_format
                   new_collection(parsed_data)
                 else
                   if parsed_data[:data].is_a?(Array)

@@ -94,7 +94,7 @@ module Her
           unless path.is_a?(String)
             parameters = path.try(:with_indifferent_access) || parameters
             path =
-              if parameters.include?(primary_key) && parameters[primary_key]
+              if parameters.include?(primary_key) && parameters[primary_key] && !parameters[primary_key].kind_of?(Array)
                 resource_path.dup
               else
                 collection_path.dup

@@ -102,6 +102,44 @@ describe Her::Model::ORM do
     end
   end
 
+  context "mapping data, metadata and error data in string keys to Ruby objects" do
+    before do
+      api = Her::API.new
+      api.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::SecondLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users") { |env| [200, {}, { 'data' => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], 'metadata' => { :total_pages => 10, :next_page => 2 }, 'errors' => ["Oh", "My", "God"] }.to_json] }
+          stub.post("/users") { |env| [200, {}, { 'data' => { :name => "George Michael Bluth" }, 'metadata' => { :foo => "bar" }, 'errors' => ["Yes", "Sir"] }.to_json] }
+        end
+      end
+
+      spawn_model :User do
+        uses_api api
+      end
+    end
+
+    it "handles metadata on a collection" do
+      @users = User.all
+      @users.metadata[:total_pages].should == 10
+    end
+
+    it "handles error data on a collection" do
+      @users = User.all
+      @users.errors.length.should == 3
+    end
+
+    it "handles metadata on a resource" do
+      @user = User.create(:name => "George Michael Bluth")
+      @user.metadata[:foo].should == "bar"
+    end
+
+    it "handles error data on a resource" do
+      @user = User.create(:name => "George Michael Bluth")
+      @user.response_errors.should == ["Yes", "Sir"]
+    end
+  end
+
   context "defining custom getters and setters" do
     before do
       api = Her::API.new
@@ -156,6 +194,7 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :age => 42 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :age => 34 }.to_json] }
+          stub.get("/users?id[]=1&id[]=2") { |env| [200, {}, [{ :id => 1, :age => 42 }, { :id => 2, :age => 34 }].to_json] }
           stub.get("/users?age=42&foo=bar") { |env| [200, {}, [{ :id => 3, :age => 42 }].to_json] }
           stub.get("/users?age=42") { |env| [200, {}, [{ :id => 1, :age => 42 }].to_json] }
           stub.get("/users?age=40") { |env| [200, {}, [{ :id => 1, :age => 40 }].to_json] }
@@ -193,6 +232,22 @@ describe Her::Model::ORM do
       @users.should be_kind_of(Array)
       @users.length.should == 1
       @users[0].id.should == 1
+    end
+
+    it "handles finding by an array id param of length 2" do
+      @users = User.find(id: [1, 2])
+      @users.should be_kind_of(Array)
+      @users.length.should == 2
+      @users[0].id.should == 1
+      @users[1].id.should == 2
+    end
+
+    it 'handles finding with id parameter as an array' do
+      @users = User.where(id: [1, 2])
+      @users.should be_kind_of(Array)
+      @users.length.should == 2
+      @users[0].id.should == 1
+      @users[1].id.should == 2
     end
 
     it "handles finding with other parameters" do
@@ -273,9 +328,20 @@ describe Her::Model::ORM do
       @user.fullname.should == "Tobias Fünke"
     end
 
+    it "handle resource creation through Model.new + #save!" do
+      @user = Foo::User.new(:fullname => "Tobias Fünke")
+      @user.save!.should be_true
+      @user.fullname.should == "Tobias Fünke"
+    end
+
     it "returns false when #save gets errors" do
       @company = Foo::Company.new
       @company.save.should be_false
+    end
+
+    it "raises ResourceInvalid when #save! gets errors" do
+      @company = Foo::Company.new
+      expect { @company.save! }.to raise_error Her::Errors::ResourceInvalid, "Remote validation failed: name is required"
     end
 
     it "don't overwrite data if response is empty" do

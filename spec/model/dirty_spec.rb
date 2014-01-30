@@ -22,15 +22,24 @@ describe "Her::Model and ActiveModel::Dirty" do
     end
 
     context "for existing resource" do
+      let(:user) { Foo::User.find(1) }
+      it "has no changes" do
+        user.changes.should be_empty
+        user.should_not be_changed
+      end
       context "with successful save" do
         it "tracks dirty attributes" do
-          user = Foo::User.find(1)
           user.fullname = "Tobias Fünke"
           user.fullname_changed?.should be_true
           user.email_changed?.should be_false
           user.should be_changed
           user.save
           user.should_not be_changed
+        end
+        it "tracks previous changes" do
+          user.fullname = "Tobias Fünke"
+          user.save
+          user.previous_changes.should eq({"fullname"=>"Lindsay Fünke"})
         end
       end
 
@@ -48,8 +57,11 @@ describe "Her::Model and ActiveModel::Dirty" do
     end
 
     context "for new resource" do
+      let(:user) { Foo::User.new(:fullname => "Lindsay Fünke") }
+      it "has changes" do
+        user.should be_changed
+      end
       it "tracks dirty attributes" do
-        user = Foo::User.new
         user.fullname = "Tobias Fünke"
         user.fullname_changed?.should be_true
         user.should be_changed

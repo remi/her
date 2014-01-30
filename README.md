@@ -26,8 +26,13 @@ First, you have to define which API your models will be bound to. For example, w
 ```ruby
 # config/initializers/her.rb
 Her::API.setup url: "https://api.example.com" do |c|
+  # Request
   c.use Faraday::Request::UrlEncoded
+
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -75,7 +80,7 @@ end
 # Update a fetched resource
 user = User.find(1)
 user.fullname = "Lindsay Fünke" # OR user.assign_attributes(fullname: "Lindsay Fünke")
-user.save
+user.save # returns false if it fails, errors in user.response_errors array
 # PUT "/users/1" with `fullname=Lindsay+Fünke`
 
 # Update a resource without fetching it
@@ -103,7 +108,7 @@ User.create(fullname: "Maeby Fünke")
 
 # Save a new resource
 user = User.new(fullname: "Maeby Fünke")
-user.save
+user.save! # raises Her::Errors::ResourceInvalid if it fails
 # POST "/users" with `fullname=Maeby+Fünke`
 ```
 
@@ -142,9 +147,14 @@ end
 require "lib/my_token_authentication"
 
 Her::API.setup url: "https://api.example.com" do |c|
+  # Request
   c.use MyTokenAuthentication
   c.use Faraday::Request::UrlEncoded
+
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -175,8 +185,13 @@ TWITTER_CREDENTIALS = {
 }
 
 Her::API.setup url: "https://api.twitter.com/1/" do |c|
+  # Request
   c.use FaradayMiddleware::OAuth, TWITTER_CREDENTIALS
+
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 
@@ -225,7 +240,10 @@ class MyCustomParser < Faraday::Response::Middleware
 end
 
 Her::API.setup url: "https://api.example.com" do |c|
+  # Response
   c.use MyCustomParser
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -246,8 +264,13 @@ In your Ruby code:
 
 ```ruby
 Her::API.setup url: "https://api.example.com" do |c|
+  # Request
   c.use FaradayMiddleware::Caching, Memcached::Rails.new('127.0.0.1:11211')
+
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 
@@ -534,6 +557,25 @@ article.title # => "Hello world."
 
 Of course, you can use both `include_root_in_json` and `parse_root_in_json` at the same time.
 
+#### ActiveModel::Serializers support
+
+If the API returns data in the default format used by the
+[ActiveModel::Serializers](https://github.com/rails-api/active_model_serializers)
+project you need to configure Her as follows:
+
+```ruby
+class User
+  include Her::Model
+  parse_root_in_json true, format: :active_model_serializers
+end
+
+user = Users.find(1)
+# GET "/users/1", response is { "user": { "id": 1, "fullname": "Lindsay Fünke"} }
+
+users = Users.all
+# GET "/users", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke"}] }
+```
+
 ### Custom requests
 
 You can easily define custom requests for your models using `custom_get`, `custom_post`, etc.
@@ -729,13 +771,19 @@ It is possible to use different APIs for different models. Instead of calling `H
 # config/initializers/her.rb
 MY_API = Her::API.new
 MY_API.setup url: "https://my-api.example.com" do |c|
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 
 OTHER_API = Her::API.new
 OTHER_API.setup url: "https://other-api.example.com" do |c|
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -767,7 +815,10 @@ When initializing `Her::API`, you can pass any parameter supported by `Faraday.n
 ```ruby
 ssl_options = { ca_path: "/usr/lib/ssl/certs" }
 Her::API.setup url: "https://api.example.com", ssl: ssl_options do |c|
+  # Response
   c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
   c.use Faraday::Adapter::NetHttp
 end
 ```
@@ -906,6 +957,7 @@ These [fine folks](https://github.com/remiprev/her/contributors) helped with Her
 * [@jonkarna](https://github.com/jonkarna)
 * [@aclevy](https://github.com/aclevy)
 * [@stevschmid](https://github.com/stevschmid)
+* [@prognostikos](https://github.com/prognostikos)
 
 ## License
 
