@@ -231,18 +231,23 @@ describe Her::Model::Parse do
     end
   end
 
-  context "when parse_root_in_json set jsonapi to true" do
+  context "when parse_root_in_json set json_api to true" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
-        stub.get("/users") { |env| [200, {},  { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
-        stub.get("/users/admins") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
-        stub.get("/users/1") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
-        stub.post("/users") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
-        stub.put("/users/1") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Tobias Fünke Jr." }] }.to_json] }
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users") { |env| [200, {},  { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
+          stub.get("/users/admins") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
+          stub.post("/users") { |env| [200, {}, { :users => [{ :fullname => "Lindsay Fünke" }] }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Tobias Fünke Jr." }] }.to_json] }
+        end
       end
 
       spawn_model("Foo::User") do
-        parse_root_in_json true, :format => :jsonapi
+        parse_root_in_json true, :format => :json_api
+        include_root_in_json true
         custom_get :admins
       end
     end
@@ -282,7 +287,7 @@ describe Her::Model::Parse do
     end
   end
 
-  context "when include_root_in_json set jsonapi to true" do
+  context "when include_root_in_json set json_api to true" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -298,7 +303,8 @@ describe Her::Model::Parse do
     context "to true" do
       before do
         spawn_model "Foo::User" do
-          include_root_in_json true, format: :jsonapi
+          include_root_in_json true
+          parse_root_in_json true, format: :json_api
           custom_post :admins
         end
       end

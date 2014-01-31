@@ -19,19 +19,35 @@ module Her
         # @param [Hash] data
         # @private
         def parse(data)
-          parse_root_in_json? ? data.fetch(parsed_root_element) { data } : data
+          if parse_root_in_json? && root_element_include?(data)
+            if json_api_format?
+              data.fetch(parsed_root_element).first
+            else
+              data.fetch(parsed_root_element) { data }
+            end
+          else
+            data
+          end
         end
 
         # @private
         def to_params(attributes, changes={})
-          filtered_attributes = jsonapi_format_include? ? [attributes.dup.symbolize_keys] : attributes.dup.symbolize_keys
+          filtered_attributes = attributes.dup.symbolize_keys
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
               hash[attribute] = filtered_attributes[attribute]
               hash
             end
           end
-          include_root_in_json? ? { included_root_element => filtered_attributes } : filtered_attributes
+          if include_root_in_json?
+            if json_api_format?
+              {included_root_element => [filtered_attributes] }
+            else
+              { included_root_element => filtered_attributes }
+            end
+          else
+            filtered_attributes
+          end
         end
 
         # Return or change the value of `include_root_in_json`
@@ -41,22 +57,12 @@ module Her
         #     include Her::Model
         #     include_root_in_json true, format: jsonapi
         #   end
-        def include_root_in_json(value = nil, options = {})
-          @_her_include_root_in_json ||= begin
-            superclass.include_root_in_json if superclass.respond_to?(:include_root_in_json)
-          end
-
-          return @_her_include_root_in_json unless value
+        def include_root_in_json(value)
           @_her_include_root_in_json = value
-          @_her_jsonapi_format_include = options[:format] == :jsonapi
         end
 
         def include_root_in_json?
           @_her_include_root_in_json || (superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?)
-        end
-
-        def jsonapi_format_include?
-          @_her_jsonapi_format_include
         end
 
         # Return or change the value of `parse_root_in`
@@ -66,22 +72,17 @@ module Her
         #     include Her::Model
         #     parse_root_in_json true
         #   end
-        def parse_root_in_json(value = nil, options = {})
-          @_her_parse_root_in_json ||= begin
-            superclass.parse_root_in_json if superclass.respond_to?(:parse_root_in_json)
-          end
-
-          return @_her_parse_root_in_json unless value
+        def parse_root_in_json(value, options = {})
           @_her_parse_root_in_json = value
-          @_her_jsonapi_format = options[:format] == :jsonapi]
+          @_her_parse_root_in_json_format = options[:format]
         end
 
         def parse_root_in_json?
           @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
         end
 
-        def jsonapi_format?
-          @_her_jsonapi_format
+        def json_api_format?
+          @_her_parse_root_in_json_format == :json_api || (superclass.respond_to?(:json_api_format?) && superclass.json_api_format?)
         end
 
         # Return or change the value of `request_new_object_on_build`
@@ -112,7 +113,7 @@ module Her
         #   user.name # => "Tobias"
         def root_element(value = nil)
           if value.nil?
-            if jsonapi_format?
+            if json_api_format?
               @_her_root_element ||= self.name.split("::").last.pluralize.underscore.to_sym
             else
               @_her_root_element ||= self.name.split("::").last.underscore.to_sym
@@ -122,18 +123,13 @@ module Her
           end
         end
 
-        # Same as root_element, but separated option for include
-        def root_element_include
-          if jsonapi_format_include?
-            @_her_root_element_include ||= self.name.split("::").last.pluralize.underscore.to_sym
-          else
-            @_her_root_element_include ||= self.name.split("::").last.underscore.to_sym
-          end
+        def root_element_include?(data)
+          data.keys.to_s.include? @_her_root_element.to_s
         end
 
         # @private
         def included_root_element
-          include_root_in_json == true ? root_element_include : include_root_in_json
+          include_root_in_json? == true ? root_element : include_root_in_json?
         end
 
         # Extract an array from the request data
@@ -156,8 +152,10 @@ module Her
         #   users = User.all # [ { :id => 1, :name => "Tobias" } ]
         #   users.first.name # => "Tobias"
         def extract_array(request_data)
-          if active_model_serializers_format?
+          if active_model_serializers_format? || json_api_format?
             request_data[:data][pluralized_parsed_root_element]
+          #elsif json_api_format?
+          #  request_data[:data][pluralized_parsed_root_element].first
           else
             request_data[:data]
           end
