@@ -171,12 +171,6 @@ module Her
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
         end
 
-        # Extracts the root element from a collection if jsonapi format is enabled
-        # @param [Hash]
-        def extract_root_from_collection(parsed_data)
-          json_api_format? ? parse(parsed_data) : parsed_data
-        end
-
         # Define the attributes that will be used to track dirty attributes and validations
         #
         # @param [Array] attributes

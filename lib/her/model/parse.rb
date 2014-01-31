@@ -19,7 +19,7 @@ module Her
         # @param [Hash] data
         # @private
         def parse(data)
-          if parse_root_in_json? && root_element_include?(data)
+          if parse_root_in_json? && root_element_included?(data)
             if json_api_format?
               data.fetch(parsed_root_element).first
             else
@@ -55,7 +55,7 @@ module Her
         # @example
         #   class User
         #     include Her::Model
-        #     include_root_in_json true, format: jsonapi
+        #     include_root_in_json true
         #   end
         def include_root_in_json(value)
           @_her_include_root_in_json = value
@@ -123,7 +123,7 @@ module Her
           end
         end
 
-        def root_element_include?(data)
+        def root_element_included?(data)
           data.keys.to_s.include? @_her_root_element.to_s
         end
 
@@ -154,8 +154,6 @@ module Her
         def extract_array(request_data)
           if active_model_serializers_format? || json_api_format?
             request_data[:data][pluralized_parsed_root_element]
-          #elsif json_api_format?
-          #  request_data[:data][pluralized_parsed_root_element].first
           else
             request_data[:data]
           end
