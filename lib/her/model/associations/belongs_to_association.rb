@@ -79,7 +79,7 @@ module Her
           if @parent.attributes[@name].blank? || @params.any?
             path_params = @parent.attributes.merge(@params.merge(@klass.primary_key => foreign_key_value))
             path = build_association_path lambda { @klass.build_request_path(path_params) }
-            @klass.get(path, @params)
+            @klass.get_resource(path, @params)
           else
             @parent.attributes[@name]
           end
