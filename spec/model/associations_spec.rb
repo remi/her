@@ -390,4 +390,39 @@ describe Her::Model::Associations do
       end
     end
   end
+
+  context "belongs to" do
+    before do
+      spawn_model "Foo::User" do
+        parse_root_in_json true , format: :active_model_serializers
+      end
+      spawn_model "Foo::Comment" do
+        belongs_to :user
+        parse_root_in_json true , format: :active_model_serializers
+      end
+      spawn_model "Foo::Post" do
+        has_many :comments
+        parse_root_in_json true , format: :active_model_serializers
+      end
+
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/posts/1") { |env| [200, {}, { post: { id: 1, name: 'post1' } }.to_json] }
+          stub.get("/posts/1/comments") { |env| [200, {}, { comments: [{ id: 1, name: "comment1", user_id: 1 }] }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { user: { :id => 2, :name => "Lindsay", :company => nil } }.to_json] }
+        end
+      end
+      Foo::Post.use_api Her::API.default_api
+      Foo::Comment.use_api Her::API.default_api
+      Foo::User.use_api Her::API.default_api
+    end
+
+    it 'should pull down the single user object when it belongs to an association' do
+      foo = Foo::Post.find(1)
+      foo.comments[0].user.name.should eql 'Lindsay'
+    end
+
+  end
 end
