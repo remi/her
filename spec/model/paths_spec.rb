@@ -63,6 +63,18 @@ describe Her::Model::Paths do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
           expect { Foo::User.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/utilisateurs/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
+
+        it "builds paths with format option if given" do
+          Foo::User.path_format :json
+          Foo::User.build_request_path(:id => "foo").should == "users/foo.json"
+        end
+
+        it "builds paths with format option from superclass if given" do
+          spawn_model "Foo::OtherUser", Foo::User
+          Foo::User.path_format :xml
+          Foo::OtherUser.build_request_path(:id => "foo").should == "users/foo.xml"
+        end
+
       end
     end
 
