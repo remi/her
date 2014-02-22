@@ -47,10 +47,10 @@ module Her
         #  end
         def collection_path(path = nil)
           if path.nil?
-            @_her_collection_path ||= root_element.to_s.pluralize
+            @_her_collection_path ||= "#{root_element.to_s.pluralize}(.:format)"
           else
             @_her_collection_path = path
-            @_her_resource_path = "#{path}/:id"
+            @_her_resource_path = "#{path}/:id(.:format)"
           end
         end
 
@@ -79,9 +79,27 @@ module Her
         #
         def resource_path(path = nil)
           if path.nil?
-            @_her_resource_path ||= "#{root_element.to_s.pluralize}/:id"
+            @_her_resource_path ||= "#{root_element.to_s.pluralize}/:id(.:format)"
           else
             @_her_resource_path = path
+          end
+        end
+
+        # Defines a format for the path
+        #
+        # @example
+        #  class User
+        #    include Her::Model
+        #    path_format :json
+        #  end
+        #
+        def path_format format=nil
+          if format.nil?
+            @_her_path_format || if superclass.respond_to?(:path_format)
+              superclass.path_format
+            end || her_api.options[:path_format]
+          else
+            @_her_path_format = format
           end
         end
 
@@ -101,7 +119,14 @@ module Her
               end
 
             # Replace :id with our actual primary key
-            path.gsub!(/(\A|\/):id(\Z|\/)/, "\\1:#{primary_key}\\2")
+            path.gsub!(/(\A|\/):id(\Z|\/|\()/, "\\1:#{primary_key}\\2")
+          end
+
+
+          if format = path_format
+            path.gsub!(/(\w)\(\.\:format\)($|\?)/, "\\1.#{format}\\2")
+          else
+            path.gsub!(/\(\.\:format\)/, '')
           end
 
           path.gsub(/:([\w_]+)/) do
