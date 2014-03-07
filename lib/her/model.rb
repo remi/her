@@ -40,6 +40,7 @@ module Her
     # Supported ActiveModel modules
     include ActiveModel::AttributeMethods
     include ActiveModel::Validations
+    include ActiveModel::Validations::Callbacks
     include ActiveModel::Conversion
     include ActiveModel::Dirty
     include ActiveModel::Naming
