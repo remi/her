@@ -59,6 +59,12 @@ describe Her::Model::Attributes do
       @new_user.get_attribute(:unknown_method_for_a_user).should be_nil
       @new_user.get_attribute(:fullname).should == 'Mayonegg'
     end
+
+    it "handles get_attribute for getter with dash" do
+      @new_user = Foo::User.new(:'life-span' => '3 years')
+      @new_user.get_attribute(:unknown_method_for_a_user).should be_nil
+      @new_user.get_attribute(:'life-span').should == '3 years'
+    end
   end
 
 
