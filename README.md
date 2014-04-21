@@ -691,7 +691,7 @@ class User
 end
 
 user = User.find("4fd89a42ff204b03a905c535")
-# GET "/users/1", response is { "_id": "4fd89a42ff204b03a905c535", "name": "Tobias" }
+# GET "/users/4fd89a42ff204b03a905c535", response is { "_id": "4fd89a42ff204b03a905c535", "name": "Tobias" }
 
 user.destroy
 # DELETE "/users/4fd89a42ff204b03a905c535"
