@@ -85,6 +85,21 @@ module Her
           end
         end
 
+        # Return or change the collection path extension
+        #
+        # @example
+        #  class User
+        #    include Her::Model
+        #    collection_path_extension ".json"
+        #  end
+        def collection_path_extension(extension = nil)
+          if extension.nil?
+            @_her_collection_path_extension ||= ""
+          else
+            @_her_collection_path_extension = extension
+          end
+        end
+
         # Return a custom path based on the collection path and variable parameters
         #
         # @private
@@ -102,6 +117,8 @@ module Her
 
             # Replace :id with our actual primary key
             path.gsub!(/(\A|\/):id(\Z|\/)/, "\\1:#{primary_key}\\2")
+
+            path << collection_path_extension
           end
 
           path.gsub(/:([\w_]+)/) do
