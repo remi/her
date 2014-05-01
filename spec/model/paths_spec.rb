@@ -59,6 +59,20 @@ describe Her::Model::Paths do
           Foo::User.build_request_path.should == "users"
         end
 
+        it "builds paths with custom collection extension path" do
+          Foo::User.collection_path_extension ".json"
+          Foo::User.build_request_path(:id => "foo").should == "users/foo.json"
+          Foo::User.build_request_path(:id => nil).should == "users.json"
+          Foo::User.build_request_path.should == "users.json"
+        end
+
+        it "builds paths with custom collection extension and custom item path" do
+          Foo::User.collection_path_extension ".json"
+          Foo::User.resource_path "/utilisateurs/:id"
+          Foo::User.build_request_path(:id => "foo").should == "/utilisateurs/foo.json"
+          Foo::User.build_request_path.should == "users.json"
+        end
+
         it "raises exceptions when building a path without required custom variables" do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
           expect { Foo::User.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/utilisateurs/:id`. Parameters are `{:id=>\"foo\"}`.")
