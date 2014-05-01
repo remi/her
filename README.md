@@ -697,6 +697,23 @@ user.destroy
 # DELETE "/users/4fd89a42ff204b03a905c535"
 ```
 
+### Custom extension path
+
+If you need to add an extension to your paths:
+
+```ruby
+class User
+  include Her::Model
+  collection_path_extension ".json"
+end
+
+users = User.all
+# GET "/users.json"
+
+user = User.find(1)
+# GET "/users/1.json"
+```
+
 ### Inheritance
 
 If all your models share the same settings, you might want to make them children of a class and only include `Her::Model` in that class. However, there are a few settings that don’t get passed to the children classes:
