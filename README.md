@@ -923,6 +923,7 @@ Most projects I know that use Her are internal or private projects but here’s 
 * [crowdher](https://github.com/simonprev/crowdher)
 * [vodka](https://github.com/magnolia-fan/vodka)
 * [webistrano_cli](https://github.com/chytreg/webistrano_cli)
+* [ASMALLWORLD](https://www.asmallworld.com)
 
 ## History
 
