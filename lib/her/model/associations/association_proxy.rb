@@ -1,7 +1,14 @@
 module Her
   module Model
     module Associations
-      class AssociationProxy < ActiveSupport::BasicObject
+      PROXY_CLASS = begin
+        require 'active_support/proxy_object'
+        ActiveSupport::ProxyObject
+      rescue LoadError
+        require 'active_support/basic_object'
+        ActiveSupport::BasicObject
+      end
+      class AssociationProxy < PROXY_CLASS
 
         # @private
         def self.install_proxy_methods(target_name, *names)
