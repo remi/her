@@ -3,8 +3,12 @@ require "spec_helper"
 
 describe Her::Middleware::FirstLevelParseJSON do
   subject { described_class.new }
-  let(:body_without_errors) { "{\"id\": 1, \"name\": \"Tobias Fünke\", \"metadata\": 3}" }
-  let(:body_with_errors) { "{\"id\": 1, \"name\": \"Tobias Fünke\", \"errors\": { \"name\": [ \"not_valid\", \"should_be_present\" ] }, \"metadata\": 3}" }
+  let(:body_without_errors) {
+    %q({"id": 1, "name": "Tobias Fünke", "metadata": 3})
+  }
+  let(:body_with_errors) {
+    %q({"id": 1, "name": "Tobias Fünke", "errors": { "name": [ "not_valid", "should_be_present" ] }, "metadata": 3})
+  }
   let(:body_with_malformed_json) { "wut." }
   let(:body_with_invalid_json) { "true" }
   let(:empty_body) { '' }
