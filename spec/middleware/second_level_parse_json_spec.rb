@@ -5,7 +5,7 @@ describe Her::Middleware::SecondLevelParseJSON do
   subject { described_class.new }
 
   context "with valid JSON body" do
-    let(:body) { "{\"data\": 1, \"errors\": 2, \"metadata\": 3}" }
+    let(:body) { %q({"data": 1, "errors": 2, "metadata": 3}) }
     it "parses body as json" do
       subject.parse(body).tap do |json|
         json[:data].should == 1
