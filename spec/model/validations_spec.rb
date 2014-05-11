@@ -13,12 +13,17 @@ describe "Her::Model and ActiveModel::Validations" do
 
     it "validates attributes when calling #valid?" do
       user = Foo::User.new
+      enforce_available_locales = I18n.enforce_available_locales
+      if I18n.enforce_available_locales.nil?
+        I18n.enforce_available_locales = false
+      end
       user.should_not be_valid
       user.errors.full_messages.should include("Fullname can't be blank")
       user.errors.full_messages.should include("Email can't be blank")
       user.fullname = "Tobias Fünke"
       user.email = "tobias@bluthcompany.com"
       user.should be_valid
+      I18n.enforce_available_locales = enforce_available_locales
     end
   end
 
