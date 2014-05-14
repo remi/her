@@ -2,7 +2,7 @@ module Her
   module Model
     class Relation
       # @private
-      attr_accessor :params
+      attr_accessor :params, :parent
 
       # @private
       def initialize(parent)
@@ -63,14 +63,21 @@ module Her
       # Fetch a collection of resources
       #
       # @private
-      def fetch
+      def fetch(parallel = false)
         @_fetch ||= begin
           path = @parent.build_request_path(@params)
           method = @parent.method_for(:find)
-          @parent.request(@params.merge(:_method => method, :_path => path)) do |parsed_data, response|
-            @parent.new_collection(parsed_data)
+          @parent.request(@params.merge(:_method => method, :_path => path, :_parallel => parallel)) do |parsed_data, response|
+            parallel ? response : process_response(parsed_data, response)
           end
         end
+      end
+
+      # Process api response and build a collection of objects
+      #
+      # @private
+      def process_response(parsed_data, response)
+        @parent.new_collection(parsed_data)
       end
 
       # Fetch specific resource(s) by their ID
