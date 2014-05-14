@@ -10,7 +10,18 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        self.class.to_params(self.attributes, self.changes)
+        attributes = self.attributes.merge(association_ids_array)
+        self.class.to_params(attributes, self.changes)
+      end
+
+      # @private
+      def association_ids_array
+        associations = self.class.associations[:has_many].flatten.collect { |a| [a[:data_key].to_s.singularize, 'ids'].join('_').to_sym }
+
+        associations.inject({}) do |hash, association|
+          hash[association] = self.send(association)
+          hash
+        end
       end
 
       module ClassMethods
@@ -31,6 +42,8 @@ module Her
               hash
             end
           end
+
+          filtered_attributes = filtered_attributes.except(*associations.values.flatten.collect { |a| a[:data_key] }).symbolize_keys
           include_root_in_json? ? { included_root_element => filtered_attributes } : filtered_attributes
         end
 

@@ -22,6 +22,19 @@ module Her
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
               cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasManyAssociation.proxy(self, #{opts.inspect}))
             end
+
+            def #{name.to_s.singularize}_ids
+              cached_name = :"@_her_association_#{name.to_s.singularize}_ids"
+
+              cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
+              cached_data || instance_variable_set(cached_name, Array.new)
+            end
+
+            def #{name.to_s.singularize}_ids=(array)
+              cached_name = :"@_her_association_#{name.to_s.singularize}_ids"
+
+              instance_variable_set(cached_name, array)
+            end
           RUBY
         end
 

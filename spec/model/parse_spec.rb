@@ -231,6 +231,44 @@ describe Her::Model::Parse do
     end
   end
 
+  context 'when associations are set' do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.post("/users") { |env| [200, {}, { :id => 1, :first_name => "Tobias", :last_name => "Fünke" }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :first_name => "Tobias", :last_name => "Fünke", :post_ids => [1] }.to_json] }
+          stub.post("/posts") { |env| [200, {}, { :id => 1, :title => "The World's First Analrapist" }.to_json] }
+        end
+      end
+
+      spawn_model "Foo::Post" do
+        belongs_to :user
+        attributes :title
+      end
+
+      spawn_model "Foo::User" do
+        has_many :posts
+        attributes :first_name, :last_name
+      end
+    end
+
+    it "doesn't send associations in to_params" do
+      @user = Foo::User.create(:first_name => "Tobias", :last_name => "Fünke")
+      @post = Foo::Post.create(:title => "The World's First Analrapist", :user_id => @user.id)
+      expect(@user.to_params).to_not include(:posts)
+    end
+
+    it "includes association ids array in to_params" do
+      @user = Foo::User.create(:first_name => "Tobias", :last_name => "Fünke")
+      @post = Foo::Post.create(:title => "The World's First Analrapist", :user_id => @user.id)
+      @user = Foo::User.find(@user.id)
+      expect(@user.to_params).to include(:post_ids)
+      @user.to_params[:post_ids].should == [@post.id]
+    end
+  end
+
   context 'when send_only_modified_attributes is set' do
     before do
       Her::API.setup :url => "https://api.example.com", :send_only_modified_attributes => true do |builder|
