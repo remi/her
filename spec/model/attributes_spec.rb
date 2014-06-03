@@ -7,7 +7,7 @@ describe Her::Model::Attributes do
 
     it "handles new resource" do
       @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-      @new_user.new?.should be_true
+      @new_user.new?.should be_truthy
       @new_user.fullname.should == "Tobias Fünke"
     end
 
@@ -126,7 +126,7 @@ describe Her::Model::Attributes do
     it "delegates eql? to ==" do
       other = Object.new
       user.should_receive(:==).with(other).and_return(true)
-      user.eql?(other).should be_true
+      user.eql?(other).should be_truthy
     end
 
     it "treats equal resources as equal for Array#uniq" do
@@ -255,13 +255,13 @@ describe Her::Model::Attributes do
 
       it "byoasses Her's method" do
         @user = Foo::User.find(1)
-        @user.document?.should be_false
+        @user.document?.should be_falsey
 
         @user = Foo::User.find(1)
-        @user.document?.should be_false
+        @user.document?.should be_falsey
 
         @user = Foo::User.find(2)
-        @user.document?.should be_true
+        @user.document?.should be_truthy
       end
     end
   end

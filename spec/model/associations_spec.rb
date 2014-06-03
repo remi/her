@@ -198,8 +198,8 @@ describe Her::Model::Associations do
     end
 
     it "can tell if it has a association" do
-      @user_without_included_data.has_association?(:unknown_association).should be_false
-      @user_without_included_data.has_association?(:organization).should be_true
+      @user_without_included_data.has_association?(:unknown_association).should be false
+      @user_without_included_data.has_association?(:organization).should be true
     end
 
     it "fetches the resource corresponding to a named association" do
@@ -218,7 +218,7 @@ describe Her::Model::Associations do
     end
 
     it "'s associations responds to #empty?" do
-      @user_without_included_data.organization.respond_to?(:empty?).should be_true
+      @user_without_included_data.organization.respond_to?(:empty?).should be_truthy
       @user_without_included_data.organization.should_not be_empty
     end
 
