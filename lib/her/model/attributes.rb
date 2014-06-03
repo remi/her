@@ -185,21 +185,19 @@ module Her
           attributes.each do |attribute|
             attribute = attribute.to_sym
 
-            class_eval <<-RUBY, __FILE__, __LINE__ + 1
-              unless instance_methods.include?(:'#{attribute}=')
-                def #{attribute}=(value)
-                  @attributes[:'#{attribute}'] = nil unless @attributes.include?(:'#{attribute}')
-                  self.send(:"#{attribute}_will_change!") if @attributes[:'#{attribute}'] != value
-                  @attributes[:'#{attribute}'] = value
-                end
+            unless instance_methods.include?(:"#{attribute}=")
+              define_method("#{attribute}=") do |value|
+                @attributes[:"#{attribute}"] = nil unless @attributes.include?(:"#{attribute}")
+                self.send(:"#{attribute}_will_change!") if @attributes[:'#{attribute}'] != value
+                @attributes[:"#{attribute}"] = value
               end
+            end
 
-              unless instance_methods.include?(:'#{attribute}?')
-                def #{attribute}?
-                  @attributes.include?(:'#{attribute}') && @attributes[:'#{attribute}'].present?
-                end
+            unless instance_methods.include?(:"#{attribute}?")
+              define_method("#{attribute}?") do
+                @attributes.include?(:"#{attribute}") && @attributes[:"#{attribute}"].present?
               end
-            RUBY
+            end
           end
         end
 

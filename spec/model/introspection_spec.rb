@@ -40,6 +40,11 @@ describe Her::Model::Introspection do
         @user.inspect.should include("password=\"filtered\"")
         @user.inspect.should_not include("password=\"Funke\"")
       end
+
+      it "support dash on attribute" do
+        @user = Foo::User.new(:'life-span' => "3 years")
+        @user.inspect.should include("life-span=\"3 years\"")
+      end
     end
 
     describe "#inspect with errors in resource path" do
