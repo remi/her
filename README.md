@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/mirego/microscope">
+  <a href="https://github.com/remiprev/her">
     <img src="http://i.imgur.com/43KEchq.png" alt="Her" />
   </a>
   <br />
