@@ -22,8 +22,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency "fivemat", "~> 1.2"
   s.add_development_dependency "json", "~> 1.7.7"
 
-  s.add_runtime_dependency "activemodel", ">= 3.0.0", "< 4.1"
-  s.add_runtime_dependency "activesupport", ">= 3.0.0", "< 4.1"
+  s.add_runtime_dependency "activemodel", ">= 3.0.0", "< 4.2"
+  s.add_runtime_dependency "activesupport", ">= 3.0.0", "< 4.2"
   s.add_runtime_dependency "faraday", "~> 0.8.9"
   s.add_runtime_dependency "multi_json", "~> 1.7"
 end
