@@ -5,6 +5,9 @@ module Her
     # @private
     attr_reader :base_uri, :connection, :options
 
+    # Constants
+    FARADAY_OPTIONS = [:request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class].freeze
+
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
     def self.setup(opts={}, &block)
       @default_api = new
@@ -70,7 +73,9 @@ module Her
       opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
       @base_uri = opts[:url]
       @options = opts
-      @connection = Faraday.new(@options) do |connection|
+
+      faraday_options = @options.reject { |key, value| !FARADAY_OPTIONS.include?(key.to_sym) }
+      @connection = Faraday.new(faraday_options) do |connection|
         yield connection if block_given?
       end
       self
