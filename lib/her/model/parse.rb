@@ -19,7 +19,15 @@ module Her
         # @param [Hash] data
         # @private
         def parse(data)
-          parse_root_in_json? ? data.fetch(parsed_root_element) { data } : data
+          if parse_root_in_json? && root_element_included?(data)
+            if json_api_format?
+              data.fetch(parsed_root_element).first
+            else
+              data.fetch(parsed_root_element) { data }
+            end
+          else
+            data
+          end
         end
 
         # @private
@@ -31,7 +39,15 @@ module Her
               hash
             end
           end
-          include_root_in_json? ? { included_root_element => filtered_attributes } : filtered_attributes
+          if include_root_in_json?
+            if json_api_format?
+              {included_root_element => [filtered_attributes] }
+            else
+              { included_root_element => filtered_attributes }
+            end
+          else
+            filtered_attributes
+          end
         end
 
         # Return or change the value of `include_root_in_json`
@@ -65,6 +81,10 @@ module Her
           @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
         end
 
+        def json_api_format?
+          @_her_parse_root_in_json_format == :json_api || (superclass.respond_to?(:json_api_format?) && superclass.json_api_format?)
+        end
+
         # Return or change the value of `request_new_object_on_build`
         #
         # @example
@@ -93,10 +113,23 @@ module Her
         #   user.name # => "Tobias"
         def root_element(value = nil)
           if value.nil?
-            @_her_root_element ||= self.name.split("::").last.underscore.to_sym
+            if json_api_format?
+              @_her_root_element ||= self.name.split("::").last.pluralize.underscore.to_sym
+            else
+              @_her_root_element ||= self.name.split("::").last.underscore.to_sym
+            end
           else
             @_her_root_element = value.to_sym
           end
+        end
+
+        def root_element_included?(data)
+          data.keys.to_s.include? @_her_root_element.to_s
+        end
+
+        # @private
+        def included_root_element
+          include_root_in_json? == true ? root_element : include_root_in_json?
         end
 
         # Extract an array from the request data
@@ -119,7 +152,7 @@ module Her
         #   users = User.all # [ { :id => 1, :name => "Tobias" } ]
         #   users.first.name # => "Tobias"
         def extract_array(request_data)
-          if active_model_serializers_format?
+          if active_model_serializers_format? || json_api_format?
             request_data[:data][pluralized_parsed_root_element]
           else
             request_data[:data]
@@ -129,11 +162,6 @@ module Her
         # @private
         def pluralized_parsed_root_element
           parsed_root_element.to_s.pluralize.to_sym
-        end
-
-        # @private
-        def included_root_element
-          include_root_in_json? == true ? root_element : include_root_in_json?
         end
 
         # @private
