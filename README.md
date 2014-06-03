@@ -1,11 +1,17 @@
-# Her
+<p align="center">
+  <a href="https://github.com/mirego/microscope">
+    <img src="http://i.imgur.com/43KEchq.png" alt="Her" />
+  </a>
+  <br />
+  Her is an ORM (Object Relational Mapper) that maps REST resources to Ruby objects.<br /> It is designed to build applications that are powered by a RESTful API instead of a database.
+  <br /><br />
+  <a href="https://rubygems.org/gems/her"><img src="http://img.shields.io/gem/v/her.svg" /></a>
+  <a href="https://codeclimate.com/github/remiprev/her"><img src="http://img.shields.io/codeclimate/github/remiprev/her.svg" /></a>
+  <a href='https://gemnasium.com/remiprev/her'><img src="http://img.shields.io/gemnasium/remiprev/her.svg" /></a>
+  <a href="https://travis-ci.org/remiprev/her"><img src="http://img.shields.io/travis/remiprev/her.svg" /></a>
+</p>
 
-[![Gem Version](https://badge.fury.io/rb/her.png)](https://rubygems.org/gems/her)
-[![Build Status](https://secure.travis-ci.org/remiprev/her.png?branch=master)](http://travis-ci.org/remiprev/her)
-[![Dependency Status](https://gemnasium.com/remiprev/her.png?travis)](https://gemnasium.com/remiprev/her)
-[![Code Climate](https://codeclimate.com/github/remiprev/her.png)](https://codeclimate.com/github/remiprev/her)
-
-Her is an ORM (Object Relational Mapper) that maps REST resources to Ruby objects. It is designed to build applications that are powered by a RESTful API instead of a database.
+---
 
 ## Installation
 
