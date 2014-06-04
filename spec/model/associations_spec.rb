@@ -111,7 +111,7 @@ describe Her::Model::Associations do
       end
 
       spawn_model "Foo::User" do
-        has_many :comments
+        has_many :comments, class_name: "Foo::Comment"
         has_one :role
         belongs_to :organization
         has_many :posts, :inverse_of => :admin
@@ -220,6 +220,12 @@ describe Her::Model::Associations do
     it "'s associations responds to #empty?" do
       @user_without_included_data.organization.respond_to?(:empty?).should be_truthy
       @user_without_included_data.organization.should_not be_empty
+    end
+
+    it 'includes has_many relationships in params by default' do
+      params = @user_with_included_data.to_params
+      params[:comments].should be_kind_of(Array)
+      params[:comments].length.should eq(2)
     end
 
     [:create, :save_existing, :destroy].each do |type|
