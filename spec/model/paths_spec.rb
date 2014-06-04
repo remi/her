@@ -232,10 +232,10 @@ describe Her::Model::Paths do
     describe "handling new resource" do
       it "handles new resource" do
         @new_user = Foo::User.new(:fullname => "Tobias Fünke", :organization_id => 2)
-        @new_user.new?.should be_true
+        @new_user.new?.should be_truthy
 
         @existing_user = Foo::User.find(1, :_organization_id => 2)
-        @existing_user.new?.should be_false
+        @existing_user.new?.should be_falsey
       end
     end
 
@@ -277,13 +277,13 @@ describe Her::Model::Paths do
     context "deleting resources" do
       it "handle resource deletion through the .destroy class method" do
         @user = Foo::User.destroy_existing(1, :_organization_id => 2)
-        @user.active.should be_false
+        @user.active.should be_falsey
       end
 
       it "handle resource deletion through #destroy on an existing resource" do
         @user = Foo::User.find(1, :_organization_id => 2)
         @user.destroy
-        @user.active.should be_false
+        @user.active.should be_falsey
       end
     end
   end

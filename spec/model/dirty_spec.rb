@@ -30,8 +30,8 @@ describe "Her::Model and ActiveModel::Dirty" do
       context "with successful save" do
         it "tracks dirty attributes" do
           user.fullname = "Tobias Fünke"
-          user.fullname_changed?.should be_true
-          user.email_changed?.should be_false
+          user.fullname_changed?.should be_truthy
+          user.email_changed?.should be_falsey
           user.should be_changed
           user.save
           user.should_not be_changed
@@ -47,8 +47,8 @@ describe "Her::Model and ActiveModel::Dirty" do
         it "tracks dirty attributes" do
           user = Foo::User.find(2)
           user.fullname = "Tobias Fünke"
-          user.fullname_changed?.should be_true
-          user.email_changed?.should be_false
+          user.fullname_changed?.should be_truthy
+          user.email_changed?.should be_falsey
           user.should be_changed
           user.save
           user.should be_changed
@@ -63,7 +63,7 @@ describe "Her::Model and ActiveModel::Dirty" do
       end
       it "tracks dirty attributes" do
         user.fullname = "Tobias Fünke"
-        user.fullname_changed?.should be_true
+        user.fullname_changed?.should be_truthy
         user.should be_changed
         user.save
         user.should_not be_changed

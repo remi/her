@@ -38,7 +38,7 @@ describe Her::Model::Relation do
         Foo::User.should_receive(:request).once.and_call_original
         @users = Foo::User.where(:admin => 1)
         @users.should respond_to(:length)
-        @users.should have(1).items
+        @users.size.should eql 1
       end
 
       it "chains multiple where statements" do
@@ -47,9 +47,9 @@ describe Her::Model::Relation do
       end
 
       it "does not reuse relations" do
-        Foo::User.all.should have(2).items
+        Foo::User.all.size.should eql 2
         Foo::User.create(:fullname => 'George Michael Bluth').id.should == 3
-        Foo::User.all.should have(3).items
+        Foo::User.all.size.should eql 3
       end
     end
 
@@ -114,7 +114,7 @@ describe Her::Model::Relation do
 
     it "handles new resource with build" do
       @new_user = Foo::User.where(:fullname => "Tobias Fünke").build
-      @new_user.new?.should be_true
+      @new_user.new?.should be_truthy
       @new_user.fullname.should == "Tobias Fünke"
     end
   end

@@ -48,11 +48,11 @@ describe Her::Model::ORM do
 
     it "handles new resource" do
       @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-      @new_user.new?.should be_true
+      @new_user.new?.should be_truthy
       @new_user.fullname.should == "Tobias Fünke"
 
       @existing_user = Foo::User.find(1)
-      @existing_user.new?.should be_false
+      @existing_user.new?.should be_falsey
     end
 
     it 'handles new resource with custom primary key' do
@@ -272,7 +272,7 @@ describe Her::Model::ORM do
       it "builds a new resource without requesting it" do
         Foo::User.should_not_receive(:request)
         @new_user = Foo::User.build(:fullname => "Tobias Fünke")
-        @new_user.new?.should be_true
+        @new_user.new?.should be_truthy
         @new_user.fullname.should == "Tobias Fünke"
       end
     end
@@ -293,7 +293,7 @@ describe Her::Model::ORM do
       it "requests a new resource" do
         Foo::User.should_receive(:request).once.and_call_original
         @new_user = Foo::User.build(:fullname => "Tobias Fünke")
-        @new_user.new?.should be_true
+        @new_user.new?.should be_truthy
         @new_user.fullname.should == "Tobias Fünke"
         @new_user.email.should == "tobias@bluthcompany.com"
       end
@@ -324,19 +324,19 @@ describe Her::Model::ORM do
 
     it "handle resource creation through Model.new + #save" do
       @user = Foo::User.new(:fullname => "Tobias Fünke")
-      @user.save.should be_true
+      @user.save.should be_truthy
       @user.fullname.should == "Tobias Fünke"
     end
 
     it "handle resource creation through Model.new + #save!" do
       @user = Foo::User.new(:fullname => "Tobias Fünke")
-      @user.save!.should be_true
+      @user.save!.should be_truthy
       @user.fullname.should == "Tobias Fünke"
     end
 
     it "returns false when #save gets errors" do
       @company = Foo::Company.new
-      @company.save.should be_false
+      @company.save.should be_falsey
     end
 
     it "raises ResourceInvalid when #save! gets errors" do
@@ -346,7 +346,7 @@ describe Her::Model::ORM do
 
     it "don't overwrite data if response is empty" do
       @company = Foo::Company.new(:name => 'Company Inc.')
-      @company.save.should be_false
+      @company.save.should be_falsey
       @company.name.should == "Company Inc."
     end
   end
@@ -401,14 +401,14 @@ describe Her::Model::ORM do
 
     it "handle resource deletion through the .destroy class method" do
       @user = Foo::User.destroy_existing(1)
-      @user.active.should be_false
+      @user.active.should be_falsey
       @user.should be_destroyed
     end
 
     it "handle resource deletion through #destroy on an existing resource" do
       @user = Foo::User.find(1)
       @user.destroy
-      @user.active.should be_false
+      @user.active.should be_falsey
       @user.should be_destroyed
     end
   end
@@ -436,7 +436,7 @@ describe Her::Model::ORM do
         it 'uses the custom method (PUT) instead of default method (POST)' do
           user = Foo::User.new(:fullname => 'Tobias Fünke')
           user.should be_new
-          user.save.should be_true
+          user.save.should be_truthy
         end
       end
 
@@ -449,7 +449,7 @@ describe Her::Model::ORM do
         it 'uses the custom method (PUT) instead of default method (POST)' do
           user = User.new(:fullname => 'Tobias Fünke')
           user.should be_new
-          user.save.should be_true
+          user.save.should be_truthy
         end
       end
     end
