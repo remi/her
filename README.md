@@ -982,6 +982,8 @@ These [fine folks](https://github.com/remiprev/her/contributors) helped with Her
 * [@aclevy](https://github.com/aclevy)
 * [@stevschmid](https://github.com/stevschmid)
 * [@prognostikos](https://github.com/prognostikos)
+* [@dturnerTS](https://github.com/dturnerTS)
+* [@kritik](https://github.com/kritik)
 
 ## License
 
