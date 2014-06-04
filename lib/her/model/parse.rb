@@ -39,9 +39,10 @@ module Her
               hash
             end
           end
+
           if include_root_in_json?
             if json_api_format?
-              {included_root_element => [filtered_attributes] }
+              { included_root_element => [filtered_attributes] }
             else
               { included_root_element => filtered_attributes }
             end
@@ -57,32 +58,31 @@ module Her
         #     include Her::Model
         #     include_root_in_json true
         #   end
-        def include_root_in_json(value)
+        def include_root_in_json(value, options = {})
           @_her_include_root_in_json = value
+          @_her_include_root_in_json_format = options[:format]
         end
 
-        def include_root_in_json?
-          @_her_include_root_in_json || (superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?)
-        end
-
-        # Return or change the value of `parse_root_in`
+        # Return or change the value of `parse_root_in_json`
         #
         # @example
         #   class User
         #     include Her::Model
         #     parse_root_in_json true
         #   end
+        #
+        #   class User
+        #     include Her::Model
+        #     parse_root_in_json true, format: :active_model_serializers
+        #   end
+        #
+        #   class User
+        #     include Her::Model
+        #     parse_root_in_json true, format: :json_api
+        #   end
         def parse_root_in_json(value, options = {})
           @_her_parse_root_in_json = value
           @_her_parse_root_in_json_format = options[:format]
-        end
-
-        def parse_root_in_json?
-          @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
-        end
-
-        def json_api_format?
-          @_her_parse_root_in_json_format == :json_api || (superclass.respond_to?(:json_api_format?) && superclass.json_api_format?)
         end
 
         # Return or change the value of `request_new_object_on_build`
@@ -94,10 +94,6 @@ module Her
         #   end
         def request_new_object_on_build(value = nil)
           @_her_request_new_object_on_build = value
-        end
-
-        def request_new_object_on_build?
-          @_her_request_new_object_on_build || (superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?)
         end
 
         # Return or change the value of `root_element`. Always defaults to the base name of the class.
@@ -123,6 +119,7 @@ module Her
           end
         end
 
+        # @private
         def root_element_included?(data)
           data.keys.to_s.include? @_her_root_element.to_s
         end
@@ -151,6 +148,8 @@ module Her
         #
         #   users = User.all # [ { :id => 1, :name => "Tobias" } ]
         #   users.first.name # => "Tobias"
+        #
+        # @private
         def extract_array(request_data)
           if active_model_serializers_format? || json_api_format?
             request_data[:data][pluralized_parsed_root_element]
@@ -172,6 +171,26 @@ module Her
         # @private
         def active_model_serializers_format?
           @_her_parse_root_in_json_format == :active_model_serializers || (superclass.respond_to?(:active_model_serializers_format?) && superclass.active_model_serializers_format?)
+        end
+
+        # @private
+        def json_api_format?
+          @_her_parse_root_in_json_format == :json_api || (superclass.respond_to?(:json_api_format?) && superclass.json_api_format?)
+        end
+
+        # @private
+        def request_new_object_on_build?
+          @_her_request_new_object_on_build || (superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?)
+        end
+
+        # @private
+        def include_root_in_json?
+          @_her_include_root_in_json || (superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?)
+        end
+
+        # @private
+        def parse_root_in_json?
+          @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
         end
       end
     end

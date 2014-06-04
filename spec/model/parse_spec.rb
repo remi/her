@@ -287,7 +287,7 @@ describe Her::Model::Parse do
     end
   end
 
-  context "when include_root_in_json set json_api to true" do
+  context "when include_root_in_json set json_api" do
     before do
       Her::API.setup :url => "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -296,7 +296,6 @@ describe Her::Model::Parse do
 
       Her::API.default_api.connection.adapter :test do |stub|
         stub.post("/users") { |env| [200, {}, { :users => [{ :id => 1, :fullname => params(env)[:users][:fullname] }] }.to_json] }
-        stub.post("/users/admins") { |env| [200, {}, { :users => [{ :id => 1, :fullname => params(env)[:users][:fullname] }] }.to_json] }
       end
     end
 
@@ -314,10 +313,10 @@ describe Her::Model::Parse do
         @new_user.to_params.should == { :users => [{ :fullname => "Tobias Fünke" }] }
       end
 
-      # it "wraps params in the element name in `.create`" do
-      #   @new_user = Foo::User.admins(:fullname => "Tobias Fünke")
-      #   @new_user.fullname.should == "Tobias Fünke"
-      # end
+      it "wraps params in the element name in `.where`" do
+        @new_user = Foo::User.where(:fullname => "Tobias Fünke").build
+        @new_user.fullname.should == "Tobias Fünke"
+      end
     end
   end
 
