@@ -52,7 +52,7 @@ module Her
         params ||= {}
 
         reserved_keys = [:id, model.class.primary_key] + model.class.association_keys
-        model.class.attributes *params.keys.reject { |k| reserved_keys.include?(k) }
+        model.class.attributes *params.keys.reject { |k| reserved_keys.include?(k) || reserved_keys.map(&:to_s).include?(k) }
 
         setter_method_names = model.class.setter_method_names
         params.inject({}) do |memo, (key, value)|
