@@ -298,6 +298,17 @@ describe Her::Model::ORM do
         @new_user.email.should == "tobias@bluthcompany.com"
       end
     end
+
+    context "when using weird open attribute" do
+      before do
+        spawn_model("Door")
+      end
+
+      specify do
+        door = Door.build(:color => 'blue', :open => true)
+        expect { door.inspect }.not_to raise_error
+      end
+    end
   end
 
   context "creating resources" do
