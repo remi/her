@@ -8,7 +8,7 @@
   <a href="https://rubygems.org/gems/her"><img src="http://img.shields.io/gem/v/her.svg" /></a>
   <a href="https://codeclimate.com/github/remiprev/her"><img src="http://img.shields.io/codeclimate/github/remiprev/her.svg" /></a>
   <a href='https://gemnasium.com/remiprev/her'><img src="http://img.shields.io/gemnasium/remiprev/her.svg" /></a>
-  <a href="https://travis-ci.org/remiprev/her"><img src="http://img.shields.io/travis/remiprev/her.svg" /></a>
+  <a href="https://travis-ci.org/remiprev/her"><img src="http://img.shields.io/travis/remiprev/her/master.svg" /></a>
 </p>
 
 ---
