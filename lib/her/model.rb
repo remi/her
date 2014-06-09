@@ -43,8 +43,6 @@ module Her
     include ActiveModel::Validations::Callbacks
     include ActiveModel::Conversion
     include ActiveModel::Dirty
-    include ActiveModel::Naming
-    include ActiveModel::Translation
 
     # Class methods
     included do
@@ -62,6 +60,9 @@ module Her
       # Define default storage accessors for errors and metadata
       store_response_errors :response_errors
       store_metadata :metadata
+
+      # Include ActiveModel naming methods
+      extend ActiveModel::Translation
 
       # Configure ActiveModel callbacks
       extend ActiveModel::Callbacks
