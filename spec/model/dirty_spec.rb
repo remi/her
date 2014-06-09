@@ -10,6 +10,7 @@ describe "Her::Model and ActiveModel::Dirty" do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :fullname => "Maeby Fünke" }.to_json] }
+          stub.get("/users/3") { |env| [200, {}, { :user_id => 3, :fullname => "Maeby Fünke" }.to_json] }
           stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
           stub.put("/users/2") { |env| [400, {}, { :errors => ["Email cannot be blank"] }.to_json] }
           stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
@@ -18,6 +19,9 @@ describe "Her::Model and ActiveModel::Dirty" do
 
       spawn_model "Foo::User" do
         attributes :fullname, :email
+      end
+      spawn_model "Dynamic::User" do
+        primary_key :user_id
       end
     end
 
@@ -36,10 +40,19 @@ describe "Her::Model and ActiveModel::Dirty" do
           user.save
           user.should_not be_changed
         end
+
         it "tracks previous changes" do
           user.fullname = "Tobias Fünke"
           user.save
           user.previous_changes.should eq({"fullname"=>"Lindsay Fünke"})
+        end
+
+        it 'tracks dirty attribute for mass assign for dynamic created attributes' do
+          user = Dynamic::User.find(3)
+          user.assign_attributes(:fullname => 'New Fullname')
+          user.fullname_changed?.should be_true
+          user.should be_changed
+          user.changes.length.should eq(1)
         end
       end
 

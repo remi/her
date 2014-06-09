@@ -20,10 +20,10 @@ module Her
         #
         #   user = User.new(name: "Tobias", role_attributes: { title: "moderator" })
         #   user.role # => #<Role title="moderator">
-        def accepts_nested_attributes_for(*association_names)
-          allowed_association_names = associations.inject([]) { |memo, (name, details)| memo << details }.flatten.map { |a| a[:name] }
+        def accepts_nested_attributes_for(*associations)
+          allowed_association_names = association_names
 
-          association_names.each do |association_name|
+          associations.each do |association_name|
             unless allowed_association_names.include?(association_name)
               raise Her::Errors::AssociationUnknownError.new("Unknown association name :#{association_name}")
             end
