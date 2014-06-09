@@ -50,7 +50,7 @@ describe "Her::Model and ActiveModel::Dirty" do
         it 'tracks dirty attribute for mass assign for dynamic created attributes' do
           user = Dynamic::User.find(3)
           user.assign_attributes(:fullname => 'New Fullname')
-          user.fullname_changed?.should be_true
+          user.fullname_changed?.should be_truthy
           user.should be_changed
           user.changes.length.should eq(1)
         end
