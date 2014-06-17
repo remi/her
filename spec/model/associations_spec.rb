@@ -1,5 +1,6 @@
 # encoding: utf-8
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
+require "pry"
 
 describe Her::Model::Associations do
   context "setting associations without details" do
@@ -165,36 +166,36 @@ describe Her::Model::Associations do
     end
 
     it "maps an array of included data through has_one" do
-      @user_with_included_data.role.should be_a(Foo::Role)
-      @user_with_included_data.role.object_id.should == @user_with_included_data.role.object_id
-      @user_with_included_data.role.id.should == 1
-      @user_with_included_data.role.body.should == "Admin"
+      expect(@user_with_included_data.role).to be_a(Foo::Role)
+      expect(@user_with_included_data.role.object_id).to eq(@user_with_included_data.role.object_id)
+      expect(@user_with_included_data.role.id).to eq(1)
+      expect(@user_with_included_data.role.body).to eq("Admin")
     end
 
     it "fetches data that was not included through has_one" do
-      @user_without_included_data.role.should be_a(Foo::Role)
-      @user_without_included_data.role.id.should == 2
-      @user_without_included_data.role.body.should == "User"
+      expect(@user_without_included_data.role).to be_a(Foo::Role)
+      expect(@user_without_included_data.role.id).to eq(2)
+      expect(@user_without_included_data.role.body).to eq("User")
     end
 
     it "fetches has_one data even if it was included, only if called with parameters" do
-      @user_with_included_data.role.where(:foo_id => 2).id.should == 3
+      expect(@user_with_included_data.role.where(:foo_id => 2).id).to eq(3)
     end
 
     it "maps an array of included data through belongs_to" do
-      @user_with_included_data.organization.should be_a(Foo::Organization)
-      @user_with_included_data.organization.id.should == 1
-      @user_with_included_data.organization.name.should == "Bluth Company"
+      expect(@user_with_included_data.organization).to be_a(Foo::Organization)
+      expect(@user_with_included_data.organization.id).to eq(1)
+      expect(@user_with_included_data.organization.name).to eq("Bluth Company")
     end
 
     it "fetches data that was not included through belongs_to" do
-      @user_without_included_data.organization.should be_a(Foo::Organization)
-      @user_without_included_data.organization.id.should == 2
-      @user_without_included_data.organization.name.should == "Bluth Company"
+      expect(@user_without_included_data.organization).to be_a(Foo::Organization)
+      expect(@user_without_included_data.organization.id).to eq(2)
+      expect(@user_without_included_data.organization.name).to eq("Bluth Company")
     end
 
     it "fetches belongs_to data even if it was included, only if called with parameters" do
-      @user_with_included_data.organization.where(:foo_id => 1).name.should == "Bluth Company Foo"
+      expect(@user_with_included_data.organization.where(:foo_id => 1).name).to eq("Bluth Company Foo")
     end
 
     it "can tell if it has a association" do
@@ -218,8 +219,8 @@ describe Her::Model::Associations do
     end
 
     it "'s associations responds to #empty?" do
-      @user_without_included_data.organization.respond_to?(:empty?).should be_truthy
-      @user_without_included_data.organization.should_not be_empty
+      expect(@user_without_included_data.organization.respond_to?(:empty?)).to be_truthy
+      expect(@user_without_included_data.organization).to_not be_empty
     end
 
     it 'includes has_many relationships in params by default' do
@@ -240,9 +241,9 @@ describe Her::Model::Associations do
         end
 
         it "maps an array of included data through has_one" do
-          subject.role.should be_a(Foo::Role)
-          subject.role.id.should == 1
-          subject.role.body.should == "Admin"
+          expect(subject.role).to be_a(Foo::Role)
+          expect(subject.role.id).to eq(1)
+          expect(subject.role.body).to eq("Admin")
         end
       end
     end
@@ -275,19 +276,19 @@ describe Her::Model::Associations do
     end
 
     it "maps an array of included data through belongs_to" do
-      @user_with_included_data.company.should be_a(Foo::Company)
-      @user_with_included_data.company.id.should == 1
-      @user_with_included_data.company.name.should == "Bluth Company Inc."
+      expect(@user_with_included_data.company).to be_a(Foo::Company)
+      expect(@user_with_included_data.company.id).to eq(1)
+      expect(@user_with_included_data.company.name).to eq("Bluth Company Inc.")
     end
 
     it "does not map included data if it’s nil" do
-      @user_with_included_nil_data.company.should be_nil
+      expect(@user_with_included_nil_data.company).to be_nil
     end
 
     it "fetches data that was not included through belongs_to" do
-      @user_without_included_data.company.should be_a(Foo::Company)
-      @user_without_included_data.company.id.should == 1
-      @user_without_included_data.company.name.should == "Bluth Company"
+      expect(@user_without_included_data.company).to be_a(Foo::Company)
+      expect(@user_without_included_data.company.id).to eq(1)
+      expect(@user_without_included_data.company.name).to eq("Bluth Company")
     end
 
     it "does not require foreugn key to have nested object" do
@@ -376,10 +377,10 @@ describe Her::Model::Associations do
       it "takes the parent primary key and saves the resource" do
         @user = Foo::User.find(10)
         @comment = @user.comments.create(:body => "Hello!")
-        @comment.id.should == 1
-        @comment.body.should == "Hello!"
-        @comment.user_id.should == 10
-        @user.comments.should == [@comment]
+        expect(@comment.id).to eq(1)
+        expect(@comment.body).to eq("Hello!")
+        expect(@comment.user_id).to eq(10)
+        expect(@user.comments).to eq([@comment])
       end
     end
 

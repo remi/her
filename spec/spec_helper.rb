@@ -7,9 +7,6 @@ require "her"
 # Require everything in `spec/support`
 Dir[File.expand_path('../../spec/support/**/*.rb', __FILE__)].map(&method(:require))
 
-# Remove ActiveModel deprecation message
-I18n.enforce_available_locales = false
-
 RSpec.configure do |config|
   config.include Her::Testing::Macros::ModelMacros
   config.include Her::Testing::Macros::RequestMacros
