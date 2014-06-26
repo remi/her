@@ -54,13 +54,29 @@ module Her
 
 
         # @private
-        # TODO: Handle has_one
         def embeded_params(attributes)
+          has_many_params = has_many_embeded_params(attributes) || {}
+          has_one_params  = has_one_embeded_params(attributes) || {}
+          has_many_params.merge(has_one_params)
+        end
+
+        def has_one_embeded_params(attributes)
+          associations[:has_one].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
+            params = attributes[association[:data_key]].to_params
+            next if params.empty?
+            klass = find_class(association[:class_name])
+            hash[association[:data_key]] = klass.include_root_in_json? ? params[klass.root_element] : params
+            hash
+          end
+        end
+
+        def has_many_embeded_params(attributes)
           associations[:has_many].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
             params = attributes[association[:data_key]].map(&:to_params)
             next if params.empty?
-            if association[:class_name].constantize.include_root_in_json?
-              root = association[:class_name].constantize.root_element
+            klass = find_class(association[:class_name])
+            if klass.include_root_in_json?
+              root = klass.root_element
               hash[association[:data_key]] = params.map { |n| n[root] }
             else
               hash[association[:data_key]] = params
@@ -69,6 +85,12 @@ module Her
           end
         end
 
+        def find_class(class_name)
+          if class_name.demodulize == class_name && !const_defined?(class_name)
+            class_name = "#{self.name.deconstantize}::#{class_name}"
+          end
+          class_name.constantize
+        end
         # Return or change the value of `include_root_in_json`
         #
         # @example
