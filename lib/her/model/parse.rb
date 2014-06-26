@@ -55,23 +55,24 @@ module Her
 
         # @private
         def embeded_params(attributes)
-          has_many_params = has_many_embeded_params(attributes) || {}
-          has_one_params  = has_one_embeded_params(attributes) || {}
+          has_many_params = has_many_embeded_params(attributes)
+          has_one_params  = has_one_embeded_params(attributes)
           has_many_params.merge(has_one_params)
         end
 
         def has_one_embeded_params(attributes)
-          associations[:has_one].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
+          present_has_ones = associations[:has_one].select { |a| attributes.include?(a[:data_key])}
+          present_has_ones.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].to_params
             next if params.empty?
             klass = find_class(association[:class_name])
             hash[association[:data_key]] = klass.include_root_in_json? ? params[klass.root_element] : params
-            hash
           end
         end
 
         def has_many_embeded_params(attributes)
-          associations[:has_many].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
+          present_has_many = associations[:has_many].select { |a| attributes.include?(a[:data_key])}
+          present_has_many.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].map(&:to_params)
             next if params.empty?
             klass = find_class(association[:class_name])
@@ -81,7 +82,6 @@ module Her
             else
               hash[association[:data_key]] = params
             end
-            hash
           end
         end
 
