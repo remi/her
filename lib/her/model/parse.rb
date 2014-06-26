@@ -33,7 +33,7 @@ module Her
         # @private
         def to_params(attributes, changes={})
           filtered_attributes = attributes.dup.symbolize_keys
-          filtered_attributes.merge!(embeded_params(attributes))
+          filtered_attributes.merge!(embedded_params(attributes))
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
               hash[attribute] = filtered_attributes[attribute]
@@ -54,14 +54,14 @@ module Her
 
 
         # @private
-        def embeded_params(attributes)
-          has_many_params = has_many_embeded_params(attributes)
-          has_one_params  = has_one_embeded_params(attributes)
+        def embedded_params(attributes)
+          has_many_params = has_many_embedded_params(attributes)
+          has_one_params  = has_one_embedded_params(attributes)
           has_many_params.merge(has_one_params)
         end
 
-        def has_one_embeded_params(attributes)
-          present_has_ones = associations[:has_one].select { |a| attributes.include?(a[:data_key])}
+        def has_one_embedded_params(attributes)
+          present_has_ones = associations[:has_one].select { |a| attributes.include?(a[:data_key]) }
           present_has_ones.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].to_params
             next if params.empty?
@@ -70,8 +70,8 @@ module Her
           end
         end
 
-        def has_many_embeded_params(attributes)
-          present_has_many = associations[:has_many].select { |a| attributes.include?(a[:data_key])}
+        def has_many_embedded_params(attributes)
+          present_has_many = associations[:has_many].select { |a| attributes.include?(a[:data_key]) }
           present_has_many.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].map(&:to_params)
             next if params.empty?
