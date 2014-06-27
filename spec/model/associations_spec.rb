@@ -87,7 +87,7 @@ describe Her::Model::Associations do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1, bars: [{ id: 41}] }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 2 }.to_json] }
           stub.get("/users/1/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }].to_json] }
           stub.get("/users/2/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }].to_json] }
@@ -112,6 +112,7 @@ describe Her::Model::Associations do
 
       spawn_model "Foo::User" do
         has_many :comments, class_name: "Foo::Comment"
+        has_many :bars, class_name: "Foo::Bar"
         has_one :role
         belongs_to :organization
         has_many :posts, :inverse_of => :admin
@@ -125,6 +126,10 @@ describe Her::Model::Associations do
       end
 
       spawn_model "Foo::Organization" do
+        parse_root_in_json true
+      end
+
+      spawn_model "Foo::Bar" do
         parse_root_in_json true
       end
 
@@ -228,6 +233,11 @@ describe Her::Model::Associations do
       params[:comments].length.should eq(2)
     end
 
+    it "doesn't includes parent when calling to_params on a has_many relationships" do
+      bars_params = @user_with_included_data.bars.first.to_params
+      bars_params.keys.should_not include(:user)
+    end
+
     [:create, :save_existing, :destroy].each do |type|
       context "after #{type}" do
         let(:subject) { self.send("user_with_included_data_after_#{type}")}
@@ -290,7 +300,7 @@ describe Her::Model::Associations do
       @user_without_included_data.company.name.should == "Bluth Company"
     end
 
-    it "does not require foreugn key to have nested object" do
+    it "does not require foreign key to have nested object" do
       @user_with_included_data_but_no_fk.company.name.should == "Bluth Company Inc."
     end
   end
