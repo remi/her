@@ -65,7 +65,7 @@ module Her
           present_has_ones.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].to_params
             next if params.empty?
-            klass = find_class(association[:class_name])
+            klass = her_nearby_class(association[:class_name])
             hash[association[:data_key]] = klass.include_root_in_json? ? params[klass.root_element] : params
           end
         end
@@ -75,7 +75,7 @@ module Her
           present_has_many.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].map(&:to_params)
             next if params.empty?
-            klass = find_class(association[:class_name])
+            klass = her_nearby_class(association[:class_name])
             if klass.include_root_in_json?
               root = klass.root_element
               hash[association[:data_key]] = params.map { |n| n[root] }
@@ -85,12 +85,6 @@ module Her
           end
         end
 
-        def find_class(class_name)
-          if class_name.demodulize == class_name && !const_defined?(class_name)
-            class_name = "#{self.name.deconstantize}::#{class_name}"
-          end
-          class_name.constantize
-        end
         # Return or change the value of `include_root_in_json`
         #
         # @example
