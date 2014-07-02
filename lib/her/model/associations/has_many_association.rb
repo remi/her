@@ -88,7 +88,7 @@ module Her
           # the response is nil.
           unless collection.is_a?(Her::Collection)
             for_collection = collection.attributes.empty? ? [] : collection
-            collection = Her::Collection.new(for_collection)
+            collection = Her::Collection.new(Array(for_collection))
           end
           collection.tap do |o|
             inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
