@@ -232,7 +232,6 @@ describe Her::Model::Associations do
 
     it 'responds properly to blank?' do
       @user_with_included_data.comments.should_not be_blank
-      #debugger
       user_with_no_comments.comments.should be_blank
     end
 
