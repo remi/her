@@ -83,7 +83,14 @@ module Her
 
         # @private
         def fetch
-          super.tap do |o|
+          collection = super
+          # super can return an instance rather than a collection when
+          # the response is nil.
+          unless collection.is_a?(Her::Collection)
+            for_collection = collection.attributes.empty? ? [] : collection
+            collection = Her::Collection.new(for_collection)
+          end
+          collection.tap do |o|
             inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
             o.each { |entry| entry.send("#{inverse_of}=", @parent) }
           end
