@@ -32,6 +32,10 @@ module Her
             return association.fetch.object_id
           end
 
+          # Does the relation respond to this method (e.g. is it a scope)
+          if association.klass.respond_to?(name) && association.klass.singleton_methods(false).include?(name)
+            return association.klass.send(name, *args, &block)
+          end
           # create a proxy to the fetched object's method
           metaclass = (class << self; self; end)
           metaclass.install_proxy_methods 'association.fetch', name

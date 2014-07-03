@@ -107,6 +107,11 @@ describe Her::Model::Associations do
               [200, {}, { :organization => { :id => 2, :name => "Bluth Company" } }.to_json]
             end
           end
+          stub.get("/comments") do |env|
+            if env[:params]["locked"] == "true"
+              [200, {}, [{ :comment => { :id => 5, :body => "Is this the tiny town from Footloose?", :locked => true } }].to_json]
+            end
+          end
         end
       end
 
@@ -119,6 +124,7 @@ describe Her::Model::Associations do
       spawn_model "Foo::Comment" do
         belongs_to :user
         parse_root_in_json true
+        scope :locked_scope, lambda { where(locked: true) }
       end
       spawn_model "Foo::Post" do
         belongs_to :admin, :class_name => 'Foo::User'
@@ -226,6 +232,11 @@ describe Her::Model::Associations do
       params = @user_with_included_data.to_params
       params[:comments].should be_kind_of(Array)
       params[:comments].length.should eq(2)
+    end
+
+    it 'supports scopes on assoications' do
+      locked_comments = @user_with_included_data.comments.locked_scope
+      locked_comments.first.id.should eq(5)
     end
 
     [:create, :save_existing, :destroy].each do |type|

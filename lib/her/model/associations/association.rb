@@ -4,6 +4,7 @@ module Her
       class Association
         # @private
         attr_accessor :params
+        attr_reader :klass
 
         # @private
         def initialize(parent, opts = {})
