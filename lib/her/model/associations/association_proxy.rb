@@ -32,7 +32,8 @@ module Her
             return association.fetch.object_id
           end
 
-          # Does the relation respond to this method (e.g. is it a scope)
+          # Does the underlying class of this association support this method
+          # at the class level, if so its likely to be a scope.
           if association.klass.respond_to?(name) && association.klass.singleton_methods(false).include?(name)
             return association.klass.send(name, *args, &block)
           end
