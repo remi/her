@@ -94,7 +94,7 @@ module Her
         def find(id)
           return nil if id.blank?
           path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
-          @klass.get(path, @params)
+          @klass.get_resource(path, @params)
         end
 
       end
