@@ -16,6 +16,15 @@ module Her
           @name = @opts[:name]
         end
 
+        def call_scope(name, *args, &block)
+          parent_id_string = "#{@parent.class.to_s.demodulize.downcase}_#{@parent.class.primary_key}"
+          parent_id = @parent.send(@parent.class.primary_key)
+          if klass.collection_path[parent_id_string]
+            with_parent_id = klass.send(:where, parent_id_string => parent_id)
+          end
+          with_parent_id.send(name, *args, &block)
+        end
+
         # @private
         def self.proxy(parent, opts = {})
           AssociationProxy.new new(parent, opts)

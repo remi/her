@@ -35,7 +35,7 @@ module Her
           # Does the underlying class of this association support this method
           # at the class level, if so its likely to be a scope.
           if association.klass.respond_to?(name) && association.klass.singleton_methods(false).include?(name)
-            return association.klass.send(name, *args, &block)
+            return association.call_scope(name, *args, &block)
           end
           # create a proxy to the fetched object's method
           metaclass = (class << self; self; end)
