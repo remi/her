@@ -170,7 +170,7 @@ describe Her::Model::ORM do
 
     it "handles metadata on a collection" do
       @users = User.all
-      @users.metadata[:total_pages].should == 10
+      @users.metadata['total_pages'].should == 10
     end
 
     it "handles error data on a collection" do
@@ -180,7 +180,7 @@ describe Her::Model::ORM do
 
     it "handles metadata on a resource" do
       @user = User.create(:name => "George Michael Bluth")
-      @user.metadata[:foo].should == "bar"
+      @user.metadata['foo'].should == "bar"
     end
 
     it "handles error data on a resource" do

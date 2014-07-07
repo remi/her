@@ -153,6 +153,98 @@ describe Her::Model::HTTP do
     end
   end
 
+  context "making HTTP requests that returnd string keys hash" do
+    before do
+      class MyCustomParser < Faraday::Response::Middleware
+        def on_complete(env)
+          json = JSON.parse(env[:body])
+          errors = json.delete('errors') || {}
+          metadata = json.delete('metadata') || []
+          env[:body] = { 'data' => json, 'errors' => errors, 'metadata' => metadata }
+        end
+      end
+
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use MyCustomParser
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users") { |env| [200, {}, [{ :id => 1 }].to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :id => 1 }.to_json] }
+          stub.get("/users/popular") do |env|
+            if env[:params]["page"] == "2"
+              [200, {}, [{ :id => 3 }, { :id => 4 }].to_json]
+            else
+              [200, {}, [{ :id => 1 }, { :id => 2 }].to_json]
+            end
+          end
+        end
+      end
+
+      spawn_model "Foo::User"
+    end
+
+    describe :get do
+      subject { Foo::User.get(:popular) }
+      its(:length) { should == 2 }
+      specify { subject.first.id.should == 1 }
+    end
+
+    describe :get_raw do
+      context "with a block" do
+        specify do
+          Foo::User.get_raw("/users") do |parsed_data, response|
+            parsed_data[:data].should == [{ 'id' => 1 }]
+          end
+        end
+      end
+
+      context "with a return value" do
+        subject { Foo::User.get_raw("/users") }
+        specify { subject[:parsed_data][:data].should == [{ 'id' => 1 }] }
+      end
+    end
+
+    describe :get_collection do
+      context "with a String path" do
+        subject { Foo::User.get_collection("/users/popular") }
+        its(:length) { should == 2 }
+        specify { subject.first.id.should == 1 }
+      end
+
+      context "with a Symbol" do
+        subject { Foo::User.get_collection(:popular) }
+        its(:length) { should == 2 }
+        specify { subject.first.id.should == 1 }
+      end
+
+      context "with extra parameters" do
+        subject { Foo::User.get_collection(:popular, :page => 2) }
+        its(:length) { should == 2 }
+        specify { subject.first.id.should == 3 }
+      end
+    end
+
+    describe :get_resource do
+      context "with a String path" do
+        subject { Foo::User.get_resource("/users/1") }
+        its(:id) { should == 1 }
+      end
+
+      context "with a Symbol" do
+        subject { Foo::User.get_resource(:"1") }
+        its(:id) { should == 1 }
+      end
+    end
+
+    describe :get_raw do
+      specify do
+        Foo::User.get_raw(:popular) do |parsed_data, response|
+          parsed_data[:data].should == [{ 'id' => 1 }, { 'id' => 2 }]
+        end
+      end
+    end
+  end
+
   context "setting custom HTTP requests" do
     before do
       Her::API.setup :url => "https://api.example.com" do |connection|

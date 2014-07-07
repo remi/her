@@ -32,7 +32,6 @@ module Her
       #
       # @private
       def self.initialize_collection(klass, parsed_data={})
-        parsed_data = parsed_data.with_indifferent_access
         collection_data = klass.extract_array(parsed_data).map do |item_data|
           if item_data.kind_of?(klass)
             resource = item_data
@@ -172,7 +171,6 @@ module Her
         #
         # @private
         def new_from_parsed_data(parsed_data)
-          parsed_data = parsed_data.with_indifferent_access
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
         end
 

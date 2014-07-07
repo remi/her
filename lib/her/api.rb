@@ -103,7 +103,7 @@ module Her
         end
       end
 
-      { :parsed_data => response.env[:body], :response => response }
+      { :parsed_data => response.env[:body].symbolize_keys, :response => response }
     end
 
     private
