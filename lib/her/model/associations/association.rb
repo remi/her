@@ -49,7 +49,7 @@ module Her
 
           if @parent.attributes[@name].blank? || @params.any?
             path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
-            @klass.get(path, @params)
+            opts[:as] == :collection ? @klass.get_collection(path, @params) : @klass.get(path, @params)
           else
             @parent.attributes[@name]
           end
