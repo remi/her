@@ -47,12 +47,16 @@ module Her
           attribute_value = @parent.attributes[@name]
           return @opts[:default].try(:dup) if @parent.attributes.include?(@name) && (attribute_value.nil? || !attribute_value.nil? && attribute_value.empty?) && @params.empty?
 
-          if @parent.attributes[@name].blank? || @params.any?
-            path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
-            opts[:as] == :collection ? @klass.get_collection(path, @params) : @klass.get(path, @params)
+          return @cached_result unless @params.any? || @cached_result.nil?
+          return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
+
+          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
+          result = if opts[:as] == :collection
+            @klass.get_collection(path, @params)
           else
-            @parent.attributes[@name]
+            @klass.get(path, @params)
           end
+          result.tap { |r| @cached_result = r unless @params.any? }
         end
 
         # @private

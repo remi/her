@@ -139,6 +139,7 @@ describe Her::Model::Associations do
     let(:user_with_included_data_after_save_existing) { Foo::User.save_existing(5, :name => "Clancy Brown") }
     let(:user_with_included_data_after_destroy) { Foo::User.new(:id => 5).destroy }
     let(:user_with_no_comments) { Foo::User.new(id: 3)}
+    let(:comment_without_included_parent_data) { Foo::Comment.new(:id => 7, :user_id => 1) }
 
     it "maps an array of included data through has_many" do
       @user_with_included_data.comments.first.should be_a(Foo::Comment)
@@ -149,6 +150,14 @@ describe Her::Model::Associations do
 
     it "does not refetch the parents models data if they have been fetched before" do
       @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
+    end
+
+    it "does fetch the parent models data only once" do
+      comment_without_included_parent_data.user.object_id.should == comment_without_included_parent_data.user.object_id
+    end
+
+    it "does fetch the parent models data that was cached if called with parameters" do
+      comment_without_included_parent_data.user.object_id.should_not == comment_without_included_parent_data.user.where(:a => 2).object_id
     end
 
     it "uses the given inverse_of key to set the parent model" do
@@ -164,6 +173,14 @@ describe Her::Model::Associations do
 
     it "fetches has_many data even if it was included, only if called with parameters" do
       @user_with_included_data.comments.where(:foo_id => 1).length.should == 1
+    end
+
+    it "fetches data that was not included through has_many only once" do
+      @user_without_included_data.comments.first.object_id.should == @user_without_included_data.comments.first.object_id
+    end
+
+    it "fetches data that was cached through has_many if called with parameters" do
+      @user_without_included_data.comments.first.object_id.should_not == @user_without_included_data.comments.where(:foo_id => 1).first.object_id
     end
 
     it "maps an array of included data through has_one" do
