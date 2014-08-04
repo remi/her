@@ -217,7 +217,7 @@ module Her
 
         # Enables populate validation errors using @response_errors
         def populate_validation_errors
-          cattr_accessor :populate_validation_errors
+          class_attribute :populate_validation_errors
           self.populate_validation_errors = true
         end
 
