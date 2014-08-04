@@ -67,6 +67,9 @@ module Her
       # Configure ActiveModel callbacks
       extend ActiveModel::Callbacks
       define_model_callbacks :create, :update, :save, :find, :destroy, :initialize
+
+      # Enable population of validation errors using well-formed @response_errors
+      # populate_validation_errors
     end
   end
 end
