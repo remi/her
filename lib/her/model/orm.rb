@@ -45,6 +45,8 @@ module Her
               @metadata = parsed_data[:metadata]
               @response_errors = parsed_data[:errors]
 
+              populate_errors @response_errors if self.populate_validation_errors
+
               return false if !response.success? || @response_errors.any?
               if self.changed_attributes.present?
                 @previously_changed = self.changed_attributes.clone
@@ -78,10 +80,29 @@ module Her
             assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             @metadata = parsed_data[:metadata]
             @response_errors = parsed_data[:errors]
+
+            populate_errors @response_errors if self.populate_validation_errors
+
             @destroyed = true
           end
         end
         self
+      end
+
+      # Populate validation errors if @response_errors is formatted in this format
+      #
+      #   {
+      #     :email => ["can't be empty","is invalid"],
+      #     :password => ["is too short"]
+      #   }
+      #
+      def populate_errors(response_errors)
+        self.errors.clear
+        response_errors.each do |attribute,errors|
+          errors.each do |error|
+            self.errors.add(attribute,error)
+          end if errors.is_a? Array
+        end if response_errors.is_a? Hash
       end
 
       module ClassMethods
@@ -192,6 +213,12 @@ module Her
             end
           end
           resource
+        end
+
+        # Enables populate validation errors using @response_errors
+        def populate_validation_errors
+          cattr_accessor :populate_validation_errors
+          self.populate_validation_errors = true
         end
 
         private
