@@ -45,7 +45,7 @@ module Her
               @metadata = parsed_data[:metadata]
               @response_errors = parsed_data[:errors]
 
-              populate_errors @response_errors if self.populate_validation_errors
+              populate_errors @response_errors if respond_to?(:populate_validation_errors)
 
               return false if !response.success? || @response_errors.any?
               if self.changed_attributes.present?
@@ -81,7 +81,7 @@ module Her
             @metadata = parsed_data[:metadata]
             @response_errors = parsed_data[:errors]
 
-            populate_errors @response_errors if self.populate_validation_errors
+            populate_errors @response_errors if respond_to?(:populate_validation_errors)
 
             @destroyed = true
           end
