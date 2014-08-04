@@ -73,11 +73,17 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users") { |env| [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], :metadata => { :total_pages => 10, :next_page => 2 }, :errors => ["Oh", "My", "God"] }.to_json] }
           stub.post("/users") { |env| [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
+          stub.post("/user_with_validation_errors") { |env| [422, {}, { :data => { :name => "George Michael Bluth", :email => "george@micheal.com" }, :metadata => { :foo => "bar" }, :errors => {:name => ['already exists', 'too long'], :email => ['is invalid']} }.to_json] }
         end
       end
 
       spawn_model :User do
         uses_api api
+      end
+
+      spawn_model :UserWithValidationErrors do
+        uses_api api
+        populate_validation_errors
       end
     end
 
@@ -100,6 +106,16 @@ describe Her::Model::ORM do
       @user = User.create(:name => "George Michael Bluth")
       @user.response_errors.should == ["Yes", "Sir"]
     end
+
+    it "handles error data on a resource" do
+      @user = UserWithValidationErrors.create(:name => "George Michael Bluth", :email => "george@micheal.com")
+      @user.response_errors.should == {:name => ['already exists', 'too long'], :email => ['is invalid']}
+
+      # ActiveSupport validations
+      @user.errors.messages.should == {:name => ['already exists', 'too long'], :email => ['is invalid']}
+      @user.errors.full_messages.should == ["Name already exists", "Name too long", "Email is invalid"]
+    end
+
   end
 
   context "mapping data, metadata and error data in string keys to Ruby objects" do
