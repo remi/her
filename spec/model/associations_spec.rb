@@ -112,7 +112,7 @@ describe Her::Model::Associations do
 
       spawn_model "Foo::User" do
         has_many :comments, class_name: "Foo::Comment"
-        has_one :role
+        has_one :role, class_name: "Foo::Role"
         belongs_to :organization
         has_many :posts, :inverse_of => :admin
       end
@@ -243,6 +243,13 @@ describe Her::Model::Associations do
       params = @user_with_included_data.to_params
       params[:comments].should be_kind_of(Array)
       params[:comments].length.should eq(2)
+    end
+
+    it 'includes has_one relationships in params by default' do
+      params = @user_with_included_data.to_params
+      params[:role].should be_kind_of(Hash)
+      params[:role][:body].should == 'Admin'
+      params[:role][:id].should == 1
     end
 
     [:create, :save_existing, :destroy].each do |type|
