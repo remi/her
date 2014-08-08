@@ -76,8 +76,8 @@ module Her
           data_key_value = @parent.attributes[@opts[:data_key].to_sym]
           return @opts[:default].try(:dup) if (@parent.attributes.include?(@name) && @parent.attributes[@name].nil? && @params.empty?) || (@parent.persisted? && foreign_key_value.blank? && data_key_value.blank?)
 
-          return @cached_result unless @params.any? || @cached_result.nil?
-          return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
+          return @cached_result if @params.present? && @cached_result
+          return @parent.attributes[@name] if @params.blank? && @parent.attributes[@name].present?
 
           path_params = @parent.attributes.merge(@params.merge(@klass.primary_key => foreign_key_value))
           path = build_association_path lambda { @klass.build_request_path(path_params) }
