@@ -31,7 +31,7 @@ describe "Her::Model and ActiveModel::Validations" do
       end
 
       class User < Foo::Model; end
-      @spawned_models << :User
+      @spawned_classes << :User
     end
 
     it "validates attributes when calling #valid?" do
