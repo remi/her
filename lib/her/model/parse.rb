@@ -62,7 +62,7 @@ module Her
                      else
                        attributes[association[:data_key]].map(&:to_params)
                      end
-            next if params.empty?
+            #next if params.empty?
             if association[:class_name].constantize.include_root_in_json?
               root = association[:class_name].constantize.root_element
               hash[association[:data_key]] = params.map { |n| n[root] }
