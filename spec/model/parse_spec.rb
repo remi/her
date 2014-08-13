@@ -342,4 +342,26 @@ describe Her::Model::Parse do
       expect(user.to_params).to eql(:user => {:first_name => 'Someone'})
     end
   end
+
+  context 'objects or attributes empty for an association' do
+    before do
+      Her::API.setup :url => "https://api.example.com", :send_only_modified_attributes => true do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      spawn_model "User" do
+        has_many :pets
+      end
+      spawn_model "Pet"
+
+    end
+
+    subject { User.build(fullname: "Tobias Fünke", pets: []) }
+
+    it 'should not raise an error while trying to parse to params' do
+      expect{ subject.to_params }.to_not raise_error
+    end
+  end
+
 end
