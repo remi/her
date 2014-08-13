@@ -364,4 +364,22 @@ describe Her::Model::Parse do
     end
   end
 
+  context 'parsing an association of a class in a module'
+    before do
+      Her::API.setup :url => "https://api.example.com", :send_only_modified_attributes => true do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      spawn_model "Foo::User" do
+        has_many :pets
+      end
+      spawn_model "Foo::Pet"
+    end
+
+    subject { Foo::User.build(fullname: "Tobias Fünke", pets: []) }
+
+    it 'should not raise an error while trying to parse to params' do
+      expect{ subject.to_params }.to_not raise_error
+    end
 end
