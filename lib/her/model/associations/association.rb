@@ -20,7 +20,7 @@ module Her
           parent_id_string = "#{@parent.class.to_s.demodulize.downcase}_#{@parent.class.primary_key}"
           parent_id = @parent.send(@parent.class.primary_key)
           scoped = if klass.collection_path[parent_id_string]
-            klass.where(parent_id_string => parent_id)
+            klass.where("_#{parent_id_string}" => parent_id)
           else
             klass
           end
