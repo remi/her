@@ -400,6 +400,27 @@ describe Her::Model::Associations do
       end
     end
 
+    context "with #save and association having an empty array" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/10") { |env| [200, {}, { :id => 10, comments: [] }.to_json] }
+            stub.put("/users/10") { |env| [200, {}] }
+          end
+        end
+
+        Foo::User.use_api Her::API.default_api
+      end
+
+      it "successfuly saves the record" do
+        @user = Foo::User.find(10)
+        @user.save
+        @user.comments.should == []
+      end
+    end
+
     context "with #new" do
       it "creates nested models from hash attibutes" do
         user = Foo::User.new(:name => "vic", :comments => [{:text => "hello"}])
