@@ -135,6 +135,19 @@ module Her
         def belongs_to(name, opts={})
           Her::Model::Associations::BelongsToAssociation.attach(self, name, opts)
         end
+
+        # @private
+        def overridable_eval(*args)
+          module_name = :DynamicAssociations
+          if const_defined?(module_name, false)
+            mod = const_get(module_name)
+          else
+            mod = const_set(module_name, Module.new)
+            include mod
+          end
+          mod.module_eval(*args)
+        end
+
       end
     end
   end

@@ -312,6 +312,37 @@ describe Her::Model::Associations do
     end
   end
 
+  context "Overriding association methods" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :id => 1 }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { :id => 2, :comment_count => 0 }.to_json] }
+          stub.get("/users/1/comments") { |env| [200, {}, [{ :id => 1, :user_id => 1, :title => 'Nice!' }].to_json] }
+        end
+      end
+
+      spawn_model 'Foo::User' do
+        has_many :comments
+
+        def comments
+          return [] if respond_to?(:comment_count) && comment_count <= 0
+          super
+        end
+      end
+      spawn_model 'Foo::Comment'
+    end
+
+    it "allows you to call super on dynamically created methods" do
+      user = Foo::User.find(1)
+      expect(user.comments.map(&:title)).to eq ['Nice!']
+      user = Foo::User.find(2)
+      expect(user.comments.map(&:title)).to be_empty
+    end
+  end
+
   context "object returned by the association method" do
     before do
       spawn_model "Foo::Role" do
