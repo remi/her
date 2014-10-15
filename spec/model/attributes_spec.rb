@@ -65,6 +65,18 @@ describe Her::Model::Attributes do
       @new_user.get_attribute(:unknown_method_for_a_user).should be_nil
       @new_user.get_attribute(:'life-span').should == '3 years'
     end
+
+    it "does not try to handle hash syntax setter" do
+      @new_user = Foo::User.new
+      expect { @new_user[:fullname] = "Tobias Fünke" }.to_not raise_error(ArgumentError)
+      expect { @new_user[:fullname] = "Tobias Fünke" }.to raise_error(NoMethodError)
+    end
+
+    it "does not respond to hash syntax setter method" do
+      @new_user = Foo::User.new
+      expect(@new_user).to_not respond_to(:[]=)
+    end
+
   end
 
 
