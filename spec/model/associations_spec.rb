@@ -173,6 +173,11 @@ describe Her::Model::Associations do
       @user_with_included_data.comments.where(:foo_id => 1).length.should == 1
     end
 
+    it "does not set the inverse of a has_many as an attribute" do
+      first_comment = @user_without_included_data.comments.first
+      expect(first_comment.attributes.keys).to_not include("user")
+    end
+
     it "fetches data that was not included through has_many only once" do
       @user_without_included_data.comments.first.object_id.should == @user_without_included_data.comments.first.object_id
     end
