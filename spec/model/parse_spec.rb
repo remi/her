@@ -310,7 +310,7 @@ describe Her::Model::Parse do
 
       it "wraps params in the element name in `to_params`" do
         @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-        @new_user.to_params.should == { :users => [{ :fullname => "Tobias Fünke" }] }
+        @new_user.to_params.should == { :users => { :fullname => "Tobias Fünke" } }
       end
 
       it "wraps params in the element name in `.where`" do

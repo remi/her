@@ -42,11 +42,7 @@ module Her
           end
 
           if include_root_in_json?
-            if json_api_format?
-              { included_root_element => [filtered_attributes] }
-            else
-              { included_root_element => filtered_attributes }
-            end
+            { included_root_element => filtered_attributes }
           else
             filtered_attributes
           end
