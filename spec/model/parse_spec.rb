@@ -239,9 +239,9 @@ describe Her::Model::Parse do
         builder.adapter :test do |stub|
           stub.get("/users") { |env| [200, {},  { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
           stub.get("/users/admins") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
-          stub.get("/users/1") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { :users => [{ :fullname => "Lindsay Fünke" }] }.to_json] }
-          stub.put("/users/1") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Tobias Fünke Jr." }] }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :users => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
+          stub.post("/users") { |env| [200, {}, { :users => { :fullname => "Lindsay Fünke" } }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { :users => { :id => 1, :fullname => "Tobias Fünke Jr." } }.to_json] }
         end
       end
 
@@ -295,7 +295,7 @@ describe Her::Model::Parse do
       end
 
       Her::API.default_api.connection.adapter :test do |stub|
-        stub.post("/users") { |env| [200, {}, { :users => [{ :id => 1, :fullname => params(env)[:users][:fullname] }] }.to_json] }
+        stub.post("/users") { |env| [200, {}, { :users => { :id => 1, :fullname => params(env)[:users][:fullname] } }.to_json] }
       end
     end
 

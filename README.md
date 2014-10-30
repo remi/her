@@ -594,7 +594,7 @@ class User
 end
 
 user = Users.find(1)
-# GET "/users/1", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }] }
+# GET "/users/1", response is { "users": { "id": 1, "fullname": "Lindsay Fünke" } }
 
 users = Users.all
 # GET "/users", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }, { "id": 2, "fullname": "Tobias Fünke" }] }
