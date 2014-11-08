@@ -476,6 +476,8 @@ end
 @user.changes # => {}
 ```
 
+To update only the modified attributes specify `:send_only_modified_attributes => true` in the setup.
+
 ### Callbacks
 
 You can add *before* and *after* callbacks to your models that are triggered on specific actions. You can use symbols or blocks.
