@@ -42,7 +42,11 @@ module Her
           end
 
           if include_root_in_json?
-            { included_root_element => filtered_attributes }
+            if json_api_format? && wrap_single_elements?
+              { included_root_element => [filtered_attributes] }
+            else
+              { included_root_element => filtered_attributes }
+            end
           else
             filtered_attributes
           end
@@ -75,6 +79,7 @@ module Her
         def include_root_in_json(value, options = {})
           @_her_include_root_in_json = value
           @_her_include_root_in_json_format = options[:format]
+          @_her_wrap_single_elements = options.fetch(:wrap_single_elements) { true }
         end
 
         # Return or change the value of `parse_root_in_json`
@@ -205,6 +210,11 @@ module Her
         # @private
         def parse_root_in_json?
           @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
+        end
+
+        # @private
+        def wrap_single_elements?
+          @_her_wrap_single_elements || (superclass.respond_to?(:wrap_single_elements?) && superclass.wrap_single_elements?)
         end
       end
     end

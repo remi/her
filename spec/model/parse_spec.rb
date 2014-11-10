@@ -346,6 +346,26 @@ describe Her::Model::Parse do
 
       it "wraps params in the element name in `to_params`" do
         @new_user = Foo::User.new(:fullname => "Tobias Fünke")
+        @new_user.to_params.should == { :users => [{ :fullname => "Tobias Fünke" }] }
+      end
+
+      it "wraps params in the element name in `.where`" do
+        @new_user = Foo::User.where(:fullname => "Tobias Fünke").build
+        @new_user.fullname.should == "Tobias Fünke"
+      end
+    end
+
+    context "to true and wraps_single_elements set to false" do
+      before do
+        spawn_model "Foo::User" do
+          include_root_in_json true, wrap_single_elements: false
+          parse_root_in_json true, format: :json_api
+          custom_post :admins
+        end
+      end
+
+      it "wraps params in the element name in `to_params`" do
+        @new_user = Foo::User.new(:fullname => "Tobias Fünke")
         @new_user.to_params.should == { :users => { :fullname => "Tobias Fünke" } }
       end
 
