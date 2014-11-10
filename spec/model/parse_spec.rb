@@ -239,10 +239,23 @@ describe Her::Model::Parse do
         builder.adapter :test do |stub|
           stub.get("/users") { |env| [200, {},  { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
           stub.get("/users/admins") { |env| [200, {}, { :users => [{ :id => 1, :fullname => "Lindsay Fünke" }] }.to_json] }
+
+          # json api
           stub.get("/users/1") { |env| [200, {}, { :users => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
           stub.post("/users") { |env| [200, {}, { :users => { :fullname => "Lindsay Fünke" } }.to_json] }
           stub.put("/users/1") { |env| [200, {}, { :users => { :id => 1, :fullname => "Tobias Fünke Jr." } }.to_json] }
+
+          # make sure json api changes maintain backwards compatibility
+          stub.get("/managers/1") { |env| [200, {}, { :managers => [{ :id => 1, :fullname => "jimmy mcnulty" }] }.to_json] }
+          stub.post("/managers") { |env|  [200, {}, { :managers => [{ :fullname => "bob loblaw" }] }.to_json] }
+          stub.put("/managers/1") { |env| [200, {}, { :managers => [{ :id => 1, :fullname => "bunk moreland" }] }.to_json] }
         end
+      end
+
+      spawn_model("Foo::Manager") do
+        parse_root_in_json true, :format => :json_api
+        include_root_in_json true
+        custom_get :admins
       end
 
       spawn_model("Foo::User") do
@@ -250,6 +263,11 @@ describe Her::Model::Parse do
         include_root_in_json true
         custom_get :admins
       end
+    end
+
+    it "parses the data from the JSON root element after .create even if wrapped in array" do
+      @new_manager = Foo::Manager.create(:fullname => "bob loblaw")
+      @new_manager.fullname.should == "bob loblaw"
     end
 
     it "parse the data from the JSON root element after .create" do
@@ -267,9 +285,20 @@ describe Her::Model::Parse do
       @users.first.fullname.should == "Lindsay Fünke"
     end
 
-    it "parse the data from the JSON root element after .find" do
+    it "parses the data from the JSON root element after .find even if wrapped in an array" do
+      @manager = Foo::Manager.find(1)
+      @manager.fullname.should == "jimmy mcnulty"
+    end
+
+    it "parses the data from the JSON root element after .find" do
       @user = Foo::User.find(1)
       @user.fullname.should == "Lindsay Fünke"
+    end
+
+    it "parses the data from the JSON root element after .save even if wrapped in array" do
+      @manager = Foo::Manager.find(1)
+      @manager.save
+      @manager.fullname.should == "bunk moreland"
     end
 
     it "parse the data from the JSON root element after .save" do
@@ -279,11 +308,18 @@ describe Her::Model::Parse do
       @user.fullname.should == "Tobias Fünke Jr."
     end
 
+    it "parse the data from the JSON root element after new/save if wrapped in array" do
+      @manager = Foo::User.new
+      @manager.fullname = "Lindsay Fünke (before save)"
+      @manager.save
+      @manager.fullname.should == "Lindsay Fünke"
+    end
+
     it "parse the data from the JSON root element after new/save" do
-      @user = Foo::User.new
-      @user.fullname = "Lindsay Fünke (before save)"
-      @user.save
-      @user.fullname.should == "Lindsay Fünke"
+      @manager = Foo::Manager.new
+      @manager.fullname = "bob loblaw (before create)"
+      @manager.save
+      @manager.fullname.should == "bob loblaw"
     end
   end
 
