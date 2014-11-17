@@ -63,8 +63,7 @@ module Her
         def has_one_embedded_params(attributes)
           present_has_ones = associations[:has_one].select { |a| attributes.include?(a[:data_key]) }
           present_has_ones.compact.each_with_object({}) do |association, hash|
-            params = attributes[association[:data_key]].to_params
-            next if params.empty?
+            params = attributes[association[:data_key]].try(:to_params)
             klass = her_nearby_class(association[:class_name])
             hash[association[:data_key]] = klass.include_root_in_json? ? params[klass.root_element] : params
           end
