@@ -3,6 +3,9 @@ require 'spec_helper'
 
 describe Her::Model do
   before do
+    spawn_model("Foo::User") { has_many :comments }
+    spawn_model("Foo::Comment")
+
     Her::API.setup :url => "https://api.example.com" do |connection|
       connection.use Her::Middleware::FirstLevelParseJSON
       connection.adapter :test do |stub|
@@ -10,9 +13,6 @@ describe Her::Model do
         stub.get("/users/1/comments") { |env| [200, {}, [{ :id => 4, :body => "They're having a FIRESALE?" }].to_json] }
       end
     end
-
-    spawn_model("Foo::User") { has_many :comments }
-    spawn_model("Foo::Comment")
   end
   subject { Foo::User.find(1) }
 
