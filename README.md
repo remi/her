@@ -939,7 +939,7 @@ end
 
 ## Upgrade
 
-See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for backward compability issues.
+See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for backward compatibility issues.
 
 ## Her IRL
 
