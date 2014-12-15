@@ -169,7 +169,7 @@ module Her
         #
         # @private
         def extract_array(request_data)
-          if active_model_serializers_format? || json_api_format?
+          if request_data[:data].is_a?(Hash) && active_model_serializers_format? || json_api_format?
             request_data[:data][pluralized_parsed_root_element]
           else
             request_data[:data]
