@@ -6,6 +6,7 @@ rvm:
   - 1.9.2
 
 gemfile:
+  - gemfiles/Gemfile.activemodel-4.2
   - gemfiles/Gemfile.activemodel-4.1
   - gemfiles/Gemfile.activemodel-4.0
   - gemfiles/Gemfile.activemodel-3.2.x
@@ -16,5 +17,7 @@ matrix:
     gemfile: gemfiles/Gemfile.activemodel-4.0
   - rvm: 1.9.2
     gemfile: gemfiles/Gemfile.activemodel-4.1
+  - rvm: 1.9.2
+    gemfile: gemfiles/Gemfile.activemodel-4.2
 
 script: "echo 'COME ON!' && bundle exec rake spec"
