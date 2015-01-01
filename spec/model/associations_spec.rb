@@ -245,6 +245,18 @@ describe Her::Model::Associations do
       params[:comments].length.should eq(2)
     end
 
+    it 'includes has_one relationships in params by default' do
+      params = @user_with_included_data.to_params
+      params[:role].should be_kind_of(Hash)
+      params[:role][:body].should eq("Admin")
+    end
+
+    it 'accepts nil values for has_one association' do
+      @user_with_included_data.role = nil
+      params = @user_with_included_data.to_params
+      params[:role].should be_nil
+    end
+
     [:create, :save_existing, :destroy].each do |type|
       context "after #{type}" do
         let(:subject) { self.send("user_with_included_data_after_#{type}")}
@@ -307,7 +319,7 @@ describe Her::Model::Associations do
       @user_without_included_data.company.name.should == "Bluth Company"
     end
 
-    it "does not require foreugn key to have nested object" do
+    it "does not require foreign key to have nested object" do
       @user_with_included_data_but_no_fk.company.name.should == "Bluth Company Inc."
     end
   end

@@ -33,7 +33,7 @@ module Her
         # @private
         def to_params(attributes, changes={})
           filtered_attributes = attributes.dup.symbolize_keys
-          filtered_attributes.merge!(embeded_params(attributes))
+          filtered_attributes.merge!(embedded_params(attributes))
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
               hash[attribute] = filtered_attributes[attribute]
@@ -54,18 +54,33 @@ module Her
 
 
         # @private
-        # TODO: Handle has_one
-        def embeded_params(attributes)
-          associations[:has_many].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
+        def embedded_params(attributes)
+          has_many_params = has_many_embedded_params(attributes)
+          has_one_params  = has_one_embedded_params(attributes)
+          has_many_params.merge(has_one_params)
+        end
+
+        def has_one_embedded_params(attributes)
+          present_has_ones = associations[:has_one].select { |a| attributes.include?(a[:data_key]) }
+          present_has_ones.compact.each_with_object({}) do |association, hash|
+            params = attributes[association[:data_key]].try(:to_params)
+            klass = her_nearby_class(association[:class_name])
+            hash[association[:data_key]] = klass.include_root_in_json? ? params[klass.root_element] : params
+          end
+        end
+
+        def has_many_embedded_params(attributes)
+          present_has_many = associations[:has_many].select { |a| attributes.include?(a[:data_key]) }
+          present_has_many.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].map(&:to_params)
             next if params.empty?
-            if association[:class_name].constantize.include_root_in_json?
-              root = association[:class_name].constantize.root_element
+            klass = her_nearby_class(association[:class_name])
+            if klass.include_root_in_json?
+              root = klass.root_element
               hash[association[:data_key]] = params.map { |n| n[root] }
             else
               hash[association[:data_key]] = params
             end
-            hash
           end
         end
 
