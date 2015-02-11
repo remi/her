@@ -251,6 +251,34 @@ describe Her::Model::Parse do
         custom_get :admins
       end
     end
+    context "when the API we are hitting responds with an 'individual resource object' " do
+      # reference for JSON api behavior here:
+      # http://jsonapi.org/format/#document-structure-individual-resource-representations
+      let(:individual_object) do
+        #This is a valid way to return json api responses
+        { :id => 1, :fullname => "Lindsay Fünke" }
+      end
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, { :users => individual_object }.to_json] }
+          end
+        end
+
+        spawn_model("Foo::User") do
+          parse_root_in_json true, :format => :json_api
+          include_root_in_json true
+          custom_get :admins
+        end
+      end
+
+      it "parse the data from the JSON root element after .find" do
+        @user = Foo::User.find(1)
+        @user.fullname.should == "Lindsay Fünke"
+      end
+    end
 
     it "parse the data from the JSON root element after .create" do
       @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
