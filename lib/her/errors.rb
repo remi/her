@@ -2,11 +2,11 @@ module Her
   module Errors
     class PathError < StandardError
 
-      attr_reader :missing_parameter
+      attr_reader :missing_parameters
 
-      def initialize(message, missing_parameter = nil)
+      def initialize(message, missing_parameters = nil)
         super(message)
-        @missing_parameter = missing_parameter
+        @missing_parameters = missing_parameters
       end
     end
 

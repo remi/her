@@ -15,7 +15,8 @@ module Her
         resource_path = begin
           request_path
         rescue Her::Errors::PathError => e
-          "<unknown path, missing `#{e.missing_parameter}`>"
+          joined = e.missing_parameters.map { |m| "`#{m}`" }.join(", ")
+          "<unknown path, missing #{joined}>"
         end
 
         "#<#{self.class}(#{resource_path}) #{attributes.keys.map { |k| "#{k}=#{attribute_for_inspect(send(k))}" }.join(" ")}>"
