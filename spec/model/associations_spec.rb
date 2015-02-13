@@ -764,7 +764,21 @@ describe Her::Model::Associations do
 
   context "building and creating association data" do
     before do
-      spawn_model "Foo::Comment"
+      Her::API.setup url: "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/10/comments/new?body=Hello") { [200, {}, { id: nil, body: "Hello" }.to_json] }
+        end
+      end
+
+      spawn_model "Foo::Like" do
+        collection_path "/users/:user_id/comments/:comment_id/likes"
+      end
+      spawn_model "Foo::Comment" do
+        collection_path "/users/:user_id/comments"
+        has_many :likes
+      end
       spawn_model "Foo::User" do
         has_many :comments
       end
@@ -776,6 +790,17 @@ describe Her::Model::Associations do
       it "takes the parent primary key" do
         expect(comment.body).to eq("Hello!")
         expect(comment.user_id).to eq(10)
+      end
+
+      it "uses nested path parameters from the parent when new object isn't requested" do
+        @like = Foo::User.new(:id => 10).comments.build(:id => 20).likes.build
+        expect(@like.request_path).to eq("/users/10/comments/20/likes")
+      end
+
+      it "uses nested path parameters from the parent when new object is requested" do
+        Foo::Comment.request_new_object_on_build true
+        @comment = Foo::User.new(:id => 10).comments.build(:body => "Hello")
+        expect(@comment.request_path).to eq("/users/10/comments")
       end
     end
 
@@ -789,7 +814,7 @@ describe Her::Model::Associations do
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
             stub.get("/users/10") { [200, {}, { id: 10 }.to_json] }
-            stub.post("/comments") { |env| [200, {}, { id: 1, body: Faraday::Utils.parse_query(env[:body])["body"], user_id: Faraday::Utils.parse_query(env[:body])["user_id"].to_i }.to_json] }
+            stub.post("/users/10/comments") { |env| [200, {}, { id: 1, body: Faraday::Utils.parse_query(env[:body])["body"], user_id: Faraday::Utils.parse_query(env[:body])["user_id"].to_i }.to_json] }
           end
         end
 

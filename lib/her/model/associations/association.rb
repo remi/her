@@ -9,6 +9,7 @@ module Her
         # @private
         def initialize(parent, opts = {})
           @parent = parent
+          @parent_name = @parent.singularized_resource_name.to_sym
           @opts = opts
           @params = {}
 
@@ -40,6 +41,14 @@ module Her
         end
 
         # @private
+        def set_missing_from_parent(missing, attributes)
+          missing.each do |m|
+            id = @parent.get_attribute(m) || @parent.get_attribute(:"_#{m}")
+            attributes[:"_#{m}"] = id if id
+          end
+        end
+
+        # @private
         def fetch(opts = {})
           attribute_value = @parent.attributes[@name]
           return @opts[:default].try(:dup) if @parent.attributes.include?(@name) && (attribute_value.nil? || !attribute_value.nil? && attribute_value.empty?) && @params.empty?
@@ -59,6 +68,32 @@ module Her
           instance_exec(&code)
         rescue Her::Errors::PathError
           nil
+        end
+
+        # @private
+        def build_with_inverse(attributes = {})
+          retried = false
+
+          begin
+            resource = @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
+            resource.request_path
+            resource
+          rescue Her::Errors::PathError => e
+            if resource
+              attributes = resource.attributes
+            elsif retried
+              raise
+            end
+
+            set_missing_from_parent e.missing_parameters, attributes
+
+            if resource
+              resource
+            else
+              retried = true
+              retry
+            end
+          end
         end
 
         # @private
