@@ -342,4 +342,60 @@ describe Her::Model::Parse do
       expect(user.to_params).to eql(:user => {:first_name => 'Someone'})
     end
   end
+
+  context "two has_many relations" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.get("/users/1") { |env| [200, {}, { :id => 1, :first_name => "Gooby", :last_name => "Pls", :posts=>[], :comments => [{ :id => 4, :body => "They're having a FIRESALE?" }] }.to_json] }
+      end
+
+      spawn_model "Foo::User" do
+        has_many :posts, class_name:"Foo::Post"
+        has_many :comments, class_name:"Foo::Comment"
+        attributes :id, :first_name, :last_name
+      end
+      spawn_model "Foo::Post" do
+        attributes :body
+      end
+      spawn_model "Foo::Comment" do
+        attributes :id, :body
+      end
+    end
+
+    it "get user json with comments and blank post" do
+      user = Foo::User.find(1)
+      expect(user.to_params).to eq({ :id => 1, :first_name => "Gooby", :last_name => "Pls", :posts=>[], :comments => [{ :id => 4, :body => "They're having a FIRESALE?" }] })
+    end
+  end
+
+  context "one has_many relation" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.get("/users/1") { |env| [200, {}, { :id => 1, :first_name => "Gooby", :last_name => "Pls", :comments => [] }.to_json] }
+      end
+
+      spawn_model "Foo::User" do
+        has_many :comments, class_name:"Foo::Comment"
+        attributes :id, :first_name, :last_name
+      end
+      spawn_model "Foo::Comment" do
+        attributes :id, :body
+      end
+    end
+
+    it "get user json with blank comments" do
+      user = Foo::User.find(1)
+      expect(user.to_params).to eq({ :id => 1, :first_name => "Gooby", :last_name => "Pls", :comments => [] })
+    end
+  end
 end
