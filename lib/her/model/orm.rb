@@ -8,6 +8,7 @@ module Her
       def new?
         id.nil?
       end
+      alias new_record? new?
 
       # Return `true` if a resource is not `#new?`
       def persisted?
