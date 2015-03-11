@@ -398,4 +398,29 @@ describe Her::Model::Parse do
       expect(user.to_params).to eq({ :id => 1, :first_name => "Gooby", :last_name => "Pls", :comments => [] })
     end
   end
+  context "one has_one relation" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.get("/users/1") { |env| [200, {}, { :id => 1, :first_name => "Gooby", :last_name => "Pls", :role => {:id => 1, :name => "Admin"} }.to_json] }
+      end
+
+      spawn_model "Foo::User" do
+        has_one :role, class_name:"Foo::Role"
+        attributes :id, :first_name, :last_name
+      end
+      spawn_model "Foo::Role" do
+        attributes :id, :name
+      end
+    end
+
+    it "get user json with admin role" do
+      user = Foo::User.find(1)
+      expect(user.to_params).to eq({ :id => 1, :first_name => "Gooby", :last_name => "Pls", :role => {:id => 1, :name => "Admin"} })
+    end
+  end
 end

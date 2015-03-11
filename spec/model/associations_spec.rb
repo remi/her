@@ -112,7 +112,7 @@ describe Her::Model::Associations do
 
       spawn_model "Foo::User" do
         has_many :comments, class_name: "Foo::Comment"
-        has_one :role
+        has_one :role, class_name: "Foo::Role"
         belongs_to :organization
         has_many :posts, :inverse_of => :admin
       end
