@@ -19,7 +19,7 @@ module Her
         # @param [Hash] data
         # @private
         def parse(data)
-          if parse_root_in_json? && root_element_included?(data)
+          if parsed_root_element && root_element_included?(data)
             if json_api_format?
               data.fetch(parsed_root_element).first
             else
@@ -139,7 +139,7 @@ module Her
 
         # @private
         def root_element_included?(data)
-          data.keys.to_s.include? @_her_root_element.to_s
+          data.keys.map(&:to_s).include? @_her_root_element.to_s
         end
 
         # @private
