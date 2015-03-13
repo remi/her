@@ -122,8 +122,6 @@ module Her
         attributes ||= {}
         resource = @parent.new(@params.merge(attributes))
         resource.save
-
-        resource
       end
 
       # Fetch a resource and create it if it's not found
