@@ -34,7 +34,7 @@ module Her
     #
     # @param [Hash] opts the Faraday options
     # @option opts [String] :url The main HTTP API root (eg. `https://api.example.com`)
-    # @option opts [String] :ssl A hash containing [SSL options](https://github.com/technoweenie/faraday/wiki/Setting-up-SSL-certificates)
+    # @option opts [String] :ssl A hash containing [SSL options](https://github.com/lostisland/faraday/wiki/Setting-up-SSL-certificates)
     #
     # @return Faraday::Connection
     #
