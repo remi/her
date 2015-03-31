@@ -22,6 +22,10 @@ describe Her::Model do
     it { should have_key(:name) }
     it { should have_key(:comments) }
   end
+  
+  it 'should be serialized without an error' do 
+    expect { Marshal.dump(subject.comments) }.not_to raise_error 
+  end 
 
   describe :[] do
     it { should_not have_key(:unknown_method_for_a_user) }
