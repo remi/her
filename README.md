@@ -417,7 +417,7 @@ Resources must always have all the required attributes to build their complete p
 ```ruby
 class User
   include Her::Model
-  collection_path "organizations/:organization_id/users"
+  resource_path "organizations/:organization_id/users"
 end
 
 class Organization
@@ -673,14 +673,28 @@ User.get("/users/popular")
 # => [#<User id=1>, #<User id=2>]
 ```
 
-### Custom paths
+### Custom base path
+
+You can change the base HTTP path for your models:
+
+```ruby
+class User
+  include Her::Model
+  collection_path "/utilisateur"
+end
+
+@user = User.find(1)
+# GET "/utilisateur/1"
+```
+
+### Custom resources paths
 
 You can define custom HTTP paths for your models:
 
 ```ruby
 class User
   include Her::Model
-  collection_path "/hello_users/:id"
+  resource_path "/hello_users/:id"
 end
 
 @user = User.find(1)
@@ -692,7 +706,7 @@ You can also include custom variables in your paths:
 ```ruby
 class User
   include Her::Model
-  collection_path "/organizations/:organization_id/users"
+  resource_path "/organizations/:organization_id/users"
 end
 
 @user = User.find(1, _organization_id: 2)
@@ -778,7 +792,7 @@ A neat trick you can do with scopes is interact with complex paths.
 class User
   include Her::Model
 
-  collection_path "organizations/:organization_id/users"
+  resource_path "organizations/:organization_id/users"
   scope :for_organization, -> { |id| where(organization_id: id) }
 end
 
