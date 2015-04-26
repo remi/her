@@ -192,7 +192,7 @@ module Her
             unless instance_methods.include?(:"#{attribute}=")
               define_method("#{attribute}=") do |value|
                 @attributes[:"#{attribute}"] = nil unless @attributes.include?(:"#{attribute}")
-                self.send(:"#{attribute}_will_change!") if @attributes[:'#{attribute}'] != value
+                self.send(:"#{attribute}_will_change!") if @attributes[:"#{attribute}"] != value
                 @attributes[:"#{attribute}"] = value
               end
             end

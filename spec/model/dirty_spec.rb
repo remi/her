@@ -41,6 +41,11 @@ describe "Her::Model and ActiveModel::Dirty" do
           user.should_not be_changed
         end
 
+        it "tracks only changed dirty attributes" do
+          user.fullname = user.fullname
+          user.fullname_changed?.should be_falsey
+        end
+
         it "tracks previous changes" do
           user.fullname = "Tobias Fünke"
           user.save
