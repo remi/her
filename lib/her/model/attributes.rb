@@ -186,10 +186,12 @@ module Her
         def attributes(*attributes)
           define_attribute_methods attributes
 
+          instance_methods_set = Set.new instance_methods
+
           attributes.each do |attribute|
             attribute = attribute.to_sym
 
-            unless instance_methods.include?(:"#{attribute}=")
+            unless instance_methods_set.include?(:"#{attribute}=")
               define_method("#{attribute}=") do |value|
                 @attributes[:"#{attribute}"] = nil unless @attributes.include?(:"#{attribute}")
                 self.send(:"#{attribute}_will_change!") if @attributes[:"#{attribute}"] != value
@@ -197,7 +199,7 @@ module Her
               end
             end
 
-            unless instance_methods.include?(:"#{attribute}?")
+            unless instance_methods_set.include?(:"#{attribute}?")
               define_method("#{attribute}?") do
                 @attributes.include?(:"#{attribute}") && @attributes[:"#{attribute}"].present?
               end
