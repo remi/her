@@ -187,8 +187,6 @@ module Her
           define_attribute_methods attributes
 
           attributes.each do |attribute|
-            attribute = attribute.to_sym
-
             unless method_defined?(:"#{attribute}=")
               define_method("#{attribute}=") do |value|
                 @attributes[:"#{attribute}"] = nil unless @attributes.include?(:"#{attribute}")
