@@ -8,7 +8,7 @@ module Her
           names.each do |name|
             module_eval <<-RUBY, __FILE__, __LINE__ + 1
               def #{name}(*args, &block)
-                #{target_name}.#{name}(*args, &block)
+                #{target_name}.public_send("#{name}", *args, &block)
               end
             RUBY
           end

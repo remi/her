@@ -315,9 +315,7 @@ describe Her::Model::Associations do
   context "object returned by the association method" do
     before do
       spawn_model "Foo::Role" do
-        def present?
-          "of_course"
-        end
+        attr_accessor :name
       end
       spawn_model "Foo::User" do
         has_one :role
@@ -350,7 +348,8 @@ describe Her::Model::Associations do
     end
 
     it "calls missing methods on associated value" do
-      subject.present?.should == "of_course"
+      subject.name = "some name"
+      subject.name.should == "some name"
     end
 
     it "can use association methods like where" do
