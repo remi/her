@@ -265,4 +265,39 @@ describe Her::Model::Attributes do
       end
     end
   end
+
+  context "attributes class method" do
+    before do
+      spawn_model 'Foo::User' do
+        attributes :fullname, :document
+      end
+    end
+
+    context "instance" do
+      subject { Foo::User.new }
+
+      it { should respond_to(:fullname) }
+      it { should respond_to(:fullname=) }
+      it { should respond_to(:fullname?) }
+    end
+
+    it "defines setter that affects @attributes" do
+      user = Foo::User.new
+      user.fullname = 'Tobias Fünke'
+      user.attributes[:fullname].should eq('Tobias Fünke')
+    end
+
+    it "defines getter that reads @attributes" do
+      user = Foo::User.new
+      user.assign_attributes(fullname: 'Tobias Fünke')
+      user.fullname.should eq('Tobias Fünke')
+    end
+
+    it "defines predicate that reads @attributes" do
+      user = Foo::User.new
+      user.fullname?.should be_falsey
+      user.assign_attributes(fullname: 'Tobias Fünke')
+      user.fullname?.should be_truthy
+    end
+  end
 end
