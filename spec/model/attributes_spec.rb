@@ -299,5 +299,53 @@ describe Her::Model::Attributes do
       user.assign_attributes(fullname: 'Tobias Fünke')
       user.fullname?.should be_truthy
     end
+
+    context "when attribute methods are already defined" do
+      before do
+        class AbstractUser
+          attr_accessor :fullname
+
+          def fullname?
+            @fullname.present?
+          end
+        end
+        @spawned_models << :AbstractUser
+
+        spawn_model 'Foo::User', super_class: AbstractUser do
+          attributes :fullname
+        end
+      end
+
+      it "overrides getter method" do
+        Foo::User.generated_attribute_methods.instance_methods.should include(:fullname)
+      end
+
+      it "overrides setter method" do
+        Foo::User.instance_methods(false).should include(:fullname=)
+      end
+
+      it "overrides predicate method" do
+        Foo::User.instance_methods(false).should include(:fullname?)
+      end
+
+      it "defines setter that affects @attributes" do
+        user = Foo::User.new
+        user.fullname = 'Tobias Fünke'
+        user.attributes[:fullname].should eq('Tobias Fünke')
+      end
+
+      it "defines getter that reads @attributes" do
+        user = Foo::User.new
+        user.attributes[:fullname] = 'Tobias Fünke'
+        user.fullname.should eq('Tobias Fünke')
+      end
+
+      it "defines predicate that reads @attributes" do
+        user = Foo::User.new
+        user.fullname?.should be_falsey
+        user.attributes[:fullname] = 'Tobias Fünke'
+        user.fullname?.should be_truthy
+      end
+    end
   end
 end
