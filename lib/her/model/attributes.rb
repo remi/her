@@ -158,6 +158,22 @@ module Her
         @attributes.hash
       end
 
+      # Assign attribute value (ActiveModel convention method).
+      #
+      # @private
+      def attribute=(attribute, value)
+        @attributes[attribute] = nil unless @attributes.include?(attribute)
+        self.send(:"#{attribute}_will_change!") if @attributes[attribute] != value
+        @attributes[attribute] = value
+      end
+
+      # Check attribute value to be present (ActiveModel convention method).
+      #
+      # @private
+      def attribute?(attribute)
+        @attributes.include?(attribute) && @attributes[attribute].present?
+      end
+
       module ClassMethods
         # Initialize a collection of resources with raw data from an HTTP request
         #
@@ -175,6 +191,14 @@ module Her
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
         end
 
+        # Define attribute method matchers to automatically define them using ActiveModel's define_attribute_methods.
+        #
+        # @private
+        def define_attribute_method_matchers
+          attribute_method_suffix '='
+          attribute_method_suffix '?'
+        end
+
         # Define the attributes that will be used to track dirty attributes and validations
         #
         # @param [Array] attributes
@@ -184,25 +208,7 @@ module Her
         #     attributes :name, :email
         #   end
         def attributes(*attributes)
-          attributes.each do |attribute|
-            define_attribute_method attribute
-
-            generated_attribute_methods.module_eval do
-              unless method_defined?(:"#{attribute}=")
-                define_method("#{attribute}=") do |value|
-                  @attributes[attribute] = nil unless @attributes.include?(attribute)
-                  self.send(:"#{attribute}_will_change!") if @attributes[attribute] != value
-                  @attributes[attribute] = value
-                end
-              end
-
-              unless method_defined?(:"#{attribute}?")
-                define_method("#{attribute}?") do
-                  @attributes.include?(attribute) && @attributes[attribute].present?
-                end
-              end
-            end
-          end
+          define_attribute_methods attributes
         end
 
         # Define the accessor in which the API response errors (obtained from the parsing middleware) will be stored
