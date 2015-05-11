@@ -321,11 +321,11 @@ describe Her::Model::Attributes do
       end
 
       it "overrides setter method" do
-        Foo::User.instance_methods(false).should include(:fullname=)
+        Foo::User.generated_attribute_methods.instance_methods.should include(:fullname=)
       end
 
       it "overrides predicate method" do
-        Foo::User.instance_methods(false).should include(:fullname?)
+        Foo::User.generated_attribute_methods.instance_methods.should include(:fullname?)
       end
 
       it "defines setter that affects @attributes" do

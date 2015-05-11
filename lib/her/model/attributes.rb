@@ -184,20 +184,22 @@ module Her
         #     attributes :name, :email
         #   end
         def attributes(*attributes)
-          define_attribute_methods attributes
-
           attributes.each do |attribute|
-            unless method_defined?(:"#{attribute}=")
-              define_method("#{attribute}=") do |value|
-                @attributes[:"#{attribute}"] = nil unless @attributes.include?(:"#{attribute}")
-                self.send(:"#{attribute}_will_change!") if @attributes[:"#{attribute}"] != value
-                @attributes[:"#{attribute}"] = value
-              end
-            end
+            define_attribute_method attribute
 
-            unless method_defined?(:"#{attribute}?")
-              define_method("#{attribute}?") do
-                @attributes.include?(:"#{attribute}") && @attributes[:"#{attribute}"].present?
+            generated_attribute_methods.module_eval do
+              unless method_defined?(:"#{attribute}=")
+                define_method("#{attribute}=") do |value|
+                  @attributes[attribute] = nil unless @attributes.include?(attribute)
+                  self.send(:"#{attribute}_will_change!") if @attributes[attribute] != value
+                  @attributes[attribute] = value
+                end
+              end
+
+              unless method_defined?(:"#{attribute}?")
+                define_method("#{attribute}?") do
+                  @attributes.include?(attribute) && @attributes[attribute].present?
+                end
               end
             end
           end
