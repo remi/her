@@ -199,6 +199,17 @@ module Her
           attribute_method_suffix '?'
         end
 
+        # Create a mutex for dynamically generated attribute methods or use one defined by ActiveModel.
+        #
+        # @private
+        def attribute_methods_mutex
+          @attribute_methods_mutex ||= if generated_attribute_methods.respond_to? :synchronize
+                                         generated_attribute_methods
+                                       else
+                                         Mutex.new
+                                       end
+        end
+
         # Define the attributes that will be used to track dirty attributes and validations
         #
         # @param [Array] attributes
@@ -208,7 +219,9 @@ module Her
         #     attributes :name, :email
         #   end
         def attributes(*attributes)
-          define_attribute_methods attributes
+          attribute_methods_mutex.synchronize do
+            define_attribute_methods attributes
+          end
         end
 
         # Define the accessor in which the API response errors (obtained from the parsing middleware) will be stored

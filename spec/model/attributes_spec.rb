@@ -347,5 +347,27 @@ describe Her::Model::Attributes do
         user.fullname?.should be_truthy
       end
     end
+
+    if ActiveModel::VERSION::MAJOR < 4
+      it "creates a new mutex" do
+        expect(Mutex).to receive(:new).once.and_call_original
+        spawn_model 'Foo::User' do
+          attributes :fullname
+        end
+        Foo::User.attribute_methods_mutex.should_not eq(Foo::User.generated_attribute_methods)
+      end
+    else
+      it "uses ActiveModel's mutex" do
+        Foo::User.attribute_methods_mutex.should eq(Foo::User.generated_attribute_methods)
+      end
+    end
+
+    it "uses a mutex" do
+      spawn_model 'Foo::User'
+      expect(Foo::User.attribute_methods_mutex).to receive(:synchronize).once.and_call_original
+      Foo::User.class_eval do
+        attributes :fullname, :documents
+      end
+    end
   end
 end
