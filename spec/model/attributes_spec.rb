@@ -1,5 +1,6 @@
 # encoding: utf-8
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
+require 'yaml'
 
 describe Her::Model::Attributes do
   context "mapping data to Ruby objects" do
@@ -298,6 +299,20 @@ describe Her::Model::Attributes do
       user.fullname?.should be_falsey
       user.assign_attributes(fullname: 'Tobias Fünke')
       user.fullname?.should be_truthy
+    end
+  end
+
+  context "YAML serialization" do
+    before do
+      spawn_model 'Foo::User' do
+        attributes :fullname
+      end
+    end
+
+    it "successfully serializes and deserializes" do
+      user = Foo::User.new(fullname: 'bar')
+      revived_user = YAML.load(YAML.dump(user))
+      revived_user.fullname.should eq('bar')
     end
   end
 end
