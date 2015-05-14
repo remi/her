@@ -3,7 +3,7 @@ module Her
   # so it knows where to make those requests. In Rails, this is usually done in `config/initializers/her.rb`:
   class API
     # @private
-    attr_reader :base_uri, :connection, :options
+    attr_reader :connection, :options
 
     # Constants
     FARADAY_OPTIONS = [:request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class].freeze
@@ -71,7 +71,6 @@ module Her
     #   end
     def setup(opts={}, &blk)
       opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
-      @base_uri = opts[:url]
       @options = opts
 
       faraday_options = @options.reject { |key, value| !FARADAY_OPTIONS.include?(key.to_sym) }

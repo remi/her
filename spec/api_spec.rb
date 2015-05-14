@@ -5,24 +5,7 @@ describe Her::API do
   subject { Her::API.new }
 
   context "initialization" do
-    describe ".setup" do
-      it "creates a default connection" do
-        Her::API.setup :url => "https://api.example.com"
-        Her::API.default_api.base_uri.should == "https://api.example.com"
-      end
-    end
-
     describe "#setup" do
-      context "when using :url option" do
-        before { subject.setup :url => "https://api.example.com" }
-        its(:base_uri) { should == "https://api.example.com" }
-      end
-
-      context "when using the legacy :base_uri option" do
-        before { subject.setup :base_uri => "https://api.example.com" }
-        its(:base_uri) { should == "https://api.example.com" }
-      end
-
       context "when setting custom middleware" do
         before do
           class Foo; end;
