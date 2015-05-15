@@ -6,5 +6,7 @@ require "her/middleware/accept_json"
 module Her
   module Middleware
     DefaultParseJSON = FirstLevelParseJSON
+
+    autoload :JsonApiParser,   'her/middleware/json_api_parser'
   end
 end
