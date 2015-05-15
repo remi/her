@@ -103,6 +103,14 @@ describe Her::JsonApi::Model do
     spawn_model("Foo::User", Her::JsonApi::Model)
   end
 
+  it 'allows configuration of type' do
+    spawn_model("Foo::Bar", Her::JsonApi::Model) do
+      type :foobars
+    end
+
+    expect(Foo::Bar.instance_variable_get('@type')).to eql('foobars')
+  end
+
   it 'finds models by id' do
     user = Foo::User.find(1)
     expect(user.attributes).to eql(
