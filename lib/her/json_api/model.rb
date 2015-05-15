@@ -13,7 +13,7 @@ module Her
           end
 
           def self.to_params(attributes, changes={})
-            request_data = { type: 'users' }.tap { |request_body| 
+            request_data = { type: name.demodulize.tableize }.tap { |request_body| 
               attrs = attributes.dup.symbolize_keys.tap { |filtered_attributes|
                 if her_api.options[:send_only_modified_attributes]
                   filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
