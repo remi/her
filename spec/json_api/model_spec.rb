@@ -92,6 +92,10 @@ describe Her::JsonApi::Model do
             }.to_json
           ] 
         end
+
+        stub.delete("/users/1") { |env|
+          [ 204, {}, {}, ] 
+        }
       end
 
     end
@@ -138,5 +142,10 @@ describe Her::JsonApi::Model do
       'id' => 1,
       'name' => 'Fed GOAT',
     )
+  end
+
+  it 'destroys a Foo::User' do
+    user = Foo::User.find(1)
+    expect(user.destroy).to be_destroyed
   end
 end

@@ -12,7 +12,7 @@ module Her
         json = parse_json(body)
 
         {
-          :data => json[:data],
+          :data => json[:data] || {},
           :errors => json[:errors] || [],
           :metadata => json[:meta] || {},
         }
