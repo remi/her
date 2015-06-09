@@ -428,11 +428,11 @@ describe Her::Model::ORM do
         spawn_model "Foo::User"
       end
 
-      it "handle resource deletion through the .destroy class method" do
+      it "handles resource deletion through the .destroy class method" do
         expect { Foo::User.destroy_existing(1) }.to raise_error Her::Errors::RemoteResourceError
       end
 
-      it "handle resource deletion through #destroy on an existing resource" do
+      it "handles resource deletion through #destroy on an existing resource" do
         @user = Foo::User.find(1)
         expect { @user.destroy }.to raise_error Her::Errors::RemoteResourceError
       end
@@ -452,11 +452,11 @@ describe Her::Model::ORM do
         spawn_model "Foo::User"
       end
 
-      it "handle resource deletion through the .destroy class method" do
+      it "handles resource deletion through the .destroy class method" do
         expect { Foo::User.destroy_existing(1) }.to raise_error Her::Errors::RemoteResourceError
       end
 
-      it "handle resource deletion through #destroy on an existing resource" do
+      it "handles resource deletion through #destroy on an existing resource" do
         @user = Foo::User.find(1)
         expect { @user.destroy }.to raise_error Her::Errors::RemoteResourceError
       end
