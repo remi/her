@@ -23,5 +23,8 @@ module Her
         super("Remote validation failed: #{errors}")
       end
     end
+
+    class RemoteResourceError < StandardError
+    end
   end
 end

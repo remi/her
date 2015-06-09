@@ -386,30 +386,80 @@ describe Her::Model::ORM do
   end
 
   context "deleting resources" do
-    before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
-        builder.use Faraday::Request::UrlEncoded
-        builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
-          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+    describe "successful deletion requests" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
+            stub.delete("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+          end
         end
+
+        spawn_model "Foo::User"
       end
 
-      spawn_model "Foo::User"
+      it "handle resource deletion through the .destroy class method" do
+        @user = Foo::User.destroy_existing(1)
+        @user.active.should be_falsey
+        @user.should be_destroyed
+      end
+
+      it "handle resource deletion through #destroy on an existing resource" do
+        @user = Foo::User.find(1)
+        @user.destroy
+        @user.active.should be_falsey
+        @user.should be_destroyed
+      end
     end
 
-    it "handle resource deletion through the .destroy class method" do
-      @user = Foo::User.destroy_existing(1)
-      @user.active.should be_falsey
-      @user.should be_destroyed
+    describe "failed deletion requests (400-space responses)" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
+            stub.delete("/users/1") { |env| [404, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+          end
+        end
+
+        spawn_model "Foo::User"
+      end
+
+      it "handles resource deletion through the .destroy class method" do
+        expect { Foo::User.destroy_existing(1) }.to raise_error Her::Errors::RemoteResourceError
+      end
+
+      it "handles resource deletion through #destroy on an existing resource" do
+        @user = Foo::User.find(1)
+        expect { @user.destroy }.to raise_error Her::Errors::RemoteResourceError
+      end
     end
 
-    it "handle resource deletion through #destroy on an existing resource" do
-      @user = Foo::User.find(1)
-      @user.destroy
-      @user.active.should be_falsey
-      @user.should be_destroyed
+    describe "failed deletion requests (500-space responses)" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
+            stub.delete("/users/1") { |env| [500, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+          end
+        end
+
+        spawn_model "Foo::User"
+      end
+
+      it "handles resource deletion through the .destroy class method" do
+        expect { Foo::User.destroy_existing(1) }.to raise_error Her::Errors::RemoteResourceError
+      end
+
+      it "handles resource deletion through #destroy on an existing resource" do
+        @user = Foo::User.find(1)
+        expect { @user.destroy }.to raise_error Her::Errors::RemoteResourceError
+      end
     end
   end
 
