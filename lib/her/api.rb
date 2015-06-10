@@ -10,8 +10,7 @@ module Her
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
     def self.setup(opts={}, &block)
-      @default_api = new
-      @default_api.setup(opts, &block)
+      @default_api = new(opts, &block)
     end
 
     # Create a new API object. This is useful to create multiple APIs and use them with the `uses_api` method.
@@ -27,7 +26,7 @@ module Her
     #     uses_api api
     #   end
     def initialize(*args, &blk)
-      self.setup(*args, &blk)
+      setup(*args, &blk)
     end
 
     # Setup the API connection.
