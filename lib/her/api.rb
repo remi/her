@@ -26,7 +26,7 @@ module Her
     #     uses_api api
     #   end
     def initialize(*args, &blk)
-      self.setup(*args, &blk)
+      setup(*args, &blk)
     end
 
     # Setup the API connection.
