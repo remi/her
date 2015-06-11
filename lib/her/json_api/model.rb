@@ -6,6 +6,12 @@ module Her
         klass.class_eval do
           include Her::Model
 
+          [:parse_root_in_json, :include_root_in_json, :root_element, :primary_key].each do |method|
+            define_method method do |*args|
+              raise NoMethodError, "Her::JsonApi::Model does not support the #{method} configuration option"
+            end
+          end
+
           method_for :update, :patch
 
           @type = name.demodulize.tableize

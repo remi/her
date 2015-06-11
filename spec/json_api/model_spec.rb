@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 describe Her::JsonApi::Model do
   before do
@@ -155,5 +154,13 @@ describe Her::JsonApi::Model do
   it 'destroys a Foo::User' do
     user = Foo::User.find(1)
     expect(user.destroy).to be_destroyed
+  end
+
+  context 'undefined methods' do
+    it 'removes methods that are not compatible with json api' do
+      [:parse_root_in_json, :include_root_in_json, :root_element, :primary_key].each do |method|
+        expect { Foo::User.new.send(method, :foo) }.to raise_error NoMethodError, "Her::JsonApi::Model does not support the #{method} configuration option"
+      end
+    end
   end
 end
