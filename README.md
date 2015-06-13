@@ -594,12 +594,53 @@ class User
   include Her::Model
   parse_root_in_json true, format: :json_api
 end
+```
 
-user = Users.find(1)
+The JSON API spec recommends that individual resource representations be represented as a single "resource object". 
+
+```ruby
+user = User.find(1)
+# GET "/users/1", response is { "users": { "id": 1, "fullname": "Lindsay Fünke" } }
+```
+
+However, Her will also handle responses where individual resources are wrapped in an array, as shown below.
+
+```ruby
+user = User.find(1)
 # GET "/users/1", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }] }
+```
 
-users = Users.all
+Multiple resources should always be wrapped in an array.
+
+```ruby
+users = User.all
 # GET "/users", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }, { "id": 2, "fullname": "Tobias Fünke" }] }
+```
+
+For sending objects in JSON API format, you must decide whether to wrap individual resources in an array. For backwards compatibility, Her will wrap the object.
+
+```ruby
+class User
+  include Her::Model
+  parse_root_in_json true, format: :json_api
+  include_root_in_json :users
+end
+
+users = User.create(fullname: "Bob Loblaw")
+# POST "/users", request params are { "users": [{ "id": 1, "fullname": "Bob Loblaw" }] }
+```
+
+To disable wrapping of the individual resource, set the wrap_single_elements option for include_root_in_json to false as follows.
+
+```ruby
+class User
+  include Her::Model
+  parse_root_in_json true, format: :json_api
+  include_root_in_json :users, wrap_single_elements: false
+end
+
+users = User.create(fullname: "Bob Loblaw")
+# POST "/users", request params are { "users": { "id": 1, "fullname": "Bob Loblaw" } }
 ```
 
 ### Custom requests
