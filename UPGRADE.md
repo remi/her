@@ -1,6 +1,14 @@
 # Upgrade Her
 
-Here is a list of backward-incompatible changes that were introduced while Her is pre-1.0. After reaching 1.0, it will follow the [Semantic Versioning](http://semver.org/) system.
+Here is a list of notable changes by release. Her follows the [Semantic Versioning](http://semver.org/) system.
+
+## 0.7.5
+
+- Performance fix for responses with large number of objects [link](https://github.com/remiprev/her/pull/337)
+- Bugfix for dirty attributes [link](https://github.com/remiprev/her/commit/70285debc6837a33a3a750c7c4a7251439464b42)
+- Add ruby 2.1 and 2.2 to travis test run. We will likely be removing official 1.9.x support in the near future, and 
+will begin to align our support with the official ruby maintenance schedule. 
+- README updates
 
 ## 0.6
 
