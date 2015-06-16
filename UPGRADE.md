@@ -2,6 +2,10 @@
 
 Here is a list of notable changes by release. Her follows the [Semantic Versioning](http://semver.org/) system.
 
+## 0.7.6
+
+- Loosen restrictions on ActiveSupport and ActiveModel to accommodate security fixes [link](https://github.com/remiprev/her/commit/8ff641fcdaf14be7cc9b1a6ee6654f27f7dfa34c)
+
 ## 0.7.5
 
 - Performance fix for responses with large number of objects [link](https://github.com/remiprev/her/pull/337)
