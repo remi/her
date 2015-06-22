@@ -54,11 +54,15 @@ module Her
         # @private
         def request(params={})
           request = her_api.request(params)
+          parsed_data = request[:parsed_data]
+          response = request[:response]
+
+          raise Her::Errors::RemoteServerError if response.status >= 500
 
           if block_given?
-            yield request[:parsed_data], request[:response]
+            yield parsed_data, response
           else
-            { :parsed_data => request[:parsed_data], :response => request[:response] }
+            { :parsed_data => parsed_data, :response => response }
           end
         end
 

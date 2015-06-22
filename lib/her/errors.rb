@@ -24,7 +24,7 @@ module Her
       end
     end
 
-    class RemoteResourceError < StandardError
+    class RemoteServerError < StandardError
     end
   end
 end
