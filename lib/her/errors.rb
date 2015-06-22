@@ -25,6 +25,14 @@ module Her
     end
 
     class RemoteServerError < StandardError
+      attr_reader :opts
+      def initialize(opts)
+        @opts = opts.to_s
+        super("Server errors occurred for request #{@opts}")
+      end
+    end
+
+    class RecordNotFound < StandardError
     end
   end
 end
