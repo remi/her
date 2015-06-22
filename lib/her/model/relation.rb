@@ -99,7 +99,7 @@ module Her
               resource.instance_variable_set(:@changed_attributes, {})
               resource.run_callbacks :find
             else
-              return nil
+              raise Her::Errors::RecordNotFound.new(params.to_s)
             end
           end
 
