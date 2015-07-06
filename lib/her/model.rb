@@ -67,6 +67,9 @@ module Her
       # Configure ActiveModel callbacks
       extend ActiveModel::Callbacks
       define_model_callbacks :create, :update, :save, :find, :destroy, :initialize
+
+      # Define matchers for attr? and attr= methods
+      define_attribute_method_matchers
     end
   end
 end

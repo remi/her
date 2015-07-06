@@ -158,6 +158,22 @@ module Her
         @attributes.hash
       end
 
+      # Assign attribute value (ActiveModel convention method).
+      #
+      # @private
+      def attribute=(attribute, value)
+        @attributes[attribute] = nil unless @attributes.include?(attribute)
+        self.send(:"#{attribute}_will_change!") if @attributes[attribute] != value
+        @attributes[attribute] = value
+      end
+
+      # Check attribute value to be present (ActiveModel convention method).
+      #
+      # @private
+      def attribute?(attribute)
+        @attributes.include?(attribute) && @attributes[attribute].present?
+      end
+
       module ClassMethods
         # Initialize a collection of resources with raw data from an HTTP request
         #
@@ -175,6 +191,25 @@ module Her
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
         end
 
+        # Define attribute method matchers to automatically define them using ActiveModel's define_attribute_methods.
+        #
+        # @private
+        def define_attribute_method_matchers
+          attribute_method_suffix '='
+          attribute_method_suffix '?'
+        end
+
+        # Create a mutex for dynamically generated attribute methods or use one defined by ActiveModel.
+        #
+        # @private
+        def attribute_methods_mutex
+          @attribute_methods_mutex ||= if generated_attribute_methods.respond_to? :synchronize
+                                         generated_attribute_methods
+                                       else
+                                         Mutex.new
+                                       end
+        end
+
         # Define the attributes that will be used to track dirty attributes and validations
         #
         # @param [Array] attributes
@@ -184,22 +219,8 @@ module Her
         #     attributes :name, :email
         #   end
         def attributes(*attributes)
-          define_attribute_methods attributes
-
-          attributes.each do |attribute|
-            unless method_defined?(:"#{attribute}=")
-              define_method("#{attribute}=") do |value|
-                @attributes[:"#{attribute}"] = nil unless @attributes.include?(:"#{attribute}")
-                self.send(:"#{attribute}_will_change!") if @attributes[:"#{attribute}"] != value
-                @attributes[:"#{attribute}"] = value
-              end
-            end
-
-            unless method_defined?(:"#{attribute}?")
-              define_method("#{attribute}?") do
-                @attributes.include?(:"#{attribute}") && @attributes[:"#{attribute}"].present?
-              end
-            end
+          attribute_methods_mutex.synchronize do
+            define_attribute_methods attributes
           end
         end
 

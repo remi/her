@@ -99,11 +99,11 @@ describe Her::JsonApi::Model do
 
     end
 
-    spawn_model("Foo::User", Her::JsonApi::Model)
+    spawn_model("Foo::User", type: Her::JsonApi::Model)
   end
 
   it 'allows configuration of type' do
-    spawn_model("Foo::Bar", Her::JsonApi::Model) do
+    spawn_model("Foo::Bar", type: Her::JsonApi::Model) do
       type :foobars
     end
 
