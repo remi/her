@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec-its", "~> 1.0"
   s.add_development_dependency "fivemat", "~> 1.2"
   s.add_development_dependency "json", "~> 1.8"
+  s.add_development_dependency "connection_pool", "~> 2.2"
 
   s.add_runtime_dependency "activemodel", ">= 3.0.0", "<= 4.3.0"
   s.add_runtime_dependency "activesupport", ">= 3.0.0", "<= 4.3.0"

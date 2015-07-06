@@ -873,6 +873,77 @@ Her::API.setup url: "https://api.example.com", ssl: ssl_options do |c|
 end
 ```
 
+### Persistent connection
+
+Her creates a connection instance only once but it's not a whole picture. In the [basic usage example](#usage) `Faraday::Adapter::NetHttp` is used. It makes Her use Ruby's standard `Net::HTTP` library which doesn't force you to install additional http client gems. However you should know that `Net::HTTP` connections are not persistent in Faraday (not *reusable* or not *keep-alive* in other words) so new TCP/IP connection is established for each requet.
+
+To avoid this problem you should use a different HTTP client. For example, there is a [httpclient](https://github.com/nahi/httpclient) gem which supports persistent connections. Add it to Gemfile:
+
+```ruby
+# Gemfile
+gem 'httpclient'
+```
+
+And configure Her to use its adapter:
+
+```ruby
+Her::API.setup url: "https://api.example.com" do |c|
+  # Request
+  c.use Faraday::Request::UrlEncoded
+
+  # Response
+  c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
+  c.use Faraday::Adapter::HTTPClient
+end
+```
+
+Other http clients that support persistent connections are [Typhoeus](https://github.com/typhoeus/typhoeus), [Patron](https://github.com/toland/patron) and [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent).
+
+Corresponding Faraday adapters are:
+
+```ruby
+  require 'typhoeus/adapters/faraday' # Typhoeus has its own
+  c.use Faraday::Adapter::Typhoeus
+```
+Or:
+```ruby
+  c.use Faraday::Adapter::Patron
+```
+Or:
+```ruby
+  c.use Faraday::Adapter::NetHttpPersistent
+```
+
+### Connection pool
+
+If you're using Her inside threads (for example by using with [puma](https://github.com/puma/puma) or [Sidekiq](https://github.com/mperham/sidekiq)) then it's worth to use a connection pool. Her has a basic connection pool support relying on [connection_pool](https://github.com/mperham/connection_pool) gem. Add it to your project:
+
+```ruby
+# Gemfile
+gem 'connection_pool'
+```
+
+And then you are able to use `:pool_size` and `:pool_timeout` options in `Her::API.setup`. There is also a convenient helper `Her::API.setup_pool`:
+
+```ruby
+Her::API.setup_pool 5,  url: "https://api.example.com" do |c|
+  # Request
+  c.use Faraday::Request::UrlEncoded
+
+  # Response
+  c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
+  c.use Faraday::Adapter::HTTPClient
+end
+```
+
+To take full advantage of concurrent connection pool make sure you have a [persistent connection](#persistent-connection).
+
+*Note:* If you're using a `Net::HTTP::Persistent` then there's no need to `setup_pool` because this client has its own pool.
+
 ## Testing
 
 Suppose we have these two models bound to your API:
