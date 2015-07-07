@@ -5,24 +5,7 @@ describe Her::JsonApi::Model do
     Her::API.setup :url => "https://api.example.com" do |connection|
       connection.use Her::Middleware::JsonApiParser
       connection.adapter :test do |stub|
-        stub.get("/users/1") do |env|
-          [
-            200,
-            {},
-            {
-              data: {
-                id:    1,
-                type: 'users',
-                attributes: {
-                  name: "Roger Federer",
-                },
-              }
-
-            }.to_json
-          ]
-        end
-
-        stub.get("/users") do |env|
+        stub.get('/ballers') do |env|
           [
             200,
             {},
@@ -30,71 +13,46 @@ describe Her::JsonApi::Model do
               data: [
                 {
                   id:    1,
-                  type: 'users',
-                  attributes: {
-                    name: "Roger Federer",
-                  },
+                  type: 'ballers',
+                  attributes: { name: "Jeremy Lin", },
+                  relationships: {
+                    teammates: {
+                      data: [
+                        {
+                          type: 'teammates',
+                          id: 1,
+                        },
+                        {
+                          type: 'teammates',
+                          id: 2,
+                        }
+                      ]
+                    },
+                    team: {
+                      data: {
+                        type: 'teams',
+                        id: 1,
+                      }
+                    }
+                  }
                 },
                 {
-                  id:    2,
-                  type: 'users',
-                  attributes: {
-                    name: "Kei Nishikori",
-                  },
-                }
-              ]
-            }.to_json
-          ]
-        end
-
-        stub.post("/users", data: {
-          type: 'users',
-          attributes: {
-            name: "Jeremy Lin",
-          },
-        }) do |env|
-          [
-            201,
-            {},
-            {
-              data: {
-                id:    3,
-                type: 'users',
-                attributes: {
-                  name: 'Jeremy Lin',
+                  id: 2,
+                  type: 'ballers',
+                  attributes: { name: 'Carmelo Anthony' },
                 },
-              }
-
-            }.to_json
+              ],
+            }.to_json,
           ]
         end
 
-        stub.patch("/users/1", data: {
-          type: 'users',
-          id: 1,
-          attributes: {
-            name: "Fed GOAT",
-          },
-        }) do |env|
-          [
-            200,
-            {},
-            {
-              data: {
-                id:    1,
-                type: 'users',
-                attributes: {
-                  name: 'Fed GOAT',
-                },
-              }
-
-            }.to_json
-          ]
+        stub.get('ballers/1/teammates') do
+          [ 200, {}, { data: [] }.to_json ]
         end
 
-        stub.delete("/users/1") { |env|
-          [ 204, {}, {}, ]
-        }
+        stub.get('ballers/2/teammates') do
+          [ 200, {}, { data: [] }.to_json ]
+        end
 
         stub.get("/players") do |env|
           [
@@ -209,71 +167,27 @@ describe Her::JsonApi::Model do
         end
       end
     end
-
-    spawn_model("Foo::User", type: Her::JsonApi::Model)
   end
 
-  context 'simple jsonapi document' do
-    it 'allows configuration of type' do
-      spawn_model("Foo::Bar", type: Her::JsonApi::Model) do
-        type :foobars
+  context 'document with relationships' do
+    before do
+      spawn_model("Foo::Teammate", type: Her::JsonApi::Model)
+      spawn_model("Foo::Team",  type: Her::JsonApi::Model)
+      spawn_model("Foo::Baller", type: Her::JsonApi::Model) do
+        has_many :teammates
+        belongs_to :team
       end
-
-      expect(Foo::Bar.instance_variable_get('@type')).to eql('foobars')
     end
 
-    it 'finds models by id' do
-      user = Foo::User.find(1)
-      expect(user.attributes).to eql(
-        'id' => 1,
-        'name' => 'Roger Federer',
-      )
-    end
+    it 'parses included documents into object if relationship specifies a resource linkage' do
+      players = Foo::Baller.all
+      lin = players.detect { |p| p.name == 'Jeremy Lin' }
+      expect(lin.team).to be_nil
+      expect(lin.teammates).to be_empty
 
-    it 'finds a collection of models' do
-      users = Foo::User.all
-      expect(users.map(&:attributes)).to match_array([
-        {
-          'id' => 1,
-          'name' => 'Roger Federer',
-        },
-        {
-          'id' => 2,
-          'name' => 'Kei Nishikori',
-        }
-      ])
-    end
-
-    it 'creates a Foo::User' do
-      user = Foo::User.new(name: 'Jeremy Lin')
-      user.save
-      expect(user.attributes).to eql(
-        'id' => 3,
-        'name' => 'Jeremy Lin',
-      )
-    end
-
-    it 'updates a Foo::User' do
-      user = Foo::User.find(1)
-      user.name = 'Fed GOAT'
-      user.save
-      expect(user.attributes).to eql(
-        'id' => 1,
-        'name' => 'Fed GOAT',
-      )
-    end
-
-    it 'destroys a Foo::User' do
-      user = Foo::User.find(1)
-      expect(user.destroy).to be_destroyed
-    end
-
-    context 'undefined methods' do
-      it 'removes methods that are not compatible with json api' do
-        [:parse_root_in_json, :include_root_in_json, :root_element, :primary_key].each do |method|
-          expect { Foo::User.new.send(method, :foo) }.to raise_error NoMethodError, "Her::JsonApi::Model does not support the #{method} configuration option"
-        end
-      end
+      melo = players.detect { |p| p.name == 'Carmelo Anthony' }
+      expect(melo.teammates).to eq []
+      expect(melo.team).to be_nil
     end
   end
 
@@ -303,3 +217,4 @@ describe Her::JsonApi::Model do
     end
   end
 end
+
