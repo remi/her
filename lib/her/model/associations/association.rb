@@ -29,7 +29,7 @@ module Her
           if data[data_key].kind_of?(klass)
             { association[:name] => data[data_key] }
           else
-            { association[:name] => klass.new(data[data_key]) }
+            { association[:name] => klass.new(klass.parse(data[data_key])) }
           end
         end
 
