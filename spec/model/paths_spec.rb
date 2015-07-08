@@ -63,6 +63,12 @@ describe Her::Model::Paths do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
           expect { Foo::User.build_request_path(:id => "foo") }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/utilisateurs/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
+
+        it "escapes the variable values" do
+          Foo::User.collection_path "organizations/:organization_id/utilisateurs"
+          Foo::User.build_request_path(:_organization_id => 'лол', :id => "Привет").should == "organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82"
+          Foo::User.build_request_path(:organization_id => 'лол', :id => "Привет").should == "organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82"
+        end
       end
     end
 
