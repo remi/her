@@ -613,7 +613,7 @@ end
 
 Finally, you'll need to use the included JsonApiParser Her middleware:
 
-```
+```ruby
 Her::API.setup url: 'https://my_awesome_json_api_service' do |c|
   # Request
   c.use FaradayMiddleware::EncodeJson
