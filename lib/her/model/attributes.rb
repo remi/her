@@ -203,7 +203,7 @@ module Her
         #
         # @private
         def attribute_methods_mutex
-          @attribute_methods_mutex ||= if generated_attribute_methods.respond_to? :synchronize
+          @attribute_methods_mutex ||= if generated_attribute_methods.respond_to? :mu_synchronize
                                          generated_attribute_methods
                                        else
                                          Mutex.new
