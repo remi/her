@@ -356,6 +356,22 @@ describe Her::Model::Attributes do
         end
         Foo::User.attribute_methods_mutex.should_not eq(Foo::User.generated_attribute_methods)
       end
+
+      it "works well with Module#synchronize monkey patched by ActiveSupport" do
+        Module.class_eval do
+          def synchronize(*args)
+            raise 'gotcha!'
+          end
+        end
+        expect(Mutex).to receive(:new).once.and_call_original
+        spawn_model 'Foo::User' do
+          attributes :fullname
+        end
+        Foo::User.attribute_methods_mutex.should_not eq(Foo::User.generated_attribute_methods)
+        Module.class_eval do
+          undef :synchronize
+        end
+      end
     else
       it "uses ActiveModel's mutex" do
         Foo::User.attribute_methods_mutex.should eq(Foo::User.generated_attribute_methods)
