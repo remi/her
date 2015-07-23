@@ -584,7 +584,7 @@ users = Users.all
 # GET "/users", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }, { "id": 1, "fullname": "Tobias Fünke" }] }
 ```
 
-#### JSON API support
+#### JSON API support (experimental)
 
 To consume a JSON API 1.0 compliant service, it must return data in accordance with the [JSON API spec](http://jsonapi.org/). The general format
 of the data is as follows: 
@@ -624,6 +624,119 @@ Her::API.setup url: 'https://my_awesome_json_api_service' do |c|
   # Adapter
   c.use Faraday::Adapter::NetHttp
 end
+```
+
+There is also partial support for relationships and compound documents.
+
+```json
+{
+  "data": {
+    {
+      "id":    1,
+      "type": "ballers",
+      "attributes": { name: "Roger Federer" },
+      "relationships": {
+        "sponsors": {
+          "data": [
+            {
+              "type": "sponsors",
+              "id": 1
+            },
+            {
+              "type": "sponsors",
+              "id": 2
+            }
+          ]
+        },
+        "country": {
+          "data": {
+            "type": "countries",
+            "id": 1
+          }
+        }
+      }
+    }
+  },
+  included: [
+    {
+      type: 'sponsors',
+      id: 1,
+      attributes: { company: 'Nike' }
+    },
+    {
+      type: 'sponsors',
+      id: 2,
+      attributes: { company: 'Rolex' }
+    },
+    {
+      type: 'countries',
+      id: 1,
+      attributes: { name: 'Switzerland' }
+    }
+  ]
+}
+```
+
+```ruby
+class Baller
+  include Her::JsonApi::Model
+
+  # will populate associations from included resources
+  has_many :sponsors
+  belongs_to :country
+
+  # defaults to demodulized, pluralized class name, e.g. contributors
+  type :developers
+end
+
+fed = Baller.find(1)
+fed.sponsors.map(&:company) # => ["Nike", "Rolex"]
+fed.country.name # => 'Switzerland'
+```
+
+However, relationships are ignored unless those resources are included. JSON API relationships
+are built on the idea that a url can be passed to indicate the location of the resource. The dynamic
+nature of this is something the client will look to support down the road.
+
+```json
+{
+  "data": {
+    {
+      "id":    1,
+      "type": "ballers",
+      "attributes": { "name": "Roger Federer", "country_id": 100},
+      "relationships": {
+        "sponsors": {
+          "data": [
+            {
+              "type": "sponsors",
+              "id": 1
+            },
+            {
+              "type": "sponsors",
+              "id": 2
+            }
+          ]
+        },
+        "country": {
+          "data": {
+            "type": "countries",
+            "id": 100
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Note, the presence of country_id is still depended on in order to fetch the belongs_to
+association. Thus, given the preceding response which does not have included resources:
+
+```ruby
+fed = Baller.find(1) # => GET "/ballers/1"
+fed.sponsors # => GET "/ballers/1/sponsors"
+fed.country # => GET "/ballers/1/country/100
 ```
 
 ### Custom requests
