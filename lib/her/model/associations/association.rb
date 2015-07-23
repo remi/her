@@ -12,6 +12,7 @@ module Her
           @params = {}
 
           @klass = @parent.class.her_nearby_class(@opts[:class_name])
+          @cached_result = {}
           @name = @opts[:name]
         end
 
@@ -47,12 +48,12 @@ module Her
           attribute_value = @parent.attributes[@name]
           return @opts[:default].try(:dup) if @parent.attributes.include?(@name) && (attribute_value.nil? || !attribute_value.nil? && attribute_value.empty?) && @params.empty?
 
-          return @cached_result unless @params.any? || @cached_result.nil?
-          return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
+          return @cached_result[@params] if @cached_result[@params].present?
+          return @parent.attributes[@name] if @params.blank? && @parent.attributes[@name].present?
 
           path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
           @klass.get(path, @params).tap do |result|
-            @cached_result = result unless @params.any?
+            @cached_result[@params] = result
           end
         end
 

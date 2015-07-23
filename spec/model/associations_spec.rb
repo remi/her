@@ -158,6 +158,14 @@ describe Her::Model::Associations do
       comment_without_included_parent_data.user.object_id.should_not == comment_without_included_parent_data.user.where(:a => 2).object_id
     end
 
+    it "does not refetch the parent models data if parameters are identical" do
+      comment_without_included_parent_data.user.where(:a => 1).object_id.should == comment_without_included_parent_data.user.where(:a => 1).object_id
+    end
+
+    it "does fetch the parent models data if parameters are not identical" do
+      comment_without_included_parent_data.user.where(:a => 1).object_id.should_not == comment_without_included_parent_data.user.where(:a => 2).object_id
+    end
+
     it "uses the given inverse_of key to set the parent model" do
       @user_with_included_data.posts.first.admin.object_id.should == @user_with_included_data.object_id
     end
@@ -179,6 +187,14 @@ describe Her::Model::Associations do
 
     it "fetches data that was cached through has_many if called with parameters" do
       @user_without_included_data.comments.first.object_id.should_not == @user_without_included_data.comments.where(:foo_id => 1).first.object_id
+    end
+
+    it "does not fetch data that was cached through has_many if called parameters are identical" do
+      @user_without_included_data.comments.where(:foo_id => 1).first.object_id.should == @user_without_included_data.comments.where(:foo_id => 1).first.object_id
+    end
+
+    it "does fetch data that was cached through has_many if called parameters are not identical" do
+      @user_without_included_data.comments.where(:id => 4).first.object_id.should_not == @user_without_included_data.comments.where(:foo_id => 1).first.object_id
     end
 
     it "maps an array of included data through has_one" do
