@@ -163,13 +163,20 @@ describe Her::Model::Parse do
           stub.post("/users") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
           stub.get("/users") { |env| [200, {}, { :users => [ { :id => 1, :fullname => "Lindsay Fünke" } ] }.to_json] }
           stub.get("/users/admins") { |env| [200, {}, { :users => [ { :id => 1, :fullname => "Lindsay Fünke" } ] }.to_json] }
-          stub.get("/users/1") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke" } }.to_json] }
-          stub.put("/users/1") { |env| [200, {}, { :user => { :id => 1, :fullname => "Tobias Fünke Jr." } }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { :user => { :id => 1, :fullname => "Lindsay Fünke", :organization_id => 1 } }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { :user => { :id => 1, :fullname => "Tobias Fünke Jr.", :organization_id => 1 } }.to_json] }
+          stub.get("/organizations/1") { |env| [200, {}, { :organization => { :id => 1, :name => "Github" } }.to_json] }
         end
 
         spawn_model("Foo::User") do
           parse_root_in_json true, :format => :active_model_serializers
           custom_get :admins
+
+          belongs_to :organization
+        end
+
+        spawn_model("Foo::Organization") do
+          parse_root_in_json true, :format => :active_model_serializers
         end
       end
 
@@ -198,6 +205,12 @@ describe Her::Model::Parse do
         @user.fullname = "Tobias Fünke"
         @user.save
         @user.fullname.should == "Tobias Fünke Jr."
+      end
+
+      it "parse the organization of the user" do
+        @user = Foo::User.find(1)
+
+        @user.organization.id.should == @user.organization_id
       end
     end
   end
