@@ -76,7 +76,7 @@ describe Her::Model::Associations do
       describe "associations accessor" do
         subject { Class.new(Foo::User).associations }
         its(:object_id) { should_not eql Foo::User.associations.object_id }
-      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
+        its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
       end
     end
   end
@@ -231,6 +231,7 @@ describe Her::Model::Associations do
 
     it "fetches data with the specified id when calling find" do
       comment = @user_without_included_data.comments.find(5)
+      comment.should be_a(Foo::Comment)
       comment.id.should eq(5)
     end
 
@@ -262,6 +263,88 @@ describe Her::Model::Associations do
           subject.role.body.should == "Admin"
         end
       end
+    end
+  end
+
+  context "handling associations with details in active_model_serializers format" do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { |env| [200, {}, { :user => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 } }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { :user => { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 } }.to_json] }
+          stub.get("/users/1/comments") { |env| [200, {}, { :comments => [{ :id => 4, :body => "They're having a FIRESALE?" }] }.to_json] }
+          stub.get("/users/2/comments") { |env| [200, {}, { :comments => [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }] }.to_json] }
+          stub.get("/users/2/comments/5") { |env| [200, {}, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }.to_json] }
+          stub.get("/organizations/1") { |env| [200, {}, { :organization =>  { :id => 1, :name => "Bluth Company Foo" } }.to_json] }
+        end
+      end
+      spawn_model "Foo::User" do
+        parse_root_in_json true, :format => :active_model_serializers
+        has_many :comments, class_name: "Foo::Comment"
+        belongs_to :organization
+      end
+      spawn_model "Foo::Comment" do
+        belongs_to :user
+        parse_root_in_json true, :format => :active_model_serializers
+      end
+      spawn_model "Foo::Organization" do
+        parse_root_in_json true, :format => :active_model_serializers
+      end
+
+      @user_with_included_data = Foo::User.find(1)
+      @user_without_included_data = Foo::User.find(2)
+    end
+
+    it "maps an array of included data through has_many" do
+      @user_with_included_data.comments.first.should be_a(Foo::Comment)
+      @user_with_included_data.comments.length.should == 2
+      @user_with_included_data.comments.first.id.should == 2
+      @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
+    end
+
+    it "does not refetch the parents models data if they have been fetched before" do
+      @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
+    end
+
+    it "fetches data that was not included through has_many" do
+      @user_without_included_data.comments.first.should be_a(Foo::Comment)
+      @user_without_included_data.comments.length.should == 2
+      @user_without_included_data.comments.first.id.should == 4
+      @user_without_included_data.comments.first.body.should == "They're having a FIRESALE?"
+    end
+
+    it "fetches has_many data even if it was included, only if called with parameters" do
+      @user_with_included_data.comments.where(:foo_id => 1).length.should == 1
+    end
+
+    it "maps an array of included data through belongs_to" do
+      @user_with_included_data.organization.should be_a(Foo::Organization)
+      @user_with_included_data.organization.id.should == 1
+      @user_with_included_data.organization.name.should == "Bluth Company"
+    end
+
+    it "fetches data that was not included through belongs_to" do
+      @user_without_included_data.organization.should be_a(Foo::Organization)
+      @user_without_included_data.organization.id.should == 1
+      @user_without_included_data.organization.name.should == "Bluth Company Foo"
+    end
+
+    it "fetches belongs_to data even if it was included, only if called with parameters" do
+      @user_with_included_data.organization.where(:foo_id => 1).name.should == "Bluth Company Foo"
+    end
+
+    it "fetches data with the specified id when calling find" do
+      comment = @user_without_included_data.comments.find(5)
+      comment.should be_a(Foo::Comment)
+      comment.id.should eq(5)
+    end
+
+    it 'includes has_many relationships in params by default' do
+      params = @user_with_included_data.to_params
+      params[:comments].should be_kind_of(Array)
+      params[:comments].length.should eq(2)
     end
   end
 

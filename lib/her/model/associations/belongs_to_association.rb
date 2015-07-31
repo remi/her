@@ -81,7 +81,7 @@ module Her
 
           path_params = @parent.attributes.merge(@params.merge(@klass.primary_key => foreign_key_value))
           path = build_association_path lambda { @klass.build_request_path(path_params) }
-          @klass.get(path, @params).tap do |result|
+          @klass.get_resource(path, @params).tap do |result|
             @cached_result = result if @params.blank?
           end
         end
