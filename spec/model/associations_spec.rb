@@ -132,6 +132,7 @@ describe Her::Model::Associations do
 
       @user_with_included_data = Foo::User.find(1)
       @user_without_included_data = Foo::User.find(2)
+      @user_without_organization_and_not_persisted = Foo::User.new(organization_id: nil, name: "Katlin Fünke")
     end
 
     let(:user_with_included_data_after_create) { Foo::User.create }
@@ -208,6 +209,10 @@ describe Her::Model::Associations do
       @user_without_included_data.organization.should be_a(Foo::Organization)
       @user_without_included_data.organization.id.should == 2
       @user_without_included_data.organization.name.should == "Bluth Company"
+    end
+
+    it "returns nil if the foreign key is nil" do
+      @user_without_organization_and_not_persisted.organization.should be_nil
     end
 
     it "fetches belongs_to data even if it was included, only if called with parameters" do
