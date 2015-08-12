@@ -47,7 +47,7 @@ module Her
     # Class methods
     included do
       # Assign the default API
-      use_api Her::API.default_api
+      use_api -> { Her::API.default_api }
       method_for :create, :post
       method_for :update, :put
       method_for :find, :get
