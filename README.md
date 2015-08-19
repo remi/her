@@ -476,6 +476,8 @@ end
 @user.changes # => {}
 ```
 
+To update only the modified attributes specify `:send_only_modified_attributes => true` in the setup.
+
 ### Callbacks
 
 You can add *before* and *after* callbacks to your models that are triggered on specific actions. You can use symbols or blocks.
@@ -584,20 +586,44 @@ users = Users.all
 
 #### JSON API support
 
-If the API returns data in the [JSON API format](http://jsonapi.org/) you need
-to configure Her as follows:
+To consume a JSON API 1.0 compliant service, it must return data in accordance with the [JSON API spec](http://jsonapi.org/). The general format
+of the data is as follows: 
+
+```json
+{ "data": {
+  "type": "developers",
+  "id": "6ab79c8c-ec5a-4426-ad38-8763bbede5a7",
+  "attributes": {
+    "language": "ruby",
+    "name": "avdi grimm",
+  }
+}
+```
+
+Then to setup your models:
 
 ```ruby
-class User
-  include Her::Model
-  parse_root_in_json true, format: :json_api
+class Contributor
+  include Her::JsonApi::Model
+
+  # defaults to demodulized, pluralized class name, e.g. contributors
+  type :developers
 end
+```
 
-user = Users.find(1)
-# GET "/users/1", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }] }
+Finally, you'll need to use the included JsonApiParser Her middleware:
 
-users = Users.all
-# GET "/users", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }, { "id": 2, "fullname": "Tobias Fünke" }] }
+```ruby
+Her::API.setup url: 'https://my_awesome_json_api_service' do |c|
+  # Request
+  c.use FaradayMiddleware::EncodeJson
+
+  # Response
+  c.use Her::Middleware::JsonApiParser
+
+  # Adapter
+  c.use Faraday::Adapter::NetHttp
+end
 ```
 
 ### Custom requests
@@ -755,7 +781,7 @@ Just like with ActiveRecord, you can define named scopes for your models. Scopes
 class User
   include Her::Model
 
-  scope :by_role, -> { |role| where(role: role) }
+  scope :by_role, ->(role) { where(role: role) }
   scope :admins, -> { by_role('admin') }
   scope :active, -> { where(active: 1) }
 end
@@ -777,7 +803,7 @@ class User
   include Her::Model
 
   collection_path "organizations/:organization_id/users"
-  scope :for_organization, -> { |id| where(organization_id: id) }
+  scope :for_organization, ->(id) { where(organization_id: id) }
 end
 
 @user = User.for_organization(3).find(2)
@@ -937,7 +963,7 @@ end
 
 ## Upgrade
 
-See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for backward compability issues.
+See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for backward compatibility issues.
 
 ## Her IRL
 
@@ -947,6 +973,7 @@ Most projects I know that use Her are internal or private projects but here’s 
 * [crowdher](https://github.com/simonprev/crowdher)
 * [vodka](https://github.com/magnolia-fan/vodka)
 * [webistrano_cli](https://github.com/chytreg/webistrano_cli)
+* [ASMALLWORLD](https://www.asmallworld.com)
 
 ## History
 

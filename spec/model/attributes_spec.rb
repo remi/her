@@ -265,4 +265,125 @@ describe Her::Model::Attributes do
       end
     end
   end
+
+  context "attributes class method" do
+    before do
+      spawn_model 'Foo::User' do
+        attributes :fullname, :document
+      end
+    end
+
+    context "instance" do
+      subject { Foo::User.new }
+
+      it { should respond_to(:fullname) }
+      it { should respond_to(:fullname=) }
+      it { should respond_to(:fullname?) }
+    end
+
+    it "defines setter that affects @attributes" do
+      user = Foo::User.new
+      user.fullname = 'Tobias Fünke'
+      user.attributes[:fullname].should eq('Tobias Fünke')
+    end
+
+    it "defines getter that reads @attributes" do
+      user = Foo::User.new
+      user.assign_attributes(fullname: 'Tobias Fünke')
+      user.fullname.should eq('Tobias Fünke')
+    end
+
+    it "defines predicate that reads @attributes" do
+      user = Foo::User.new
+      user.fullname?.should be_falsey
+      user.assign_attributes(fullname: 'Tobias Fünke')
+      user.fullname?.should be_truthy
+    end
+
+    context "when attribute methods are already defined" do
+      before do
+        class AbstractUser
+          attr_accessor :fullname
+
+          def fullname?
+            @fullname.present?
+          end
+        end
+        @spawned_models << :AbstractUser
+
+        spawn_model 'Foo::User', super_class: AbstractUser do
+          attributes :fullname
+        end
+      end
+
+      it "overrides getter method" do
+        Foo::User.generated_attribute_methods.instance_methods.should include(:fullname)
+      end
+
+      it "overrides setter method" do
+        Foo::User.generated_attribute_methods.instance_methods.should include(:fullname=)
+      end
+
+      it "overrides predicate method" do
+        Foo::User.generated_attribute_methods.instance_methods.should include(:fullname?)
+      end
+
+      it "defines setter that affects @attributes" do
+        user = Foo::User.new
+        user.fullname = 'Tobias Fünke'
+        user.attributes[:fullname].should eq('Tobias Fünke')
+      end
+
+      it "defines getter that reads @attributes" do
+        user = Foo::User.new
+        user.attributes[:fullname] = 'Tobias Fünke'
+        user.fullname.should eq('Tobias Fünke')
+      end
+
+      it "defines predicate that reads @attributes" do
+        user = Foo::User.new
+        user.fullname?.should be_falsey
+        user.attributes[:fullname] = 'Tobias Fünke'
+        user.fullname?.should be_truthy
+      end
+    end
+
+    if ActiveModel::VERSION::MAJOR < 4
+      it "creates a new mutex" do
+        expect(Mutex).to receive(:new).once.and_call_original
+        spawn_model 'Foo::User' do
+          attributes :fullname
+        end
+        Foo::User.attribute_methods_mutex.should_not eq(Foo::User.generated_attribute_methods)
+      end
+
+      it "works well with Module#synchronize monkey patched by ActiveSupport" do
+        Module.class_eval do
+          def synchronize(*args)
+            raise 'gotcha!'
+          end
+        end
+        expect(Mutex).to receive(:new).once.and_call_original
+        spawn_model 'Foo::User' do
+          attributes :fullname
+        end
+        Foo::User.attribute_methods_mutex.should_not eq(Foo::User.generated_attribute_methods)
+        Module.class_eval do
+          undef :synchronize
+        end
+      end
+    else
+      it "uses ActiveModel's mutex" do
+        Foo::User.attribute_methods_mutex.should eq(Foo::User.generated_attribute_methods)
+      end
+    end
+
+    it "uses a mutex" do
+      spawn_model 'Foo::User'
+      expect(Foo::User.attribute_methods_mutex).to receive(:synchronize).once.and_call_original
+      Foo::User.class_eval do
+        attributes :fullname, :documents
+      end
+    end
+  end
 end

@@ -3,15 +3,14 @@ module Her
   # so it knows where to make those requests. In Rails, this is usually done in `config/initializers/her.rb`:
   class API
     # @private
-    attr_reader :base_uri, :connection, :options
+    attr_reader :connection, :options
 
     # Constants
     FARADAY_OPTIONS = [:request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class].freeze
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
     def self.setup(opts={}, &block)
-      @default_api = new
-      @default_api.setup(opts, &block)
+      @default_api = new(opts, &block)
     end
 
     # Create a new API object. This is useful to create multiple APIs and use them with the `uses_api` method.
@@ -27,14 +26,14 @@ module Her
     #     uses_api api
     #   end
     def initialize(*args, &blk)
-      self.setup(*args, &blk)
+      setup(*args, &blk)
     end
 
     # Setup the API connection.
     #
     # @param [Hash] opts the Faraday options
     # @option opts [String] :url The main HTTP API root (eg. `https://api.example.com`)
-    # @option opts [String] :ssl A hash containing [SSL options](https://github.com/technoweenie/faraday/wiki/Setting-up-SSL-certificates)
+    # @option opts [String] :ssl A hash containing [SSL options](https://github.com/lostisland/faraday/wiki/Setting-up-SSL-certificates)
     #
     # @return Faraday::Connection
     #
@@ -71,7 +70,6 @@ module Her
     #   end
     def setup(opts={}, &blk)
       opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
-      @base_uri = opts[:url]
       @options = opts
 
       faraday_options = @options.reject { |key, value| !FARADAY_OPTIONS.include?(key.to_sym) }

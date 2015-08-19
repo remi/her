@@ -106,8 +106,13 @@ module Her
 
           path.gsub(/:([\w_]+)/) do
             # Look for :key or :_key, otherwise raise an exception
-            value = $1.to_sym
-            parameters.delete(value) || parameters.delete(:"_#{value}") || raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path. Path is `#{path}`. Parameters are `#{parameters.symbolize_keys.inspect}`.", $1))
+            key = $1.to_sym
+            value = parameters.delete(key) || parameters.delete(:"_#{key}")
+            if value
+              Faraday::Utils.escape value
+            else
+              raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path. Path is `#{path}`. Parameters are `#{parameters.symbolize_keys.inspect}`.", $1))
+            end
           end
         end
 

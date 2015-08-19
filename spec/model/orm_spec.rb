@@ -49,10 +49,12 @@ describe Her::Model::ORM do
     it "handles new resource" do
       @new_user = Foo::User.new(:fullname => "Tobias Fünke")
       @new_user.new?.should be_truthy
+      @new_user.new_record?.should be_truthy
       @new_user.fullname.should == "Tobias Fünke"
 
       @existing_user = Foo::User.find(1)
       @existing_user.new?.should be_falsey
+      @existing_user.new_record?.should be_falsey
     end
 
     it 'handles new resource with custom primary key' do

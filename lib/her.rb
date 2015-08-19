@@ -13,4 +13,7 @@ require "her/errors"
 require "her/collection"
 
 module Her
+  module JsonApi
+    autoload :Model, 'her/json_api/model'
+  end
 end

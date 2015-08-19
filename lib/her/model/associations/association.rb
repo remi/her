@@ -29,7 +29,7 @@ module Her
           if data[data_key].kind_of?(klass)
             { association[:name] => data[data_key] }
           else
-            { association[:name] => klass.new(data[data_key]) }
+            { association[:name] => klass.new(klass.parse(data[data_key])) }
           end
         end
 
@@ -47,11 +47,12 @@ module Her
           attribute_value = @parent.attributes[@name]
           return @opts[:default].try(:dup) if @parent.attributes.include?(@name) && (attribute_value.nil? || !attribute_value.nil? && attribute_value.empty?) && @params.empty?
 
-          if @parent.attributes[@name].blank? || @params.any?
-            path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
-            @klass.get(path, @params)
-          else
-            @parent.attributes[@name]
+          return @cached_result unless @params.any? || @cached_result.nil?
+          return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
+
+          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
+          @klass.get(path, @params).tap do |result|
+            @cached_result = result unless @params.any?
           end
         end
 
@@ -93,7 +94,7 @@ module Her
         def find(id)
           return nil if id.blank?
           path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
-          @klass.get(path, @params)
+          @klass.get_resource(path, @params)
         end
 
       end
