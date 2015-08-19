@@ -61,7 +61,7 @@ module Her
         end
 
         def has_one_embedded_params(attributes)
-          present_has_ones = associations[:has_one].select { |a| attributes.include?(a[:data_key]) }
+          present_has_ones = (associations[:has_one] || []).select { |a| attributes.include?(a[:data_key]) }
           present_has_ones.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].to_params
             next if params.empty?
@@ -71,7 +71,7 @@ module Her
         end
 
         def has_many_embedded_params(attributes)
-          present_has_many = associations[:has_many].select { |a| attributes.include?(a[:data_key]) }
+          present_has_many = (associations[:has_many] || []).select { |a| attributes.include?(a[:data_key]) }
           present_has_many.compact.each_with_object({}) do |association, hash|
             params = attributes[association[:data_key]].map(&:to_params)
             next if params.empty?
