@@ -2,6 +2,14 @@
 
 Here is a list of notable changes by release. Her follows the [Semantic Versioning](http://semver.org/) system.
 
+## 0.8.0
+
+- Initial support for JSONAPI [link](https://github.com/remiprev/her/pull/347)
+- Fix for has_one association parsing [link](https://github.com/remiprev/her/pull/352)
+- Fix for escaping path variables HT @marshall-lee [link](https://github.com/remiprev/her/pull/354)
+- Fix syntax highlighting in README HT @tippenein [link](https://github.com/remiprev/her/pull/356)
+- Fix associations with Active Model Serializers HT @minktom [link](https://github.com/remiprev/her/pull/359)
+
 ## 0.7.6
 
 - Loosen restrictions on ActiveSupport and ActiveModel to accommodate security fixes [link](https://github.com/remiprev/her/commit/8ff641fcdaf14be7cc9b1a6ee6654f27f7dfa34c)
