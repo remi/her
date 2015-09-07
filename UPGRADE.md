@@ -2,7 +2,7 @@
 
 Here is a list of notable changes by release. Her follows the [Semantic Versioning](http://semver.org/) system.
 
-## 0.8.0
+## 0.8.1 (Note: 0.8.0 yanked)
 
 - Initial support for JSONAPI [link](https://github.com/remiprev/her/pull/347)
 - Fix for has_one association parsing [link](https://github.com/remiprev/her/pull/352)
