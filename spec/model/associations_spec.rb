@@ -182,6 +182,10 @@ describe Her::Model::Associations do
       @user_without_included_data.comments.first.object_id.should_not == @user_without_included_data.comments.where(:foo_id => 1).first.object_id
     end
 
+    it "fetches data again after being reloaded" do
+      expect { @user_without_included_data.comments.reload }.to change { @user_without_included_data.comments.first.object_id }
+    end
+
     it "maps an array of included data through has_one" do
       @user_with_included_data.role.should be_a(Foo::Role)
       @user_with_included_data.role.object_id.should == @user_with_included_data.role.object_id

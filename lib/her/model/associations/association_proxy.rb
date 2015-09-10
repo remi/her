@@ -15,7 +15,7 @@ module Her
         end
 
         install_proxy_methods :association,
-          :build, :create, :where, :find, :all, :assign_nested_attributes
+          :build, :create, :where, :find, :all, :assign_nested_attributes, :reload
 
         # @private
         def initialize(association)
