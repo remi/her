@@ -51,7 +51,7 @@ module Her
       def self.use_setter_methods(model, params)
         params ||= {}
 
-        reserved_keys = [:id, model.class.primary_key] + model.class.association_keys
+        reserved_keys = [:id, :class, model.class.primary_key] + model.class.association_keys
         model.class.attributes *params.keys.reject { |k| reserved_keys.include?(k) || reserved_keys.map(&:to_s).include?(k) }
 
         setter_method_names = model.class.setter_method_names
