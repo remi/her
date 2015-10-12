@@ -223,4 +223,59 @@ describe Her::Model::Relation do
       Foo::User.all.map(&:fullname).should == ["Tobias Fünke", "Lindsay Fünke"]
     end
   end
+
+  describe :to_json do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.adapter :test do |stub|
+          stub.get("/users") do |env|
+            ok! [{ :id => 1, :fullname => "Tobias Fünke" }, { :id => 2, :fullname => "Lindsay Fünke" }]
+          end
+        end
+      end
+
+      spawn_model 'Foo::User'
+    end
+
+    it "returns a JSON string with all models" do
+      @all = Foo::User.all
+      json_string = @all.to_json
+      json_string.should == '[{"fullname":"Tobias Fünke","id":1},{"fullname":"Lindsay Fünke","id":2}]'
+    end
+
+    it "forwards options to the models" do
+      @all = Foo::User.all
+      json_string = @all.to_json(only: 'fullname')
+      json_string.should == '[{"fullname":"Tobias Fünke"},{"fullname":"Lindsay Fünke"}]'
+    end
+  end
+
+  describe :as_json do
+    before do
+      Her::API.setup :url => "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.adapter :test do |stub|
+          stub.get("/users") do |env|
+            ok! [{ :id => 1, :fullname => "Tobias Fünke" }, { :id => 2, :fullname => "Lindsay Fünke" }]
+          end
+        end
+      end
+
+      spawn_model 'Foo::User'
+    end
+
+    it "returns an Array containing Hashes for each model in the fetched collection" do
+      array = Foo::User.all.as_json
+      array.length.should == 2
+      array[0].should == { 'id' => 1, 'fullname' => "Tobias Fünke" }
+      array[1].should == { 'id' => 2, 'fullname' => "Lindsay Fünke" }
+    end
+
+    it "forwards options to the models" do
+      array = Foo::User.all.as_json(only: "fullname")
+      array[0].should == { 'fullname' => "Tobias Fünke" }
+      array[1].should == { 'fullname' => "Lindsay Fünke" }
+    end
+  end
 end
