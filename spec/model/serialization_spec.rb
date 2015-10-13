@@ -49,32 +49,44 @@ describe Her::Model::Serialization do
         hash['name'].should == "Tobias Funke"
       end
 
-      context "only" do
-        it "only includes the given attributes" do
-          @user = Foo::User.find(1)
-          hash = @user.as_json(only: "name")
-          hash.length.should == 1
-          hash.should have_key("name")
-          hash['name'].should == "Tobias Funke"
+      [:only, "only"].each do |key|
+        [:name, "name", [:name], ["name"]].each do |value|
+          context "#{key.inspect} => #{value.inspect}" do
+            it "only includes the given attributes" do
+              @user = Foo::User.find(1)
+              hash = @user.as_json(key => value)
+              hash.length.should == 1
+              hash.should have_key("name")
+              hash['name'].should == "Tobias Funke"
+            end
+          end
         end
       end
 
-      context "except" do
-        it "excludes the given attributes" do
-          @user = Foo::User.find(1)
-          hash = @user.as_json(except: "name")
-          hash.length.should == 1
-          hash.should have_key("id")
-          hash['id'].should == 1
+      [:except, "except"].each do |key|
+        [:name, "name", [:name], ["name"]].each do |value|
+          context "#{key.inspect} => #{value.inspect}" do
+            it "excludes the given attributes" do
+              @user = Foo::User.find(1)
+              hash = @user.as_json(key => value)
+              hash.length.should == 1
+              hash.should have_key("id")
+              hash['id'].should == 1
+            end
+          end
         end
       end
 
-      context "methods" do
-        it "includes the value of the given methods" do
-          @user = Foo::User.find(1)
-          hash = @user.as_json(methods: "email")
-          hash.should have_key("email")
-          hash['email'].should == "tobias@test.com"
+      [:methods, "methods"].each do |key|
+        [:email, "email", [:email], ["email"]].each do |value|
+          context "#{key.inspect} => #{value.inspect}" do
+            it "includes the value of the given methods" do
+              @user = Foo::User.find(1)
+              hash = @user.as_json(key => value)
+              hash.should have_key("email")
+              hash['email'].should == "tobias@test.com"
+            end
+          end
         end
       end
     end
