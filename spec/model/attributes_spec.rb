@@ -110,8 +110,8 @@ describe Her::Model::Attributes do
       user.should == Foo::User.new(:id => 1, :fullname => "Lindsay Fünke")
     end
 
-    it "returns true for a different resource with the same data" do
-      user.should == Foo::Admin.find(1)
+    it "returns false for a different resource with the same data" do
+      user.should_not == Foo::Admin.find(1)
     end
 
     it "returns false for the same class with different data" do
