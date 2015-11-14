@@ -122,6 +122,43 @@ describe Her::Model::Attributes do
       fake_user = double(:data => { :id => 1, :fullname => "Lindsay Fünke" })
       user.should_not == fake_user
     end
+    
+    context "with association data" do
+      before do
+        Her::API.setup :url => "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/orders/1") { |env| [200, {}, { :id => 1, :item_id => 2 }.to_json] }
+            stub.get("/orders/2") { |env| [200, {}, { :id => 2, :item_id => 3 }.to_json] }
+            stub.get("/customers/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+            stub.get("/customers/1/orders/1") { |env| [200, {}, { :id => 1, :item_id => 2, :customer => { :id => 1, :fullname => "Tobias Fünke" } }.to_json] }
+            stub.get("/customers/1/orders/2") { |env| [200, {}, { :id => 2, :item_id => 3, :customer => { :id => 1, :fullname => "Tobias Fünke" } }.to_json] }
+          end
+        end
+
+        spawn_model "Foo::Customer" do
+          has_many :orders, class_name: "Foo::Order"
+        end
+        spawn_model "Foo::Order" do
+          belongs_to :customer, class_name: "Foo::Customer"
+        end
+      end
+
+      let(:order) { Foo::Order.find(1) }
+
+      it "returns true for a same resource with the same id" do
+        order.should == Foo::Customer.find(1).orders.find(1)
+      end
+      
+      it "returns false for a same resource with the different id" do
+        order.should_not == Foo::Customer.find(1).orders.find(2)
+      end
+      
+      it "returns false for a different resource with the same id" do
+        order.should_not == Foo::Customer.find(1)
+      end
+    end
 
     it "delegates eql? to ==" do
       other = Object.new
