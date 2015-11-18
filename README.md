@@ -86,7 +86,7 @@ end
 # Update a fetched resource
 user = User.find(1)
 user.fullname = "Lindsay Fünke" # OR user.assign_attributes(fullname: "Lindsay Fünke")
-user.save # returns false if it fails, errors in user.response_errors array
+user.save # returns false if it fails, errors in user.response_errors array # OR user.update(fullname: "Lindsay Fünke")
 # PUT "/users/1" with `fullname=Lindsay+Fünke`
 
 # Update a resource without fetching it

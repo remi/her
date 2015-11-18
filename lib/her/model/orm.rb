@@ -66,6 +66,27 @@ module Her
         end
         self
       end
+      
+      # Update a resource and return `false` if the response is not a successful one or
+      # if there are errors in the resource. Otherwise, return the newly updated resource
+      #
+      # @example Update a resource after fetching it
+      #   @user = User.find(1)
+      #   # Fetched via GET "/users/1"
+      #   @user.update(fullname: "Tobias Fünke")
+      #   # Called via PUT "/users/1"
+      def update(attributes)
+        assign_attributes(attributes)
+        save
+      end
+
+      # Similar to update(), except that ResourceInvalid is raised if the update fails
+      def update!(attributes)
+        if !self.update(attributes)
+          raise Her::Errors::ResourceInvalid, self
+        end
+        self
+      end
 
       # Destroy a resource
       #

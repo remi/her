@@ -361,10 +361,13 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
           stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+          stub.get("/companies/1") { |env| [200, {}, { :id => 1, :name => "Company Inc." }.to_json] }
+          stub.put("/companies/1") { |env| [200, {}, { :errors => ["name is required"] }.to_json] }
         end
       end
 
       spawn_model "Foo::User"
+      spawn_model "Foo::Company"
     end
 
     it "handle resource data update without saving it" do
@@ -384,6 +387,34 @@ describe Her::Model::ORM do
       @user.fullname = "Lindsay Fünke"
       @user.save
       @user.fullname.should == "Lindsay Fünke"
+    end
+    
+    it "handle resource update through #save on an existing resource" do
+      @user = Foo::User.find(1)
+      @user.update(fullname: "Lindsay Fünke").should be_truthy
+      @user.fullname.should == "Lindsay Fünke"
+    end
+
+    it "handle resource update through #save! on an existing resource" do
+      @user = Foo::User.find(1)
+      @user.update!(fullname: "Lindsay Fünke").should be_truthy
+      @user.fullname.should == "Lindsay Fünke"
+    end
+
+    it "returns false when #update gets errors" do
+      @company = Foo::Company.find(1)
+      @company.update(name: '').should be_falsey
+    end
+
+    it "raises ResourceInvalid when #update! gets errors" do
+      @company = Foo::Company.find(1)
+      expect { @company.update!(name: '') }.to raise_error Her::Errors::ResourceInvalid, "Remote validation failed: name is required"
+    end
+
+    it "don't overwrite data if response is empty" do
+      @company = Foo::Company.find(1)
+      @company.save.should be_falsey
+      @company.name.should == "Company Inc."
     end
   end
 
