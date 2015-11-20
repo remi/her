@@ -59,4 +59,14 @@ describe Her::Middleware::FirstLevelParseJSON do
       end
     end
   end
+
+  context 'with status code 304' do
+    it 'returns an empty body' do
+      env = { :status => 304 }
+      subject.on_complete(env)
+      env[:body].tap do |json|
+        json[:data].should == { }
+      end
+    end
+  end
 end
