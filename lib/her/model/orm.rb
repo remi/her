@@ -75,8 +75,9 @@ module Her
       #   # Called via DELETE "/users/1"
       def destroy(params = {})
         method = self.class.method_for(:destroy)
+        path = request_path(params)
         run_callbacks :destroy do
-          self.class.request(params.merge(:_method => method, :_path => request_path)) do |parsed_data, response|
+          self.class.request(params.merge(:_method => method, :_path => path)) do |parsed_data, response|
             assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             @metadata = parsed_data[:metadata]
             @response_errors = parsed_data[:errors]
@@ -159,9 +160,9 @@ module Her
         #   User.destroy_existing(1)
         #   # Called via DELETE "/users/1"
         def destroy_existing(id, params={})
-          request(params.merge(:_method => method_for(:destroy), :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
-            new(parse(parsed_data[:data]).merge(:_destroyed => true))
-          end
+          resource = new(primary_key => id)
+          resource.destroy(params)
+          resource
         end
 
         # Return or change the HTTP method used to create or update records
