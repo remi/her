@@ -432,6 +432,22 @@ Her expects all `User` resources to have an `:organization_id` (or `:_organizati
 Her::Errors::PathError: Missing :_organization_id parameter to build the request path. Path is `organizations/:organization_id/users`. Parameters are `{ … }`.
 ```
 
+#### Associations with custom attributes
+
+Associations can also be made using custom attributes:
+
+```ruby
+class User
+  include Her::Model
+  belongs_to :owns, class_name: "Organization"
+end
+
+class Organization
+  include Her::Model
+  has_many :owners, class_name: "User"
+end
+```
+
 ### Validations
 
 Her includes `ActiveModel::Validations` so you can declare validations the same way you do in Rails.
