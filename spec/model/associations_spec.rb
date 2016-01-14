@@ -279,6 +279,7 @@ describe Her::Model::Associations do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :user => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 } }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :user => { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 } }.to_json] }
+          stub.get("/users/2/role") { |env| [200, {}, { :role => { :id => 3, :body => "User" } }.to_json] }
           stub.get("/users/1/comments") { |env| [200, {}, { :comments => [{ :id => 4, :body => "They're having a FIRESALE?" }] }.to_json] }
           stub.get("/users/2/comments") { |env| [200, {}, { :comments => [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }] }.to_json] }
           stub.get("/users/2/comments/5") { |env| [200, {}, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }.to_json] }
@@ -288,6 +289,7 @@ describe Her::Model::Associations do
       spawn_model "Foo::User" do
         parse_root_in_json true, :format => :active_model_serializers
         has_many :comments, class_name: "Foo::Comment"
+        has_one :role, class_name: "Foo::Role"
         belongs_to :organization
       end
       spawn_model "Foo::Comment" do
@@ -295,6 +297,10 @@ describe Her::Model::Associations do
         parse_root_in_json true, :format => :active_model_serializers
       end
       spawn_model "Foo::Organization" do
+        parse_root_in_json true, :format => :active_model_serializers
+      end
+
+      spawn_model "Foo::Role" do
         parse_root_in_json true, :format => :active_model_serializers
       end
 
@@ -309,6 +315,12 @@ describe Her::Model::Associations do
       @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
     end
 
+    it "maps a hash of included data through has_one" do
+      @user_with_included_data.role.should be_a(Foo::Role)
+      @user_with_included_data.role.id.should == 1
+      @user_with_included_data.role.body.should == "Admin"
+    end
+
     it "does not refetch the parents models data if they have been fetched before" do
       @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
     end
@@ -318,6 +330,12 @@ describe Her::Model::Associations do
       @user_without_included_data.comments.length.should == 2
       @user_without_included_data.comments.first.id.should == 4
       @user_without_included_data.comments.first.body.should == "They're having a FIRESALE?"
+    end
+
+    it "fetches data that was not included through has_one" do
+      @user_without_included_data.role.should be_a(Foo::Role)
+      @user_without_included_data.role.id.should == 3
+      @user_without_included_data.role.body.should == "User"
     end
 
     it "fetches has_many data even if it was included, only if called with parameters" do

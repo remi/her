@@ -18,6 +18,9 @@ RSpec.configure do |config|
     @spawned_models = []
   end
 
+  config.filter_run :focus
+  config.run_all_when_everything_filtered = true 
+
   config.after :each do
     @spawned_models.each do |model|
       Object.instance_eval { remove_const model } if Object.const_defined?(model)
