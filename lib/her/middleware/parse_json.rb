@@ -8,7 +8,7 @@ module Her
 
         json = begin
           MultiJson.load(body, :symbolize_keys => true)
-        rescue MultiJson::LoadError
+        rescue MultiJson::LoadError, TypeError
           raise Her::Errors::ParseError, message
         end
 
