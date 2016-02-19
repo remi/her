@@ -25,11 +25,14 @@ module Her
           data_key = association[:data_key]
           return {} unless data[data_key]
 
-          klass = klass.her_nearby_class(association[:class_name])
-          if data[data_key].kind_of?(klass)
+          unless associated_klass = klass.her_nearby_class(association[:class_name])
+            raise Her::Errors::AssociationUnknownError, "Could not locate `#{association[:class_name]}` association for `#{klass}`"
+          end
+
+          if data[data_key].kind_of?(associated_klass)
             { association[:name] => data[data_key] }
           else
-            { association[:name] => klass.new(klass.parse(data[data_key])) }
+            { association[:name] => associated_klass.new(associated_klass.parse(data[data_key])) }
           end
         end
 
