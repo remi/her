@@ -85,7 +85,7 @@ module Her
         def fetch
           super.tap do |o|
             inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
-            o.each { |entry| entry.send("#{inverse_of}=", @parent) }
+            o.each { |entry| entry.attributes[inverse_of] = @parent }
           end
         end
 

@@ -15,6 +15,7 @@ describe "Her::Model and ActiveModel::Dirty" do
           stub.put("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
           stub.put("/users/2") { [400, {}, { errors: ["Email cannot be blank"] }.to_json] }
           stub.post("/users")  { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.get("/users/1/posts") { [200, {}, [{ id: 1, user_id: 1, body: "Hello" }].to_json] }
           stub.get("/users/1/posts/1") { [200, {}, { id: 1, user_id: 1, body: "Hello" }.to_json] }
         end
       end
@@ -83,6 +84,14 @@ describe "Her::Model and ActiveModel::Dirty" do
 
     context "for an existing resource from an association" do
       let(:post) { Foo::User.find(1).posts.find(1) }
+      it "has no changes" do
+        expect(post.changes).to be_empty
+        expect(post).to_not be_changed
+      end
+    end
+
+    context "for an existing resource from an association collection" do
+      let(:post) { Foo::User.find(1).posts.first }
       it "has no changes" do
         expect(post.changes).to be_empty
         expect(post).to_not be_changed
