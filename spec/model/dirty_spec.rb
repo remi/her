@@ -8,6 +8,7 @@ describe "Her::Model and ActiveModel::Dirty" do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
+          stub.get("/users") { |env| [200, {}, [{ :id => 1, :fullname => "Lindsay Fünke" }].to_json] }
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :fullname => "Maeby Fünke" }.to_json] }
           stub.get("/users/3") { |env| [200, {}, { :user_id => 3, :fullname => "Maeby Fünke" }.to_json] }
@@ -22,6 +23,14 @@ describe "Her::Model and ActiveModel::Dirty" do
       end
       spawn_model "Dynamic::User" do
         primary_key :user_id
+      end
+    end
+
+    context "for existing resource in a collection" do
+      let(:user) { Foo::User.all[0] }
+      it "has no changes" do
+        user.changes.should be_empty
+        user.should_not be_changed
       end
     end
 
