@@ -97,7 +97,8 @@ module Her
         else
           # For POST, PUT and DELETE requests, treat additional parameters as request body
           request.url path
-          request.body = opts
+          # Get json representation object and convert to json
+          request.body = opts.as_json.to_json
         end
       end
 
