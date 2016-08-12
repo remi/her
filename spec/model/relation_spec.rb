@@ -60,6 +60,13 @@ describe Her::Model::Relation do
         expect(Foo::User.create(fullname: "George Michael Bluth").id).to eq(3)
         expect(Foo::User.all.size).to eql 3
       end
+
+      it "returns an empty collection without fetching when [] is given" do
+        Foo::User.should_not_receive(:request)
+        users = Foo::User.where(:fullname => [])
+        users.should respond_to(:length)
+        users.size.should eql 0
+      end
     end
 
     context "for parent class" do

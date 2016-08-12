@@ -440,6 +440,13 @@ describe Her::Model::Associations do
         expect(user.organization.respond_to?(:empty?)).to be_truthy
         expect(user.organization).not_to be_empty
       end
+
+      it "returns an empty collection without fetching when [] is a parameter" do
+        Foo::Comment.should_not_receive(:request)
+        comments = user.comments.where(:foo_id => [])
+        comments.should respond_to(:length)
+        comments.size.should eql 0
+      end
     end
 
     context "without included parent data" do

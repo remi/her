@@ -48,9 +48,13 @@ module Her
           return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
           return @opts[:default].try(:dup) if @parent.new?
 
-          path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}" }
-          @klass.get(path, @params).tap do |result|
-            @cached_result = result unless @params.any?
+          if @params.values.include?([]) && !is_a?(HasOneAssociation)
+            Her::Collection.new
+          else
+            path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}" }
+            @klass.get(path, @params).tap do |result|
+              @cached_result = result unless @params.any?
+            end
           end
         end
 

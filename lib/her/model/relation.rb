@@ -67,10 +67,14 @@ module Her
       # @private
       def fetch
         @_fetch ||= begin
-          path = @parent.build_request_path(@parent.collection_path, @params)
-          method = @parent.method_for(:find)
-          @parent.request(@params.merge(:_method => method, :_path => path)) do |parsed_data, _|
-            @parent.new_collection(parsed_data)
+          if @params.values.include?([])
+            Her::Collection.new
+          else
+            path = @parent.build_request_path(@parent.collection_path, @params)
+            method = @parent.method_for(:find)
+            @parent.request(@params.merge(:_method => method, :_path => path)) do |parsed_data, _|
+              @parent.new_collection(parsed_data)
+            end
           end
         end
       end
