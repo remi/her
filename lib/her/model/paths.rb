@@ -89,6 +89,7 @@ module Her
         #
         # @private
         def build_request_path(path=nil, parameters={})
+          parent_request_path = path.delete('_parent_request_path') unless path.nil?
           parameters = parameters.try(:with_indifferent_access)
 
           unless path.is_a?(String)
@@ -99,6 +100,8 @@ module Her
               else
                 collection_path.dup
               end
+
+            path = "#{parent_request_path}/#{path}" unless parent_request_path.to_s.empty?
 
             # Replace :id with our actual primary key
             path.gsub!(/(\A|\/):id(\Z|\/)/, "\\1:#{primary_key}\\2")

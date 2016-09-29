@@ -52,7 +52,7 @@ module Her
         # TODO: This only merges the id of the parents, handle the case
         #       where this is more deeply nested
         def build(attributes = {})
-          @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
+          @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id, :_parent_request_path => @parent.request_path))
         end
 
         # Create a new object, save it and add it to the associated collection
