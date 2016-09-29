@@ -51,9 +51,12 @@ module Her
           return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
 
           path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
-          @klass.get(path, @params).tap do |result|
-            @cached_result = result unless @params.any?
+          result = if opts[:as] == :collection
+            @klass.get_collection(path, @params)
+          else
+            @klass.get(path, @params)
           end
+          result.tap { |r| @cached_result = r unless @params.any? }
         end
 
         # @private
