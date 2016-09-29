@@ -1,6 +1,9 @@
 # Maintenance Update 29th Sept 2016
 Hi folks, [@edtjones](https://github.com/edtjones) here. Rémi has handed me the keys to Her and [@foxpaul](https://github.com/foxpaul) and I will be trying to do the library justice with the help of the community. There's loads to do; we'll get in touch with everyone who's raised a PR as soon as possible and figure out a plan of action.
 
+# Rails 5 support
+If you need Rails 5 support, version 0.8.2 is for you!
+
 <p align="center">
   <a href="https://github.com/remiprev/her">
     <img src="http://i.imgur.com/43KEchq.png" alt="Her" />
