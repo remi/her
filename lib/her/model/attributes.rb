@@ -36,12 +36,21 @@ module Her
           if item_data.kind_of?(klass)
             resource = item_data
           else
-            resource = klass.new(klass.parse(item_data))
-            resource.run_callbacks :find
+            resource = initialize_resource(klass, item_data)
           end
           resource
         end
         Her::Collection.new(collection_data, parsed_data[:metadata], parsed_data[:errors])
+      end
+
+      # Initialize a resource
+      #
+      # @private
+      def self.initialize_resource(klass, item_data)
+        klass.new(klass.parse(item_data)).tap do |resource|
+          resource.instance_variable_set(:@changed_attributes, {})
+          resource.run_callbacks :find
+        end
       end
 
       # Use setter methods of model for each key / value pair in params
