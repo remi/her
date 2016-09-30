@@ -35,7 +35,7 @@ describe "Her::Model and ActiveModel::Validations" do
     end
 
     it "validates attributes when calling #valid?" do
-      user = User.new(:_errors => ["Email cannot be blank"])
+      user = User.new(_errors: ["Email cannot be blank"])
       expect(user.errors).to include("Email cannot be blank")
     end
   end

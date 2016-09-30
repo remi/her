@@ -15,7 +15,7 @@ describe Her::Middleware::SecondLevelParseJSON do
     end
 
     it "parses :body key as json in the env hash" do
-      env = { :body => body }
+      env = { body: body }
       subject.on_complete(env)
       env[:body].tap do |json|
         expect(json[:data]).to eq(1)

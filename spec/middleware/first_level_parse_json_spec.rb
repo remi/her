@@ -12,16 +12,16 @@ describe Her::Middleware::FirstLevelParseJSON do
 
   it "parses body as json" do
     subject.parse(body_without_errors).tap do |json|
-      expect(json[:data]).to eq({ :id => 1, :name => "Tobias Fünke" })
+      expect(json[:data]).to eq({ id: 1, name: "Tobias Fünke" })
       expect(json[:metadata]).to eq(3)
     end
   end
 
   it "parses :body key as json in the env hash" do
-    env = { :body => body_without_errors }
+    env = { body: body_without_errors }
     subject.on_complete(env)
     env[:body].tap do |json|
-      expect(json[:data]).to eq({ :id => 1, :name => "Tobias Fünke" })
+      expect(json[:data]).to eq({ id: 1, name: "Tobias Fünke" })
       expect(json[:metadata]).to eq(3)
     end
   end
@@ -31,7 +31,7 @@ describe Her::Middleware::FirstLevelParseJSON do
   end
 
   it 'ensures the errors are a hash if there are no errors' do
-    expect(subject.parse(body_with_errors)[:errors]).to eq({:name => [ 'not_valid', 'should_be_present']})
+    expect(subject.parse(body_with_errors)[:errors]).to eq({name: [ 'not_valid', 'should_be_present']})
   end
 
   it 'ensures that malformed JSON throws an exception' do
@@ -52,7 +52,7 @@ describe Her::Middleware::FirstLevelParseJSON do
 
   context 'with status code 204' do
     it 'returns an empty body' do
-      env = { :status => 204 }
+      env = { status: 204 }
       subject.on_complete(env)
       env[:body].tap do |json|
         expect(json[:data]).to eq({ })

@@ -5,14 +5,14 @@ describe Her::Model::ORM do
   context "mapping data to Ruby objects" do
     before do
       api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-          stub.get("/users") { |env| [200, {}, [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }].to_json] }
-          stub.get("/admin_users") { |env| [200, {}, [{ :admin_id => 1, :name => "Tobias Fünke" }, { :admin_id => 2, :name => "Lindsay Fünke" }].to_json] }
-          stub.get("/admin_users/1") { |env| [200, {}, { :admin_id => 1, :name => "Tobias Fünke" }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
+          stub.get("/users") { |env| [200, {}, [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users") { |env| [200, {}, [{ admin_id: 1, name: "Tobias Fünke" }, { admin_id: 2, name: "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users/1") { |env| [200, {}, { admin_id: 1, name: "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -47,7 +47,7 @@ describe Her::Model::ORM do
     end
 
     it "handles new resource" do
-      @new_user = Foo::User.new(:fullname => "Tobias Fünke")
+      @new_user = Foo::User.new(fullname: "Tobias Fünke")
       expect(@new_user.new?).to be_truthy
       expect(@new_user.new_record?).to be_truthy
       expect(@new_user.fullname).to eq("Tobias Fünke")
@@ -58,7 +58,7 @@ describe Her::Model::ORM do
     end
 
     it 'handles new resource with custom primary key' do
-      @new_user = Foo::AdminUser.new(:fullname => 'Lindsay Fünke', :id => -1)
+      @new_user = Foo::AdminUser.new(fullname: 'Lindsay Fünke', id: -1)
       expect(@new_user).to be_new
 
       @existing_user = Foo::AdminUser.find(1)
@@ -69,12 +69,12 @@ describe Her::Model::ORM do
   context "mapping data, metadata and error data to Ruby objects" do
     before do
       api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |env| [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], :metadata => { :total_pages => 10, :next_page => 2 }, :errors => ["Oh", "My", "God"] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
+          stub.get("/users") { |env| [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: ["Oh", "My", "God"] }.to_json] }
+          stub.post("/users") { |env| [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: ["Yes", "Sir"] }.to_json] }
         end
       end
 
@@ -94,12 +94,12 @@ describe Her::Model::ORM do
     end
 
     it "handles metadata on a resource" do
-      @user = User.create(:name => "George Michael Bluth")
+      @user = User.create(name: "George Michael Bluth")
       expect(@user.metadata[:foo]).to eq("bar")
     end
 
     it "handles error data on a resource" do
-      @user = User.create(:name => "George Michael Bluth")
+      @user = User.create(name: "George Michael Bluth")
       expect(@user.response_errors).to eq(["Yes", "Sir"])
     end
   end
@@ -107,12 +107,12 @@ describe Her::Model::ORM do
   context "mapping data, metadata and error data in string keys to Ruby objects" do
     before do
       api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |env| [200, {}, { 'data' => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], 'metadata' => { :total_pages => 10, :next_page => 2 }, 'errors' => ["Oh", "My", "God"] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { 'data' => { :name => "George Michael Bluth" }, 'metadata' => { :foo => "bar" }, 'errors' => ["Yes", "Sir"] }.to_json] }
+          stub.get("/users") { |env| [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: ["Oh", "My", "God"] }.to_json] }
+          stub.post("/users") { |env| [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: ["Yes", "Sir"] }.to_json] }
         end
       end
 
@@ -132,12 +132,12 @@ describe Her::Model::ORM do
     end
 
     it "handles metadata on a resource" do
-      @user = User.create(:name => "George Michael Bluth")
+      @user = User.create(name: "George Michael Bluth")
       expect(@user.metadata[:foo]).to eq("bar")
     end
 
     it "handles error data on a resource" do
-      @user = User.create(:name => "George Michael Bluth")
+      @user = User.create(name: "George Michael Bluth")
       expect(@user.response_errors).to eq(["Yes", "Sir"])
     end
   end
@@ -145,12 +145,12 @@ describe Her::Model::ORM do
   context "defining custom getters and setters" do
     before do
       api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :friends => ["Maeby", "GOB", "Anne"] }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 1 }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, friends: ["Maeby", "GOB", "Anne"] }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { id: 1 }.to_json] }
         end
       end
 
@@ -190,16 +190,16 @@ describe Her::Model::ORM do
   context "finding resources" do
     before do
       api = Her::API.new
-      api.setup :url => "https://api.example.com" do |builder|
+      api.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :age => 42 }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 2, :age => 34 }.to_json] }
-          stub.get("/users?id[]=1&id[]=2") { |env| [200, {}, [{ :id => 1, :age => 42 }, { :id => 2, :age => 34 }].to_json] }
-          stub.get("/users?age=42&foo=bar") { |env| [200, {}, [{ :id => 3, :age => 42 }].to_json] }
-          stub.get("/users?age=42") { |env| [200, {}, [{ :id => 1, :age => 42 }].to_json] }
-          stub.get("/users?age=40") { |env| [200, {}, [{ :id => 1, :age => 40 }].to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, age: 42 }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { id: 2, age: 34 }.to_json] }
+          stub.get("/users?id[]=1&id[]=2") { |env| [200, {}, [{ id: 1, age: 42 }, { id: 2, age: 34 }].to_json] }
+          stub.get("/users?age=42&foo=bar") { |env| [200, {}, [{ id: 3, age: 42 }].to_json] }
+          stub.get("/users?age=42") { |env| [200, {}, [{ id: 1, age: 42 }].to_json] }
+          stub.get("/users?age=40") { |env| [200, {}, [{ id: 1, age: 40 }].to_json] }
         end
       end
 
@@ -253,15 +253,15 @@ describe Her::Model::ORM do
     end
 
     it "handles finding with other parameters" do
-      @users = User.where(:age => 42, :foo => "bar").all
+      @users = User.where(age: 42, foo: "bar").all
       expect(@users).to be_kind_of(Array)
       expect(@users.first.id).to eq(3)
     end
 
     it "handles finding with other parameters and scoped" do
       @users = User.scoped
-      expect(@users.where(:age => 42)).to be_all { |u| u.age == 42 }
-      expect(@users.where(:age => 40)).to be_all { |u| u.age == 40 }
+      expect(@users.where(age: 42)).to be_all { |u| u.age == 42 }
+      expect(@users.where(age: 40)).to be_all { |u| u.age == 40 }
     end
   end
 
@@ -273,7 +273,7 @@ describe Her::Model::ORM do
 
       it "builds a new resource without requesting it" do
         expect(Foo::User).not_to receive(:request)
-        @new_user = Foo::User.build(:fullname => "Tobias Fünke")
+        @new_user = Foo::User.build(fullname: "Tobias Fünke")
         expect(@new_user.new?).to be_truthy
         expect(@new_user.fullname).to eq("Tobias Fünke")
       end
@@ -281,11 +281,11 @@ describe Her::Model::ORM do
 
     context "when request_new_object_on_build is set" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.get("/users/new") { |env| ok! :id => nil, :fullname => params(env)[:fullname], :email => "tobias@bluthcompany.com" }
+            stub.get("/users/new") { |env| ok! id: nil, fullname: params(env)[:fullname], email: "tobias@bluthcompany.com" }
           end
         end
 
@@ -294,7 +294,7 @@ describe Her::Model::ORM do
 
       it "requests a new resource" do
         expect(Foo::User).to receive(:request).once.and_call_original
-        @new_user = Foo::User.build(:fullname => "Tobias Fünke")
+        @new_user = Foo::User.build(fullname: "Tobias Fünke")
         expect(@new_user.new?).to be_truthy
         expect(@new_user.fullname).to eq("Tobias Fünke")
         expect(@new_user.email).to eq("tobias@bluthcompany.com")
@@ -304,12 +304,12 @@ describe Her::Model::ORM do
 
   context "creating resources" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => Faraday::Utils.parse_query(env[:body])['fullname'], :email => Faraday::Utils.parse_query(env[:body])['email'] }.to_json] }
-          stub.post("/companies") { |env| [200, {}, { :errors => ["name is required"] }.to_json] }
+          stub.post("/users") { |env| [200, {}, { id: 1, fullname: Faraday::Utils.parse_query(env[:body])['fullname'], email: Faraday::Utils.parse_query(env[:body])['email'] }.to_json] }
+          stub.post("/companies") { |env| [200, {}, { errors: ["name is required"] }.to_json] }
         end
       end
 
@@ -318,20 +318,20 @@ describe Her::Model::ORM do
     end
 
     it "handle one-line resource creation" do
-      @user = Foo::User.create(:fullname => "Tobias Fünke", :email => "tobias@bluth.com")
+      @user = Foo::User.create(fullname: "Tobias Fünke", email: "tobias@bluth.com")
       expect(@user.id).to eq(1)
       expect(@user.fullname).to eq("Tobias Fünke")
       expect(@user.email).to eq("tobias@bluth.com")
     end
 
     it "handle resource creation through Model.new + #save" do
-      @user = Foo::User.new(:fullname => "Tobias Fünke")
+      @user = Foo::User.new(fullname: "Tobias Fünke")
       expect(@user.save).to be_truthy
       expect(@user.fullname).to eq("Tobias Fünke")
     end
 
     it "handle resource creation through Model.new + #save!" do
-      @user = Foo::User.new(:fullname => "Tobias Fünke")
+      @user = Foo::User.new(fullname: "Tobias Fünke")
       expect(@user.save!).to be_truthy
       expect(@user.fullname).to eq("Tobias Fünke")
     end
@@ -347,7 +347,7 @@ describe Her::Model::ORM do
     end
 
     it "don't overwrite data if response is empty" do
-      @company = Foo::Company.new(:name => 'Company Inc.')
+      @company = Foo::Company.new(name: 'Company Inc.')
       expect(@company.save).to be_falsey
       expect(@company.name).to eq("Company Inc.")
     end
@@ -355,12 +355,12 @@ describe Her::Model::ORM do
 
   context "updating resources" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
-          stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
         end
       end
 
@@ -375,7 +375,7 @@ describe Her::Model::ORM do
     end
 
     it "handle resource update through the .update class method" do
-      @user = Foo::User.save_existing(1, { :fullname => "Lindsay Fünke" })
+      @user = Foo::User.save_existing(1, { fullname: "Lindsay Fünke" })
       expect(@user.fullname).to eq("Lindsay Fünke")
     end
 
@@ -389,12 +389,12 @@ describe Her::Model::ORM do
 
   context "deleting resources" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :active => true }.to_json] }
-          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke", active: true }.to_json] }
+          stub.delete("/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
         end
       end
 
@@ -416,11 +416,11 @@ describe Her::Model::ORM do
 
     context "with params" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.delete("/users/1?delete_type=soft") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :active => false }.to_json] }
+            stub.delete("/users/1?delete_type=soft") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
           end
         end
       end
@@ -442,7 +442,7 @@ describe Her::Model::ORM do
 
   context 'customizing HTTP methods' do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
@@ -451,7 +451,7 @@ describe Her::Model::ORM do
     context 'create' do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.put('/users') { |env| [200, {}, { :id => 1, :fullname => 'Tobias Fünke' }.to_json] }
+          stub.put('/users') { |env| [200, {}, { id: 1, fullname: 'Tobias Fünke' }.to_json] }
         end
         spawn_model 'Foo::User' do
           attributes :fullname, :email
@@ -461,7 +461,7 @@ describe Her::Model::ORM do
 
       context 'for top-level class' do
         it 'uses the custom method (PUT) instead of default method (POST)' do
-          user = Foo::User.new(:fullname => 'Tobias Fünke')
+          user = Foo::User.new(fullname: 'Tobias Fünke')
           expect(user).to be_new
           expect(user.save).to be_truthy
         end
@@ -474,7 +474,7 @@ describe Her::Model::ORM do
         end
 
         it 'uses the custom method (PUT) instead of default method (POST)' do
-          user = User.new(:fullname => 'Tobias Fünke')
+          user = User.new(fullname: 'Tobias Fünke')
           expect(user).to be_new
           expect(user.save).to be_truthy
         end
@@ -484,8 +484,8 @@ describe Her::Model::ORM do
     context 'update' do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.get('/users/1') { |env| [200, {}, { :id => 1, :fullname => 'Lindsay Fünke' }.to_json] }
-          stub.post('/users/1') { |env| [200, {}, { :id => 1, :fullname => 'Tobias Fünke' }.to_json] }
+          stub.get('/users/1') { |env| [200, {}, { id: 1, fullname: 'Lindsay Fünke' }.to_json] }
+          stub.post('/users/1') { |env| [200, {}, { id: 1, fullname: 'Tobias Fünke' }.to_json] }
         end
 
         spawn_model 'Foo::User' do

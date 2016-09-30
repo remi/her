@@ -4,19 +4,19 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::NestedAttributes do
   context "with a belongs_to association" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
 
       spawn_model "Foo::User" do
-        belongs_to :company, :path => "/organizations/:id", :foreign_key => :organization_id
+        belongs_to :company, path: "/organizations/:id", foreign_key: :organization_id
         accepts_nested_attributes_for :company
       end
 
       spawn_model "Foo::Company"
 
-      @user_with_data_through_nested_attributes = Foo::User.new :name => "Test", :company_attributes => { :name => "Example Company" }
+      @user_with_data_through_nested_attributes = Foo::User.new name: "Test", company_attributes: { name: "Example Company" }
     end
 
     context "when child does not yet exist" do
@@ -28,7 +28,7 @@ describe Her::Model::NestedAttributes do
 
     context "when child does exist" do
       it "updates the attributes of the associated object" do
-        @user_with_data_through_nested_attributes.company_attributes = { :name => "Fünke's Company" }
+        @user_with_data_through_nested_attributes.company_attributes = { name: "Fünke's Company" }
         expect(@user_with_data_through_nested_attributes.company).to be_a(Foo::Company)
         expect(@user_with_data_through_nested_attributes.company.name).to eq("Fünke's Company")
       end
@@ -37,7 +37,7 @@ describe Her::Model::NestedAttributes do
 
   context "with a has_one association" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
@@ -49,7 +49,7 @@ describe Her::Model::NestedAttributes do
 
       spawn_model "Foo::Pet"
 
-      @user_with_data_through_nested_attributes = Foo::User.new :name => "Test", :pet_attributes => { :name => "Hasi" }
+      @user_with_data_through_nested_attributes = Foo::User.new name: "Test", pet_attributes: { name: "Hasi" }
     end
 
     context "when child does not yet exist" do
@@ -61,7 +61,7 @@ describe Her::Model::NestedAttributes do
 
     context "when child does exist" do
       it "updates the attributes of the associated object" do
-        @user_with_data_through_nested_attributes.pet_attributes = { :name => "Rodriguez" }
+        @user_with_data_through_nested_attributes.pet_attributes = { name: "Rodriguez" }
         expect(@user_with_data_through_nested_attributes.pet).to be_a(Foo::Pet)
         expect(@user_with_data_through_nested_attributes.pet.name).to eq("Rodriguez")
       end
@@ -70,7 +70,7 @@ describe Her::Model::NestedAttributes do
 
   context "with a has_many association" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
@@ -82,7 +82,7 @@ describe Her::Model::NestedAttributes do
 
       spawn_model "Foo::Pet"
 
-      @user_with_data_through_nested_attributes = Foo::User.new :name => "Test", :pets_attributes => [{ :name => "Hasi" }, { :name => "Rodriguez" }]
+      @user_with_data_through_nested_attributes = Foo::User.new name: "Test", pets_attributes: [{ name: "Hasi" }, { name: "Rodriguez" }]
     end
 
     context "when children do not yet exist" do
@@ -98,7 +98,7 @@ describe Her::Model::NestedAttributes do
 
   context "with a has_many association as a Hash" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
@@ -110,7 +110,7 @@ describe Her::Model::NestedAttributes do
 
       spawn_model "Foo::Pet"
 
-      @user_with_data_through_nested_attributes_as_hash = Foo::User.new :name => "Test", :pets_attributes => { '0' => { :name => "Hasi" }, '1' => { :name => "Rodriguez" }}
+      @user_with_data_through_nested_attributes_as_hash = Foo::User.new name: "Test", pets_attributes: { '0' => { name: "Hasi" }, '1' => { name: "Rodriguez" }}
     end
 
     context "when children do not yet exist" do

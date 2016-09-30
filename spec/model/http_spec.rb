@@ -3,13 +3,13 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::HTTP do
   context "binding a model with an API" do
-    let(:api1) { Her::API.new :url => "https://api1.example.com" }
-    let(:api2) { Her::API.new :url => "https://api2.example.com" }
+    let(:api1) { Her::API.new url: "https://api1.example.com" }
+    let(:api2) { Her::API.new url: "https://api2.example.com" }
 
     before do
       spawn_model("Foo::User")
       spawn_model("Foo::Comment")
-      Her::API.setup :url => "https://api.example.com"
+      Her::API.setup url: "https://api.example.com"
     end
 
     context "when binding a model to its superclass' her_api" do
@@ -36,17 +36,17 @@ describe Her::Model::HTTP do
 
   context "making HTTP requests" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |env| [200, {}, [{ :id => 1 }].to_json] }
-          stub.get("/users/1") { |env| [200, {}, { :id => 1 }.to_json] }
+          stub.get("/users") { |env| [200, {}, [{ id: 1 }].to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1 }.to_json] }
           stub.get("/users/popular") do |env|
             if env[:params]["page"] == "2"
-              [200, {}, [{ :id => 3 }, { :id => 4 }].to_json]
+              [200, {}, [{ id: 3 }, { id: 4 }].to_json]
             else
-              [200, {}, [{ :id => 1 }, { :id => 2 }].to_json]
+              [200, {}, [{ id: 1 }, { id: 2 }].to_json]
             end
           end
         end
@@ -69,14 +69,14 @@ describe Her::Model::HTTP do
       context "with a block" do
         specify do
           Foo::User.get_raw("/users") do |parsed_data, response|
-            expect(parsed_data[:data]).to eq([{ :id => 1 }])
+            expect(parsed_data[:data]).to eq([{ id: 1 }])
           end
         end
       end
 
       context "with a return value" do
         subject { Foo::User.get_raw("/users") }
-        specify { expect(subject[:parsed_data][:data]).to eq([{ :id => 1 }]) }
+        specify { expect(subject[:parsed_data][:data]).to eq([{ id: 1 }]) }
       end
     end
 
@@ -102,7 +102,7 @@ describe Her::Model::HTTP do
       end
 
       context "with extra parameters" do
-        subject { Foo::User.get_collection(:popular, :page => 2) }
+        subject { Foo::User.get_collection(:popular, page: 2) }
 
         describe '#length' do
           subject { super().length }
@@ -135,7 +135,7 @@ describe Her::Model::HTTP do
     describe :get_raw do
       specify do
         Foo::User.get_raw(:popular) do |parsed_data, response|
-          expect(parsed_data[:data]).to eq([{ :id => 1 }, { :id => 2 }])
+          expect(parsed_data[:data]).to eq([{ id: 1 }, { id: 2 }])
         end
       end
     end
@@ -143,11 +143,11 @@ describe Her::Model::HTTP do
 
   context "setting custom HTTP requests" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |connection|
+      Her::API.setup url: "https://api.example.com" do |connection|
         connection.use Her::Middleware::FirstLevelParseJSON
         connection.adapter :test do |stub|
-          stub.get("/users/popular") { |env| [200, {}, [{ :id => 1 }, { :id => 2 }].to_json] }
-          stub.post("/users/from_default") { |env| [200, {}, { :id => 4 }.to_json] }
+          stub.get("/users/popular") { |env| [200, {}, [{ id: 1 }, { id: 2 }].to_json] }
+          stub.post("/users/from_default") { |env| [200, {}, { id: 4 }.to_json] }
         end
       end
 
@@ -178,7 +178,7 @@ describe Her::Model::HTTP do
       it { is_expected.to respond_to(:from_default) }
 
       context "making the HTTP request" do
-        subject { Foo::User.from_default(:name => "Tobias Fünke") }
+        subject { Foo::User.from_default(name: "Tobias Fünke") }
 
         describe '#id' do
           subject { super().id }

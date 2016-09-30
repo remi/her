@@ -4,15 +4,15 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe Her::Model::Introspection do
   context "introspecting a resource" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.post("/users")     { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
-          stub.get("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
-          stub.put("/users/1")    { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
-          stub.delete("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Funke" }.to_json] }
-          stub.get("/projects/1/comments") { |env| [200, {}, [{ :id => 1, :body => "Hello!" }].to_json] }
+          stub.post("/users")     { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.get("/users/1")    { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.put("/users/1")    { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.delete("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.get("/projects/1/comments") { |env| [200, {}, [{ id: 1, body: "Hello!" }].to_json] }
         end
       end
 
@@ -29,12 +29,12 @@ describe Her::Model::Introspection do
       end
 
       it "outputs resource attributes for an not-saved-yet resource" do
-        @user = Foo::User.new(:name => "Tobias Funke")
+        @user = Foo::User.new(name: "Tobias Funke")
         expect(@user.inspect).to eq("#<Foo::User(users) name=\"Tobias Funke\">")
       end
 
       it "outputs resource attributes using getters" do
-        @user = Foo::User.new(:name => "Tobias Funke", :password => "Funke")
+        @user = Foo::User.new(name: "Tobias Funke", password: "Funke")
         @user.instance_eval {def password; 'filtered'; end}
         expect(@user.inspect).to include("name=\"Tobias Funke\"")
         expect(@user.inspect).to include("password=\"filtered\"")
@@ -49,7 +49,7 @@ describe Her::Model::Introspection do
 
     describe "#inspect with errors in resource path" do
       it "prints the resource path as “unknown”" do
-        @comment = Foo::Comment.where(:project_id => 1).first
+        @comment = Foo::Comment.where(project_id: 1).first
         path = '<unknown path, missing `project_id`>'
         expect(["#<Foo::Comment(#{path}) body=\"Hello!\" id=1>", "#<Foo::Comment(#{path}) id=1 body=\"Hello!\">"]).to include(@comment.inspect)
       end

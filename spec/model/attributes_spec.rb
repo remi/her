@@ -6,7 +6,7 @@ describe Her::Model::Attributes do
     before { spawn_model "Foo::User" }
 
     it "handles new resource" do
-      @new_user = Foo::User.new(:fullname => "Tobias Fünke")
+      @new_user = Foo::User.new(fullname: "Tobias Fünke")
       expect(@new_user.new?).to be_truthy
       expect(@new_user.fullname).to eq("Tobias Fünke")
     end
@@ -17,7 +17,7 @@ describe Her::Model::Attributes do
     end
 
     it "handles method missing for getter" do
-      @new_user = Foo::User.new(:fullname => 'Mayonegg')
+      @new_user = Foo::User.new(fullname: 'Mayonegg')
       expect { @new_user.unknown_method_for_a_user }.to raise_error(NoMethodError)
       expect { @new_user.fullname }.not_to raise_error()
     end
@@ -33,7 +33,7 @@ describe Her::Model::Attributes do
     end
 
     it "handles respond_to for getter" do
-      @new_user = Foo::User.new(:fullname => 'Mayonegg')
+      @new_user = Foo::User.new(fullname: 'Mayonegg')
       expect(@new_user).not_to respond_to(:unknown_method_for_a_user)
       expect(@new_user).to respond_to(:fullname)
     end
@@ -49,13 +49,13 @@ describe Her::Model::Attributes do
     end
 
     it "handles has_attribute? for getter" do
-      @new_user = Foo::User.new(:fullname => 'Mayonegg')
+      @new_user = Foo::User.new(fullname: 'Mayonegg')
       expect(@new_user).not_to have_attribute(:unknown_method_for_a_user)
       expect(@new_user).to have_attribute(:fullname)
     end
 
     it "handles get_attribute for getter" do
-      @new_user = Foo::User.new(:fullname => 'Mayonegg')
+      @new_user = Foo::User.new(fullname: 'Mayonegg')
       expect(@new_user.get_attribute(:unknown_method_for_a_user)).to be_nil
       expect(@new_user.get_attribute(:fullname)).to eq('Mayonegg')
     end
@@ -71,24 +71,24 @@ describe Her::Model::Attributes do
   context "assigning new resource data" do
     before do
       spawn_model "Foo::User"
-      @user = Foo::User.new(:active => false)
+      @user = Foo::User.new(active: false)
     end
 
     it "handles data update through #assign_attributes" do
-      @user.assign_attributes :active => true
+      @user.assign_attributes active: true
       expect(@user).to be_active
     end
   end
 
   context "checking resource equality" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
-          stub.get("/admins/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.get("/admins/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
         end
       end
 
@@ -107,7 +107,7 @@ describe Her::Model::Attributes do
     end
 
     it "returns true for the same class with identical data" do
-      expect(user).to eq(Foo::User.new(:id => 1, :fullname => "Lindsay Fünke"))
+      expect(user).to eq(Foo::User.new(id: 1, fullname: "Lindsay Fünke"))
     end
 
     it "returns true for a different resource with the same data" do
@@ -115,11 +115,11 @@ describe Her::Model::Attributes do
     end
 
     it "returns false for the same class with different data" do
-      expect(user).not_to eq(Foo::User.new(:id => 2, :fullname => "Tobias Fünke"))
+      expect(user).not_to eq(Foo::User.new(id: 2, fullname: "Tobias Fünke"))
     end
 
     it "returns false for a non-resource with the same data" do
-      fake_user = double(:data => { :id => 1, :fullname => "Lindsay Fünke" })
+      fake_user = double(data: { id: 1, fullname: "Lindsay Fünke" })
       expect(user).not_to eq(fake_user)
     end
 
@@ -145,10 +145,10 @@ describe Her::Model::Attributes do
 
   context "handling metadata and errors" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.adapter :test do |stub|
-          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.post("/users") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -157,7 +157,7 @@ describe Her::Model::Attributes do
         store_metadata :my_data
       end
 
-      @user = Foo::User.new(:_errors => ["Foo", "Bar"], :_metadata => { :secret => true })
+      @user = Foo::User.new(_errors: ["Foo", "Bar"], _metadata: { secret: true })
     end
 
     it "should return response_errors stored in the method provided by `store_response_errors`" do
@@ -169,7 +169,7 @@ describe Her::Model::Attributes do
     end
 
     it "should return metadata stored in the method provided by `store_metadata`" do
-      expect(@user.my_data).to eq({ :secret => true })
+      expect(@user.my_data).to eq({ secret: true })
     end
 
     it "should remove the default method for metadata" do
@@ -177,7 +177,7 @@ describe Her::Model::Attributes do
     end
 
     it "should work with #save" do
-      @user.assign_attributes(:fullname => "Tobias Fünke")
+      @user.assign_attributes(fullname: "Tobias Fünke")
       @user.save
       expect { @user.metadata }.to raise_error(NoMethodError)
       expect(@user.my_data).to be_empty
@@ -188,10 +188,10 @@ describe Her::Model::Attributes do
   context "overwriting default attribute methods" do
     context "for getter method" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :document => { :url => "http://example.com" } }.to_json] }
+            stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
           end
         end
 
@@ -213,10 +213,10 @@ describe Her::Model::Attributes do
 
     context "for setter method" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :document => { :url => "http://example.com" } }.to_json] }
+            stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
           end
         end
 
@@ -238,11 +238,11 @@ describe Her::Model::Attributes do
 
     context "for predicate method" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke", :document => { :url => nil } }.to_json] }
-            stub.get("/users/2") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke", :document => { :url => "http://example.com" } }.to_json] }
+            stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke", document: { url: nil } }.to_json] }
+            stub.get("/users/2") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
           end
         end
 

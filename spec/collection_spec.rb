@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Her::Collection do
 
   let(:items) { [1, 2, 3, 4] }
-  let(:metadata) { { :name => 'Testname' } }
-  let(:errors) { { :name => ['not_present'] } }
+  let(:metadata) { { name: 'Testname' } }
+  let(:errors) { { name: ['not_present'] } }
 
   describe "#new" do
     context "without parameters" do
@@ -30,12 +30,12 @@ describe Her::Collection do
 
       describe '#metadata' do
         subject { super().metadata }
-        it { is_expected.to eq({ :name => 'Testname' }) }
+        it { is_expected.to eq({ name: 'Testname' }) }
       end
 
       describe '#errors' do
         subject { super().errors }
-        it { is_expected.to eq({ :name => ['not_present'] }) }
+        it { is_expected.to eq({ name: ['not_present'] }) }
       end
     end
   end

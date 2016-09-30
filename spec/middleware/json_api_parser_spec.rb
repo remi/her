@@ -12,12 +12,12 @@ describe Her::Middleware::JsonApiParser do
       subject.on_complete(env)
       env.fetch(:body).tap do |json|
         expect(json[:data]).to eql(
-          :type => "foo",
-          :id => "bar",
-          :attributes => { :baz => "qux" } 
+          type: "foo",
+          id: "bar",
+          attributes: { baz: "qux" }
         )
         expect(json[:errors]).to eql([])
-        expect(json[:metadata]).to eql(:api => "json api")
+        expect(json[:metadata]).to eql(api: "json api")
       end
     end
   end

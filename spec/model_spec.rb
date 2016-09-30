@@ -3,11 +3,11 @@ require 'spec_helper'
 
 describe Her::Model do
   before do
-    Her::API.setup :url => "https://api.example.com" do |connection|
+    Her::API.setup url: "https://api.example.com" do |connection|
       connection.use Her::Middleware::FirstLevelParseJSON
       connection.adapter :test do |stub|
-        stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke" }.to_json] }
-        stub.get("/users/1/comments") { |env| [200, {}, [{ :id => 4, :body => "They're having a FIRESALE?" }].to_json] }
+        stub.get("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
+        stub.get("/users/1/comments") { |env| [200, {}, [{ id: 4, body: "They're having a FIRESALE?" }].to_json] }
       end
     end
 

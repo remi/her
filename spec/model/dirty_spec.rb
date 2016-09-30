@@ -4,16 +4,16 @@ require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 describe "Her::Model and ActiveModel::Dirty" do
   context "checking dirty attributes" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Lindsay Fünke" }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 2, :fullname => "Maeby Fünke" }.to_json] }
-          stub.get("/users/3") { |env| [200, {}, { :user_id => 3, :fullname => "Maeby Fünke" }.to_json] }
-          stub.put("/users/1") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
-          stub.put("/users/2") { |env| [400, {}, { :errors => ["Email cannot be blank"] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { :id => 1, :fullname => "Tobias Fünke" }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { id: 2, fullname: "Maeby Fünke" }.to_json] }
+          stub.get("/users/3") { |env| [200, {}, { user_id: 3, fullname: "Maeby Fünke" }.to_json] }
+          stub.put("/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.put("/users/2") { |env| [400, {}, { errors: ["Email cannot be blank"] }.to_json] }
+          stub.post("/users") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -49,12 +49,12 @@ describe "Her::Model and ActiveModel::Dirty" do
         it "tracks previous changes" do
           user.fullname = "Tobias Fünke"
           user.save
-          expect(user.previous_changes).to eq({"fullname"=>"Lindsay Fünke"})
+          expect(user.previous_changes).to eq("fullname"=>"Lindsay Fünke")
         end
 
         it 'tracks dirty attribute for mass assign for dynamic created attributes' do
           user = Dynamic::User.find(3)
-          user.assign_attributes(:fullname => 'New Fullname')
+          user.assign_attributes(fullname: 'New Fullname')
           expect(user.fullname_changed?).to be_truthy
           expect(user).to be_changed
           expect(user.changes.length).to eq(1)
@@ -75,7 +75,7 @@ describe "Her::Model and ActiveModel::Dirty" do
     end
 
     context "for new resource" do
-      let(:user) { Foo::User.new(:fullname => "Lindsay Fünke") }
+      let(:user) { Foo::User.new(fullname: "Lindsay Fünke") }
       it "has changes" do
         expect(user).to be_changed
       end

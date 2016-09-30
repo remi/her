@@ -11,7 +11,7 @@ describe Her::Model::Associations do
 
       describe '[:has_many]' do
         subject { super()[:has_many] }
-        it { is_expected.to eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Comment", :path => "/comments", :inverse_of => nil }] }
+        it { is_expected.to eql [{ name: :comments, data_key: :comments, default: [], class_name: "Comment", path: "/comments", inverse_of: nil }] }
       end
     end
 
@@ -23,7 +23,7 @@ describe Her::Model::Associations do
 
       describe '[:has_many]' do
         subject { super()[:has_many] }
-        it { is_expected.to eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :default => [], :class_name => "Post", :path => "/posts", :inverse_of => nil }] }
+        it { is_expected.to eql [{ name: :comments, data_key: :comments, default: [], class_name: "Comment", path: "/comments", inverse_of: nil }, { name: :posts, data_key: :posts, default: [], class_name: "Post", path: "/posts", inverse_of: nil }] }
       end
     end
 
@@ -32,7 +32,7 @@ describe Her::Model::Associations do
 
       describe '[:has_one]' do
         subject { super()[:has_one] }
-        it { is_expected.to eql [{ :name => :category, :data_key => :category, :default => nil, :class_name => "Category", :path => "/category" }] }
+        it { is_expected.to eql [{ name: :category, data_key: :category, default: nil, class_name: "Category", path: "/category" }] }
       end
     end
 
@@ -44,7 +44,7 @@ describe Her::Model::Associations do
 
       describe '[:has_one]' do
         subject { super()[:has_one] }
-        it { is_expected.to eql [{ :name => :category, :data_key => :category, :default => nil, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :default => nil, :class_name => "Role", :path => "/role" }] }
+        it { is_expected.to eql [{ name: :category, data_key: :category, default: nil, class_name: "Category", path: "/category" }, { name: :role, data_key: :role, default: nil, class_name: "Role", path: "/role" }] }
       end
     end
 
@@ -53,7 +53,7 @@ describe Her::Model::Associations do
 
       describe '[:belongs_to]' do
         subject { super()[:belongs_to] }
-        it { is_expected.to eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }] }
+        it { is_expected.to eql [{ name: :organization, data_key: :organization, default: nil, class_name: "Organization", foreign_key: "organization_id", path: "/organizations/:id" }] }
       end
     end
 
@@ -65,7 +65,7 @@ describe Her::Model::Associations do
 
       describe '[:belongs_to]' do
         subject { super()[:belongs_to] }
-        it { is_expected.to eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :default => nil, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }] }
+        it { is_expected.to eql [{ name: :organization, data_key: :organization, default: nil, class_name: "Organization", foreign_key: "organization_id", path: "/organizations/:id" }, { name: :family, data_key: :family, default: nil, class_name: "Family", foreign_key: "family_id", path: "/families/:id" }] }
       end
     end
   end
@@ -76,35 +76,35 @@ describe Her::Model::Associations do
 
     context "in base class" do
       context "single has_many association" do
-        before { Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin, :data_key => :user_comments, :default => {} }
+        before { Foo::User.has_many :comments, class_name: "Post", inverse_of: :admin, data_key: :user_comments, default: {} }
 
         describe '[:has_many]' do
           subject { super()[:has_many] }
-          it { is_expected.to eql [{ :name => :comments, :data_key => :user_comments, :default => {}, :class_name => "Post", :path => "/comments", :inverse_of => :admin }] }
+          it { is_expected.to eql [{ name: :comments, data_key: :user_comments, default: {}, class_name: "Post", path: "/comments", inverse_of: :admin }] }
         end
       end
 
       context "single has_one association" do
-        before { Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic, :default => nil }
+        before { Foo::User.has_one :category, class_name: "Topic", foreign_key: "topic_id", data_key: :topic, default: nil }
 
         describe '[:has_one]' do
           subject { super()[:has_one] }
-          it { is_expected.to eql [{ :name => :category, :data_key => :topic, :default => nil, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }] }
+          it { is_expected.to eql [{ name: :category, data_key: :topic, default: nil, class_name: "Topic", foreign_key: "topic_id", path: "/category" }] }
         end
       end
 
       context "single belongs_to association" do
-        before { Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org, :default => true }
+        before { Foo::User.belongs_to :organization, class_name: "Business", foreign_key: "org_id", data_key: :org, default: true }
 
         describe '[:belongs_to]' do
           subject { super()[:belongs_to] }
-          it { is_expected.to eql [{ :name => :organization, :data_key => :org, :default => true, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }] }
+          it { is_expected.to eql [{ name: :organization, data_key: :org, default: true, class_name: "Business", foreign_key: "org_id", path: "/organizations/:id" }] }
         end
       end
     end
 
     context "in parent class" do
-      before { Foo::User.has_many :comments, :class_name => "Post" }
+      before { Foo::User.has_many :comments, class_name: "Post" }
 
       describe "associations accessor" do
         subject { Class.new(Foo::User).associations }
@@ -116,7 +116,7 @@ describe Her::Model::Associations do
 
         describe '[:has_many]' do
           subject { super()[:has_many] }
-          it { is_expected.to eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
+          it { is_expected.to eql [{ name: :comments, data_key: :comments, default: [], class_name: "Post", path: "/comments", inverse_of: nil }] }
         end
       end
     end
@@ -124,28 +124,28 @@ describe Her::Model::Associations do
 
   context "handling associations without details" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 2 }.to_json] }
-          stub.get("/users/1/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }].to_json] }
-          stub.get("/users/2/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }].to_json] }
-          stub.get("/users/2/comments/5") { |env| [200, {}, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }.to_json] }
-          stub.get("/users/2/role") { |env| [200, {}, { :id => 2, :body => "User" }.to_json] }
-          stub.get("/users/1/role") { |env| [200, {}, { :id => 3, :body => "User" }.to_json] }
-          stub.get("/users/1/posts") { |env| [200, {}, [{:id => 1, :body => 'blogging stuff', :admin_id => 1 }].to_json] }
-          stub.get("/organizations/1") { |env| [200, {}, { :organization =>  { :id => 1, :name => "Bluth Company Foo" } }.to_json] }
-          stub.post("/users") { |env| [200, {}, { :id => 5, :name => "Mr. Krabs", :comments => [{ :comment => { :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 } }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
-          stub.put("/users/5") { |env| [200, {}, { :id => 5, :name => "Clancy Brown", :comments => [{ :comment => { :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 } }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
-          stub.delete("/users/5") { |env| [200, {}, { :id => 5, :name => "Clancy Brown", :comments => [{ :comment => { :id => 99, :body => "Rodríguez, nasibisibusi?", :user_id => 5 } }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 3, :name => "Krusty Krab" }, :organization_id => 3 }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Fünke", comments: [{ comment: { id: 2, body: "Tobias, you blow hard!", user_id: 1 } }, { comment: { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 } }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
+          stub.get("/users/1/comments") { |env| [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }].to_json] }
+          stub.get("/users/2/comments") { |env| [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }].to_json] }
+          stub.get("/users/2/comments/5") { |env| [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
+          stub.get("/users/2/role") { |env| [200, {}, { id: 2, body: "User" }.to_json] }
+          stub.get("/users/1/role") { |env| [200, {}, { id: 3, body: "User" }.to_json] }
+          stub.get("/users/1/posts") { |env| [200, {}, [{id: 1, body: 'blogging stuff', admin_id: 1 }].to_json] }
+          stub.get("/organizations/1") { |env| [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+          stub.post("/users") { |env| [200, {}, { id: 5, name: "Mr. Krabs", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
+          stub.put("/users/5") { |env| [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
+          stub.delete("/users/5") { |env| [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
 
           stub.get("/organizations/2") do |env|
             if env[:params]["admin"] == "true"
-              [200, {}, { :organization => { :id => 2, :name => "Bluth Company (admin)" } }.to_json]
+              [200, {}, { organization: { id: 2, name: "Bluth Company (admin)" } }.to_json]
             else
-              [200, {}, { :organization => { :id => 2, :name => "Bluth Company" } }.to_json]
+              [200, {}, { organization: { id: 2, name: "Bluth Company" } }.to_json]
             end
           end
         end
@@ -155,14 +155,14 @@ describe Her::Model::Associations do
         has_many :comments, class_name: "Foo::Comment"
         has_one :role
         belongs_to :organization
-        has_many :posts, :inverse_of => :admin
+        has_many :posts, inverse_of: :admin
       end
       spawn_model "Foo::Comment" do
         belongs_to :user
         parse_root_in_json true
       end
       spawn_model "Foo::Post" do
-        belongs_to :admin, :class_name => 'Foo::User'
+        belongs_to :admin, class_name: 'Foo::User'
       end
 
       spawn_model "Foo::Organization" do
@@ -177,9 +177,9 @@ describe Her::Model::Associations do
     end
 
     let(:user_with_included_data_after_create) { Foo::User.create }
-    let(:user_with_included_data_after_save_existing) { Foo::User.save_existing(5, :name => "Clancy Brown") }
-    let(:user_with_included_data_after_destroy) { Foo::User.new(:id => 5).destroy }
-    let(:comment_without_included_parent_data) { Foo::Comment.new(:id => 7, :user_id => 1) }
+    let(:user_with_included_data_after_save_existing) { Foo::User.save_existing(5, name: "Clancy Brown") }
+    let(:user_with_included_data_after_destroy) { Foo::User.new(id: 5).destroy }
+    let(:comment_without_included_parent_data) { Foo::Comment.new(id: 7, user_id: 1) }
 
     it "maps an array of included data through has_many" do
       expect(@user_with_included_data.comments.first).to be_a(Foo::Comment)
@@ -197,7 +197,7 @@ describe Her::Model::Associations do
     end
 
     it "does fetch the parent models data that was cached if called with parameters" do
-      expect(comment_without_included_parent_data.user.object_id).not_to eq(comment_without_included_parent_data.user.where(:a => 2).object_id)
+      expect(comment_without_included_parent_data.user.object_id).not_to eq(comment_without_included_parent_data.user.where(a: 2).object_id)
     end
 
     it "uses the given inverse_of key to set the parent model" do
@@ -212,7 +212,7 @@ describe Her::Model::Associations do
     end
 
     it "fetches has_many data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.comments.where(:foo_id => 1).length).to eq(1)
+      expect(@user_with_included_data.comments.where(foo_id: 1).length).to eq(1)
     end
 
     it "fetches data that was not included through has_many only once" do
@@ -220,7 +220,7 @@ describe Her::Model::Associations do
     end
 
     it "fetches data that was cached through has_many if called with parameters" do
-      expect(@user_without_included_data.comments.first.object_id).not_to eq(@user_without_included_data.comments.where(:foo_id => 1).first.object_id)
+      expect(@user_without_included_data.comments.first.object_id).not_to eq(@user_without_included_data.comments.where(foo_id: 1).first.object_id)
     end
 
     it "maps an array of included data through has_one" do
@@ -237,7 +237,7 @@ describe Her::Model::Associations do
     end
 
     it "fetches has_one data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.role.where(:foo_id => 2).id).to eq(3)
+      expect(@user_with_included_data.role.where(foo_id: 2).id).to eq(3)
     end
 
     it "maps an array of included data through belongs_to" do
@@ -257,7 +257,7 @@ describe Her::Model::Associations do
     end
 
     it "fetches belongs_to data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.organization.where(:foo_id => 1).name).to eq("Bluth Company Foo")
+      expect(@user_with_included_data.organization.where(foo_id: 1).name).to eq("Bluth Company Foo")
     end
 
     it "can tell if it has a association" do
@@ -271,7 +271,7 @@ describe Her::Model::Associations do
     end
 
     it "pass query string parameters when additional arguments are passed" do
-      expect(@user_without_included_data.organization.where(:admin => true).name).to eq("Bluth Company (admin)")
+      expect(@user_without_included_data.organization.where(admin: true).name).to eq("Bluth Company (admin)")
       expect(@user_without_included_data.organization.name).to eq("Bluth Company")
     end
 
@@ -314,29 +314,29 @@ describe Her::Model::Associations do
 
   context "handling associations with details in active_model_serializers format" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :user => { :id => 1, :name => "Tobias Fünke", :comments => [{ :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 }, { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 } }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :user => { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 } }.to_json] }
-          stub.get("/users/1/comments") { |env| [200, {}, { :comments => [{ :id => 4, :body => "They're having a FIRESALE?" }] }.to_json] }
-          stub.get("/users/2/comments") { |env| [200, {}, { :comments => [{ :id => 4, :body => "They're having a FIRESALE?" }, { :id => 5, :body => "Is this the tiny town from Footloose?" }] }.to_json] }
-          stub.get("/users/2/comments/5") { |env| [200, {}, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }.to_json] }
-          stub.get("/organizations/1") { |env| [200, {}, { :organization =>  { :id => 1, :name => "Bluth Company Foo" } }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { user: { id: 1, name: "Tobias Fünke", comments: [{ id: 2, body: "Tobias, you blow hard!", user_id: 1 }, { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 } }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { user: { id: 2, name: "Lindsay Fünke", organization_id: 1 } }.to_json] }
+          stub.get("/users/1/comments") { |env| [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }] }.to_json] }
+          stub.get("/users/2/comments") { |env| [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }, { id: 5, body: "Is this the tiny town from Footloose?" }] }.to_json] }
+          stub.get("/users/2/comments/5") { |env| [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
+          stub.get("/organizations/1") { |env| [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
         end
       end
       spawn_model "Foo::User" do
-        parse_root_in_json true, :format => :active_model_serializers
+        parse_root_in_json true, format: :active_model_serializers
         has_many :comments, class_name: "Foo::Comment"
         belongs_to :organization
       end
       spawn_model "Foo::Comment" do
         belongs_to :user
-        parse_root_in_json true, :format => :active_model_serializers
+        parse_root_in_json true, format: :active_model_serializers
       end
       spawn_model "Foo::Organization" do
-        parse_root_in_json true, :format => :active_model_serializers
+        parse_root_in_json true, format: :active_model_serializers
       end
 
       @user_with_included_data = Foo::User.find(1)
@@ -362,7 +362,7 @@ describe Her::Model::Associations do
     end
 
     it "fetches has_many data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.comments.where(:foo_id => 1).length).to eq(1)
+      expect(@user_with_included_data.comments.where(foo_id: 1).length).to eq(1)
     end
 
     it "maps an array of included data through belongs_to" do
@@ -378,7 +378,7 @@ describe Her::Model::Associations do
     end
 
     it "fetches belongs_to data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.organization.where(:foo_id => 1).name).to eq("Bluth Company Foo")
+      expect(@user_with_included_data.organization.where(foo_id: 1).name).to eq("Bluth Company Foo")
     end
 
     it "fetches data with the specified id when calling find" do
@@ -396,20 +396,20 @@ describe Her::Model::Associations do
 
   context "handling associations with details" do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company Inc." }, :organization_id => 1 }.to_json] }
-          stub.get("/users/4") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :organization => { :id => 1, :name => "Bluth Company Inc." } }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 1 }.to_json] }
-          stub.get("/users/3") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :company => nil }.to_json] }
-          stub.get("/companies/1") { |env| [200, {}, { :id => 1, :name => "Bluth Company" }.to_json] }
+          stub.get("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." }, organization_id: 1 }.to_json] }
+          stub.get("/users/4") { |env| [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." } }.to_json] }
+          stub.get("/users/2") { |env| [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 1 }.to_json] }
+          stub.get("/users/3") { |env| [200, {}, { id: 2, name: "Lindsay Fünke", company: nil }.to_json] }
+          stub.get("/companies/1") { |env| [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
         end
       end
 
       spawn_model "Foo::User" do
-        belongs_to :company, :path => "/organizations/:id", :foreign_key => :organization_id, :data_key => :organization
+        belongs_to :company, path: "/organizations/:id", foreign_key: :organization_id, data_key: :organization
       end
 
       spawn_model "Foo::Company"
@@ -498,7 +498,7 @@ describe Her::Model::Associations do
 
     context "with #build" do
       it "takes the parent primary key" do
-        @comment = Foo::User.new(:id => 10).comments.build(:body => "Hello!")
+        @comment = Foo::User.new(id: 10).comments.build(body: "Hello!")
         expect(@comment.body).to eq("Hello!")
         expect(@comment.user_id).to eq(10)
       end
@@ -506,12 +506,12 @@ describe Her::Model::Associations do
 
     context "with #create" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.get("/users/10") { |env| [200, {}, { :id => 10 }.to_json] }
-            stub.post("/comments") { |env| [200, {}, { :id => 1, :body => Faraday::Utils.parse_query(env[:body])['body'], :user_id => Faraday::Utils.parse_query(env[:body])['user_id'].to_i }.to_json] }
+            stub.get("/users/10") { |env| [200, {}, { id: 10 }.to_json] }
+            stub.post("/comments") { |env| [200, {}, { id: 1, body: Faraday::Utils.parse_query(env[:body])['body'], user_id: Faraday::Utils.parse_query(env[:body])['user_id'].to_i }.to_json] }
           end
         end
 
@@ -521,7 +521,7 @@ describe Her::Model::Associations do
 
       it "takes the parent primary key and saves the resource" do
         @user = Foo::User.find(10)
-        @comment = @user.comments.create(:body => "Hello!")
+        @comment = @user.comments.create(body: "Hello!")
         expect(@comment.id).to eq(1)
         expect(@comment.body).to eq("Hello!")
         expect(@comment.user_id).to eq(10)
@@ -531,13 +531,13 @@ describe Her::Model::Associations do
 
     context "with #new" do
       it "creates nested models from hash attibutes" do
-        user = Foo::User.new(:name => "vic", :comments => [{:text => "hello"}])
+        user = Foo::User.new(name: "vic", comments: [{text: "hello"}])
         expect(user.comments.first.text).to eq("hello")
       end
 
       it "assigns nested models if given as already constructed objects" do
-        bye = Foo::Comment.new(:text => "goodbye")
-        user = Foo::User.new(:name => 'vic', :comments => [bye])
+        bye = Foo::Comment.new(text: "goodbye")
+        user = Foo::User.new(name: 'vic', comments: [bye])
         expect(user.comments.first.text).to eq('goodbye')
       end
     end
