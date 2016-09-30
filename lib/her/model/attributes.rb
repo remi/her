@@ -141,7 +141,7 @@ module Her
       #
       # @private
       def ==(other)
-        other.is_a?(Her::Model) && @attributes == other.attributes
+        other.is_a?(Her::Model) && self.class == other.class && id == other.id
       end
 
       # Delegate to the == method
