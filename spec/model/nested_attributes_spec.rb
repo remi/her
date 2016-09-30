@@ -21,16 +21,16 @@ describe Her::Model::NestedAttributes do
 
     context "when child does not yet exist" do
       it "creates an instance of the associated class" do
-        @user_with_data_through_nested_attributes.company.should be_a(Foo::Company)
-        @user_with_data_through_nested_attributes.company.name.should == "Example Company"
+        expect(@user_with_data_through_nested_attributes.company).to be_a(Foo::Company)
+        expect(@user_with_data_through_nested_attributes.company.name).to eq("Example Company")
       end
     end
 
     context "when child does exist" do
       it "updates the attributes of the associated object" do
         @user_with_data_through_nested_attributes.company_attributes = { :name => "Fünke's Company" }
-        @user_with_data_through_nested_attributes.company.should be_a(Foo::Company)
-        @user_with_data_through_nested_attributes.company.name.should == "Fünke's Company"
+        expect(@user_with_data_through_nested_attributes.company).to be_a(Foo::Company)
+        expect(@user_with_data_through_nested_attributes.company.name).to eq("Fünke's Company")
       end
     end
   end
@@ -54,16 +54,16 @@ describe Her::Model::NestedAttributes do
 
     context "when child does not yet exist" do
       it "creates an instance of the associated class" do
-        @user_with_data_through_nested_attributes.pet.should be_a(Foo::Pet)
-        @user_with_data_through_nested_attributes.pet.name.should == "Hasi"
+        expect(@user_with_data_through_nested_attributes.pet).to be_a(Foo::Pet)
+        expect(@user_with_data_through_nested_attributes.pet.name).to eq("Hasi")
       end
     end
 
     context "when child does exist" do
       it "updates the attributes of the associated object" do
         @user_with_data_through_nested_attributes.pet_attributes = { :name => "Rodriguez" }
-        @user_with_data_through_nested_attributes.pet.should be_a(Foo::Pet)
-        @user_with_data_through_nested_attributes.pet.name.should == "Rodriguez"
+        expect(@user_with_data_through_nested_attributes.pet).to be_a(Foo::Pet)
+        expect(@user_with_data_through_nested_attributes.pet.name).to eq("Rodriguez")
       end
     end
   end
@@ -87,11 +87,11 @@ describe Her::Model::NestedAttributes do
 
     context "when children do not yet exist" do
       it "creates an instance of the associated class" do
-        @user_with_data_through_nested_attributes.pets.length.should == 2
-        @user_with_data_through_nested_attributes.pets[0].should be_a(Foo::Pet)
-        @user_with_data_through_nested_attributes.pets[1].should be_a(Foo::Pet)
-        @user_with_data_through_nested_attributes.pets[0].name.should == "Hasi"
-        @user_with_data_through_nested_attributes.pets[1].name.should == "Rodriguez"
+        expect(@user_with_data_through_nested_attributes.pets.length).to eq(2)
+        expect(@user_with_data_through_nested_attributes.pets[0]).to be_a(Foo::Pet)
+        expect(@user_with_data_through_nested_attributes.pets[1]).to be_a(Foo::Pet)
+        expect(@user_with_data_through_nested_attributes.pets[0].name).to eq("Hasi")
+        expect(@user_with_data_through_nested_attributes.pets[1].name).to eq("Rodriguez")
       end
     end
   end
@@ -115,11 +115,11 @@ describe Her::Model::NestedAttributes do
 
     context "when children do not yet exist" do
       it "creates an instance of the associated class" do
-        @user_with_data_through_nested_attributes_as_hash.pets.length.should == 2
-        @user_with_data_through_nested_attributes_as_hash.pets[0].should be_a(Foo::Pet)
-        @user_with_data_through_nested_attributes_as_hash.pets[1].should be_a(Foo::Pet)
-        @user_with_data_through_nested_attributes_as_hash.pets[0].name.should == "Hasi"
-        @user_with_data_through_nested_attributes_as_hash.pets[1].name.should == "Rodriguez"
+        expect(@user_with_data_through_nested_attributes_as_hash.pets.length).to eq(2)
+        expect(@user_with_data_through_nested_attributes_as_hash.pets[0]).to be_a(Foo::Pet)
+        expect(@user_with_data_through_nested_attributes_as_hash.pets[1]).to be_a(Foo::Pet)
+        expect(@user_with_data_through_nested_attributes_as_hash.pets[0].name).to eq("Hasi")
+        expect(@user_with_data_through_nested_attributes_as_hash.pets[1].name).to eq("Rodriguez")
       end
     end
   end

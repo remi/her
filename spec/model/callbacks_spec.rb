@@ -27,7 +27,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      its(:name) { should == "TOBIAS FUNKE" }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq("TOBIAS FUNKE") }
+      end
     end
 
     context "when using a block callback" do
@@ -37,7 +40,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      its(:name) { should == "TOBIAS FUNKE" }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq("TOBIAS FUNKE") }
+      end
     end
 
     context "when changing a value of an existing resource in a callback" do
@@ -51,9 +57,9 @@ describe "Her::Model and ActiveModel::Callbacks" do
       end
 
       it "should call the server with the canged value" do
-        subject.name.should == "Tobias Funke"
+        expect(subject.name).to eq("Tobias Funke")
         subject.save
-        subject.name.should == "Lumberjack"
+        expect(subject.name).to eq("Lumberjack")
       end
     end
   end
@@ -74,7 +80,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      its(:name) { should == "TOBIAS FUNKE" }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq("TOBIAS FUNKE") }
+      end
     end
 
     context "when using a block callback" do
@@ -84,7 +93,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      its(:name) { should == "TOBIAS FUNKE" }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq("TOBIAS FUNKE") }
+      end
     end
   end
 
@@ -104,7 +116,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      its(:name) { should == "TOBIAS FUNKE" }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq("TOBIAS FUNKE") }
+      end
     end
 
     context "when using a block callback" do
@@ -114,7 +129,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      its(:name) { should == "TOBIAS FUNKE" }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq("TOBIAS FUNKE") }
+      end
     end
   end
 
@@ -129,7 +147,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      its(:name) { should == "TOBIAS FUNKE" }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq("TOBIAS FUNKE") }
+      end
     end
 
     context "when using a block callback" do
@@ -139,7 +160,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      its(:name) { should == "TOBIAS FUNKE" }
+      describe '#name' do
+        subject { super().name }
+        it { is_expected.to eq("TOBIAS FUNKE") }
+      end
     end
   end
 end

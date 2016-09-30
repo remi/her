@@ -30,26 +30,26 @@ describe Her::Model::Relation do
       end
 
       it "doesn't fetch the data immediatly" do
-        Foo::User.should_receive(:request).never
+        expect(Foo::User).to receive(:request).never
         @users = Foo::User.where(:admin => 1)
       end
 
       it "fetches the data and passes query parameters" do
-        Foo::User.should_receive(:request).once.and_call_original
+        expect(Foo::User).to receive(:request).once.and_call_original
         @users = Foo::User.where(:admin => 1)
-        @users.should respond_to(:length)
-        @users.size.should eql 1
+        expect(@users).to respond_to(:length)
+        expect(@users.size).to eql 1
       end
 
       it "chains multiple where statements" do
         @user = Foo::User.where(:foo => 1).where(:bar => 2).first
-        @user.id.should == 2
+        expect(@user.id).to eq(2)
       end
 
       it "does not reuse relations" do
-        Foo::User.all.size.should eql 2
-        Foo::User.create(:fullname => 'George Michael Bluth').id.should == 3
-        Foo::User.all.size.should eql 3
+        expect(Foo::User.all.size).to eql 2
+        expect(Foo::User.create(:fullname => 'George Michael Bluth').id).to eq(3)
+        expect(Foo::User.all.size).to eql 3
       end
     end
 
@@ -72,7 +72,7 @@ describe Her::Model::Relation do
 
       it "propagates the scopes through its children" do
         @users = User.page(2)
-        @users.length.should == 2
+        expect(@users.length).to eq(2)
       end
     end
   end
@@ -93,18 +93,18 @@ describe Her::Model::Relation do
     context "with a single where call" do
       it "creates a resource and passes the query parameters" do
         @user = Foo::User.where(:fullname => "Tobias Fünke", :email => "tobias@bluth.com").create
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
-        @user.email.should == "tobias@bluth.com"
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
+        expect(@user.email).to eq("tobias@bluth.com")
       end
     end
 
     context "with multiple where calls" do
       it "creates a resource and passes the query parameters" do
         @user = Foo::User.where(:fullname => "Tobias Fünke").create(:email => "tobias@bluth.com")
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
-        @user.email.should == "tobias@bluth.com"
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
+        expect(@user.email).to eq("tobias@bluth.com")
       end
     end
   end
@@ -114,8 +114,8 @@ describe Her::Model::Relation do
 
     it "handles new resource with build" do
       @new_user = Foo::User.where(:fullname => "Tobias Fünke").build
-      @new_user.new?.should be_truthy
-      @new_user.fullname.should == "Tobias Fünke"
+      expect(@new_user.new?).to be_truthy
+      expect(@new_user.fullname).to eq("Tobias Fünke")
     end
   end
 
@@ -139,17 +139,17 @@ describe Her::Model::Relation do
 
     it "passes query parameters" do
       @user = Foo::User.foo(2).first
-      @user.id.should == 2
+      expect(@user.id).to eq(2)
     end
 
     it "passes multiple query parameters" do
       @user = Foo::User.foo(4).bar(3).first
-      @user.id.should == 3
+      expect(@user.id).to eq(3)
     end
 
     it "handles embedded scopes" do
       @user = Foo::User.baz.first
-      @user.id.should == 4
+      expect(@user.id).to eq(4)
     end
   end
 
@@ -163,8 +163,8 @@ describe Her::Model::Relation do
       end
 
       it "should apply the scope to the attributes" do
-        Foo::User.new.should be_active
-        Foo::User.new.should be_admin
+        expect(Foo::User.new).to be_active
+        expect(Foo::User.new).to be_admin
       end
     end
 
@@ -183,7 +183,7 @@ describe Her::Model::Relation do
         end
       end
 
-      it("should apply the scope to the request") { Foo::User.create.should be_active }
+      it("should apply the scope to the request") { expect(Foo::User.create).to be_active }
     end
 
     context "for fetched collections" do
@@ -201,7 +201,7 @@ describe Her::Model::Relation do
         end
       end
 
-      it("should apply the scope to the request") { Foo::User.all.first.should be_active }
+      it("should apply the scope to the request") { expect(Foo::User.all.first).to be_active }
     end
   end
 
@@ -220,7 +220,7 @@ describe Her::Model::Relation do
     end
 
     it "delegates the method to the fetched collection" do
-      Foo::User.all.map(&:fullname).should == ["Tobias Fünke", "Lindsay Fünke"]
+      expect(Foo::User.all.map(&:fullname)).to eq(["Tobias Fünke", "Lindsay Fünke"])
     end
   end
 end

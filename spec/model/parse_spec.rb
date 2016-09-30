@@ -26,12 +26,12 @@ describe Her::Model::Parse do
 
       it "wraps params in the element name in `to_params`" do
         @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-        @new_user.to_params.should == { :user => { :fullname => "Tobias Fünke" } }
+        expect(@new_user.to_params).to eq({ :user => { :fullname => "Tobias Fünke" } })
       end
 
       it "wraps params in the element name in `.create`" do
         @new_user = Foo::User.admins(:fullname => "Tobias Fünke")
-        @new_user.fullname.should == "Tobias Fünke"
+        expect(@new_user.fullname).to eq("Tobias Fünke")
       end
     end
 
@@ -45,7 +45,7 @@ describe Her::Model::Parse do
 
       it "wraps params in the specified value" do
         @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-        @new_user.to_params.should == { :person => { :fullname => "Tobias Fünke" } }
+        expect(@new_user.to_params).to eq({ :person => { :fullname => "Tobias Fünke" } })
       end
     end
 
@@ -59,7 +59,7 @@ describe Her::Model::Parse do
 
       it "wraps params with the class name" do
         @new_user = User.new(:fullname => "Tobias Fünke")
-        @new_user.to_params.should == { :user => { :fullname => "Tobias Fünke" } }
+        expect(@new_user.to_params).to eq({ :user => { :fullname => "Tobias Fünke" } })
       end
     end
   end
@@ -90,29 +90,29 @@ describe Her::Model::Parse do
 
       it "parse the data from the JSON root element after .create" do
         @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
-        @new_user.fullname.should == "Lindsay Fünke"
+        expect(@new_user.fullname).to eq("Lindsay Fünke")
       end
 
       it "parse the data from the JSON root element after an arbitrary HTTP request" do
         @new_user = Foo::User.admins
-        @new_user.first.fullname.should == "Lindsay Fünke"
+        expect(@new_user.first.fullname).to eq("Lindsay Fünke")
       end
 
       it "parse the data from the JSON root element after .all" do
         @users = Foo::User.all
-        @users.first.fullname.should == "Lindsay Fünke"
+        expect(@users.first.fullname).to eq("Lindsay Fünke")
       end
 
       it "parse the data from the JSON root element after .find" do
         @user = Foo::User.find(1)
-        @user.fullname.should == "Lindsay Fünke"
+        expect(@user.fullname).to eq("Lindsay Fünke")
       end
 
       it "parse the data from the JSON root element after .save" do
         @user = Foo::User.find(1)
         @user.fullname = "Tobias Fünke"
         @user.save
-        @user.fullname.should == "Tobias Fünke Jr."
+        expect(@user.fullname).to eq("Tobias Fünke Jr.")
       end
     end
 
@@ -127,7 +127,7 @@ describe Her::Model::Parse do
 
       it "parse the data with the symbol" do
         @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
-        @new_user.fullname.should == "Lindsay Fünke"
+        expect(@new_user.fullname).to eq("Lindsay Fünke")
       end
     end
 
@@ -148,12 +148,12 @@ describe Her::Model::Parse do
 
       it "parse the data with the symbol" do
         @new_user = User.create(:fullname => "Lindsay Fünke")
-        @new_user.fullname.should == "Lindsay Fünke"
+        expect(@new_user.fullname).to eq("Lindsay Fünke")
       end
 
       it "parses the collection of data" do
         @users = User.all
-        @users.first.fullname.should == "Lindsay Fünke"
+        expect(@users.first.fullname).to eq("Lindsay Fünke")
       end
     end
 
@@ -175,29 +175,29 @@ describe Her::Model::Parse do
 
       it "parse the data from the JSON root element after .create" do
         @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
-        @new_user.fullname.should == "Lindsay Fünke"
+        expect(@new_user.fullname).to eq("Lindsay Fünke")
       end
 
       it "parse the data from the JSON root element after an arbitrary HTTP request" do
         @users = Foo::User.admins
-        @users.first.fullname.should == "Lindsay Fünke"
+        expect(@users.first.fullname).to eq("Lindsay Fünke")
       end
 
       it "parse the data from the JSON root element after .all" do
         @users = Foo::User.all
-        @users.first.fullname.should == "Lindsay Fünke"
+        expect(@users.first.fullname).to eq("Lindsay Fünke")
       end
 
       it "parse the data from the JSON root element after .find" do
         @user = Foo::User.find(1)
-        @user.fullname.should == "Lindsay Fünke"
+        expect(@user.fullname).to eq("Lindsay Fünke")
       end
 
       it "parse the data from the JSON root element after .save" do
         @user = Foo::User.find(1)
         @user.fullname = "Tobias Fünke"
         @user.save
-        @user.fullname.should == "Tobias Fünke Jr."
+        expect(@user.fullname).to eq("Tobias Fünke Jr.")
       end
     end
   end
@@ -221,13 +221,13 @@ describe Her::Model::Parse do
 
     it "changes the request parameters for one-line resource creation" do
       @user = Foo::User.create(:fullname => "Tobias Fünke")
-      @user.fullname.should == "Lindsay Fünke"
+      expect(@user.fullname).to eq("Lindsay Fünke")
     end
 
     it "changes the request parameters for Model.new + #save" do
       @user = Foo::User.new(:fullname => "Tobias Fünke")
       @user.save
-      @user.fullname.should == "Lindsay Fünke"
+      expect(@user.fullname).to eq("Lindsay Fünke")
     end
   end
 
@@ -254,36 +254,36 @@ describe Her::Model::Parse do
 
     it "parse the data from the JSON root element after .create" do
       @new_user = Foo::User.create(:fullname => "Lindsay Fünke")
-      @new_user.fullname.should == "Lindsay Fünke"
+      expect(@new_user.fullname).to eq("Lindsay Fünke")
     end
 
     it "parse the data from the JSON root element after an arbitrary HTTP request" do
       @new_user = Foo::User.admins
-      @new_user.first.fullname.should == "Lindsay Fünke"
+      expect(@new_user.first.fullname).to eq("Lindsay Fünke")
     end
 
     it "parse the data from the JSON root element after .all" do
       @users = Foo::User.all
-      @users.first.fullname.should == "Lindsay Fünke"
+      expect(@users.first.fullname).to eq("Lindsay Fünke")
     end
 
     it "parse the data from the JSON root element after .find" do
       @user = Foo::User.find(1)
-      @user.fullname.should == "Lindsay Fünke"
+      expect(@user.fullname).to eq("Lindsay Fünke")
     end
 
     it "parse the data from the JSON root element after .save" do
       @user = Foo::User.find(1)
       @user.fullname = "Tobias Fünke"
       @user.save
-      @user.fullname.should == "Tobias Fünke Jr."
+      expect(@user.fullname).to eq("Tobias Fünke Jr.")
     end
 
     it "parse the data from the JSON root element after new/save" do
       @user = Foo::User.new
       @user.fullname = "Lindsay Fünke (before save)"
       @user.save
-      @user.fullname.should == "Lindsay Fünke"
+      expect(@user.fullname).to eq("Lindsay Fünke")
     end
   end
 
@@ -310,12 +310,12 @@ describe Her::Model::Parse do
 
       it "wraps params in the element name in `to_params`" do
         @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-        @new_user.to_params.should == { :users => [{ :fullname => "Tobias Fünke" }] }
+        expect(@new_user.to_params).to eq({ :users => [{ :fullname => "Tobias Fünke" }] })
       end
 
       it "wraps params in the element name in `.where`" do
         @new_user = Foo::User.where(:fullname => "Tobias Fünke").build
-        @new_user.fullname.should == "Tobias Fünke"
+        expect(@new_user.fullname).to eq("Tobias Fünke")
       end
     end
   end

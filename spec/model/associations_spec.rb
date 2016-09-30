@@ -8,7 +8,11 @@ describe Her::Model::Associations do
 
     context "single has_many association" do
       before { Foo::User.has_many :comments }
-      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Comment", :path => "/comments", :inverse_of => nil }] }
+
+      describe '[:has_many]' do
+        subject { super()[:has_many] }
+        it { is_expected.to eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Comment", :path => "/comments", :inverse_of => nil }] }
+      end
     end
 
     context "multiple has_many associations" do
@@ -17,12 +21,19 @@ describe Her::Model::Associations do
         Foo::User.has_many :posts
       end
 
-      its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :default => [], :class_name => "Post", :path => "/posts", :inverse_of => nil }] }
+      describe '[:has_many]' do
+        subject { super()[:has_many] }
+        it { is_expected.to eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Comment", :path => "/comments", :inverse_of => nil }, { :name => :posts, :data_key => :posts, :default => [], :class_name => "Post", :path => "/posts", :inverse_of => nil }] }
+      end
     end
 
     context "single has_one association" do
       before { Foo::User.has_one :category }
-      its([:has_one]) { should eql [{ :name => :category, :data_key => :category, :default => nil, :class_name => "Category", :path => "/category" }] }
+
+      describe '[:has_one]' do
+        subject { super()[:has_one] }
+        it { is_expected.to eql [{ :name => :category, :data_key => :category, :default => nil, :class_name => "Category", :path => "/category" }] }
+      end
     end
 
     context "multiple has_one associations" do
@@ -31,12 +42,19 @@ describe Her::Model::Associations do
         Foo::User.has_one :role
       end
 
-      its([:has_one]) { should eql [{ :name => :category, :data_key => :category, :default => nil, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :default => nil, :class_name => "Role", :path => "/role" }] }
+      describe '[:has_one]' do
+        subject { super()[:has_one] }
+        it { is_expected.to eql [{ :name => :category, :data_key => :category, :default => nil, :class_name => "Category", :path => "/category" }, { :name => :role, :data_key => :role, :default => nil, :class_name => "Role", :path => "/role" }] }
+      end
     end
 
     context "single belongs_to association" do
       before { Foo::User.belongs_to :organization }
-      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }] }
+
+      describe '[:belongs_to]' do
+        subject { super()[:belongs_to] }
+        it { is_expected.to eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }] }
+      end
     end
 
     context "multiple belongs_to association" do
@@ -45,7 +63,10 @@ describe Her::Model::Associations do
         Foo::User.belongs_to :family
       end
 
-      its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :default => nil, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }] }
+      describe '[:belongs_to]' do
+        subject { super()[:belongs_to] }
+        it { is_expected.to eql [{ :name => :organization, :data_key => :organization, :default => nil, :class_name => "Organization", :foreign_key => "organization_id", :path => "/organizations/:id" }, { :name => :family, :data_key => :family, :default => nil, :class_name => "Family", :foreign_key => "family_id", :path => "/families/:id" }] }
+      end
     end
   end
 
@@ -56,17 +77,29 @@ describe Her::Model::Associations do
     context "in base class" do
       context "single has_many association" do
         before { Foo::User.has_many :comments, :class_name => "Post", :inverse_of => :admin, :data_key => :user_comments, :default => {} }
-        its([:has_many]) { should eql [{ :name => :comments, :data_key => :user_comments, :default => {}, :class_name => "Post", :path => "/comments", :inverse_of => :admin }] }
+
+        describe '[:has_many]' do
+          subject { super()[:has_many] }
+          it { is_expected.to eql [{ :name => :comments, :data_key => :user_comments, :default => {}, :class_name => "Post", :path => "/comments", :inverse_of => :admin }] }
+        end
       end
 
       context "single has_one association" do
         before { Foo::User.has_one :category, :class_name => "Topic", :foreign_key => "topic_id", :data_key => :topic, :default => nil }
-        its([:has_one]) { should eql [{ :name => :category, :data_key => :topic, :default => nil, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }] }
+
+        describe '[:has_one]' do
+          subject { super()[:has_one] }
+          it { is_expected.to eql [{ :name => :category, :data_key => :topic, :default => nil, :class_name => "Topic", :foreign_key => "topic_id", :path => "/category" }] }
+        end
       end
 
       context "single belongs_to association" do
         before { Foo::User.belongs_to :organization, :class_name => "Business", :foreign_key => "org_id", :data_key => :org, :default => true }
-        its([:belongs_to]) { should eql [{ :name => :organization, :data_key => :org, :default => true, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }] }
+
+        describe '[:belongs_to]' do
+          subject { super()[:belongs_to] }
+          it { is_expected.to eql [{ :name => :organization, :data_key => :org, :default => true, :class_name => "Business", :foreign_key => "org_id", :path => "/organizations/:id" }] }
+        end
       end
     end
 
@@ -75,8 +108,16 @@ describe Her::Model::Associations do
 
       describe "associations accessor" do
         subject { Class.new(Foo::User).associations }
-        its(:object_id) { should_not eql Foo::User.associations.object_id }
-        its([:has_many]) { should eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
+
+        describe '#object_id' do
+          subject { super().object_id }
+          it { is_expected.not_to eql Foo::User.associations.object_id }
+        end
+
+        describe '[:has_many]' do
+          subject { super()[:has_many] }
+          it { is_expected.to eql [{ :name => :comments, :data_key => :comments, :default => [], :class_name => "Post", :path => "/comments", :inverse_of => nil }] }
+        end
       end
     end
   end
@@ -141,114 +182,114 @@ describe Her::Model::Associations do
     let(:comment_without_included_parent_data) { Foo::Comment.new(:id => 7, :user_id => 1) }
 
     it "maps an array of included data through has_many" do
-      @user_with_included_data.comments.first.should be_a(Foo::Comment)
-      @user_with_included_data.comments.length.should == 2
-      @user_with_included_data.comments.first.id.should == 2
-      @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
+      expect(@user_with_included_data.comments.first).to be_a(Foo::Comment)
+      expect(@user_with_included_data.comments.length).to eq(2)
+      expect(@user_with_included_data.comments.first.id).to eq(2)
+      expect(@user_with_included_data.comments.first.body).to eq("Tobias, you blow hard!")
     end
 
     it "does not refetch the parents models data if they have been fetched before" do
-      @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
+      expect(@user_with_included_data.comments.first.user.object_id).to eq(@user_with_included_data.object_id)
     end
 
     it "does fetch the parent models data only once" do
-      comment_without_included_parent_data.user.object_id.should == comment_without_included_parent_data.user.object_id
+      expect(comment_without_included_parent_data.user.object_id).to eq(comment_without_included_parent_data.user.object_id)
     end
 
     it "does fetch the parent models data that was cached if called with parameters" do
-      comment_without_included_parent_data.user.object_id.should_not == comment_without_included_parent_data.user.where(:a => 2).object_id
+      expect(comment_without_included_parent_data.user.object_id).not_to eq(comment_without_included_parent_data.user.where(:a => 2).object_id)
     end
 
     it "uses the given inverse_of key to set the parent model" do
-      @user_with_included_data.posts.first.admin.object_id.should == @user_with_included_data.object_id
+      expect(@user_with_included_data.posts.first.admin.object_id).to eq(@user_with_included_data.object_id)
     end
 
     it "fetches data that was not included through has_many" do
-      @user_without_included_data.comments.first.should be_a(Foo::Comment)
-      @user_without_included_data.comments.length.should == 2
-      @user_without_included_data.comments.first.id.should == 4
-      @user_without_included_data.comments.first.body.should == "They're having a FIRESALE?"
+      expect(@user_without_included_data.comments.first).to be_a(Foo::Comment)
+      expect(@user_without_included_data.comments.length).to eq(2)
+      expect(@user_without_included_data.comments.first.id).to eq(4)
+      expect(@user_without_included_data.comments.first.body).to eq("They're having a FIRESALE?")
     end
 
     it "fetches has_many data even if it was included, only if called with parameters" do
-      @user_with_included_data.comments.where(:foo_id => 1).length.should == 1
+      expect(@user_with_included_data.comments.where(:foo_id => 1).length).to eq(1)
     end
 
     it "fetches data that was not included through has_many only once" do
-      @user_without_included_data.comments.first.object_id.should == @user_without_included_data.comments.first.object_id
+      expect(@user_without_included_data.comments.first.object_id).to eq(@user_without_included_data.comments.first.object_id)
     end
 
     it "fetches data that was cached through has_many if called with parameters" do
-      @user_without_included_data.comments.first.object_id.should_not == @user_without_included_data.comments.where(:foo_id => 1).first.object_id
+      expect(@user_without_included_data.comments.first.object_id).not_to eq(@user_without_included_data.comments.where(:foo_id => 1).first.object_id)
     end
 
     it "maps an array of included data through has_one" do
-      @user_with_included_data.role.should be_a(Foo::Role)
-      @user_with_included_data.role.object_id.should == @user_with_included_data.role.object_id
-      @user_with_included_data.role.id.should == 1
-      @user_with_included_data.role.body.should == "Admin"
+      expect(@user_with_included_data.role).to be_a(Foo::Role)
+      expect(@user_with_included_data.role.object_id).to eq(@user_with_included_data.role.object_id)
+      expect(@user_with_included_data.role.id).to eq(1)
+      expect(@user_with_included_data.role.body).to eq("Admin")
     end
 
     it "fetches data that was not included through has_one" do
-      @user_without_included_data.role.should be_a(Foo::Role)
-      @user_without_included_data.role.id.should == 2
-      @user_without_included_data.role.body.should == "User"
+      expect(@user_without_included_data.role).to be_a(Foo::Role)
+      expect(@user_without_included_data.role.id).to eq(2)
+      expect(@user_without_included_data.role.body).to eq("User")
     end
 
     it "fetches has_one data even if it was included, only if called with parameters" do
-      @user_with_included_data.role.where(:foo_id => 2).id.should == 3
+      expect(@user_with_included_data.role.where(:foo_id => 2).id).to eq(3)
     end
 
     it "maps an array of included data through belongs_to" do
-      @user_with_included_data.organization.should be_a(Foo::Organization)
-      @user_with_included_data.organization.id.should == 1
-      @user_with_included_data.organization.name.should == "Bluth Company"
+      expect(@user_with_included_data.organization).to be_a(Foo::Organization)
+      expect(@user_with_included_data.organization.id).to eq(1)
+      expect(@user_with_included_data.organization.name).to eq("Bluth Company")
     end
 
     it "fetches data that was not included through belongs_to" do
-      @user_without_included_data.organization.should be_a(Foo::Organization)
-      @user_without_included_data.organization.id.should == 2
-      @user_without_included_data.organization.name.should == "Bluth Company"
+      expect(@user_without_included_data.organization).to be_a(Foo::Organization)
+      expect(@user_without_included_data.organization.id).to eq(2)
+      expect(@user_without_included_data.organization.name).to eq("Bluth Company")
     end
 
     it "returns nil if the foreign key is nil" do
-      @user_without_organization_and_not_persisted.organization.should be_nil
+      expect(@user_without_organization_and_not_persisted.organization).to be_nil
     end
 
     it "fetches belongs_to data even if it was included, only if called with parameters" do
-      @user_with_included_data.organization.where(:foo_id => 1).name.should == "Bluth Company Foo"
+      expect(@user_with_included_data.organization.where(:foo_id => 1).name).to eq("Bluth Company Foo")
     end
 
     it "can tell if it has a association" do
-      @user_without_included_data.has_association?(:unknown_association).should be false
-      @user_without_included_data.has_association?(:organization).should be true
+      expect(@user_without_included_data.has_association?(:unknown_association)).to be false
+      expect(@user_without_included_data.has_association?(:organization)).to be true
     end
 
     it "fetches the resource corresponding to a named association" do
-      @user_without_included_data.get_association(:unknown_association).should be_nil
-      @user_without_included_data.get_association(:organization).name.should == "Bluth Company"
+      expect(@user_without_included_data.get_association(:unknown_association)).to be_nil
+      expect(@user_without_included_data.get_association(:organization).name).to eq("Bluth Company")
     end
 
     it "pass query string parameters when additional arguments are passed" do
-      @user_without_included_data.organization.where(:admin => true).name.should == "Bluth Company (admin)"
-      @user_without_included_data.organization.name.should == "Bluth Company"
+      expect(@user_without_included_data.organization.where(:admin => true).name).to eq("Bluth Company (admin)")
+      expect(@user_without_included_data.organization.name).to eq("Bluth Company")
     end
 
     it "fetches data with the specified id when calling find" do
       comment = @user_without_included_data.comments.find(5)
-      comment.should be_a(Foo::Comment)
-      comment.id.should eq(5)
+      expect(comment).to be_a(Foo::Comment)
+      expect(comment.id).to eq(5)
     end
 
     it "'s associations responds to #empty?" do
-      @user_without_included_data.organization.respond_to?(:empty?).should be_truthy
-      @user_without_included_data.organization.should_not be_empty
+      expect(@user_without_included_data.organization.respond_to?(:empty?)).to be_truthy
+      expect(@user_without_included_data.organization).not_to be_empty
     end
 
     it 'includes has_many relationships in params by default' do
       params = @user_with_included_data.to_params
-      params[:comments].should be_kind_of(Array)
-      params[:comments].length.should eq(2)
+      expect(params[:comments]).to be_kind_of(Array)
+      expect(params[:comments].length).to eq(2)
     end
 
     [:create, :save_existing, :destroy].each do |type|
@@ -256,16 +297,16 @@ describe Her::Model::Associations do
         let(:subject) { self.send("user_with_included_data_after_#{type}")}
 
         it "maps an array of included data through has_many" do
-          subject.comments.first.should be_a(Foo::Comment)
-          subject.comments.length.should == 1
-          subject.comments.first.id.should == 99
-          subject.comments.first.body.should == "Rodríguez, nasibisibusi?"
+          expect(subject.comments.first).to be_a(Foo::Comment)
+          expect(subject.comments.length).to eq(1)
+          expect(subject.comments.first.id).to eq(99)
+          expect(subject.comments.first.body).to eq("Rodríguez, nasibisibusi?")
         end
 
         it "maps an array of included data through has_one" do
-          subject.role.should be_a(Foo::Role)
-          subject.role.id.should == 1
-          subject.role.body.should == "Admin"
+          expect(subject.role).to be_a(Foo::Role)
+          expect(subject.role.id).to eq(1)
+          expect(subject.role.body).to eq("Admin")
         end
       end
     end
@@ -303,53 +344,53 @@ describe Her::Model::Associations do
     end
 
     it "maps an array of included data through has_many" do
-      @user_with_included_data.comments.first.should be_a(Foo::Comment)
-      @user_with_included_data.comments.length.should == 2
-      @user_with_included_data.comments.first.id.should == 2
-      @user_with_included_data.comments.first.body.should == "Tobias, you blow hard!"
+      expect(@user_with_included_data.comments.first).to be_a(Foo::Comment)
+      expect(@user_with_included_data.comments.length).to eq(2)
+      expect(@user_with_included_data.comments.first.id).to eq(2)
+      expect(@user_with_included_data.comments.first.body).to eq("Tobias, you blow hard!")
     end
 
     it "does not refetch the parents models data if they have been fetched before" do
-      @user_with_included_data.comments.first.user.object_id.should == @user_with_included_data.object_id
+      expect(@user_with_included_data.comments.first.user.object_id).to eq(@user_with_included_data.object_id)
     end
 
     it "fetches data that was not included through has_many" do
-      @user_without_included_data.comments.first.should be_a(Foo::Comment)
-      @user_without_included_data.comments.length.should == 2
-      @user_without_included_data.comments.first.id.should == 4
-      @user_without_included_data.comments.first.body.should == "They're having a FIRESALE?"
+      expect(@user_without_included_data.comments.first).to be_a(Foo::Comment)
+      expect(@user_without_included_data.comments.length).to eq(2)
+      expect(@user_without_included_data.comments.first.id).to eq(4)
+      expect(@user_without_included_data.comments.first.body).to eq("They're having a FIRESALE?")
     end
 
     it "fetches has_many data even if it was included, only if called with parameters" do
-      @user_with_included_data.comments.where(:foo_id => 1).length.should == 1
+      expect(@user_with_included_data.comments.where(:foo_id => 1).length).to eq(1)
     end
 
     it "maps an array of included data through belongs_to" do
-      @user_with_included_data.organization.should be_a(Foo::Organization)
-      @user_with_included_data.organization.id.should == 1
-      @user_with_included_data.organization.name.should == "Bluth Company"
+      expect(@user_with_included_data.organization).to be_a(Foo::Organization)
+      expect(@user_with_included_data.organization.id).to eq(1)
+      expect(@user_with_included_data.organization.name).to eq("Bluth Company")
     end
 
     it "fetches data that was not included through belongs_to" do
-      @user_without_included_data.organization.should be_a(Foo::Organization)
-      @user_without_included_data.organization.id.should == 1
-      @user_without_included_data.organization.name.should == "Bluth Company Foo"
+      expect(@user_without_included_data.organization).to be_a(Foo::Organization)
+      expect(@user_without_included_data.organization.id).to eq(1)
+      expect(@user_without_included_data.organization.name).to eq("Bluth Company Foo")
     end
 
     it "fetches belongs_to data even if it was included, only if called with parameters" do
-      @user_with_included_data.organization.where(:foo_id => 1).name.should == "Bluth Company Foo"
+      expect(@user_with_included_data.organization.where(:foo_id => 1).name).to eq("Bluth Company Foo")
     end
 
     it "fetches data with the specified id when calling find" do
       comment = @user_without_included_data.comments.find(5)
-      comment.should be_a(Foo::Comment)
-      comment.id.should eq(5)
+      expect(comment).to be_a(Foo::Comment)
+      expect(comment.id).to eq(5)
     end
 
     it 'includes has_many relationships in params by default' do
       params = @user_with_included_data.to_params
-      params[:comments].should be_kind_of(Array)
-      params[:comments].length.should eq(2)
+      expect(params[:comments]).to be_kind_of(Array)
+      expect(params[:comments].length).to eq(2)
     end
   end
 
@@ -380,23 +421,23 @@ describe Her::Model::Associations do
     end
 
     it "maps an array of included data through belongs_to" do
-      @user_with_included_data.company.should be_a(Foo::Company)
-      @user_with_included_data.company.id.should == 1
-      @user_with_included_data.company.name.should == "Bluth Company Inc."
+      expect(@user_with_included_data.company).to be_a(Foo::Company)
+      expect(@user_with_included_data.company.id).to eq(1)
+      expect(@user_with_included_data.company.name).to eq("Bluth Company Inc.")
     end
 
     it "does not map included data if it’s nil" do
-      @user_with_included_nil_data.company.should be_nil
+      expect(@user_with_included_nil_data.company).to be_nil
     end
 
     it "fetches data that was not included through belongs_to" do
-      @user_without_included_data.company.should be_a(Foo::Company)
-      @user_without_included_data.company.id.should == 1
-      @user_without_included_data.company.name.should == "Bluth Company"
+      expect(@user_without_included_data.company).to be_a(Foo::Company)
+      expect(@user_without_included_data.company.id).to eq(1)
+      expect(@user_without_included_data.company.name).to eq("Bluth Company")
     end
 
     it "does not require foreugn key to have nested object" do
-      @user_with_included_data_but_no_fk.company.name.should == "Bluth Company Inc."
+      expect(@user_with_included_data_but_no_fk.company.name).to eq("Bluth Company Inc.")
     end
   end
 
@@ -420,30 +461,30 @@ describe Her::Model::Associations do
     subject { user_with_role.role }
 
     it "doesnt mask the object's basic methods" do
-      subject.class.should == Foo::Role
+      expect(subject.class).to eq(Foo::Role)
     end
 
     it "doesnt mask core methods like extend" do
       committer = Module.new
       subject.extend  committer
-      associated_value.should be_kind_of committer
+      expect(associated_value).to be_kind_of committer
     end
 
     it "can return the association object" do
-      subject.association.should be_kind_of Her::Model::Associations::Association
+      expect(subject.association).to be_kind_of Her::Model::Associations::Association
     end
 
     it "still can call fetch via the association" do
-      subject.association.fetch.should eq associated_value
+      expect(subject.association.fetch).to eq associated_value
     end
 
     it "calls missing methods on associated value" do
-      subject.present?.should == "of_course"
+      expect(subject.present?).to eq("of_course")
     end
 
     it "can use association methods like where" do
-      subject.where(role: 'committer').association.
-        params.should include :role
+      expect(subject.where(role: 'committer').association.
+        params).to include :role
     end
   end
 
@@ -458,8 +499,8 @@ describe Her::Model::Associations do
     context "with #build" do
       it "takes the parent primary key" do
         @comment = Foo::User.new(:id => 10).comments.build(:body => "Hello!")
-        @comment.body.should == "Hello!"
-        @comment.user_id.should == 10
+        expect(@comment.body).to eq("Hello!")
+        expect(@comment.user_id).to eq(10)
       end
     end
 
@@ -481,23 +522,23 @@ describe Her::Model::Associations do
       it "takes the parent primary key and saves the resource" do
         @user = Foo::User.find(10)
         @comment = @user.comments.create(:body => "Hello!")
-        @comment.id.should == 1
-        @comment.body.should == "Hello!"
-        @comment.user_id.should == 10
-        @user.comments.should == [@comment]
+        expect(@comment.id).to eq(1)
+        expect(@comment.body).to eq("Hello!")
+        expect(@comment.user_id).to eq(10)
+        expect(@user.comments).to eq([@comment])
       end
     end
 
     context "with #new" do
       it "creates nested models from hash attibutes" do
         user = Foo::User.new(:name => "vic", :comments => [{:text => "hello"}])
-        user.comments.first.text.should == "hello"
+        expect(user.comments.first.text).to eq("hello")
       end
 
       it "assigns nested models if given as already constructed objects" do
         bye = Foo::Comment.new(:text => "goodbye")
         user = Foo::User.new(:name => 'vic', :comments => [bye])
-        user.comments.first.text.should == 'goodbye'
+        expect(user.comments.first.text).to eq('goodbye')
       end
     end
   end

@@ -25,25 +25,25 @@ describe Her::Model::Introspection do
     describe "#inspect" do
       it "outputs resource attributes for an existing resource" do
         @user = Foo::User.find(1)
-        ["#<Foo::User(users/1) name=\"Tobias Funke\" id=1>", "#<Foo::User(users/1) id=1 name=\"Tobias Funke\">"].should include(@user.inspect)
+        expect(["#<Foo::User(users/1) name=\"Tobias Funke\" id=1>", "#<Foo::User(users/1) id=1 name=\"Tobias Funke\">"]).to include(@user.inspect)
       end
 
       it "outputs resource attributes for an not-saved-yet resource" do
         @user = Foo::User.new(:name => "Tobias Funke")
-        @user.inspect.should == "#<Foo::User(users) name=\"Tobias Funke\">"
+        expect(@user.inspect).to eq("#<Foo::User(users) name=\"Tobias Funke\">")
       end
 
       it "outputs resource attributes using getters" do
         @user = Foo::User.new(:name => "Tobias Funke", :password => "Funke")
         @user.instance_eval {def password; 'filtered'; end}
-        @user.inspect.should include("name=\"Tobias Funke\"")
-        @user.inspect.should include("password=\"filtered\"")
-        @user.inspect.should_not include("password=\"Funke\"")
+        expect(@user.inspect).to include("name=\"Tobias Funke\"")
+        expect(@user.inspect).to include("password=\"filtered\"")
+        expect(@user.inspect).not_to include("password=\"Funke\"")
       end
 
       it "support dash on attribute" do
         @user = Foo::User.new(:'life-span' => "3 years")
-        @user.inspect.should include("life-span=\"3 years\"")
+        expect(@user.inspect).to include("life-span=\"3 years\"")
       end
     end
 
@@ -51,7 +51,7 @@ describe Her::Model::Introspection do
       it "prints the resource path as “unknown”" do
         @comment = Foo::Comment.where(:project_id => 1).first
         path = '<unknown path, missing `project_id`>'
-        ["#<Foo::Comment(#{path}) body=\"Hello!\" id=1>", "#<Foo::Comment(#{path}) id=1 body=\"Hello!\">"].should include(@comment.inspect)
+        expect(["#<Foo::Comment(#{path}) body=\"Hello!\" id=1>", "#<Foo::Comment(#{path}) id=1 body=\"Hello!\">"]).to include(@comment.inspect)
       end
     end
   end
@@ -66,10 +66,10 @@ describe Her::Model::Introspection do
       end
 
       it "returns a sibling class, if found" do
-        Foo::User.her_nearby_class("AccessRecord").should == Foo::AccessRecord
-        AccessRecord.her_nearby_class("Log").should == Log
-        Foo::User.her_nearby_class("Log").should == Log
-        Foo::User.her_nearby_class("X").should be_nil
+        expect(Foo::User.her_nearby_class("AccessRecord")).to eq(Foo::AccessRecord)
+        expect(AccessRecord.her_nearby_class("Log")).to eq(Log)
+        expect(Foo::User.her_nearby_class("Log")).to eq(Log)
+        expect(Foo::User.her_nearby_class("X")).to be_nil
       end
     end
   end

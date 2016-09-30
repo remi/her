@@ -17,12 +17,15 @@ describe Her::API do
           end
         end
 
-        specify { subject.connection.builder.handlers.should == [Foo, Bar] }
+        specify { expect(subject.connection.builder.handlers).to eq([Foo, Bar]) }
       end
 
       context "when setting custom options" do
         before { subject.setup :foo => { :bar => "baz" }, :url => "https://api.example.com" }
-        its(:options) { should == { :foo => { :bar => "baz" }, :url => "https://api.example.com" } }
+
+        describe '#options' do
+          it { expect(subject.options).to eq({ :foo => { :bar => "baz" }, :url => "https://api.example.com" }) }
+        end
       end
     end
 
@@ -44,7 +47,7 @@ describe Her::API do
           end
         end
 
-        specify { parsed_data[:data].should == "Foo, it is." }
+        specify { expect(parsed_data[:data]).to eq("Foo, it is.") }
       end
 
       context "making HTTP requests while specifying custom HTTP headers" do
@@ -57,7 +60,7 @@ describe Her::API do
           end
         end
 
-        specify { parsed_data[:data].should == "Foo, it is page 2." }
+        specify { expect(parsed_data[:data]).to eq("Foo, it is page 2.") }
       end
 
       context "parsing a request with the default parser" do
@@ -72,9 +75,9 @@ describe Her::API do
         end
 
         specify do
-          parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
-          parsed_data[:errors].should == ["This is a single error"]
-          parsed_data[:metadata].should == { :page => 1, :per_page => 10 }
+          expect(parsed_data[:data]).to eq({ :id => 1, :name => "George Michael Bluth" })
+          expect(parsed_data[:errors]).to eq(["This is a single error"])
+          expect(parsed_data[:metadata]).to eq({ :page => 1, :per_page => 10 })
         end
       end
 
@@ -104,9 +107,9 @@ describe Her::API do
         end
 
         specify do
-          parsed_data[:data].should == { :id => 1, :name => "George Michael Bluth" }
-          parsed_data[:errors].should == []
-          parsed_data[:metadata].should == {}
+          expect(parsed_data[:data]).to eq({ :id => 1, :name => "George Michael Bluth" })
+          expect(parsed_data[:errors]).to eq([])
+          expect(parsed_data[:metadata]).to eq({})
         end
       end
     end

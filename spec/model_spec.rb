@@ -17,10 +17,10 @@ describe Her::Model do
   subject { Foo::User.find(1) }
 
   describe :has_key? do
-    it { should_not have_key(:unknown_method_for_a_user) }
-    it { should_not have_key(:unknown_method_for_a_user) }
-    it { should have_key(:name) }
-    it { should have_key(:comments) }
+    it { is_expected.not_to have_key(:unknown_method_for_a_user) }
+    it { is_expected.not_to have_key(:unknown_method_for_a_user) }
+    it { is_expected.to have_key(:name) }
+    it { is_expected.to have_key(:comments) }
   end
 
   describe :serialization do
@@ -30,15 +30,15 @@ describe Her::Model do
 
     it 'should correctly load serialized object' do
        serialized_comments = Marshal.load(Marshal.dump(subject.comments))
-       subject.comments.size.should eq(serialized_comments.size)
-       subject.comments.first.id.should eq(serialized_comments.first.id)
-       subject.comments.first.body.should eq(serialized_comments.first.body)
+       expect(subject.comments.size).to eq(serialized_comments.size)
+       expect(subject.comments.first.id).to eq(serialized_comments.first.id)
+       expect(subject.comments.first.body).to eq(serialized_comments.first.body)
     end
   end
 
   describe :[] do
-    it { should_not have_key(:unknown_method_for_a_user) }
-    specify { subject[:name].should == "Tobias Fünke" }
-    specify { subject[:comments].first.body.should == "They're having a FIRESALE?" }
+    it { is_expected.not_to have_key(:unknown_method_for_a_user) }
+    specify { expect(subject[:name]).to eq("Tobias Fünke") }
+    specify { expect(subject[:comments].first.body).to eq("They're having a FIRESALE?") }
   end
 end

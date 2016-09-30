@@ -10,53 +10,53 @@ describe Her::Model::Paths do
 
       describe "#request_path" do
         it "builds paths with defaults" do
-          Foo::User.new(:id => "foo").request_path.should == "users/foo"
-          Foo::User.new(:id => nil).request_path.should == "users"
-          Foo::User.new().request_path.should == "users"
+          expect(Foo::User.new(:id => "foo").request_path).to eq("users/foo")
+          expect(Foo::User.new(:id => nil).request_path).to eq("users")
+          expect(Foo::User.new().request_path).to eq("users")
         end
 
         it "builds paths with custom collection path" do
           Foo::User.collection_path "/utilisateurs"
-          Foo::User.new(:id => "foo").request_path.should == "/utilisateurs/foo"
-          Foo::User.new().request_path.should == "/utilisateurs"
+          expect(Foo::User.new(:id => "foo").request_path).to eq("/utilisateurs/foo")
+          expect(Foo::User.new().request_path).to eq("/utilisateurs")
         end
 
         it "builds paths with custom relative collection path" do
           Foo::User.collection_path "utilisateurs"
-          Foo::User.new(:id => "foo").request_path.should == "utilisateurs/foo"
-          Foo::User.new().request_path.should == "utilisateurs"
+          expect(Foo::User.new(:id => "foo").request_path).to eq("utilisateurs/foo")
+          expect(Foo::User.new().request_path).to eq("utilisateurs")
         end
 
         it "builds paths with custom collection path with multiple variables" do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
 
-          Foo::User.new(:id => "foo").request_path(:_organization_id => "acme").should == "/organizations/acme/utilisateurs/foo"
-          Foo::User.new().request_path(:_organization_id => "acme").should == "/organizations/acme/utilisateurs"
+          expect(Foo::User.new(:id => "foo").request_path(:_organization_id => "acme")).to eq("/organizations/acme/utilisateurs/foo")
+          expect(Foo::User.new().request_path(:_organization_id => "acme")).to eq("/organizations/acme/utilisateurs")
 
-          Foo::User.new(:id => "foo", :organization_id => "acme").request_path.should == "/organizations/acme/utilisateurs/foo"
-          Foo::User.new(:organization_id => "acme").request_path.should == "/organizations/acme/utilisateurs"
+          expect(Foo::User.new(:id => "foo", :organization_id => "acme").request_path).to eq("/organizations/acme/utilisateurs/foo")
+          expect(Foo::User.new(:organization_id => "acme").request_path).to eq("/organizations/acme/utilisateurs")
         end
 
         it "builds paths with custom relative collection path with multiple variables" do
           Foo::User.collection_path "organizations/:organization_id/utilisateurs"
 
-          Foo::User.new(:id => "foo").request_path(:_organization_id => "acme").should == "organizations/acme/utilisateurs/foo"
-          Foo::User.new().request_path(:_organization_id => "acme").should == "organizations/acme/utilisateurs"
+          expect(Foo::User.new(:id => "foo").request_path(:_organization_id => "acme")).to eq("organizations/acme/utilisateurs/foo")
+          expect(Foo::User.new().request_path(:_organization_id => "acme")).to eq("organizations/acme/utilisateurs")
 
-          Foo::User.new(:id => "foo", :organization_id => "acme").request_path.should == "organizations/acme/utilisateurs/foo"
-          Foo::User.new(:organization_id => "acme").request_path.should == "organizations/acme/utilisateurs"
+          expect(Foo::User.new(:id => "foo", :organization_id => "acme").request_path).to eq("organizations/acme/utilisateurs/foo")
+          expect(Foo::User.new(:organization_id => "acme").request_path).to eq("organizations/acme/utilisateurs")
         end
 
         it "builds paths with custom item path" do
           Foo::User.resource_path "/utilisateurs/:id"
-          Foo::User.new(:id => "foo").request_path.should == "/utilisateurs/foo"
-          Foo::User.new().request_path.should == "users"
+          expect(Foo::User.new(:id => "foo").request_path).to eq("/utilisateurs/foo")
+          expect(Foo::User.new().request_path).to eq("users")
         end
 
         it "builds paths with custom relative item path" do
           Foo::User.resource_path "utilisateurs/:id"
-          Foo::User.new(:id => "foo").request_path.should == "utilisateurs/foo"
-          Foo::User.new().request_path.should == "users"
+          expect(Foo::User.new(:id => "foo").request_path).to eq("utilisateurs/foo")
+          expect(Foo::User.new().request_path).to eq("users")
         end
 
         it "raises exceptions when building a path without required custom variables" do
@@ -66,8 +66,8 @@ describe Her::Model::Paths do
 
         it "escapes the variable values" do
           Foo::User.collection_path "organizations/:organization_id/utilisateurs"
-          Foo::User.new(:id => "Привет").request_path(:_organization_id => 'лол').should == "organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82"
-          Foo::User.new(:organization_id => 'лол', :id => "Привет").request_path.should == "organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82"
+          expect(Foo::User.new(:id => "Привет").request_path(:_organization_id => 'лол')).to eq("organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82")
+          expect(Foo::User.new(:organization_id => 'лол', :id => "Привет").request_path).to eq("organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82")
         end
       end
     end
@@ -79,44 +79,44 @@ describe Her::Model::Paths do
 
       describe "#request_path" do
         it "builds paths with defaults" do
-          Foo::AdminUser.new(:id => "foo").request_path.should == "admin_users/foo"
-          Foo::AdminUser.new().request_path.should == "admin_users"
+          expect(Foo::AdminUser.new(:id => "foo").request_path).to eq("admin_users/foo")
+          expect(Foo::AdminUser.new().request_path).to eq("admin_users")
         end
 
         it "builds paths with custom collection path" do
           Foo::AdminUser.collection_path "/users"
-          Foo::AdminUser.new(:id => "foo").request_path.should == "/users/foo"
-          Foo::AdminUser.new().request_path.should == "/users"
+          expect(Foo::AdminUser.new(:id => "foo").request_path).to eq("/users/foo")
+          expect(Foo::AdminUser.new().request_path).to eq("/users")
         end
 
         it "builds paths with custom relative collection path" do
           Foo::AdminUser.collection_path "users"
-          Foo::AdminUser.new(:id => "foo").request_path.should == "users/foo"
-          Foo::AdminUser.new().request_path.should == "users"
+          expect(Foo::AdminUser.new(:id => "foo").request_path).to eq("users/foo")
+          expect(Foo::AdminUser.new().request_path).to eq("users")
         end
 
         it "builds paths with custom collection path with multiple variables" do
           Foo::AdminUser.collection_path "/organizations/:organization_id/users"
-          Foo::AdminUser.new(:id => "foo").request_path(:_organization_id => "acme").should == "/organizations/acme/users/foo"
-          Foo::AdminUser.new().request_path(:_organization_id => "acme").should == "/organizations/acme/users"
+          expect(Foo::AdminUser.new(:id => "foo").request_path(:_organization_id => "acme")).to eq("/organizations/acme/users/foo")
+          expect(Foo::AdminUser.new().request_path(:_organization_id => "acme")).to eq("/organizations/acme/users")
         end
 
         it "builds paths with custom relative collection path with multiple variables" do
           Foo::AdminUser.collection_path "organizations/:organization_id/users"
-          Foo::AdminUser.new(:id => "foo").request_path(:_organization_id => "acme").should == "organizations/acme/users/foo"
-          Foo::AdminUser.new().request_path(:_organization_id => "acme").should == "organizations/acme/users"
+          expect(Foo::AdminUser.new(:id => "foo").request_path(:_organization_id => "acme")).to eq("organizations/acme/users/foo")
+          expect(Foo::AdminUser.new().request_path(:_organization_id => "acme")).to eq("organizations/acme/users")
         end
 
         it "builds paths with custom item path" do
           Foo::AdminUser.resource_path "/users/:id"
-          Foo::AdminUser.new(:id => "foo").request_path.should == "/users/foo"
-          Foo::AdminUser.new().request_path.should == "admin_users"
+          expect(Foo::AdminUser.new(:id => "foo").request_path).to eq("/users/foo")
+          expect(Foo::AdminUser.new().request_path).to eq("admin_users")
         end
 
         it "builds paths with custom relative item path" do
           Foo::AdminUser.resource_path "users/:id"
-          Foo::AdminUser.new(:id => "foo").request_path.should == "users/foo"
-          Foo::AdminUser.new().request_path.should == "admin_users"
+          expect(Foo::AdminUser.new(:id => "foo").request_path).to eq("users/foo")
+          expect(Foo::AdminUser.new().request_path).to eq("admin_users")
         end
 
         it "raises exceptions when building a path without required custom variables" do
@@ -148,8 +148,8 @@ describe Her::Model::Paths do
       end
 
       it "builds path using the children model name" do
-        User.find('foo').id.should == 'foo'
-        User.find('foo').id.should == 'foo'
+        expect(User.find('foo').id).to eq('foo')
+        expect(User.find('foo').id).to eq('foo')
       end
     end
 
@@ -160,8 +160,8 @@ describe Her::Model::Paths do
 
       describe "#request_path" do
         it "builds paths with defaults" do
-          Foo::User.new(:id => "foo").request_path.should == "users/foo"
-          Foo::User.new.request_path.should == "users"
+          expect(Foo::User.new(:id => "foo").request_path).to eq("users/foo")
+          expect(Foo::User.new.request_path).to eq("users")
         end
       end
     end
@@ -181,13 +181,13 @@ describe Her::Model::Paths do
 
       describe '#request_path' do
         it 'uses the correct primary key attribute' do
-          User.new(:UserId => 'foo').request_path.should == 'users/foo'
-          User.new(:id => 'foo').request_path.should == 'users'
+          expect(User.new(:UserId => 'foo').request_path).to eq('users/foo')
+          expect(User.new(:id => 'foo').request_path).to eq('users')
         end
 
         it 'replaces :id with the appropriate primary key' do
-          Customer.new(:customer_id => 'joe').request_path.should == 'customers/joe'
-          Customer.new(:id => 'joe').request_path.should == 'customers'
+          expect(Customer.new(:customer_id => 'joe').request_path).to eq('customers/joe')
+          expect(Customer.new(:id => 'joe').request_path).to eq('customers')
         end
       end
     end
@@ -215,81 +215,81 @@ describe Her::Model::Paths do
     describe "fetching a resource" do
       it "maps a single resource to a Ruby object" do
         @user = Foo::User.find(1, :_organization_id => 2)
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
       end
 
       it "maps a single resource using a scope to a Ruby object" do
         Foo::User.scope :for_organization, lambda { |o| where(:organization_id => o) }
         @user = Foo::User.for_organization(2).find(1)
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
       end
     end
 
     describe "fetching a collection" do
       it "maps a collection of resources to an array of Ruby objects" do
         @users = Foo::User.where(:_organization_id => 2).all
-        @users.length.should == 2
-        @users.first.fullname.should == "Tobias Fünke"
+        expect(@users.length).to eq(2)
+        expect(@users.first.fullname).to eq("Tobias Fünke")
       end
     end
 
     describe "handling new resource" do
       it "handles new resource" do
         @new_user = Foo::User.new(:fullname => "Tobias Fünke", :organization_id => 2)
-        @new_user.new?.should be_truthy
+        expect(@new_user.new?).to be_truthy
 
         @existing_user = Foo::User.find(1, :_organization_id => 2)
-        @existing_user.new?.should be_falsey
+        expect(@existing_user.new?).to be_falsey
       end
     end
 
     describe "creating resources" do
       it "handle one-line resource creation" do
         @user = Foo::User.create(:fullname => "Tobias Fünke", :organization_id => 2)
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
       end
 
       it "handle resource creation through Model.new + #save" do
         @user = Foo::User.new(:fullname => "Tobias Fünke", :organization_id => 2)
         @user.save
-        @user.fullname.should == "Tobias Fünke"
+        expect(@user.fullname).to eq("Tobias Fünke")
       end
     end
 
     context "updating resources" do
       it "handle resource data update without saving it" do
         @user = Foo::User.find(1, :_organization_id => 2)
-        @user.fullname.should == "Tobias Fünke"
+        expect(@user.fullname).to eq("Tobias Fünke")
         @user.fullname = "Kittie Sanchez"
-        @user.fullname.should == "Kittie Sanchez"
+        expect(@user.fullname).to eq("Kittie Sanchez")
       end
 
       it "handle resource update through the .update class method" do
         @user = Foo::User.save_existing(1, { :fullname => "Lindsay Fünke", :organization_id => 2 })
-        @user.fullname.should == "Lindsay Fünke"
+        expect(@user.fullname).to eq("Lindsay Fünke")
       end
 
       it "handle resource update through #save on an existing resource" do
         @user = Foo::User.find(1, :_organization_id => 2)
         @user.fullname = "Lindsay Fünke"
         @user.save
-        @user.fullname.should == "Lindsay Fünke"
+        expect(@user.fullname).to eq("Lindsay Fünke")
       end
     end
 
     context "deleting resources" do
       it "handle resource deletion through the .destroy class method" do
         @user = Foo::User.destroy_existing(1, :_organization_id => 2)
-        @user.active.should be_falsey
+        expect(@user.active).to be_falsey
       end
 
       it "handle resource deletion through #destroy on an existing resource" do
         @user = Foo::User.find(1, :_organization_id => 2)
         @user.destroy
-        @user.active.should be_falsey
+        expect(@user.active).to be_falsey
       end
     end
   end
@@ -313,16 +313,16 @@ describe Her::Model::Paths do
     describe "fetching a resource" do
       it "maps a single resource to a Ruby object" do
         @user = Foo::User.find(1, :_organization_id => 2)
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
       end
     end
 
     describe "fetching a collection" do
       it "maps a collection of resources to an array of Ruby objects" do
         @users = Foo::User.where(:_organization_id => 2).all
-        @users.length.should == 2
-        @users.first.fullname.should == "Tobias Fünke"
+        expect(@users.length).to eq(2)
+        expect(@users.first.fullname).to eq("Tobias Fünke")
       end
     end
 
@@ -330,8 +330,8 @@ describe Her::Model::Paths do
       it "maps a single resource to a Ruby object" do
         Foo::User.resource_path '/api/' + Foo::User.resource_path
         @user = Foo::User.find(1, :_organization_id => 2)
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
       end
     end
 
@@ -339,8 +339,8 @@ describe Her::Model::Paths do
       it "maps a collection of resources to an array of Ruby objects" do
         Foo::User.collection_path '/api/' + Foo::User.collection_path
         @users = Foo::User.where(:_organization_id => 2).all
-        @users.length.should == 2
-        @users.first.fullname.should == "Tobias Fünke"
+        expect(@users.length).to eq(2)
+        expect(@users.first.fullname).to eq("Tobias Fünke")
       end
     end
   end

@@ -28,36 +28,36 @@ describe "Her::Model and ActiveModel::Dirty" do
     context "for existing resource" do
       let(:user) { Foo::User.find(1) }
       it "has no changes" do
-        user.changes.should be_empty
-        user.should_not be_changed
+        expect(user.changes).to be_empty
+        expect(user).not_to be_changed
       end
       context "with successful save" do
         it "tracks dirty attributes" do
           user.fullname = "Tobias Fünke"
-          user.fullname_changed?.should be_truthy
-          user.email_changed?.should be_falsey
-          user.should be_changed
+          expect(user.fullname_changed?).to be_truthy
+          expect(user.email_changed?).to be_falsey
+          expect(user).to be_changed
           user.save
-          user.should_not be_changed
+          expect(user).not_to be_changed
         end
 
         it "tracks only changed dirty attributes" do
           user.fullname = user.fullname
-          user.fullname_changed?.should be_falsey
+          expect(user.fullname_changed?).to be_falsey
         end
 
         it "tracks previous changes" do
           user.fullname = "Tobias Fünke"
           user.save
-          user.previous_changes.should eq({"fullname"=>"Lindsay Fünke"})
+          expect(user.previous_changes).to eq({"fullname"=>"Lindsay Fünke"})
         end
 
         it 'tracks dirty attribute for mass assign for dynamic created attributes' do
           user = Dynamic::User.find(3)
           user.assign_attributes(:fullname => 'New Fullname')
-          user.fullname_changed?.should be_truthy
-          user.should be_changed
-          user.changes.length.should eq(1)
+          expect(user.fullname_changed?).to be_truthy
+          expect(user).to be_changed
+          expect(user.changes.length).to eq(1)
         end
       end
 
@@ -65,11 +65,11 @@ describe "Her::Model and ActiveModel::Dirty" do
         it "tracks dirty attributes" do
           user = Foo::User.find(2)
           user.fullname = "Tobias Fünke"
-          user.fullname_changed?.should be_truthy
-          user.email_changed?.should be_falsey
-          user.should be_changed
+          expect(user.fullname_changed?).to be_truthy
+          expect(user.email_changed?).to be_falsey
+          expect(user).to be_changed
           user.save
-          user.should be_changed
+          expect(user).to be_changed
         end
       end
     end
@@ -77,14 +77,14 @@ describe "Her::Model and ActiveModel::Dirty" do
     context "for new resource" do
       let(:user) { Foo::User.new(:fullname => "Lindsay Fünke") }
       it "has changes" do
-        user.should be_changed
+        expect(user).to be_changed
       end
       it "tracks dirty attributes" do
         user.fullname = "Tobias Fünke"
-        user.fullname_changed?.should be_truthy
-        user.should be_changed
+        expect(user.fullname_changed?).to be_truthy
+        expect(user).to be_changed
         user.save
-        user.should_not be_changed
+        expect(user).not_to be_changed
       end
     end
   end

@@ -28,41 +28,41 @@ describe Her::Model::ORM do
 
     it "maps a single resource to a Ruby object" do
       @user = Foo::User.find(1)
-      @user.id.should == 1
-      @user.name.should == "Tobias Fünke"
+      expect(@user.id).to eq(1)
+      expect(@user.name).to eq("Tobias Fünke")
 
       @admin = Foo::AdminUser.find(1)
-      @admin.id.should == 1
-      @admin.name.should == "Tobias Fünke"
+      expect(@admin.id).to eq(1)
+      expect(@admin.name).to eq("Tobias Fünke")
     end
 
     it "maps a collection of resources to an array of Ruby objects" do
       @users = Foo::User.all
-      @users.length.should == 2
-      @users.first.name.should == "Tobias Fünke"
+      expect(@users.length).to eq(2)
+      expect(@users.first.name).to eq("Tobias Fünke")
 
       @users = Foo::AdminUser.all
-      @users.length.should == 2
-      @users.first.name.should == "Tobias Fünke"
+      expect(@users.length).to eq(2)
+      expect(@users.first.name).to eq("Tobias Fünke")
     end
 
     it "handles new resource" do
       @new_user = Foo::User.new(:fullname => "Tobias Fünke")
-      @new_user.new?.should be_truthy
-      @new_user.new_record?.should be_truthy
-      @new_user.fullname.should == "Tobias Fünke"
+      expect(@new_user.new?).to be_truthy
+      expect(@new_user.new_record?).to be_truthy
+      expect(@new_user.fullname).to eq("Tobias Fünke")
 
       @existing_user = Foo::User.find(1)
-      @existing_user.new?.should be_falsey
-      @existing_user.new_record?.should be_falsey
+      expect(@existing_user.new?).to be_falsey
+      expect(@existing_user.new_record?).to be_falsey
     end
 
     it 'handles new resource with custom primary key' do
       @new_user = Foo::AdminUser.new(:fullname => 'Lindsay Fünke', :id => -1)
-      @new_user.should be_new
+      expect(@new_user).to be_new
 
       @existing_user = Foo::AdminUser.find(1)
-      @existing_user.should_not be_new
+      expect(@existing_user).not_to be_new
     end
   end
 
@@ -85,22 +85,22 @@ describe Her::Model::ORM do
 
     it "handles metadata on a collection" do
       @users = User.all
-      @users.metadata[:total_pages].should == 10
+      expect(@users.metadata[:total_pages]).to eq(10)
     end
 
     it "handles error data on a collection" do
       @users = User.all
-      @users.errors.length.should == 3
+      expect(@users.errors.length).to eq(3)
     end
 
     it "handles metadata on a resource" do
       @user = User.create(:name => "George Michael Bluth")
-      @user.metadata[:foo].should == "bar"
+      expect(@user.metadata[:foo]).to eq("bar")
     end
 
     it "handles error data on a resource" do
       @user = User.create(:name => "George Michael Bluth")
-      @user.response_errors.should == ["Yes", "Sir"]
+      expect(@user.response_errors).to eq(["Yes", "Sir"])
     end
   end
 
@@ -123,22 +123,22 @@ describe Her::Model::ORM do
 
     it "handles metadata on a collection" do
       @users = User.all
-      @users.metadata[:total_pages].should == 10
+      expect(@users.metadata[:total_pages]).to eq(10)
     end
 
     it "handles error data on a collection" do
       @users = User.all
-      @users.errors.length.should == 3
+      expect(@users.errors.length).to eq(3)
     end
 
     it "handles metadata on a resource" do
       @user = User.create(:name => "George Michael Bluth")
-      @user.metadata[:foo].should == "bar"
+      expect(@user.metadata[:foo]).to eq("bar")
     end
 
     it "handles error data on a resource" do
       @user = User.create(:name => "George Michael Bluth")
-      @user.response_errors.should == ["Yes", "Sir"]
+      expect(@user.response_errors).to eq(["Yes", "Sir"])
     end
   end
 
@@ -171,7 +171,7 @@ describe Her::Model::ORM do
 
     it "handles custom setters" do
       @user = User.find(1)
-      @user.friends.should == "* Maeby\n* GOB\n* Anne"
+      expect(@user.friends).to eq("* Maeby\n* GOB\n* Anne")
       @user.instance_eval do
         @attributes[:friends] = ["Maeby", "GOB", "Anne"]
       end
@@ -180,7 +180,7 @@ describe Her::Model::ORM do
     it "handles custom getters" do
       @user = User.new
       @user.friends = "* George\n* Oscar\n* Lucille"
-      @user.friends.should == "* George\n* Oscar\n* Lucille"
+      expect(@user.friends).to eq("* George\n* Oscar\n* Lucille")
       @user.instance_eval do
         @attributes[:friends] = ["George", "Oscar", "Lucille"]
       end
@@ -210,58 +210,58 @@ describe Her::Model::ORM do
 
     it "handles finding by a single id" do
       @user = User.find(1)
-      @user.id.should == 1
+      expect(@user.id).to eq(1)
     end
 
     it "handles finding by multiple ids" do
       @users = User.find(1, 2)
-      @users.should be_kind_of(Array)
-      @users.length.should == 2
-      @users[0].id.should == 1
-      @users[1].id.should == 2
+      expect(@users).to be_kind_of(Array)
+      expect(@users.length).to eq(2)
+      expect(@users[0].id).to eq(1)
+      expect(@users[1].id).to eq(2)
     end
 
     it "handles finding by an array of ids" do
       @users = User.find([1, 2])
-      @users.should be_kind_of(Array)
-      @users.length.should == 2
-      @users[0].id.should == 1
-      @users[1].id.should == 2
+      expect(@users).to be_kind_of(Array)
+      expect(@users.length).to eq(2)
+      expect(@users[0].id).to eq(1)
+      expect(@users[1].id).to eq(2)
     end
 
     it "handles finding by an array of ids of length 1" do
       @users = User.find([1])
-      @users.should be_kind_of(Array)
-      @users.length.should == 1
-      @users[0].id.should == 1
+      expect(@users).to be_kind_of(Array)
+      expect(@users.length).to eq(1)
+      expect(@users[0].id).to eq(1)
     end
 
     it "handles finding by an array id param of length 2" do
       @users = User.find(id: [1, 2])
-      @users.should be_kind_of(Array)
-      @users.length.should == 2
-      @users[0].id.should == 1
-      @users[1].id.should == 2
+      expect(@users).to be_kind_of(Array)
+      expect(@users.length).to eq(2)
+      expect(@users[0].id).to eq(1)
+      expect(@users[1].id).to eq(2)
     end
 
     it 'handles finding with id parameter as an array' do
       @users = User.where(id: [1, 2])
-      @users.should be_kind_of(Array)
-      @users.length.should == 2
-      @users[0].id.should == 1
-      @users[1].id.should == 2
+      expect(@users).to be_kind_of(Array)
+      expect(@users.length).to eq(2)
+      expect(@users[0].id).to eq(1)
+      expect(@users[1].id).to eq(2)
     end
 
     it "handles finding with other parameters" do
       @users = User.where(:age => 42, :foo => "bar").all
-      @users.should be_kind_of(Array)
-      @users.first.id.should == 3
+      expect(@users).to be_kind_of(Array)
+      expect(@users.first.id).to eq(3)
     end
 
     it "handles finding with other parameters and scoped" do
       @users = User.scoped
-      @users.where(:age => 42).should be_all { |u| u.age == 42 }
-      @users.where(:age => 40).should be_all { |u| u.age == 40 }
+      expect(@users.where(:age => 42)).to be_all { |u| u.age == 42 }
+      expect(@users.where(:age => 40)).to be_all { |u| u.age == 40 }
     end
   end
 
@@ -272,10 +272,10 @@ describe Her::Model::ORM do
       end
 
       it "builds a new resource without requesting it" do
-        Foo::User.should_not_receive(:request)
+        expect(Foo::User).not_to receive(:request)
         @new_user = Foo::User.build(:fullname => "Tobias Fünke")
-        @new_user.new?.should be_truthy
-        @new_user.fullname.should == "Tobias Fünke"
+        expect(@new_user.new?).to be_truthy
+        expect(@new_user.fullname).to eq("Tobias Fünke")
       end
     end
 
@@ -293,11 +293,11 @@ describe Her::Model::ORM do
       end
 
       it "requests a new resource" do
-        Foo::User.should_receive(:request).once.and_call_original
+        expect(Foo::User).to receive(:request).once.and_call_original
         @new_user = Foo::User.build(:fullname => "Tobias Fünke")
-        @new_user.new?.should be_truthy
-        @new_user.fullname.should == "Tobias Fünke"
-        @new_user.email.should == "tobias@bluthcompany.com"
+        expect(@new_user.new?).to be_truthy
+        expect(@new_user.fullname).to eq("Tobias Fünke")
+        expect(@new_user.email).to eq("tobias@bluthcompany.com")
       end
     end
   end
@@ -319,26 +319,26 @@ describe Her::Model::ORM do
 
     it "handle one-line resource creation" do
       @user = Foo::User.create(:fullname => "Tobias Fünke", :email => "tobias@bluth.com")
-      @user.id.should == 1
-      @user.fullname.should == "Tobias Fünke"
-      @user.email.should == "tobias@bluth.com"
+      expect(@user.id).to eq(1)
+      expect(@user.fullname).to eq("Tobias Fünke")
+      expect(@user.email).to eq("tobias@bluth.com")
     end
 
     it "handle resource creation through Model.new + #save" do
       @user = Foo::User.new(:fullname => "Tobias Fünke")
-      @user.save.should be_truthy
-      @user.fullname.should == "Tobias Fünke"
+      expect(@user.save).to be_truthy
+      expect(@user.fullname).to eq("Tobias Fünke")
     end
 
     it "handle resource creation through Model.new + #save!" do
       @user = Foo::User.new(:fullname => "Tobias Fünke")
-      @user.save!.should be_truthy
-      @user.fullname.should == "Tobias Fünke"
+      expect(@user.save!).to be_truthy
+      expect(@user.fullname).to eq("Tobias Fünke")
     end
 
     it "returns false when #save gets errors" do
       @company = Foo::Company.new
-      @company.save.should be_falsey
+      expect(@company.save).to be_falsey
     end
 
     it "raises ResourceInvalid when #save! gets errors" do
@@ -348,8 +348,8 @@ describe Her::Model::ORM do
 
     it "don't overwrite data if response is empty" do
       @company = Foo::Company.new(:name => 'Company Inc.')
-      @company.save.should be_falsey
-      @company.name.should == "Company Inc."
+      expect(@company.save).to be_falsey
+      expect(@company.name).to eq("Company Inc.")
     end
   end
 
@@ -369,21 +369,21 @@ describe Her::Model::ORM do
 
     it "handle resource data update without saving it" do
       @user = Foo::User.find(1)
-      @user.fullname.should == "Tobias Fünke"
+      expect(@user.fullname).to eq("Tobias Fünke")
       @user.fullname = "Kittie Sanchez"
-      @user.fullname.should == "Kittie Sanchez"
+      expect(@user.fullname).to eq("Kittie Sanchez")
     end
 
     it "handle resource update through the .update class method" do
       @user = Foo::User.save_existing(1, { :fullname => "Lindsay Fünke" })
-      @user.fullname.should == "Lindsay Fünke"
+      expect(@user.fullname).to eq("Lindsay Fünke")
     end
 
     it "handle resource update through #save on an existing resource" do
       @user = Foo::User.find(1)
       @user.fullname = "Lindsay Fünke"
       @user.save
-      @user.fullname.should == "Lindsay Fünke"
+      expect(@user.fullname).to eq("Lindsay Fünke")
     end
   end
 
@@ -403,15 +403,15 @@ describe Her::Model::ORM do
 
     it "handle resource deletion through the .destroy class method" do
       @user = Foo::User.destroy_existing(1)
-      @user.active.should be_falsey
-      @user.should be_destroyed
+      expect(@user.active).to be_falsey
+      expect(@user).to be_destroyed
     end
 
     it "handle resource deletion through #destroy on an existing resource" do
       @user = Foo::User.find(1)
       @user.destroy
-      @user.active.should be_falsey
-      @user.should be_destroyed
+      expect(@user.active).to be_falsey
+      expect(@user).to be_destroyed
     end
 
     context "with params" do
@@ -428,14 +428,14 @@ describe Her::Model::ORM do
       it "handle resource deletion through the .destroy class method" do
         @user = Foo::User.destroy_existing(1, delete_type: 'soft')
         expect(@user.active).to be_falsey
-        @user.should be_destroyed
+        expect(@user).to be_destroyed
       end
 
       it "handle resource deletion through #destroy on an existing resource" do
         @user = Foo::User.find(1)
         @user.destroy(delete_type: 'soft')
         expect(@user.active).to be_falsey
-        @user.should be_destroyed
+        expect(@user).to be_destroyed
       end
     end
   end
@@ -462,8 +462,8 @@ describe Her::Model::ORM do
       context 'for top-level class' do
         it 'uses the custom method (PUT) instead of default method (POST)' do
           user = Foo::User.new(:fullname => 'Tobias Fünke')
-          user.should be_new
-          user.save.should be_truthy
+          expect(user).to be_new
+          expect(user.save).to be_truthy
         end
       end
 
@@ -475,8 +475,8 @@ describe Her::Model::ORM do
 
         it 'uses the custom method (PUT) instead of default method (POST)' do
           user = User.new(:fullname => 'Tobias Fünke')
-          user.should be_new
-          user.save.should be_truthy
+          expect(user).to be_new
+          expect(user.save).to be_truthy
         end
       end
     end
@@ -496,10 +496,10 @@ describe Her::Model::ORM do
 
       it 'uses the custom method (POST) instead of default method (PUT)' do
         user = Foo::User.find(1)
-        user.fullname.should eq 'Lindsay Fünke'
+        expect(user.fullname).to eq 'Lindsay Fünke'
         user.fullname = 'Toby Fünke'
         user.save
-        user.fullname.should eq 'Tobias Fünke'
+        expect(user.fullname).to eq 'Tobias Fünke'
       end
     end
   end

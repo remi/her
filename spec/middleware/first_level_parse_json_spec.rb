@@ -12,8 +12,8 @@ describe Her::Middleware::FirstLevelParseJSON do
 
   it "parses body as json" do
     subject.parse(body_without_errors).tap do |json|
-      json[:data].should == { :id => 1, :name => "Tobias Fünke" }
-      json[:metadata].should == 3
+      expect(json[:data]).to eq({ :id => 1, :name => "Tobias Fünke" })
+      expect(json[:metadata]).to eq(3)
     end
   end
 
@@ -21,17 +21,17 @@ describe Her::Middleware::FirstLevelParseJSON do
     env = { :body => body_without_errors }
     subject.on_complete(env)
     env[:body].tap do |json|
-      json[:data].should == { :id => 1, :name => "Tobias Fünke" }
-      json[:metadata].should == 3
+      expect(json[:data]).to eq({ :id => 1, :name => "Tobias Fünke" })
+      expect(json[:metadata]).to eq(3)
     end
   end
 
   it 'ensures the errors are a hash if there are no errors' do
-    subject.parse(body_without_errors)[:errors].should eq({})
+    expect(subject.parse(body_without_errors)[:errors]).to eq({})
   end
 
   it 'ensures the errors are a hash if there are no errors' do
-    subject.parse(body_with_errors)[:errors].should eq({:name => [ 'not_valid', 'should_be_present']})
+    expect(subject.parse(body_with_errors)[:errors]).to eq({:name => [ 'not_valid', 'should_be_present']})
   end
 
   it 'ensures that malformed JSON throws an exception' do
@@ -43,11 +43,11 @@ describe Her::Middleware::FirstLevelParseJSON do
   end
 
   it 'ensures that a nil response returns an empty hash' do
-    subject.parse(nil_body)[:data].should eq({})
+    expect(subject.parse(nil_body)[:data]).to eq({})
   end
 
   it 'ensures that an empty response returns an empty hash' do
-    subject.parse(empty_body)[:data].should eq({})
+    expect(subject.parse(empty_body)[:data]).to eq({})
   end
 
   context 'with status code 204' do
@@ -55,7 +55,7 @@ describe Her::Middleware::FirstLevelParseJSON do
       env = { :status => 204 }
       subject.on_complete(env)
       env[:body].tap do |json|
-        json[:data].should == { }
+        expect(json[:data]).to eq({ })
       end
     end
   end
