@@ -1,7 +1,6 @@
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
 require "rspec"
-require "rspec/its"
 require "her"
 
 # Require everything in `spec/support`
