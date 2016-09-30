@@ -32,6 +32,11 @@ module Her
             return association.fetch.object_id
           end
 
+          # Does the underlying class of this association support this method
+          # at the class level, if so its likely to be a scope.
+          if association.klass.respond_to?(name) && association.klass.singleton_methods(false).include?(name)
+            return association.call_scope(name, *args, &block)
+          end
           # create a proxy to the fetched object's method
           AssociationProxy.install_proxy_methods 'association.fetch', name
 

@@ -4,6 +4,7 @@ module Her
       class Association
         # @private
         attr_accessor :params
+        attr_reader :klass
 
         # @private
         def initialize(parent, opts = {})
@@ -13,6 +14,17 @@ module Her
 
           @klass = @parent.class.her_nearby_class(@opts[:class_name])
           @name = @opts[:name]
+        end
+
+        def call_scope(name, *args, &block)
+          parent_id_string = "#{@parent.class.to_s.demodulize.downcase}_#{@parent.class.primary_key}"
+          parent_id = @parent.send(@parent.class.primary_key)
+          scoped = if klass.collection_path[parent_id_string]
+            klass.where("_#{parent_id_string}" => parent_id)
+          else
+            klass
+          end
+          scoped.send(name, *args, &block)
         end
 
         # @private

@@ -89,7 +89,13 @@ describe Her::Model::Associations do
         builder.adapter :test do |stub|
           stub.get("/users/1") { |env| [200, {}, { :id => 1, :name => "Tobias Fünke", :comments => [{ :comment => { :id => 2, :body => "Tobias, you blow hard!", :user_id => 1 } }, { :comment => { :id => 3, :body => "I wouldn't mind kissing that man between the cheeks, so to speak", :user_id => 1 } }], :role => { :id => 1, :body => "Admin" }, :organization => { :id => 1, :name => "Bluth Company" }, :organization_id => 1 }.to_json] }
           stub.get("/users/2") { |env| [200, {}, { :id => 2, :name => "Lindsay Fünke", :organization_id => 2 }.to_json] }
-          stub.get("/users/1/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }].to_json] }
+          stub.get("/users/1/comments") do |env|
+            if env[:params]["locked"] == "true"
+              [200, {}, [{ :comment => { :id => 5, :body => "Is this the tiny town from Footloose?", :locked => true } }].to_json]
+            else
+              [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }].to_json]
+            end
+          end
           stub.get("/users/2/comments") { |env| [200, {}, [{ :comment => { :id => 4, :body => "They're having a FIRESALE?" } }, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }].to_json] }
           stub.get("/users/2/comments/5") { |env| [200, {}, { :comment => { :id => 5, :body => "Is this the tiny town from Footloose?" } }.to_json] }
           stub.get("/users/2/role") { |env| [200, {}, { :id => 2, :body => "User" }.to_json] }
@@ -119,6 +125,8 @@ describe Her::Model::Associations do
       spawn_model "Foo::Comment" do
         belongs_to :user
         parse_root_in_json true
+        collection_path 'users/:user_id/comments'
+        scope :locked_scope, lambda { where(locked: true) }
       end
       spawn_model "Foo::Post" do
         belongs_to :admin, :class_name => 'Foo::User'
@@ -249,6 +257,11 @@ describe Her::Model::Associations do
       params = @user_with_included_data.to_params
       params[:comments].should be_kind_of(Array)
       params[:comments].length.should eq(2)
+    end
+
+    it 'supports scopes on assoications' do
+      locked_comments = @user_with_included_data.comments.locked_scope
+      locked_comments.first.id.should eq(5)
     end
 
     [:create, :save_existing, :destroy].each do |type|
