@@ -128,18 +128,18 @@ describe Her::Model::Associations do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Fünke", comments: [{ comment: { id: 2, body: "Tobias, you blow hard!", user_id: 1 } }, { comment: { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 } }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 }.to_json] }
-          stub.get("/users/2") { |_env| [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
-          stub.get("/users/1/comments") { |_env| [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }].to_json] }
-          stub.get("/users/2/comments") { |_env| [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }].to_json] }
-          stub.get("/users/2/comments/5") { |_env| [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
-          stub.get("/users/2/role") { |_env| [200, {}, { id: 2, body: "User" }.to_json] }
-          stub.get("/users/1/role") { |_env| [200, {}, { id: 3, body: "User" }.to_json] }
-          stub.get("/users/1/posts") { |_env| [200, {}, [{ id: 1, body: "blogging stuff", admin_id: 1 }].to_json] }
-          stub.get("/organizations/1") { |_env| [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
-          stub.post("/users") { |_env| [200, {}, { id: 5, name: "Mr. Krabs", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
-          stub.put("/users/5") { |_env| [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
-          stub.delete("/users/5") { |_env| [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke", comments: [{ comment: { id: 2, body: "Tobias, you blow hard!", user_id: 1 } }, { comment: { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 } }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 }.to_json] }
+          stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
+          stub.get("/users/1/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }].to_json] }
+          stub.get("/users/2/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }].to_json] }
+          stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
+          stub.get("/users/2/role") { [200, {}, { id: 2, body: "User" }.to_json] }
+          stub.get("/users/1/role") { [200, {}, { id: 3, body: "User" }.to_json] }
+          stub.get("/users/1/posts") { [200, {}, [{ id: 1, body: "blogging stuff", admin_id: 1 }].to_json] }
+          stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+          stub.post("/users") { [200, {}, { id: 5, name: "Mr. Krabs", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
+          stub.put("/users/5") { [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
+          stub.delete("/users/5") { [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
 
           stub.get("/organizations/2") do |env|
             if env[:params]["admin"] == "true"
@@ -318,12 +318,12 @@ describe Her::Model::Associations do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { user: { id: 1, name: "Tobias Fünke", comments: [{ id: 2, body: "Tobias, you blow hard!", user_id: 1 }, { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 } }.to_json] }
-          stub.get("/users/2") { |_env| [200, {}, { user: { id: 2, name: "Lindsay Fünke", organization_id: 1 } }.to_json] }
-          stub.get("/users/1/comments") { |_env| [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }] }.to_json] }
-          stub.get("/users/2/comments") { |_env| [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }, { id: 5, body: "Is this the tiny town from Footloose?" }] }.to_json] }
-          stub.get("/users/2/comments/5") { |_env| [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
-          stub.get("/organizations/1") { |_env| [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+          stub.get("/users/1") { [200, {}, { user: { id: 1, name: "Tobias Fünke", comments: [{ id: 2, body: "Tobias, you blow hard!", user_id: 1 }, { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 } }.to_json] }
+          stub.get("/users/2") { [200, {}, { user: { id: 2, name: "Lindsay Fünke", organization_id: 1 } }.to_json] }
+          stub.get("/users/1/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }] }.to_json] }
+          stub.get("/users/2/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }, { id: 5, body: "Is this the tiny town from Footloose?" }] }.to_json] }
+          stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
+          stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
         end
       end
       spawn_model "Foo::User" do
@@ -400,11 +400,11 @@ describe Her::Model::Associations do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." }, organization_id: 1 }.to_json] }
-          stub.get("/users/4") { |_env| [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." } }.to_json] }
-          stub.get("/users/2") { |_env| [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 1 }.to_json] }
-          stub.get("/users/3") { |_env| [200, {}, { id: 2, name: "Lindsay Fünke", company: nil }.to_json] }
-          stub.get("/companies/1") { |_env| [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." }, organization_id: 1 }.to_json] }
+          stub.get("/users/4") { [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." } }.to_json] }
+          stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 1 }.to_json] }
+          stub.get("/users/3") { [200, {}, { id: 2, name: "Lindsay Fünke", company: nil }.to_json] }
+          stub.get("/companies/1") { [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
         end
       end
 
@@ -510,7 +510,7 @@ describe Her::Model::Associations do
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.get("/users/10") { |_env| [200, {}, { id: 10 }.to_json] }
+            stub.get("/users/10") { [200, {}, { id: 10 }.to_json] }
             stub.post("/comments") { |env| [200, {}, { id: 1, body: Faraday::Utils.parse_query(env[:body])["body"], user_id: Faraday::Utils.parse_query(env[:body])["user_id"].to_i }.to_json] }
           end
         end

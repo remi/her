@@ -75,11 +75,11 @@ describe Her::Model::Parse do
     context "to true" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.post("/users") { |_env| [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
-          stub.get("/users") { |_env| [200, {}, [{ user: { id: 1, fullname: "Lindsay Fünke" } }].to_json] }
-          stub.get("/users/admins") { |_env| [200, {}, [{ user: { id: 1, fullname: "Lindsay Fünke" } }].to_json] }
-          stub.get("/users/1") { |_env| [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
-          stub.put("/users/1") { |_env| [200, {}, { user: { id: 1, fullname: "Tobias Fünke Jr." } }.to_json] }
+          stub.post("/users") { [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
+          stub.get("/users") { [200, {}, [{ user: { id: 1, fullname: "Lindsay Fünke" } }].to_json] }
+          stub.get("/users/admins") { [200, {}, [{ user: { id: 1, fullname: "Lindsay Fünke" } }].to_json] }
+          stub.get("/users/1") { [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
+          stub.put("/users/1") { [200, {}, { user: { id: 1, fullname: "Tobias Fünke Jr." } }.to_json] }
         end
 
         spawn_model("Foo::User") do
@@ -119,7 +119,7 @@ describe Her::Model::Parse do
     context "to a symbol" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.post("/users") { |_env| [200, {}, { person: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
+          stub.post("/users") { [200, {}, { person: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
         end
 
         spawn_model("Foo::User") { parse_root_in_json :person }
@@ -134,8 +134,8 @@ describe Her::Model::Parse do
     context "in the parent class" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.post("/users") { |_env| [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
-          stub.get("/users") { |_env| [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
+          stub.post("/users") { [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
+          stub.get("/users") { [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
         end
 
         spawn_model("Foo::Model") { parse_root_in_json true, format: :active_model_serializers }
@@ -160,11 +160,11 @@ describe Her::Model::Parse do
     context "to true with format: :active_model_serializers" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.post("/users") { |_env| [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
-          stub.get("/users") { |_env| [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
-          stub.get("/users/admins") { |_env| [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
-          stub.get("/users/1") { |_env| [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
-          stub.put("/users/1") { |_env| [200, {}, { user: { id: 1, fullname: "Tobias Fünke Jr." } }.to_json] }
+          stub.post("/users") { [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
+          stub.get("/users") { [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
+          stub.get("/users/admins") { [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
+          stub.get("/users/1") { [200, {}, { user: { id: 1, fullname: "Lindsay Fünke" } }.to_json] }
+          stub.put("/users/1") { [200, {}, { user: { id: 1, fullname: "Tobias Fünke Jr." } }.to_json] }
         end
 
         spawn_model("Foo::User") do
@@ -237,11 +237,11 @@ describe Her::Model::Parse do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |_env| [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
-          stub.get("/users/admins") { |_env| [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
-          stub.get("/users/1") { |_env| [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
-          stub.post("/users") { |_env| [200, {}, { users: [{ fullname: "Lindsay Fünke" }] }.to_json] }
-          stub.put("/users/1") { |_env| [200, {}, { users: [{ id: 1, fullname: "Tobias Fünke Jr." }] }.to_json] }
+          stub.get("/users") { [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
+          stub.get("/users/admins") { [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
+          stub.get("/users/1") { [200, {}, { users: [{ id: 1, fullname: "Lindsay Fünke" }] }.to_json] }
+          stub.post("/users") { [200, {}, { users: [{ fullname: "Lindsay Fünke" }] }.to_json] }
+          stub.put("/users/1") { [200, {}, { users: [{ id: 1, fullname: "Tobias Fünke Jr." }] }.to_json] }
         end
       end
 
@@ -328,7 +328,7 @@ describe Her::Model::Parse do
       end
 
       Her::API.default_api.connection.adapter :test do |stub|
-        stub.get("/users/1") { |_env| [200, {}, { id: 1, first_name: "Gooby", last_name: "Pls" }.to_json] }
+        stub.get("/users/1") { [200, {}, { id: 1, first_name: "Gooby", last_name: "Pls" }.to_json] }
       end
 
       spawn_model "Foo::User" do

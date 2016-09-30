@@ -137,7 +137,7 @@ describe Her::Model::Paths do
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.get("/users/foo") { |_env| [200, {}, { id: "foo" }.to_json] }
+            stub.get("/users/foo") { [200, {}, { id: "foo" }.to_json] }
           end
         end
 
@@ -199,11 +199,11 @@ describe Her::Model::Paths do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("organizations/2/users") { |_env| [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
-          stub.post("organizations/2/users") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2 }.to_json] }
-          stub.put("organizations/2/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", organization_id: 2 }.to_json] }
-          stub.get("organizations/2/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2, active: true }.to_json] }
-          stub.delete("organizations/2/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", organization_id: 2, active: false }.to_json] }
+          stub.get("organizations/2/users") { [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
+          stub.post("organizations/2/users") { [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2 }.to_json] }
+          stub.put("organizations/2/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", organization_id: 2 }.to_json] }
+          stub.get("organizations/2/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2, active: true }.to_json] }
+          stub.delete("organizations/2/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", organization_id: 2, active: false }.to_json] }
         end
       end
 
@@ -300,8 +300,8 @@ describe Her::Model::Paths do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/api/organizations/2/users") { |_env| [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
-          stub.get("/api/organizations/2/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2, active: true }.to_json] }
+          stub.get("/api/organizations/2/users") { [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
+          stub.get("/api/organizations/2/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2, active: true }.to_json] }
         end
       end
 

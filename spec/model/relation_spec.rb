@@ -8,10 +8,10 @@ describe Her::Model::Relation do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users?foo=1&bar=2") { |_env| ok! [{ id: 2, fullname: "Tobias Fünke" }] }
-            stub.get("/users?admin=1") { |_env| ok! [{ id: 1, fullname: "Tobias Fünke" }] }
+            stub.get("/users?foo=1&bar=2") { ok! [{ id: 2, fullname: "Tobias Fünke" }] }
+            stub.get("/users?admin=1") { ok! [{ id: 1, fullname: "Tobias Fünke" }] }
 
-            stub.get("/users") do |_env|
+            stub.get("/users") do
               ok! [
                 { id: 1, fullname: "Tobias Fünke" },
                 { id: 2, fullname: "Lindsay Fünke" },
@@ -19,7 +19,7 @@ describe Her::Model::Relation do
               ].compact
             end
 
-            stub.post("/users") do |_env|
+            stub.post("/users") do
               @created_user = { id: 3, fullname: "George Michael Bluth" }
               ok! @created_user
             end
@@ -58,7 +58,7 @@ describe Her::Model::Relation do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users?page=2") { |_env| ok! [{ id: 1, fullname: "Tobias Fünke" }, { id: 2, fullname: "Lindsay Fünke" }] }
+            stub.get("/users?page=2") { ok! [{ id: 1, fullname: "Tobias Fünke" }, { id: 2, fullname: "Lindsay Fünke" }] }
           end
         end
 
@@ -124,9 +124,9 @@ describe Her::Model::Relation do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.adapter :test do |stub|
-          stub.get("/users?what=4&where=3") { |_env| ok! [{ id: 3, fullname: "Maeby Fünke" }] }
-          stub.get("/users?what=2") { |_env| ok! [{ id: 2, fullname: "Lindsay Fünke" }] }
-          stub.get("/users?where=6") { |_env| ok! [{ id: 4, fullname: "Tobias Fünke" }] }
+          stub.get("/users?what=4&where=3") { ok! [{ id: 3, fullname: "Maeby Fünke" }] }
+          stub.get("/users?what=2") { ok! [{ id: 2, fullname: "Lindsay Fünke" }] }
+          stub.get("/users?where=6") { ok! [{ id: 4, fullname: "Tobias Fünke" }] }
         end
       end
 
@@ -210,7 +210,7 @@ describe Her::Model::Relation do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.adapter :test do |stub|
-          stub.get("/users") do |_env|
+          stub.get("/users") do
             ok! [{ id: 1, fullname: "Tobias Fünke" }, { id: 2, fullname: "Lindsay Fünke" }]
           end
         end

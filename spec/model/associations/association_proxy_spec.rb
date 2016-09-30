@@ -8,8 +8,8 @@ describe Her::Model::Associations::AssociationProxy do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
-          stub.get("/users/1/fish") { |_env| [200, {}, { id: 1, name: "Tobias's Fish" }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
+          stub.get("/users/1/fish") { [200, {}, { id: 1, name: "Tobias's Fish" }.to_json] }
         end
       end
       spawn_model "User" do

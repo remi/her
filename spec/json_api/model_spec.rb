@@ -5,7 +5,7 @@ describe Her::JsonApi::Model do
     Her::API.setup url: "https://api.example.com" do |connection|
       connection.use Her::Middleware::JsonApiParser
       connection.adapter :test do |stub|
-        stub.get("/users/1") do |_env|
+        stub.get("/users/1") do
           [
             200,
             {},
@@ -22,7 +22,7 @@ describe Her::JsonApi::Model do
           ]
         end
 
-        stub.get("/users") do |_env|
+        stub.get("/users") do
           [
             200,
             {},
@@ -47,12 +47,13 @@ describe Her::JsonApi::Model do
           ]
         end
 
-        stub.post("/users", data: {
-                    type: "users",
-                    attributes: {
-                      name: "Jeremy Lin"
-                    }
-                  }) do |_env|
+        stub.post("/users", data:
+        {
+          type: "users",
+          attributes: {
+            name: "Jeremy Lin"
+          }
+        }) do
           [
             201,
             {},
@@ -69,13 +70,14 @@ describe Her::JsonApi::Model do
           ]
         end
 
-        stub.patch("/users/1", data: {
-                     type: "users",
-                     id: 1,
-                     attributes: {
-                       name: "Fed GOAT"
-                     }
-                   }) do |_env|
+        stub.patch("/users/1", data:
+        {
+          type: "users",
+          id: 1,
+          attributes: {
+            name: "Fed GOAT"
+          }
+        }) do
           [
             200,
             {},
@@ -92,7 +94,7 @@ describe Her::JsonApi::Model do
           ]
         end
 
-        stub.delete("/users/1") do |_env|
+        stub.delete("/users/1") do
           [204, {}, {}]
         end
       end
@@ -119,16 +121,18 @@ describe Her::JsonApi::Model do
 
   it "finds a collection of models" do
     users = Foo::User.all
-    expect(users.map(&:attributes)).to match_array([
-                                                     {
-                                                       "id" => 1,
-                                                       "name" => "Roger Federer"
-                                                     },
-                                                     {
-                                                       "id" => 2,
-                                                       "name" => "Kei Nishikori"
-                                                     }
-                                                   ])
+    expect(users.map(&:attributes)).to match_array(
+      [
+        {
+          "id" => 1,
+          "name" => "Roger Federer"
+        },
+        {
+          "id" => 2,
+          "name" => "Kei Nishikori"
+        }
+      ]
+    )
   end
 
   it "creates a Foo::User" do

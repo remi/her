@@ -9,10 +9,10 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
-          stub.get("/users") { |_env| [200, {}, [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }].to_json] }
-          stub.get("/admin_users") { |_env| [200, {}, [{ admin_id: 1, name: "Tobias Fünke" }, { admin_id: 2, name: "Lindsay Fünke" }].to_json] }
-          stub.get("/admin_users/1") { |_env| [200, {}, { admin_id: 1, name: "Tobias Fünke" }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
+          stub.get("/users") { [200, {}, [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users") { [200, {}, [{ admin_id: 1, name: "Tobias Fünke" }, { admin_id: 2, name: "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users/1") { [200, {}, { admin_id: 1, name: "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -73,8 +73,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |_env| [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
-          stub.post("/users") { |_env| [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: %w(Yes Sir) }.to_json] }
+          stub.get("/users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
+          stub.post("/users") { [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: %w(Yes Sir) }.to_json] }
         end
       end
 
@@ -111,8 +111,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |_env| [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
-          stub.post("/users") { |_env| [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: %w(Yes Sir) }.to_json] }
+          stub.get("/users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
+          stub.post("/users") { [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: %w(Yes Sir) }.to_json] }
         end
       end
 
@@ -149,8 +149,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, friends: %w(Maeby GOB Anne) }.to_json] }
-          stub.get("/users/2") { |_env| [200, {}, { id: 1 }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, friends: %w(Maeby GOB Anne) }.to_json] }
+          stub.get("/users/2") { [200, {}, { id: 1 }.to_json] }
         end
       end
 
@@ -194,12 +194,12 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, age: 42 }.to_json] }
-          stub.get("/users/2") { |_env| [200, {}, { id: 2, age: 34 }.to_json] }
-          stub.get("/users?id[]=1&id[]=2") { |_env| [200, {}, [{ id: 1, age: 42 }, { id: 2, age: 34 }].to_json] }
-          stub.get("/users?age=42&foo=bar") { |_env| [200, {}, [{ id: 3, age: 42 }].to_json] }
-          stub.get("/users?age=42") { |_env| [200, {}, [{ id: 1, age: 42 }].to_json] }
-          stub.get("/users?age=40") { |_env| [200, {}, [{ id: 1, age: 40 }].to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, age: 42 }.to_json] }
+          stub.get("/users/2") { [200, {}, { id: 2, age: 34 }.to_json] }
+          stub.get("/users?id[]=1&id[]=2") { [200, {}, [{ id: 1, age: 42 }, { id: 2, age: 34 }].to_json] }
+          stub.get("/users?age=42&foo=bar") { [200, {}, [{ id: 3, age: 42 }].to_json] }
+          stub.get("/users?age=42") { [200, {}, [{ id: 1, age: 42 }].to_json] }
+          stub.get("/users?age=40") { [200, {}, [{ id: 1, age: 40 }].to_json] }
         end
       end
 
@@ -309,7 +309,7 @@ describe Her::Model::ORM do
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.post("/users") { |env| [200, {}, { id: 1, fullname: Faraday::Utils.parse_query(env[:body])["fullname"], email: Faraday::Utils.parse_query(env[:body])["email"] }.to_json] }
-          stub.post("/companies") { |_env| [200, {}, { errors: ["name is required"] }.to_json] }
+          stub.post("/companies") { [200, {}, { errors: ["name is required"] }.to_json] }
         end
       end
 
@@ -359,8 +359,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
-          stub.put("/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.put("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
         end
       end
 
@@ -393,8 +393,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", active: true }.to_json] }
-          stub.delete("/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", active: true }.to_json] }
+          stub.delete("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
         end
       end
 
@@ -420,7 +420,7 @@ describe Her::Model::ORM do
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.delete("/users/1?delete_type=soft") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
+            stub.delete("/users/1?delete_type=soft") { [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
           end
         end
       end
@@ -451,7 +451,7 @@ describe Her::Model::ORM do
     context "create" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.put("/users") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.put("/users") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
         end
         spawn_model "Foo::User" do
           attributes :fullname, :email
@@ -484,8 +484,8 @@ describe Her::Model::ORM do
     context "update" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
-          stub.post("/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.post("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
         end
 
         spawn_model "Foo::User" do

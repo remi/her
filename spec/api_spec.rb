@@ -43,7 +43,7 @@ describe Her::API do
         before do
           subject.setup url: "https://api.example.com" do |builder|
             builder.use SimpleParser
-            builder.adapter(:test) { |stub| stub.get("/foo") { |_env| [200, {}, "Foo, it is."] } }
+            builder.adapter(:test) { |stub| stub.get("/foo") { [200, {}, "Foo, it is."] } }
           end
         end
 
@@ -69,7 +69,7 @@ describe Her::API do
           subject.setup url: "https://api.example.com" do |builder|
             builder.use Her::Middleware::FirstLevelParseJSON
             builder.adapter :test do |stub|
-              stub.get("/users/1") { |_env| [200, {}, MultiJson.dump(id: 1, name: "George Michael Bluth", errors: ["This is a single error"], metadata: { page: 1, per_page: 10 })] }
+              stub.get("/users/1") { [200, {}, MultiJson.dump(id: 1, name: "George Michael Bluth", errors: ["This is a single error"], metadata: { page: 1, per_page: 10 })] }
             end
           end
         end
@@ -101,7 +101,7 @@ describe Her::API do
             builder.use CustomParser
             builder.use Faraday::Request::UrlEncoded
             builder.adapter :test do |stub|
-              stub.get("/users/1") { |_env| [200, {}, MultiJson.dump(id: 1, name: "George Michael Bluth")] }
+              stub.get("/users/1") { [200, {}, MultiJson.dump(id: 1, name: "George Michael Bluth")] }
             end
           end
         end

@@ -85,9 +85,9 @@ describe Her::Model::Attributes do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
-          stub.get("/users/2") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
-          stub.get("/admins/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.get("/users/2") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.get("/admins/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
         end
       end
 
@@ -147,7 +147,7 @@ describe Her::Model::Attributes do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.adapter :test do |stub|
-          stub.post("/users") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.post("/users") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -190,7 +190,7 @@ describe Her::Model::Attributes do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
+            stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
           end
         end
 
@@ -215,7 +215,7 @@ describe Her::Model::Attributes do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
+            stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
           end
         end
 
@@ -240,8 +240,8 @@ describe Her::Model::Attributes do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", document: { url: nil } }.to_json] }
-            stub.get("/users/2") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
+            stub.get("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", document: { url: nil } }.to_json] }
+            stub.get("/users/2") { [200, {}, { id: 1, fullname: "Tobias Fünke", document: { url: "http://example.com" } }.to_json] }
           end
         end
 

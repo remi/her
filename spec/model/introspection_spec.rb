@@ -8,11 +8,11 @@ describe Her::Model::Introspection do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.post("/users")     { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
-          stub.get("/users/1")    { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
-          stub.put("/users/1")    { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
-          stub.delete("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
-          stub.get("/projects/1/comments") { |_env| [200, {}, [{ id: 1, body: "Hello!" }].to_json] }
+          stub.post("/users")     { [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.get("/users/1")    { [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.put("/users/1")    { [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.delete("/users/1") { [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.get("/projects/1/comments") { [200, {}, [{ id: 1, body: "Hello!" }].to_json] }
         end
       end
 

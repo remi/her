@@ -40,8 +40,8 @@ describe Her::Model::HTTP do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |_env| [200, {}, [{ id: 1 }].to_json] }
-          stub.get("/users/1") { |_env| [200, {}, { id: 1 }.to_json] }
+          stub.get("/users") { [200, {}, [{ id: 1 }].to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1 }.to_json] }
           stub.get("/users/popular") do |env|
             if env[:params]["page"] == "2"
               [200, {}, [{ id: 3 }, { id: 4 }].to_json]
@@ -146,8 +146,8 @@ describe Her::Model::HTTP do
       Her::API.setup url: "https://api.example.com" do |connection|
         connection.use Her::Middleware::FirstLevelParseJSON
         connection.adapter :test do |stub|
-          stub.get("/users/popular") { |_env| [200, {}, [{ id: 1 }, { id: 2 }].to_json] }
-          stub.post("/users/from_default") { |_env| [200, {}, { id: 4 }.to_json] }
+          stub.get("/users/popular") { [200, {}, [{ id: 1 }, { id: 2 }].to_json] }
+          stub.post("/users/from_default") { [200, {}, { id: 4 }.to_json] }
         end
       end
 

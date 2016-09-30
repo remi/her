@@ -108,7 +108,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     subject { Foo::User.find(1) }
     before do
       Her::API.default_api.connection.adapter :test do |stub|
-        stub.get("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+        stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
       end
     end
 
