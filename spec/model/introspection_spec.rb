@@ -8,11 +8,11 @@ describe Her::Model::Introspection do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.post("/users")     { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
-          stub.get("/users/1")    { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
-          stub.put("/users/1")    { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
-          stub.delete("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
-          stub.get("/projects/1/comments") { |env| [200, {}, [{ id: 1, body: "Hello!" }].to_json] }
+          stub.post("/users")     { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.get("/users/1")    { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.put("/users/1")    { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.delete("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+          stub.get("/projects/1/comments") { |_env| [200, {}, [{ id: 1, body: "Hello!" }].to_json] }
         end
       end
 
@@ -35,7 +35,11 @@ describe Her::Model::Introspection do
 
       it "outputs resource attributes using getters" do
         @user = Foo::User.new(name: "Tobias Funke", password: "Funke")
-        @user.instance_eval {def password; 'filtered'; end}
+        @user.instance_eval do
+          def password
+            "filtered"
+                             end
+        end
         expect(@user.inspect).to include("name=\"Tobias Funke\"")
         expect(@user.inspect).to include("password=\"filtered\"")
         expect(@user.inspect).not_to include("password=\"Funke\"")
@@ -50,7 +54,7 @@ describe Her::Model::Introspection do
     describe "#inspect with errors in resource path" do
       it "prints the resource path as “unknown”" do
         @comment = Foo::Comment.where(project_id: 1).first
-        path = '<unknown path, missing `project_id`>'
+        path = "<unknown path, missing `project_id`>"
         expect(["#<Foo::Comment(#{path}) body=\"Hello!\" id=1>", "#<Foo::Comment(#{path}) id=1 body=\"Hello!\">"]).to include(@comment.inspect)
       end
     end

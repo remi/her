@@ -27,9 +27,8 @@ describe Her::Middleware::SecondLevelParseJSON do
 
   context "with invalid JSON body" do
     let(:body) { '"foo"' }
-    it 'ensures that invalid JSON throws an exception' do
+    it "ensures that invalid JSON throws an exception" do
       expect { subject.parse(body) }.to raise_error(Her::Errors::ParseError, 'Response from the API must behave like a Hash or an Array (last JSON response was "\"foo\"")')
     end
   end
-
 end

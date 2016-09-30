@@ -8,12 +8,12 @@ describe "Her::Model and ActiveModel::Dirty" do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { id: 2, fullname: "Maeby Fünke" }.to_json] }
-          stub.get("/users/3") { |env| [200, {}, { user_id: 3, fullname: "Maeby Fünke" }.to_json] }
-          stub.put("/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
-          stub.put("/users/2") { |env| [400, {}, { errors: ["Email cannot be blank"] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.get("/users/2") { [200, {}, { id: 2, fullname: "Maeby Fünke" }.to_json] }
+          stub.get("/users/3") { [200, {}, { user_id: 3, fullname: "Maeby Fünke" }.to_json] }
+          stub.put("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.put("/users/2") { [400, {}, { errors: ["Email cannot be blank"] }.to_json] }
+          stub.post("/users")  { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -49,12 +49,12 @@ describe "Her::Model and ActiveModel::Dirty" do
         it "tracks previous changes" do
           user.fullname = "Tobias Fünke"
           user.save
-          expect(user.previous_changes).to eq("fullname"=>"Lindsay Fünke")
+          expect(user.previous_changes).to eq("fullname" => "Lindsay Fünke")
         end
 
-        it 'tracks dirty attribute for mass assign for dynamic created attributes' do
+        it "tracks dirty attribute for mass assign for dynamic created attributes" do
           user = Dynamic::User.find(3)
-          user.assign_attributes(fullname: 'New Fullname')
+          user.assign_attributes(fullname: "New Fullname")
           expect(user.fullname_changed?).to be_truthy
           expect(user).to be_changed
           expect(user.changes.length).to eq(1)
@@ -89,3 +89,4 @@ describe "Her::Model and ActiveModel::Dirty" do
     end
   end
 end
+#

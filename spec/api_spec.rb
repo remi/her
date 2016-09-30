@@ -8,8 +8,8 @@ describe Her::API do
     describe "#setup" do
       context "when setting custom middleware" do
         before do
-          class Foo; end;
-          class Bar; end;
+          class Foo; end
+          class Bar; end
 
           subject.setup url: "https://api.example.com" do |connection|
             connection.use Foo
@@ -23,8 +23,8 @@ describe Her::API do
       context "when setting custom options" do
         before { subject.setup foo: { bar: "baz" }, url: "https://api.example.com" }
 
-        describe '#options' do
-          it { expect(subject.options).to eq({ foo: { bar: "baz" }, url: "https://api.example.com" }) }
+        describe "#options" do
+          it { expect(subject.options).to eq(foo: { bar: "baz" }, url: "https://api.example.com") }
         end
       end
     end
@@ -43,7 +43,7 @@ describe Her::API do
         before do
           subject.setup url: "https://api.example.com" do |builder|
             builder.use SimpleParser
-            builder.adapter(:test) { |stub| stub.get("/foo") { |env| [200, {}, "Foo, it is."] } }
+            builder.adapter(:test) { |stub| stub.get("/foo") { |_env| [200, {}, "Foo, it is."] } }
           end
         end
 
@@ -56,7 +56,7 @@ describe Her::API do
         before do
           subject.setup url: "https://api.example.com" do |builder|
             builder.use SimpleParser
-            builder.adapter(:test) { |stub| stub.get("/foo") { |env| [200, {}, "Foo, it is page #{env[:request_headers]["X-Page"]}."] } }
+            builder.adapter(:test) { |stub| stub.get("/foo") { |env| [200, {}, "Foo, it is page #{env[:request_headers]['X-Page']}."] } }
           end
         end
 
@@ -69,15 +69,15 @@ describe Her::API do
           subject.setup url: "https://api.example.com" do |builder|
             builder.use Her::Middleware::FirstLevelParseJSON
             builder.adapter :test do |stub|
-              stub.get("/users/1") { |env| [200, {}, MultiJson.dump({ id: 1, name: "George Michael Bluth", errors: ["This is a single error"], metadata: { page: 1, per_page: 10 } })] }
+              stub.get("/users/1") { |_env| [200, {}, MultiJson.dump(id: 1, name: "George Michael Bluth", errors: ["This is a single error"], metadata: { page: 1, per_page: 10 })] }
             end
           end
         end
 
         specify do
-          expect(parsed_data[:data]).to eq({ id: 1, name: "George Michael Bluth" })
+          expect(parsed_data[:data]).to eq(id: 1, name: "George Michael Bluth")
           expect(parsed_data[:errors]).to eq(["This is a single error"])
-          expect(parsed_data[:metadata]).to eq({ page: 1, per_page: 10 })
+          expect(parsed_data[:metadata]).to eq(page: 1, per_page: 10)
         end
       end
 
@@ -92,7 +92,7 @@ describe Her::API do
               env[:body] = {
                 data: json,
                 errors: errors,
-                metadata: metadata,
+                metadata: metadata
               }
             end
           end
@@ -101,13 +101,13 @@ describe Her::API do
             builder.use CustomParser
             builder.use Faraday::Request::UrlEncoded
             builder.adapter :test do |stub|
-              stub.get("/users/1") { |env| [200, {}, MultiJson.dump(id: 1, name: "George Michael Bluth")] }
+              stub.get("/users/1") { |_env| [200, {}, MultiJson.dump(id: 1, name: "George Michael Bluth")] }
             end
           end
         end
 
         specify do
-          expect(parsed_data[:data]).to eq({ id: 1, name: "George Michael Bluth" })
+          expect(parsed_data[:data]).to eq(id: 1, name: "George Michael Bluth")
           expect(parsed_data[:errors]).to eq([])
           expect(parsed_data[:metadata]).to eq({})
         end

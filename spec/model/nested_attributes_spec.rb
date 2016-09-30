@@ -110,7 +110,7 @@ describe Her::Model::NestedAttributes do
 
       spawn_model "Foo::Pet"
 
-      @user_with_data_through_nested_attributes_as_hash = Foo::User.new name: "Test", pets_attributes: { '0' => { name: "Hasi" }, '1' => { name: "Rodriguez" }}
+      @user_with_data_through_nested_attributes_as_hash = Foo::User.new name: "Test", pets_attributes: { "0" => { name: "Hasi" }, "1" => { name: "Rodriguez" } }
     end
 
     context "when children do not yet exist" do
@@ -126,9 +126,9 @@ describe Her::Model::NestedAttributes do
 
   context "with an unknown association" do
     it "raises an error" do
-      expect {
+      expect do
         spawn_model("Foo::User") { accepts_nested_attributes_for :company }
-      }.to raise_error(Her::Errors::AssociationUnknownError, 'Unknown association name :company')
+      end.to raise_error(Her::Errors::AssociationUnknownError, "Unknown association name :company")
     end
   end
 end

@@ -9,10 +9,10 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
-          stub.get("/users") { |env| [200, {}, [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }].to_json] }
-          stub.get("/admin_users") { |env| [200, {}, [{ admin_id: 1, name: "Tobias Fünke" }, { admin_id: 2, name: "Lindsay Fünke" }].to_json] }
-          stub.get("/admin_users/1") { |env| [200, {}, { admin_id: 1, name: "Tobias Fünke" }.to_json] }
+          stub.get("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
+          stub.get("/users") { |_env| [200, {}, [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users") { |_env| [200, {}, [{ admin_id: 1, name: "Tobias Fünke" }, { admin_id: 2, name: "Lindsay Fünke" }].to_json] }
+          stub.get("/admin_users/1") { |_env| [200, {}, { admin_id: 1, name: "Tobias Fünke" }.to_json] }
         end
       end
 
@@ -57,8 +57,8 @@ describe Her::Model::ORM do
       expect(@existing_user.new_record?).to be_falsey
     end
 
-    it 'handles new resource with custom primary key' do
-      @new_user = Foo::AdminUser.new(fullname: 'Lindsay Fünke', id: -1)
+    it "handles new resource with custom primary key" do
+      @new_user = Foo::AdminUser.new(fullname: "Lindsay Fünke", id: -1)
       expect(@new_user).to be_new
 
       @existing_user = Foo::AdminUser.find(1)
@@ -73,8 +73,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |env| [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: ["Oh", "My", "God"] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: ["Yes", "Sir"] }.to_json] }
+          stub.get("/users") { |_env| [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
+          stub.post("/users") { |_env| [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: %w(Yes Sir) }.to_json] }
         end
       end
 
@@ -100,7 +100,7 @@ describe Her::Model::ORM do
 
     it "handles error data on a resource" do
       @user = User.create(name: "George Michael Bluth")
-      expect(@user.response_errors).to eq(["Yes", "Sir"])
+      expect(@user.response_errors).to eq(%w(Yes Sir))
     end
   end
 
@@ -111,8 +111,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |env| [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: ["Oh", "My", "God"] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: ["Yes", "Sir"] }.to_json] }
+          stub.get("/users") { |_env| [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
+          stub.post("/users") { |_env| [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: %w(Yes Sir) }.to_json] }
         end
       end
 
@@ -138,7 +138,7 @@ describe Her::Model::ORM do
 
     it "handles error data on a resource" do
       @user = User.create(name: "George Michael Bluth")
-      expect(@user.response_errors).to eq(["Yes", "Sir"])
+      expect(@user.response_errors).to eq(%w(Yes Sir))
     end
   end
 
@@ -149,8 +149,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { id: 1, friends: ["Maeby", "GOB", "Anne"] }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { id: 1 }.to_json] }
+          stub.get("/users/1") { |_env| [200, {}, { id: 1, friends: %w(Maeby GOB Anne) }.to_json] }
+          stub.get("/users/2") { |_env| [200, {}, { id: 1 }.to_json] }
         end
       end
 
@@ -159,7 +159,7 @@ describe Her::Model::ORM do
         belongs_to :organization
 
         def friends=(val)
-          val = val.gsub("\r", "").split("\n").map { |friend| friend.gsub(/^\s*\*\s*/, "") } if val and val.is_a?(String)
+          val = val.delete("\r").split("\n").map { |friend| friend.gsub(/^\s*\*\s*/, "") } if val && val.is_a?(String)
           @attributes[:friends] = val
         end
 
@@ -173,7 +173,7 @@ describe Her::Model::ORM do
       @user = User.find(1)
       expect(@user.friends).to eq("* Maeby\n* GOB\n* Anne")
       @user.instance_eval do
-        @attributes[:friends] = ["Maeby", "GOB", "Anne"]
+        @attributes[:friends] = %w(Maeby GOB Anne)
       end
     end
 
@@ -182,7 +182,7 @@ describe Her::Model::ORM do
       @user.friends = "* George\n* Oscar\n* Lucille"
       expect(@user.friends).to eq("* George\n* Oscar\n* Lucille")
       @user.instance_eval do
-        @attributes[:friends] = ["George", "Oscar", "Lucille"]
+        @attributes[:friends] = %w(George Oscar Lucille)
       end
     end
   end
@@ -194,12 +194,12 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { id: 1, age: 42 }.to_json] }
-          stub.get("/users/2") { |env| [200, {}, { id: 2, age: 34 }.to_json] }
-          stub.get("/users?id[]=1&id[]=2") { |env| [200, {}, [{ id: 1, age: 42 }, { id: 2, age: 34 }].to_json] }
-          stub.get("/users?age=42&foo=bar") { |env| [200, {}, [{ id: 3, age: 42 }].to_json] }
-          stub.get("/users?age=42") { |env| [200, {}, [{ id: 1, age: 42 }].to_json] }
-          stub.get("/users?age=40") { |env| [200, {}, [{ id: 1, age: 40 }].to_json] }
+          stub.get("/users/1") { |_env| [200, {}, { id: 1, age: 42 }.to_json] }
+          stub.get("/users/2") { |_env| [200, {}, { id: 2, age: 34 }.to_json] }
+          stub.get("/users?id[]=1&id[]=2") { |_env| [200, {}, [{ id: 1, age: 42 }, { id: 2, age: 34 }].to_json] }
+          stub.get("/users?age=42&foo=bar") { |_env| [200, {}, [{ id: 3, age: 42 }].to_json] }
+          stub.get("/users?age=42") { |_env| [200, {}, [{ id: 1, age: 42 }].to_json] }
+          stub.get("/users?age=40") { |_env| [200, {}, [{ id: 1, age: 40 }].to_json] }
         end
       end
 
@@ -244,7 +244,7 @@ describe Her::Model::ORM do
       expect(@users[1].id).to eq(2)
     end
 
-    it 'handles finding with id parameter as an array' do
+    it "handles finding with id parameter as an array" do
       @users = User.where(id: [1, 2])
       expect(@users).to be_kind_of(Array)
       expect(@users.length).to eq(2)
@@ -308,8 +308,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.post("/users") { |env| [200, {}, { id: 1, fullname: Faraday::Utils.parse_query(env[:body])['fullname'], email: Faraday::Utils.parse_query(env[:body])['email'] }.to_json] }
-          stub.post("/companies") { |env| [200, {}, { errors: ["name is required"] }.to_json] }
+          stub.post("/users") { |env| [200, {}, { id: 1, fullname: Faraday::Utils.parse_query(env[:body])["fullname"], email: Faraday::Utils.parse_query(env[:body])["email"] }.to_json] }
+          stub.post("/companies") { |_env| [200, {}, { errors: ["name is required"] }.to_json] }
         end
       end
 
@@ -347,7 +347,7 @@ describe Her::Model::ORM do
     end
 
     it "don't overwrite data if response is empty" do
-      @company = Foo::Company.new(name: 'Company Inc.')
+      @company = Foo::Company.new(name: "Company Inc.")
       expect(@company.save).to be_falsey
       expect(@company.name).to eq("Company Inc.")
     end
@@ -359,8 +359,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
-          stub.put("/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.put("/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
         end
       end
 
@@ -375,7 +375,7 @@ describe Her::Model::ORM do
     end
 
     it "handle resource update through the .update class method" do
-      @user = Foo::User.save_existing(1, { fullname: "Lindsay Fünke" })
+      @user = Foo::User.save_existing(1, fullname: "Lindsay Fünke")
       expect(@user.fullname).to eq("Lindsay Fünke")
     end
 
@@ -393,8 +393,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke", active: true }.to_json] }
-          stub.delete("/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
+          stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", active: true }.to_json] }
+          stub.delete("/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
         end
       end
 
@@ -420,27 +420,27 @@ describe Her::Model::ORM do
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.delete("/users/1?delete_type=soft") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
+            stub.delete("/users/1?delete_type=soft") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
           end
         end
       end
 
       it "handle resource deletion through the .destroy class method" do
-        @user = Foo::User.destroy_existing(1, delete_type: 'soft')
+        @user = Foo::User.destroy_existing(1, delete_type: "soft")
         expect(@user.active).to be_falsey
         expect(@user).to be_destroyed
       end
 
       it "handle resource deletion through #destroy on an existing resource" do
         @user = Foo::User.find(1)
-        @user.destroy(delete_type: 'soft')
+        @user.destroy(delete_type: "soft")
         expect(@user.active).to be_falsey
         expect(@user).to be_destroyed
       end
     end
   end
 
-  context 'customizing HTTP methods' do
+  context "customizing HTTP methods" do
     before do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -448,58 +448,58 @@ describe Her::Model::ORM do
       end
     end
 
-    context 'create' do
+    context "create" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.put('/users') { |env| [200, {}, { id: 1, fullname: 'Tobias Fünke' }.to_json] }
+          stub.put("/users") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
         end
-        spawn_model 'Foo::User' do
+        spawn_model "Foo::User" do
           attributes :fullname, :email
-          method_for :create, 'PUT'
+          method_for :create, "PUT"
         end
       end
 
-      context 'for top-level class' do
-        it 'uses the custom method (PUT) instead of default method (POST)' do
-          user = Foo::User.new(fullname: 'Tobias Fünke')
+      context "for top-level class" do
+        it "uses the custom method (PUT) instead of default method (POST)" do
+          user = Foo::User.new(fullname: "Tobias Fünke")
           expect(user).to be_new
           expect(user.save).to be_truthy
         end
       end
 
-      context 'for children class' do
+      context "for children class" do
         before do
           class User < Foo::User; end
           @spawned_models << :User
         end
 
-        it 'uses the custom method (PUT) instead of default method (POST)' do
-          user = User.new(fullname: 'Tobias Fünke')
+        it "uses the custom method (PUT) instead of default method (POST)" do
+          user = User.new(fullname: "Tobias Fünke")
           expect(user).to be_new
           expect(user.save).to be_truthy
         end
       end
     end
 
-    context 'update' do
+    context "update" do
       before do
         Her::API.default_api.connection.adapter :test do |stub|
-          stub.get('/users/1') { |env| [200, {}, { id: 1, fullname: 'Lindsay Fünke' }.to_json] }
-          stub.post('/users/1') { |env| [200, {}, { id: 1, fullname: 'Tobias Fünke' }.to_json] }
+          stub.get("/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.post("/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
         end
 
-        spawn_model 'Foo::User' do
+        spawn_model "Foo::User" do
           attributes :fullname, :email
           method_for :update, :post
         end
       end
 
-      it 'uses the custom method (POST) instead of default method (PUT)' do
+      it "uses the custom method (POST) instead of default method (PUT)" do
         user = Foo::User.find(1)
-        expect(user.fullname).to eq 'Lindsay Fünke'
-        user.fullname = 'Toby Fünke'
+        expect(user.fullname).to eq "Lindsay Fünke"
+        user.fullname = "Toby Fünke"
         user.save
-        expect(user.fullname).to eq 'Tobias Fünke'
+        expect(user.fullname).to eq "Tobias Fünke"
       end
     end
   end

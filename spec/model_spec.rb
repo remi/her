@@ -1,13 +1,13 @@
 # encoding: utf-8
-require 'spec_helper'
+require "spec_helper"
 
 describe Her::Model do
   before do
     Her::API.setup url: "https://api.example.com" do |connection|
       connection.use Her::Middleware::FirstLevelParseJSON
       connection.adapter :test do |stub|
-        stub.get("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
-        stub.get("/users/1/comments") { |env| [200, {}, [{ id: 4, body: "They're having a FIRESALE?" }].to_json] }
+        stub.get("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Fünke" }.to_json] }
+        stub.get("/users/1/comments") { |_env| [200, {}, [{ id: 4, body: "They're having a FIRESALE?" }].to_json] }
       end
     end
 
@@ -24,15 +24,15 @@ describe Her::Model do
   end
 
   describe :serialization do
-    it 'should be serialized without an error' do
+    it "should be serialized without an error" do
       expect { Marshal.dump(subject.comments) }.not_to raise_error
     end
 
-    it 'should correctly load serialized object' do
-       serialized_comments = Marshal.load(Marshal.dump(subject.comments))
-       expect(subject.comments.size).to eq(serialized_comments.size)
-       expect(subject.comments.first.id).to eq(serialized_comments.first.id)
-       expect(subject.comments.first.body).to eq(serialized_comments.first.body)
+    it "should correctly load serialized object" do
+      serialized_comments = Marshal.load(Marshal.dump(subject.comments))
+      expect(subject.comments.size).to eq(serialized_comments.size)
+      expect(subject.comments.first.id).to eq(serialized_comments.first.id)
+      expect(subject.comments.first.body).to eq(serialized_comments.first.body)
     end
   end
 

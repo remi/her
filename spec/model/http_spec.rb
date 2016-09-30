@@ -40,8 +40,8 @@ describe Her::Model::HTTP do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { |env| [200, {}, [{ id: 1 }].to_json] }
-          stub.get("/users/1") { |env| [200, {}, { id: 1 }.to_json] }
+          stub.get("/users") { |_env| [200, {}, [{ id: 1 }].to_json] }
+          stub.get("/users/1") { |_env| [200, {}, { id: 1 }.to_json] }
           stub.get("/users/popular") do |env|
             if env[:params]["page"] == "2"
               [200, {}, [{ id: 3 }, { id: 4 }].to_json]
@@ -58,7 +58,7 @@ describe Her::Model::HTTP do
     describe :get do
       subject { Foo::User.get(:popular) }
 
-      describe '#length' do
+      describe "#length" do
         subject { super().length }
         it { is_expected.to eq(2) }
       end
@@ -68,7 +68,7 @@ describe Her::Model::HTTP do
     describe :get_raw do
       context "with a block" do
         specify do
-          Foo::User.get_raw("/users") do |parsed_data, response|
+          Foo::User.get_raw("/users") do |parsed_data, _response|
             expect(parsed_data[:data]).to eq([{ id: 1 }])
           end
         end
@@ -84,7 +84,7 @@ describe Her::Model::HTTP do
       context "with a String path" do
         subject { Foo::User.get_collection("/users/popular") }
 
-        describe '#length' do
+        describe "#length" do
           subject { super().length }
           it { is_expected.to eq(2) }
         end
@@ -94,7 +94,7 @@ describe Her::Model::HTTP do
       context "with a Symbol" do
         subject { Foo::User.get_collection(:popular) }
 
-        describe '#length' do
+        describe "#length" do
           subject { super().length }
           it { is_expected.to eq(2) }
         end
@@ -104,7 +104,7 @@ describe Her::Model::HTTP do
       context "with extra parameters" do
         subject { Foo::User.get_collection(:popular, page: 2) }
 
-        describe '#length' do
+        describe "#length" do
           subject { super().length }
           it { is_expected.to eq(2) }
         end
@@ -116,7 +116,7 @@ describe Her::Model::HTTP do
       context "with a String path" do
         subject { Foo::User.get_resource("/users/1") }
 
-        describe '#id' do
+        describe "#id" do
           subject { super().id }
           it { is_expected.to eq(1) }
         end
@@ -125,7 +125,7 @@ describe Her::Model::HTTP do
       context "with a Symbol" do
         subject { Foo::User.get_resource(:"1") }
 
-        describe '#id' do
+        describe "#id" do
           subject { super().id }
           it { is_expected.to eq(1) }
         end
@@ -134,7 +134,7 @@ describe Her::Model::HTTP do
 
     describe :get_raw do
       specify do
-        Foo::User.get_raw(:popular) do |parsed_data, response|
+        Foo::User.get_raw(:popular) do |parsed_data, _response|
           expect(parsed_data[:data]).to eq([{ id: 1 }, { id: 2 }])
         end
       end
@@ -146,8 +146,8 @@ describe Her::Model::HTTP do
       Her::API.setup url: "https://api.example.com" do |connection|
         connection.use Her::Middleware::FirstLevelParseJSON
         connection.adapter :test do |stub|
-          stub.get("/users/popular") { |env| [200, {}, [{ id: 1 }, { id: 2 }].to_json] }
-          stub.post("/users/from_default") { |env| [200, {}, { id: 4 }.to_json] }
+          stub.get("/users/popular") { |_env| [200, {}, [{ id: 1 }, { id: 2 }].to_json] }
+          stub.post("/users/from_default") { |_env| [200, {}, { id: 4 }.to_json] }
         end
       end
 
@@ -165,7 +165,7 @@ describe Her::Model::HTTP do
         context "making the HTTP request" do
           subject { Foo::User.popular }
 
-          describe '#length' do
+          describe "#length" do
             subject { super().length }
             it { is_expected.to eq(2) }
           end
@@ -180,7 +180,7 @@ describe Her::Model::HTTP do
       context "making the HTTP request" do
         subject { Foo::User.from_default(name: "Tobias Fünke") }
 
-        describe '#id' do
+        describe "#id" do
           subject { super().id }
           it { is_expected.to eq(4) }
         end

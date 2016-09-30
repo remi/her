@@ -8,19 +8,19 @@ describe Her::Model::Relation do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users?foo=1&bar=2") { |env| ok! [{ id: 2, fullname: "Tobias Fünke" }] }
-            stub.get("/users?admin=1") { |env| ok! [{ id: 1, fullname: "Tobias Fünke" }] }
+            stub.get("/users?foo=1&bar=2") { |_env| ok! [{ id: 2, fullname: "Tobias Fünke" }] }
+            stub.get("/users?admin=1") { |_env| ok! [{ id: 1, fullname: "Tobias Fünke" }] }
 
-            stub.get("/users") do |env|
+            stub.get("/users") do |_env|
               ok! [
                 { id: 1, fullname: "Tobias Fünke" },
                 { id: 2, fullname: "Lindsay Fünke" },
-                @created_user,
+                @created_user
               ].compact
             end
 
-            stub.post('/users') do |env|
-              @created_user = { id: 3, fullname: 'George Michael Bluth' }
+            stub.post("/users") do |_env|
+              @created_user = { id: 3, fullname: "George Michael Bluth" }
               ok! @created_user
             end
           end
@@ -48,7 +48,7 @@ describe Her::Model::Relation do
 
       it "does not reuse relations" do
         expect(Foo::User.all.size).to eql 2
-        expect(Foo::User.create(fullname: 'George Michael Bluth').id).to eq(3)
+        expect(Foo::User.create(fullname: "George Michael Bluth").id).to eq(3)
         expect(Foo::User.all.size).to eql 3
       end
     end
@@ -58,12 +58,12 @@ describe Her::Model::Relation do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users?page=2") { |env| ok! [{ id: 1, fullname: "Tobias Fünke" }, { id: 2, fullname: "Lindsay Fünke" }] }
+            stub.get("/users?page=2") { |_env| ok! [{ id: 1, fullname: "Tobias Fünke" }, { id: 2, fullname: "Lindsay Fünke" }] }
           end
         end
 
         spawn_model("Foo::Model") do
-          scope :page, lambda { |page| where(page: page) }
+          scope :page, ->(page) { where(page: page) }
         end
 
         class User < Foo::Model; end
@@ -124,16 +124,16 @@ describe Her::Model::Relation do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.adapter :test do |stub|
-          stub.get("/users?what=4&where=3") { |env| ok! [{ id: 3, fullname: "Maeby Fünke" }] }
-          stub.get("/users?what=2") { |env| ok! [{ id: 2, fullname: "Lindsay Fünke" }] }
-          stub.get("/users?where=6") { |env| ok! [{ id: 4, fullname: "Tobias Fünke" }] }
+          stub.get("/users?what=4&where=3") { |_env| ok! [{ id: 3, fullname: "Maeby Fünke" }] }
+          stub.get("/users?what=2") { |_env| ok! [{ id: 2, fullname: "Lindsay Fünke" }] }
+          stub.get("/users?where=6") { |_env| ok! [{ id: 4, fullname: "Tobias Fünke" }] }
         end
       end
 
-      spawn_model 'Foo::User' do
-        scope :foo, lambda { |v| where(what: v) }
-        scope :bar, lambda { |v| where(where: v) }
-        scope :baz, lambda { bar(6) }
+      spawn_model "Foo::User" do
+        scope :foo, ->(v) { where(what: v) }
+        scope :bar, ->(v) { where(where: v) }
+        scope :baz, -> { bar(6) }
       end
     end
 
@@ -156,9 +156,9 @@ describe Her::Model::Relation do
   describe :default_scope do
     context "for new objects" do
       before do
-        spawn_model 'Foo::User' do
-          default_scope lambda { where(active: true) }
-          default_scope lambda { where(admin: true) }
+        spawn_model "Foo::User" do
+          default_scope -> { where(active: true) }
+          default_scope -> { where(admin: true) }
         end
       end
 
@@ -178,8 +178,8 @@ describe Her::Model::Relation do
           end
         end
 
-        spawn_model 'Foo::User' do
-          default_scope lambda { where(active: true) }
+        spawn_model "Foo::User" do
+          default_scope -> { where(active: true) }
         end
       end
 
@@ -196,8 +196,8 @@ describe Her::Model::Relation do
           end
         end
 
-        spawn_model 'Foo::User' do
-          default_scope lambda { where(active: true) }
+        spawn_model "Foo::User" do
+          default_scope -> { where(active: true) }
         end
       end
 
@@ -210,13 +210,13 @@ describe Her::Model::Relation do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.adapter :test do |stub|
-          stub.get("/users") do |env|
+          stub.get("/users") do |_env|
             ok! [{ id: 1, fullname: "Tobias Fünke" }, { id: 2, fullname: "Lindsay Fünke" }]
           end
         end
       end
 
-      spawn_model 'Foo::User'
+      spawn_model "Foo::User"
     end
 
     it "delegates the method to the fetched collection" do

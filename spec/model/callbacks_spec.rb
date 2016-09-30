@@ -23,11 +23,13 @@ describe "Her::Model and ActiveModel::Callbacks" do
       before do
         class Foo::User
           before_save :alter_name
-          def alter_name; self.name.upcase!;  end
+          def alter_name
+            name.upcase!
+          end
         end
       end
 
-      describe '#name' do
+      describe "#name" do
         subject { super().name }
         it { is_expected.to eq("TOBIAS FUNKE") }
       end
@@ -36,11 +38,11 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a block callback" do
       before do
         class Foo::User
-          before_save lambda { self.name.upcase! }
+          before_save -> { name.upcase! }
         end
       end
 
-      describe '#name' do
+      describe "#name" do
         subject { super().name }
         it { is_expected.to eq("TOBIAS FUNKE") }
       end
@@ -76,11 +78,13 @@ describe "Her::Model and ActiveModel::Callbacks" do
       before do
         class Foo::User
           before_create :alter_name
-          def alter_name; self.name.upcase!;  end
+          def alter_name
+            name.upcase!
+          end
         end
       end
 
-      describe '#name' do
+      describe "#name" do
         subject { super().name }
         it { is_expected.to eq("TOBIAS FUNKE") }
       end
@@ -89,11 +93,11 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a block callback" do
       before do
         class Foo::User
-          before_create lambda { self.name.upcase! }
+          before_create -> { name.upcase! }
         end
       end
 
-      describe '#name' do
+      describe "#name" do
         subject { super().name }
         it { is_expected.to eq("TOBIAS FUNKE") }
       end
@@ -104,7 +108,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     subject { Foo::User.find(1) }
     before do
       Her::API.default_api.connection.adapter :test do |stub|
-        stub.get("/users/1") { |env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
+        stub.get("/users/1") { |_env| [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
       end
     end
 
@@ -112,11 +116,13 @@ describe "Her::Model and ActiveModel::Callbacks" do
       before do
         class Foo::User
           after_find :alter_name
-          def alter_name; self.name.upcase!;  end
+          def alter_name
+            name.upcase!
+          end
         end
       end
 
-      describe '#name' do
+      describe "#name" do
         subject { super().name }
         it { is_expected.to eq("TOBIAS FUNKE") }
       end
@@ -125,11 +131,11 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a block callback" do
       before do
         class Foo::User
-          after_find lambda { self.name.upcase! }
+          after_find -> { name.upcase! }
         end
       end
 
-      describe '#name' do
+      describe "#name" do
         subject { super().name }
         it { is_expected.to eq("TOBIAS FUNKE") }
       end
@@ -143,11 +149,13 @@ describe "Her::Model and ActiveModel::Callbacks" do
       before do
         class Foo::User
           after_initialize :alter_name
-          def alter_name; self.name.upcase!;  end
+          def alter_name
+            name.upcase!
+          end
         end
       end
 
-      describe '#name' do
+      describe "#name" do
         subject { super().name }
         it { is_expected.to eq("TOBIAS FUNKE") }
       end
@@ -156,11 +164,11 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a block callback" do
       before do
         class Foo::User
-          after_initialize lambda { self.name.upcase! }
+          after_initialize -> { name.upcase! }
         end
       end
 
-      describe '#name' do
+      describe "#name" do
         subject { super().name }
         it { is_expected.to eq("TOBIAS FUNKE") }
       end

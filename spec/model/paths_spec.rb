@@ -12,26 +12,26 @@ describe Her::Model::Paths do
         it "builds paths with defaults" do
           expect(Foo::User.new(id: "foo").request_path).to eq("users/foo")
           expect(Foo::User.new(id: nil).request_path).to eq("users")
-          expect(Foo::User.new().request_path).to eq("users")
+          expect(Foo::User.new.request_path).to eq("users")
         end
 
         it "builds paths with custom collection path" do
           Foo::User.collection_path "/utilisateurs"
           expect(Foo::User.new(id: "foo").request_path).to eq("/utilisateurs/foo")
-          expect(Foo::User.new().request_path).to eq("/utilisateurs")
+          expect(Foo::User.new.request_path).to eq("/utilisateurs")
         end
 
         it "builds paths with custom relative collection path" do
           Foo::User.collection_path "utilisateurs"
           expect(Foo::User.new(id: "foo").request_path).to eq("utilisateurs/foo")
-          expect(Foo::User.new().request_path).to eq("utilisateurs")
+          expect(Foo::User.new.request_path).to eq("utilisateurs")
         end
 
         it "builds paths with custom collection path with multiple variables" do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
 
           expect(Foo::User.new(id: "foo").request_path(_organization_id: "acme")).to eq("/organizations/acme/utilisateurs/foo")
-          expect(Foo::User.new().request_path(_organization_id: "acme")).to eq("/organizations/acme/utilisateurs")
+          expect(Foo::User.new.request_path(_organization_id: "acme")).to eq("/organizations/acme/utilisateurs")
 
           expect(Foo::User.new(id: "foo", organization_id: "acme").request_path).to eq("/organizations/acme/utilisateurs/foo")
           expect(Foo::User.new(organization_id: "acme").request_path).to eq("/organizations/acme/utilisateurs")
@@ -41,7 +41,7 @@ describe Her::Model::Paths do
           Foo::User.collection_path "organizations/:organization_id/utilisateurs"
 
           expect(Foo::User.new(id: "foo").request_path(_organization_id: "acme")).to eq("organizations/acme/utilisateurs/foo")
-          expect(Foo::User.new().request_path(_organization_id: "acme")).to eq("organizations/acme/utilisateurs")
+          expect(Foo::User.new.request_path(_organization_id: "acme")).to eq("organizations/acme/utilisateurs")
 
           expect(Foo::User.new(id: "foo", organization_id: "acme").request_path).to eq("organizations/acme/utilisateurs/foo")
           expect(Foo::User.new(organization_id: "acme").request_path).to eq("organizations/acme/utilisateurs")
@@ -50,13 +50,13 @@ describe Her::Model::Paths do
         it "builds paths with custom item path" do
           Foo::User.resource_path "/utilisateurs/:id"
           expect(Foo::User.new(id: "foo").request_path).to eq("/utilisateurs/foo")
-          expect(Foo::User.new().request_path).to eq("users")
+          expect(Foo::User.new.request_path).to eq("users")
         end
 
         it "builds paths with custom relative item path" do
           Foo::User.resource_path "utilisateurs/:id"
           expect(Foo::User.new(id: "foo").request_path).to eq("utilisateurs/foo")
-          expect(Foo::User.new().request_path).to eq("users")
+          expect(Foo::User.new.request_path).to eq("users")
         end
 
         it "raises exceptions when building a path without required custom variables" do
@@ -66,8 +66,8 @@ describe Her::Model::Paths do
 
         it "escapes the variable values" do
           Foo::User.collection_path "organizations/:organization_id/utilisateurs"
-          expect(Foo::User.new(id: "Привет").request_path(_organization_id: 'лол')).to eq("organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82")
-          expect(Foo::User.new(organization_id: 'лол', id: "Привет").request_path).to eq("organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82")
+          expect(Foo::User.new(id: "Привет").request_path(_organization_id: "лол")).to eq("organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82")
+          expect(Foo::User.new(organization_id: "лол", id: "Привет").request_path).to eq("organizations/%D0%BB%D0%BE%D0%BB/utilisateurs/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82")
         end
       end
     end
@@ -80,43 +80,43 @@ describe Her::Model::Paths do
       describe "#request_path" do
         it "builds paths with defaults" do
           expect(Foo::AdminUser.new(id: "foo").request_path).to eq("admin_users/foo")
-          expect(Foo::AdminUser.new().request_path).to eq("admin_users")
+          expect(Foo::AdminUser.new.request_path).to eq("admin_users")
         end
 
         it "builds paths with custom collection path" do
           Foo::AdminUser.collection_path "/users"
           expect(Foo::AdminUser.new(id: "foo").request_path).to eq("/users/foo")
-          expect(Foo::AdminUser.new().request_path).to eq("/users")
+          expect(Foo::AdminUser.new.request_path).to eq("/users")
         end
 
         it "builds paths with custom relative collection path" do
           Foo::AdminUser.collection_path "users"
           expect(Foo::AdminUser.new(id: "foo").request_path).to eq("users/foo")
-          expect(Foo::AdminUser.new().request_path).to eq("users")
+          expect(Foo::AdminUser.new.request_path).to eq("users")
         end
 
         it "builds paths with custom collection path with multiple variables" do
           Foo::AdminUser.collection_path "/organizations/:organization_id/users"
           expect(Foo::AdminUser.new(id: "foo").request_path(_organization_id: "acme")).to eq("/organizations/acme/users/foo")
-          expect(Foo::AdminUser.new().request_path(_organization_id: "acme")).to eq("/organizations/acme/users")
+          expect(Foo::AdminUser.new.request_path(_organization_id: "acme")).to eq("/organizations/acme/users")
         end
 
         it "builds paths with custom relative collection path with multiple variables" do
           Foo::AdminUser.collection_path "organizations/:organization_id/users"
           expect(Foo::AdminUser.new(id: "foo").request_path(_organization_id: "acme")).to eq("organizations/acme/users/foo")
-          expect(Foo::AdminUser.new().request_path(_organization_id: "acme")).to eq("organizations/acme/users")
+          expect(Foo::AdminUser.new.request_path(_organization_id: "acme")).to eq("organizations/acme/users")
         end
 
         it "builds paths with custom item path" do
           Foo::AdminUser.resource_path "/users/:id"
           expect(Foo::AdminUser.new(id: "foo").request_path).to eq("/users/foo")
-          expect(Foo::AdminUser.new().request_path).to eq("admin_users")
+          expect(Foo::AdminUser.new.request_path).to eq("admin_users")
         end
 
         it "builds paths with custom relative item path" do
           Foo::AdminUser.resource_path "users/:id"
           expect(Foo::AdminUser.new(id: "foo").request_path).to eq("users/foo")
-          expect(Foo::AdminUser.new().request_path).to eq("admin_users")
+          expect(Foo::AdminUser.new.request_path).to eq("admin_users")
         end
 
         it "raises exceptions when building a path without required custom variables" do
@@ -137,7 +137,7 @@ describe Her::Model::Paths do
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.get("/users/foo") { |env| [200, {}, { id: 'foo' }.to_json] }
+            stub.get("/users/foo") { |_env| [200, {}, { id: "foo" }.to_json] }
           end
         end
 
@@ -148,8 +148,8 @@ describe Her::Model::Paths do
       end
 
       it "builds path using the children model name" do
-        expect(User.find('foo').id).to eq('foo')
-        expect(User.find('foo').id).to eq('foo')
+        expect(User.find("foo").id).to eq("foo")
+        expect(User.find("foo").id).to eq("foo")
       end
     end
 
@@ -166,28 +166,28 @@ describe Her::Model::Paths do
       end
     end
 
-    context 'custom primary key' do
+    context "custom primary key" do
       before do
-        spawn_model 'User' do
-          primary_key 'UserId'
-          resource_path 'users/:UserId'
+        spawn_model "User" do
+          primary_key "UserId"
+          resource_path "users/:UserId"
         end
 
-        spawn_model 'Customer' do
+        spawn_model "Customer" do
           primary_key :customer_id
-          resource_path 'customers/:id'
+          resource_path "customers/:id"
         end
       end
 
-      describe '#request_path' do
-        it 'uses the correct primary key attribute' do
-          expect(User.new(UserId: 'foo').request_path).to eq('users/foo')
-          expect(User.new(id: 'foo').request_path).to eq('users')
+      describe "#request_path" do
+        it "uses the correct primary key attribute" do
+          expect(User.new(UserId: "foo").request_path).to eq("users/foo")
+          expect(User.new(id: "foo").request_path).to eq("users")
         end
 
-        it 'replaces :id with the appropriate primary key' do
-          expect(Customer.new(customer_id: 'joe').request_path).to eq('customers/joe')
-          expect(Customer.new(id: 'joe').request_path).to eq('customers')
+        it "replaces :id with the appropriate primary key" do
+          expect(Customer.new(customer_id: "joe").request_path).to eq("customers/joe")
+          expect(Customer.new(id: "joe").request_path).to eq("customers")
         end
       end
     end
@@ -199,11 +199,11 @@ describe Her::Model::Paths do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("organizations/2/users") { |env| [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
-          stub.post("organizations/2/users") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2 }.to_json] }
-          stub.put("organizations/2/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke", organization_id: 2 }.to_json] }
-          stub.get("organizations/2/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2, active: true }.to_json] }
-          stub.delete("organizations/2/users/1") { |env| [200, {}, { id: 1, fullname: "Lindsay Fünke", organization_id: 2, active: false }.to_json] }
+          stub.get("organizations/2/users") { |_env| [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
+          stub.post("organizations/2/users") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2 }.to_json] }
+          stub.put("organizations/2/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", organization_id: 2 }.to_json] }
+          stub.get("organizations/2/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2, active: true }.to_json] }
+          stub.delete("organizations/2/users/1") { |_env| [200, {}, { id: 1, fullname: "Lindsay Fünke", organization_id: 2, active: false }.to_json] }
         end
       end
 
@@ -220,7 +220,7 @@ describe Her::Model::Paths do
       end
 
       it "maps a single resource using a scope to a Ruby object" do
-        Foo::User.scope :for_organization, lambda { |o| where(organization_id: o) }
+        Foo::User.scope :for_organization, ->(o) { where(organization_id: o) }
         @user = Foo::User.for_organization(2).find(1)
         expect(@user.id).to eq(1)
         expect(@user.fullname).to eq("Tobias Fünke")
@@ -268,7 +268,7 @@ describe Her::Model::Paths do
       end
 
       it "handle resource update through the .update class method" do
-        @user = Foo::User.save_existing(1, { fullname: "Lindsay Fünke", organization_id: 2 })
+        @user = Foo::User.save_existing(1, fullname: "Lindsay Fünke", organization_id: 2)
         expect(@user.fullname).to eq("Lindsay Fünke")
       end
 
@@ -300,8 +300,8 @@ describe Her::Model::Paths do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/api/organizations/2/users") { |env| [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
-          stub.get("/api/organizations/2/users/1") { |env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2, active: true }.to_json] }
+          stub.get("/api/organizations/2/users") { |_env| [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
+          stub.get("/api/organizations/2/users/1") { |_env| [200, {}, { id: 1, fullname: "Tobias Fünke", organization_id: 2, active: true }.to_json] }
         end
       end
 
@@ -328,7 +328,7 @@ describe Her::Model::Paths do
 
     describe "fetching a resource with absolute path" do
       it "maps a single resource to a Ruby object" do
-        Foo::User.resource_path '/api/' + Foo::User.resource_path
+        Foo::User.resource_path "/api/" + Foo::User.resource_path
         @user = Foo::User.find(1, _organization_id: 2)
         expect(@user.id).to eq(1)
         expect(@user.fullname).to eq("Tobias Fünke")
@@ -337,7 +337,7 @@ describe Her::Model::Paths do
 
     describe "fetching a collection with absolute path" do
       it "maps a collection of resources to an array of Ruby objects" do
-        Foo::User.collection_path '/api/' + Foo::User.collection_path
+        Foo::User.collection_path "/api/" + Foo::User.collection_path
         @users = Foo::User.where(_organization_id: 2).all
         expect(@users.length).to eq(2)
         expect(@users.first.fullname).to eq("Tobias Fünke")
