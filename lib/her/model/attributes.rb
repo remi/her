@@ -132,6 +132,12 @@ module Her
       end
       alias attribute get_attribute
 
+      # Return `true` if the attribute was changed since last read.
+      # This allows validates_numericality_of to work properly.
+      def attribute_changed_in_place?(attribute_name)
+        !changes[attribute_name].nil?
+      end
+
       # Return the value of the model `primary_key` attribute
       def id
         @attributes[self.class.primary_key]

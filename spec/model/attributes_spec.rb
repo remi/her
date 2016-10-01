@@ -65,6 +65,12 @@ describe Her::Model::Attributes do
       @new_user.get_attribute(:unknown_method_for_a_user).should be_nil
       @new_user.get_attribute(:'life-span').should == '3 years'
     end
+
+    it "handles attribute_changed_in_place?" do
+      @new_user = Foo::User.new
+      @new_user.fullname = 'Schmoo'
+      @new_user.attribute_changed_in_place?(:fullname).should be_truthy
+    end
   end
 
 
