@@ -1,11 +1,10 @@
-$:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
 require "rspec"
-require "rspec/its"
 require "her"
 
 # Require everything in `spec/support`
-Dir[File.expand_path('../../spec/support/**/*.rb', __FILE__)].map(&method(:require))
+Dir[File.expand_path("../../spec/support/**/*.rb", __FILE__)].map(&method(:require))
 
 # Remove ActiveModel deprecation message
 I18n.enforce_available_locales = false

@@ -18,9 +18,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_development_dependency "rake", "~> 10.0"
-  s.add_development_dependency "rspec", "~> 2.13"
-  s.add_development_dependency "rspec-its", "~> 1.0"
-  s.add_development_dependency "fivemat", "~> 1.2"
+  s.add_development_dependency "rspec", "~> 3.5"
   s.add_development_dependency "json", "~> 1.8"
 
   s.add_runtime_dependency "activemodel", ">= 3.0.0", "<= 6.0.0"

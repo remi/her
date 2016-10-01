@@ -5,22 +5,22 @@ describe Her::Model::Relation do
   describe :where do
     context "for base classes" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users?foo=1&bar=2") { |env| ok! [{ :id => 2, :fullname => "Tobias Fünke" }] }
-            stub.get("/users?admin=1") { |env| ok! [{ :id => 1, :fullname => "Tobias Fünke" }] }
+            stub.get("/users?foo=1&bar=2") { ok! [{ id: 2, fullname: "Tobias Fünke" }] }
+            stub.get("/users?admin=1") { ok! [{ id: 1, fullname: "Tobias Fünke" }] }
 
-            stub.get("/users") do |env|
+            stub.get("/users") do
               ok! [
-                { :id => 1, :fullname => "Tobias Fünke" },
-                { :id => 2, :fullname => "Lindsay Fünke" },
-                @created_user,
+                { id: 1, fullname: "Tobias Fünke" },
+                { id: 2, fullname: "Lindsay Fünke" },
+                @created_user
               ].compact
             end
 
-            stub.post('/users') do |env|
-              @created_user = { :id => 3, :fullname => 'George Michael Bluth' }
+            stub.post("/users") do
+              @created_user = { id: 3, fullname: "George Michael Bluth" }
               ok! @created_user
             end
           end
@@ -30,40 +30,40 @@ describe Her::Model::Relation do
       end
 
       it "doesn't fetch the data immediatly" do
-        Foo::User.should_receive(:request).never
-        @users = Foo::User.where(:admin => 1)
+        expect(Foo::User).to receive(:request).never
+        @users = Foo::User.where(admin: 1)
       end
 
       it "fetches the data and passes query parameters" do
-        Foo::User.should_receive(:request).once.and_call_original
-        @users = Foo::User.where(:admin => 1)
-        @users.should respond_to(:length)
-        @users.size.should eql 1
+        expect(Foo::User).to receive(:request).once.and_call_original
+        @users = Foo::User.where(admin: 1)
+        expect(@users).to respond_to(:length)
+        expect(@users.size).to eql 1
       end
 
       it "chains multiple where statements" do
-        @user = Foo::User.where(:foo => 1).where(:bar => 2).first
-        @user.id.should == 2
+        @user = Foo::User.where(foo: 1).where(bar: 2).first
+        expect(@user.id).to eq(2)
       end
 
       it "does not reuse relations" do
-        Foo::User.all.size.should eql 2
-        Foo::User.create(:fullname => 'George Michael Bluth').id.should == 3
-        Foo::User.all.size.should eql 3
+        expect(Foo::User.all.size).to eql 2
+        expect(Foo::User.create(fullname: "George Michael Bluth").id).to eq(3)
+        expect(Foo::User.all.size).to eql 3
       end
     end
 
     context "for parent class" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.adapter :test do |stub|
-            stub.get("/users?page=2") { |env| ok! [{ :id => 1, :fullname => "Tobias Fünke" }, { :id => 2, :fullname => "Lindsay Fünke" }] }
+            stub.get("/users?page=2") { ok! [{ id: 1, fullname: "Tobias Fünke" }, { id: 2, fullname: "Lindsay Fünke" }] }
           end
         end
 
         spawn_model("Foo::Model") do
-          scope :page, lambda { |page| where(:page => page) }
+          scope :page, ->(page) { where(page: page) }
         end
 
         class User < Foo::Model; end
@@ -72,18 +72,18 @@ describe Her::Model::Relation do
 
       it "propagates the scopes through its children" do
         @users = User.page(2)
-        @users.length.should == 2
+        expect(@users.length).to eq(2)
       end
     end
   end
 
   describe :create do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.post("/users") { |env| ok! :id => 1, :fullname => params(env)[:fullname], :email => params(env)[:email] }
+          stub.post("/users") { |env| ok! id: 1, fullname: params(env)[:fullname], email: params(env)[:email] }
         end
       end
 
@@ -92,19 +92,19 @@ describe Her::Model::Relation do
 
     context "with a single where call" do
       it "creates a resource and passes the query parameters" do
-        @user = Foo::User.where(:fullname => "Tobias Fünke", :email => "tobias@bluth.com").create
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
-        @user.email.should == "tobias@bluth.com"
+        @user = Foo::User.where(fullname: "Tobias Fünke", email: "tobias@bluth.com").create
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
+        expect(@user.email).to eq("tobias@bluth.com")
       end
     end
 
     context "with multiple where calls" do
       it "creates a resource and passes the query parameters" do
-        @user = Foo::User.where(:fullname => "Tobias Fünke").create(:email => "tobias@bluth.com")
-        @user.id.should == 1
-        @user.fullname.should == "Tobias Fünke"
-        @user.email.should == "tobias@bluth.com"
+        @user = Foo::User.where(fullname: "Tobias Fünke").create(email: "tobias@bluth.com")
+        expect(@user.id).to eq(1)
+        expect(@user.fullname).to eq("Tobias Fünke")
+        expect(@user.email).to eq("tobias@bluth.com")
       end
     end
   end
@@ -113,114 +113,114 @@ describe Her::Model::Relation do
     before { spawn_model "Foo::User" }
 
     it "handles new resource with build" do
-      @new_user = Foo::User.where(:fullname => "Tobias Fünke").build
-      @new_user.new?.should be_truthy
-      @new_user.fullname.should == "Tobias Fünke"
+      @new_user = Foo::User.where(fullname: "Tobias Fünke").build
+      expect(@new_user.new?).to be_truthy
+      expect(@new_user.fullname).to eq("Tobias Fünke")
     end
   end
 
   describe :scope do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.adapter :test do |stub|
-          stub.get("/users?what=4&where=3") { |env| ok! [{ :id => 3, :fullname => "Maeby Fünke" }] }
-          stub.get("/users?what=2") { |env| ok! [{ :id => 2, :fullname => "Lindsay Fünke" }] }
-          stub.get("/users?where=6") { |env| ok! [{ :id => 4, :fullname => "Tobias Fünke" }] }
+          stub.get("/users?what=4&where=3") { ok! [{ id: 3, fullname: "Maeby Fünke" }] }
+          stub.get("/users?what=2") { ok! [{ id: 2, fullname: "Lindsay Fünke" }] }
+          stub.get("/users?where=6") { ok! [{ id: 4, fullname: "Tobias Fünke" }] }
         end
       end
 
-      spawn_model 'Foo::User' do
-        scope :foo, lambda { |v| where(:what => v) }
-        scope :bar, lambda { |v| where(:where => v) }
-        scope :baz, lambda { bar(6) }
+      spawn_model "Foo::User" do
+        scope :foo, ->(v) { where(what: v) }
+        scope :bar, ->(v) { where(where: v) }
+        scope :baz, -> { bar(6) }
       end
     end
 
     it "passes query parameters" do
       @user = Foo::User.foo(2).first
-      @user.id.should == 2
+      expect(@user.id).to eq(2)
     end
 
     it "passes multiple query parameters" do
       @user = Foo::User.foo(4).bar(3).first
-      @user.id.should == 3
+      expect(@user.id).to eq(3)
     end
 
     it "handles embedded scopes" do
       @user = Foo::User.baz.first
-      @user.id.should == 4
+      expect(@user.id).to eq(4)
     end
   end
 
   describe :default_scope do
     context "for new objects" do
       before do
-        spawn_model 'Foo::User' do
-          default_scope lambda { where(:active => true) }
-          default_scope lambda { where(:admin => true) }
+        spawn_model "Foo::User" do
+          default_scope -> { where(active: true) }
+          default_scope -> { where(admin: true) }
         end
       end
 
       it "should apply the scope to the attributes" do
-        Foo::User.new.should be_active
-        Foo::User.new.should be_admin
+        expect(Foo::User.new).to be_active
+        expect(Foo::User.new).to be_admin
       end
     end
 
     context "for fetched resources" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.post("/users") { |env| ok! :id => 3, :active => (params(env)[:active] == "true" ? true : false) }
+            stub.post("/users") { |env| ok! id: 3, active: (params(env)[:active] == "true" ? true : false) }
           end
         end
 
-        spawn_model 'Foo::User' do
-          default_scope lambda { where(:active => true) }
+        spawn_model "Foo::User" do
+          default_scope -> { where(active: true) }
         end
       end
 
-      it("should apply the scope to the request") { Foo::User.create.should be_active }
+      it("should apply the scope to the request") { expect(Foo::User.create).to be_active }
     end
 
     context "for fetched collections" do
       before do
-        Her::API.setup :url => "https://api.example.com" do |builder|
+        Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.get("/users?active=true") { |env| ok! [{ :id => 3, :active => (params(env)[:active] == "true" ? true : false) }] }
+            stub.get("/users?active=true") { |env| ok! [{ id: 3, active: (params(env)[:active] == "true" ? true : false) }] }
           end
         end
 
-        spawn_model 'Foo::User' do
-          default_scope lambda { where(:active => true) }
+        spawn_model "Foo::User" do
+          default_scope -> { where(active: true) }
         end
       end
 
-      it("should apply the scope to the request") { Foo::User.all.first.should be_active }
+      it("should apply the scope to the request") { expect(Foo::User.all.first).to be_active }
     end
   end
 
   describe :map do
     before do
-      Her::API.setup :url => "https://api.example.com" do |builder|
+      Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.adapter :test do |stub|
-          stub.get("/users") do |env|
-            ok! [{ :id => 1, :fullname => "Tobias Fünke" }, { :id => 2, :fullname => "Lindsay Fünke" }]
+          stub.get("/users") do
+            ok! [{ id: 1, fullname: "Tobias Fünke" }, { id: 2, fullname: "Lindsay Fünke" }]
           end
         end
       end
 
-      spawn_model 'Foo::User'
+      spawn_model "Foo::User"
     end
 
     it "delegates the method to the fetched collection" do
-      Foo::User.all.map(&:fullname).should == ["Tobias Fünke", "Lindsay Fünke"]
+      expect(Foo::User.all.map(&:fullname)).to eq(["Tobias Fünke", "Lindsay Fünke"])
     end
   end
 end
