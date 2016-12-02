@@ -397,8 +397,8 @@ You can use the association methods to build new objects and save them.
 @user.comments.build(body: "Just a draft")
 # => [#<Comment body="Just a draft" user_id=1>]
 
-@user.comments.create(body: "Hello world.")
-# POST "/users/1/comments" with `body=Hello+world.`
+@user.comments.create(body: "Hello world.", user_id: 1)
+# POST "/comments" with `body=Hello+world.&user_id=1`
 # => [#<Comment id=3 body="Hello world." user_id=1>]
 ```
 
