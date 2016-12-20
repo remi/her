@@ -160,7 +160,10 @@ module Her
         #   # Called via DELETE "/users/1"
         def destroy_existing(id, params={})
           request(params.merge(:_method => method_for(:destroy), :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
-            new(parse(parsed_data[:data]).merge(:_destroyed => true))
+            data = parse(parsed_data[:data])
+            metadata = parsed_data[:metadata]
+            response_errors = parsed_data[:errors]
+            new(data.merge(:_destroyed => true, :metadata => metadata, :response_errors => response_errors))
           end
         end
 
