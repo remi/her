@@ -6,7 +6,7 @@ module Her
     attr_reader :connection, :options
 
     # Constants
-    FARADAY_OPTIONS = [:request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class].freeze
+    FARADAY_OPTIONS = [:request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class, :timeout, :open_timeout].freeze
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
     def self.setup(opts={}, &block)
