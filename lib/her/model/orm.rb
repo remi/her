@@ -80,7 +80,7 @@ module Her
             assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             @metadata = parsed_data[:metadata]
             @response_errors = parsed_data[:errors]
-            @destroyed = true
+            @destroyed = @response_errors.empty?
           end
         end
         self
@@ -163,7 +163,7 @@ module Her
             data = parse(parsed_data[:data])
             metadata = parsed_data[:metadata]
             response_errors = parsed_data[:errors]
-            new(data.merge(:_destroyed => true, :metadata => metadata, :response_errors => response_errors))
+            new(data.merge(:_destroyed => response_errors.empty?, :metadata => metadata, :response_errors => response_errors))
           end
         end
 

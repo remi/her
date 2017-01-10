@@ -400,13 +400,15 @@ describe Her::Model::ORM do
   end
 
   context "deleting resources" do
+    let(:errors) { [] }
+    let(:active) { false }
     before do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", active: true }.to_json] }
-          stub.delete("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
+          stub.delete("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", active: active, errors: errors }.to_json] }
         end
       end
 
@@ -424,6 +426,26 @@ describe Her::Model::ORM do
       @user.destroy
       expect(@user.active).to be_falsey
       expect(@user).to be_destroyed
+    end
+
+    context "with response_errors" do
+      let(:errors) { ["Failed to delete"] }
+      let(:active) { true }
+
+      it "set user.destroyed to false if errors are present through the .destroy class method" do
+        @user = Foo::User.destroy_existing(1)
+        expect(@user.response_errors).to eq(["Failed to delete"])
+        expect(@user).not_to be_destroyed
+        expect(@user.active).to be_truthy
+      end
+
+      it "set user.destroyed to false if errors are present through #destroy on an existing resource" do
+        @user = Foo::User.find(1)
+        @user.destroy
+        expect(@user.response_errors).to eq(["Failed to delete"])
+        expect(@user).not_to be_destroyed
+        expect(@user.active).to be_truthy
+      end
     end
 
     context "with params" do
