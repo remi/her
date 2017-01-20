@@ -173,6 +173,24 @@ end
 
 Now, each HTTP request made by Her will have the `X-API-Token` header.
 
+### Basic Http Authentication
+Her can use basic http auth by adding a line to your initializer
+
+```ruby
+# config/initializers/her.rb
+Her::API.setup url: "https://api.example.com" do |c|
+  # Request
+  c.use Faraday::Request::BasicAuthentication, 'myusername', 'mypassword'
+  c.use Faraday::Request::UrlEncoded
+  
+  # Response
+  c.use Her::Middleware::DefaultParseJSON
+
+  # Adapter
+  c.use Faraday::Adapter::NetHttp
+end
+```
+
 ### OAuth
 
 Using the `faraday_middleware` and `simple_oauth` gems, it’s fairly easy to use OAuth authentication with Her.
