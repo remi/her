@@ -17,7 +17,7 @@ module Her
           @type = name.demodulize.tableize
           
           def self.parse(data)
-            data.fetch(:attributes).merge(data.slice(:id))
+            data.fetch(:attributes, {}).merge(data.slice(:id))
           end
 
           def self.to_params(attributes, changes={})
