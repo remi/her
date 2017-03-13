@@ -56,14 +56,23 @@ module Her
         # @private
         # TODO: Handle has_one
         def embeded_params(attributes)
-          associations[:has_many].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
-            params = attributes[association[:data_key]].map(&:to_params)
-            next if params.empty?
-            if association[:class_name].constantize.include_root_in_json?
-              root = association[:class_name].constantize.root_element
-              hash[association[:data_key]] = params.map { |n| n[root] }
+          (associations[:has_many] + associations[:has_one]).select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
+            # avoid hash is nil
+            hash ||= {}
+            params = {}
+            if attributes[association[:data_key]].respond_to?(:map)
+              params = attributes[association[:data_key]].map(&:to_params)
             else
-              hash[association[:data_key]] = params
+              params = attributes[association[:data_key]].to_params
+            end
+            # avoid nil in inject when params.empty?
+            if params.present?
+              if association[:class_name].constantize.include_root_in_json?
+                root = association[:class_name].constantize.root_element
+                hash[association[:data_key]] = params.map { |n| n[root] }
+              else
+                hash[association[:data_key]] = params
+              end
             end
             hash
           end
