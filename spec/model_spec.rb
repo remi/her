@@ -35,6 +35,10 @@ describe Her::Model do
       expect(subject.comments.first.body).to eq(serialized_comments.first.body)
     end
   end
+  
+  it 'should be serialized without an error' do 
+    expect { Marshal.dump(subject.comments) }.not_to raise_error 
+  end 
 
   describe :[] do
     it { is_expected.not_to have_key(:unknown_method_for_a_user) }
