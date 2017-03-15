@@ -21,7 +21,8 @@ module Her
         def parse(data)
           if parse_root_in_json? && root_element_included?(data)
             if json_api_format?
-              data.fetch(parsed_root_element).first
+
+              parse_json_api_format(data, parsed_root_element)
             else
               data.fetch(parsed_root_element) { data }
             end
@@ -49,6 +50,16 @@ module Her
             end
           else
             filtered_attributes
+          end
+        end
+
+        # @private
+        def parse_json_api_format(data, root_element)
+          element  = data.fetch(root_element)
+          if element.is_a?(Array)
+            element.first
+          else
+            element
           end
         end
 

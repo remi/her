@@ -188,7 +188,8 @@ module Her
         # @private
         def new_from_parsed_data(parsed_data)
           parsed_data = parsed_data.with_indifferent_access
-          new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+          parsed = parse(parsed_data[:data])
+          new(parsed.merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
         end
 
         # Define attribute method matchers to automatically define them using ActiveModel's define_attribute_methods.
