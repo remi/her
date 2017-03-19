@@ -10,6 +10,7 @@ describe Her::Model::Relation do
           builder.adapter :test do |stub|
             stub.get("/users?foo=1&bar=2") { ok! [{ id: 2, fullname: "Tobias Fünke" }] }
             stub.get("/users?admin=1") { ok! [{ id: 1, fullname: "Tobias Fünke" }] }
+            stub.get("/users?id=3&foo=2") { ok! [{ id: 3, fullname: "Tobias Fünke" }] }
 
             stub.get("/users") do
               ok! [
@@ -37,6 +38,13 @@ describe Her::Model::Relation do
       it "fetches the data and passes query parameters" do
         expect(Foo::User).to receive(:request).once.and_call_original
         @users = Foo::User.where(admin: 1)
+        expect(@users).to respond_to(:length)
+        expect(@users.size).to eql 1
+      end
+
+      it "fetches the data by parameters including primary_key" do
+        expect(Foo::User).to receive(:request).once.and_call_original
+        @users = Foo::User.where(id: 3, foo: 2)
         expect(@users).to respond_to(:length)
         expect(@users.size).to eql 1
       end
