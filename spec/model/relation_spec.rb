@@ -10,7 +10,7 @@ describe Her::Model::Relation do
           builder.adapter :test do |stub|
             stub.get("/users?foo=1&bar=2") { ok! [{ id: 2, fullname: "Tobias Fünke" }] }
             stub.get("/users?admin=1") { ok! [{ id: 1, fullname: "Tobias Fünke" }] }
-            stub.get("/users?id=3&foo=2") { ok! [{ id: 3, fullname: "Tobias Fünke" }] }
+            stub.get("/users/3?id=3&foo=2") { ok!(id: 3, fullname: "Tobias Fünke") }
 
             stub.get("/users") do
               ok! [
