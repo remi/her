@@ -15,7 +15,7 @@ module Her
           }.merge(opts)
           klass.associations[:has_many] << opts
 
-          klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
+          klass.overridable_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{name}
               cached_name = :"@_her_association_#{name}"
 
