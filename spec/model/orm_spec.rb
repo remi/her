@@ -107,12 +107,12 @@ describe Her::Model::ORM do
 
     it "handles metadata on a destroyed resource" do
       @user = User.destroy_existing(1)
-      @user.metadata[:foo].should == "bar"
+      expect(@user.metadata[:foo]).to eq("bar")
     end
 
     it "handles error data on a destroyed resource" do
       @user = User.destroy_existing(1)
-      @user.response_errors.should == ["Yes", "Sir"]
+      expect(@user.response_errors).to eq(%w(Yes Sir))
     end
   end
 
