@@ -275,6 +275,14 @@ describe Her::Model::ORM do
       expect(@users.where(age: 42)).to be_all { |u| u.age == 42 }
       expect(@users.where(age: 40)).to be_all { |u| u.age == 40 }
     end
+
+    it "handles reloading a resource" do
+      @user = User.find(1)
+      @user.age = "Oops"
+      @user.reload
+      expect(@user.age).to eq 42
+      expect(@user).to be_persisted
+    end
   end
 
   context "building resources" do
