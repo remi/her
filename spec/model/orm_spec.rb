@@ -379,8 +379,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
-          stub.put("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke" }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", admin: false }.to_json] }
+          stub.put("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", admin: true }.to_json] }
         end
       end
 
@@ -404,6 +404,22 @@ describe Her::Model::ORM do
       @user.fullname = "Lindsay Fünke"
       @user.save
       expect(@user.fullname).to eq("Lindsay Fünke")
+    end
+
+    it "handles resource update through #toggle without saving it" do
+      @user = Foo::User.find(1)
+      expect(@user.admin).to be_falsey
+      expect(@user).to_not receive(:save)
+      @user.toggle(:admin)
+      expect(@user.admin).to be_truthy
+    end
+
+    it "handles resource update through #toggle!" do
+      @user = Foo::User.find(1)
+      expect(@user.admin).to be_falsey
+      expect(@user).to receive(:save).and_return(true)
+      @user.toggle!(:admin)
+      expect(@user.admin).to be_truthy
     end
   end
 
