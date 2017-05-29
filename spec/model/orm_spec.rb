@@ -381,10 +381,13 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", admin: false }.to_json] }
           stub.put("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", admin: true }.to_json] }
+          stub.get("/pages/1") { [200, {}, { id: 1, views: 1, unique_visitors: 4 }.to_json] }
+          stub.put("/pages/1") { [200, {}, { id: 1, views: 2, unique_visitors: 3 }.to_json] }
         end
       end
 
       spawn_model "Foo::User"
+      spawn_model "Foo::Page"
     end
 
     it "handle resource data update without saving it" do
@@ -420,6 +423,42 @@ describe Her::Model::ORM do
       expect(@user).to receive(:save).and_return(true)
       @user.toggle!(:admin)
       expect(@user.admin).to be_truthy
+    end
+
+    it "handles resource update through #increment without saving it" do
+      page = Foo::Page.find(1)
+      expect(page.views).to be 1
+      expect(page).to_not receive(:save)
+      page.increment(:views)
+      expect(page.views).to be 2
+      page.increment(:views, 2)
+      expect(page.views).to be 4
+    end
+
+    it "handles resource update through #increment!" do
+      page = Foo::Page.find(1)
+      expect(page.views).to be 1
+      expect(page).to receive(:save).and_return(true)
+      page.increment!(:views)
+      expect(page.views).to be 2
+    end
+
+    it "handles resource update through #decrement without saving it" do
+      page = Foo::Page.find(1)
+      expect(page.unique_visitors).to be 4
+      expect(page).to_not receive(:save)
+      page.decrement(:unique_visitors)
+      expect(page.unique_visitors).to be 3
+      page.decrement(:unique_visitors, 2)
+      expect(page.unique_visitors).to be 1
+    end
+
+    it "handles resource update through #decrement!" do
+      page = Foo::Page.find(1)
+      expect(page.unique_visitors).to be 4
+      expect(page).to receive(:save).and_return(true)
+      page.decrement!(:unique_visitors)
+      expect(page.unique_visitors).to be 3
     end
   end
 
