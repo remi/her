@@ -15,7 +15,7 @@ describe Her::JsonApi::Model do
                 type: "users",
                 attributes: {
                   name: "Roger Federer",
-                  "first-name": "Roger"
+                  :"first-name" => "Roger"
                 }
               }
 
@@ -34,7 +34,7 @@ describe Her::JsonApi::Model do
                   type: "users",
                   attributes: {
                     name: "Roger Federer",
-                    "first-name": "Roger"
+                    :"first-name" => "Roger"
                   }
                 },
                 {
@@ -42,7 +42,7 @@ describe Her::JsonApi::Model do
                   type: "users",
                   attributes: {
                     name: "Kei Nishikori",
-                    "first-name": "Kei"
+                    :"first-name" => "Kei"
                   }
                 }
               ]
@@ -55,7 +55,7 @@ describe Her::JsonApi::Model do
           type: "users",
           attributes: {
             name: "Jeremy Lin",
-            "first-name": "Jeremy"
+            :"first-name" => "Jeremy"
           }
         }) do
           [
@@ -67,7 +67,7 @@ describe Her::JsonApi::Model do
                 type: "users",
                 attributes: {
                   name: "Jeremy Lin",
-                  "first-name": "Jeremy"
+                  :"first-name" => "Jeremy"
                 }
               }
 
@@ -81,7 +81,7 @@ describe Her::JsonApi::Model do
           id: 1,
           attributes: {
             name: "Fed GOAT",
-            "first-name": "Fed"
+            :"first-name" => "Fed"
           }
         }) do
           [
@@ -93,7 +93,7 @@ describe Her::JsonApi::Model do
                 type: "users",
                 attributes: {
                   name: "Fed GOAT",
-                  "first-name": "Fed"
+                  :"first-name" => "Fed"
                 }
               }
 
