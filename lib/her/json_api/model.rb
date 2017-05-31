@@ -18,13 +18,13 @@ module Her
           
           def self.parse(data)
             if key_transform?
-              data.fetch(:attributes).merge(data.slice(:id)).transform_keys do |key|
+              data.fetch(:attributes).merge(data.slice(:id)).inject({}) do |hash, (key, value)|
                 case key_transform
                 when :dash
-                  key.to_s.tr("-".freeze, "_".freeze).to_sym
-                else
-                  key
+                  key = key.to_s.tr("-".freeze, "_".freeze).to_sym
                 end
+                hash[key] = value
+                hash
               end
             else
               data.fetch(:attributes).merge(data.slice(:id))
@@ -42,13 +42,13 @@ module Her
                 end
 
                 if key_transform?
-                  filtered_attributes.transform_keys! do |key|
+                  filtered_attributes.keys.each do |key|
+                    value = filtered_attributes.delete(key)
                     case key_transform
                     when :dash
-                      key.to_s.tr("_".freeze, "-".freeze).to_sym
-                    else
-                      key
+                      key = key.to_s.tr("_".freeze, "-".freeze).to_sym
                     end
+                    filtered_attributes[key] = value
                   end
                 end
               }
