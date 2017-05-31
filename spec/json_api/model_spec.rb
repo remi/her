@@ -108,7 +108,7 @@ describe Her::JsonApi::Model do
     end
 
     spawn_model("Foo::User", type: Her::JsonApi::Model) do
-      key_transform :underscore
+      key_transform :dash
     end
   end
 

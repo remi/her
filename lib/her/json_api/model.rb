@@ -20,7 +20,7 @@ module Her
             if key_transform?
               data.fetch(:attributes).merge(data.slice(:id)).transform_keys do |key|
                 case key_transform
-                when :underscore
+                when :dash
                   key.to_s.tr("-".freeze, "_".freeze).to_sym
                 else
                   key
@@ -44,7 +44,7 @@ module Her
                 if key_transform?
                   filtered_attributes.transform_keys! do |key|
                     case key_transform
-                    when :underscore
+                    when :dash
                       key.to_s.tr("_".freeze, "-".freeze).to_sym
                     else
                       key
