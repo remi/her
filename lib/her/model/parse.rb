@@ -66,7 +66,7 @@ module Her
               hash[association[:data_key]] = params
             end
             hash
-          end
+          end || {}
         end
 
         # Return or change the value of `include_root_in_json`
