@@ -86,6 +86,23 @@ module Her
         self
       end
 
+      # Refetches the resource
+      #
+      # This method finds the resource by its primary key (which could be
+      # assigned manually) and modifies the object in-place.
+      #
+      # @example
+      #   user = User.find(1)
+      #   # => #<User(users/1) id=1 name="Tobias Fünke">
+      #   user.name = "Oops"
+      #   user.reload # Fetched again via GET "/users/1"
+      #   # => #<User(users/1) id=1 name="Tobias Fünke">
+      def reload(options = nil)
+        fresh_object = self.class.find(id)
+        assign_attributes(fresh_object.attributes)
+        self
+      end
+
       module ClassMethods
         # Create a new chainable scope
         #
