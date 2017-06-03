@@ -103,6 +103,27 @@ module Her
         self
       end
 
+      # Assigns to +attribute+ the boolean opposite of <tt>attribute?</tt>. So
+      # if the predicate returns +true+ the attribute will become +false+. This
+      # method toggles directly the underlying value without calling any setter.
+      # Returns +self+.
+      #
+      # @example
+      #   user = User.first
+      #   user.admin? # => false
+      #   user.toggle(:admin)
+      #   user.admin? # => true
+      def toggle(attribute)
+        attributes[attribute] = !public_send("#{attribute}?")
+        self
+      end
+
+      # Wrapper around #toggle that saves the resource. Saving is subjected to
+      # validation checks. Returns +true+ if the record could be saved.
+      def toggle!(attribute)
+        toggle(attribute) && save
+      end
+
       module ClassMethods
         # Create a new chainable scope
         #
