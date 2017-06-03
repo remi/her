@@ -212,6 +212,8 @@ describe Her::Model::ORM do
           stub.get("/users?age=42&foo=bar") { [200, {}, [{ id: 3, age: 42 }].to_json] }
           stub.get("/users?age=42") { [200, {}, [{ id: 1, age: 42 }].to_json] }
           stub.get("/users?age=40") { [200, {}, [{ id: 1, age: 40 }].to_json] }
+          stub.get("/users?name=baz") { [200, {}, [].to_json] }
+          stub.post("/users") { [200, {}, { id: 5, name: "baz" }.to_json] }
         end
       end
 
@@ -262,6 +264,24 @@ describe Her::Model::ORM do
       expect(@users.length).to eq(2)
       expect(@users[0].id).to eq(1)
       expect(@users[1].id).to eq(2)
+    end
+
+    it "handles finding by attributes" do
+      @user = User.find_by(age: 42)
+      expect(@user).to be_a(User)
+      expect(@user.id).to eq(1)
+    end
+
+    it "handles find or create by attributes" do
+      @user = User.find_or_create_by(name: "baz")
+      expect(@user).to be_a(User)
+      expect(@user.id).to eq(5)
+    end
+
+    it "handles find or initialize by attributes" do
+      @user = User.find_or_initialize_by(name: "baz")
+      expect(@user).to be_a(User)
+      expect(@user).to_not be_persisted
     end
 
     it "handles finding with other parameters" do
