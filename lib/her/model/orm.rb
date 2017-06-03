@@ -124,6 +124,37 @@ module Her
         toggle(attribute) && save
       end
 
+      # Initializes +attribute+ to zero if +nil+ and adds the value passed as
+      # +by+ (default is 1). The increment is performed directly on the
+      # underlying attribute, no setter is invoked. Only makes sense for
+      # number-based attributes. Returns +self+.
+      def increment(attribute, by = 1)
+        attributes[attribute] ||= 0
+        attributes[attribute] += by
+        self
+      end
+
+      # Wrapper around #increment that saves the resource. Saving is subjected
+      # to validation checks. Returns +self+.
+      def increment!(attribute, by = 1)
+        increment(attribute, by) && save
+        self
+      end
+
+      # Initializes +attribute+ to zero if +nil+ and substracts the value passed as
+      # +by+ (default is 1). The decrement is performed directly on the
+      # underlying attribute, no setter is invoked. Only makes sense for
+      # number-based attributes. Returns +self+.
+      def decrement(attribute, by = 1)
+        increment(attribute, -by)
+      end
+
+      # Wrapper around #decrement that saves the resource. Saving is subjected
+      # to validation checks. Returns +self+.
+      def decrement!(attribute, by = 1)
+        increment!(attribute, -by)
+      end
+
       module ClassMethods
         # Create a new chainable scope
         #
