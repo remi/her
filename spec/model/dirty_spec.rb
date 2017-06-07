@@ -49,7 +49,7 @@ describe "Her::Model and ActiveModel::Dirty" do
         it "tracks previous changes" do
           user.fullname = "Tobias Fünke"
           user.save
-          expect(user.previous_changes).to eq("fullname" => "Lindsay Fünke")
+          expect(user.previous_changes).to eq("fullname" => ["Lindsay Fünke", "Tobias Fünke"])
         end
 
         it "tracks dirty attribute for mass assign for dynamic created attributes" do
