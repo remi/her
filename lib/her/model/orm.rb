@@ -49,7 +49,7 @@ module Her
 
               return false if !response.success? || @response_errors.any?
               if self.changed_attributes.present?
-                @previously_changed = self.changed_attributes.clone
+                @previously_changed = self.changes.clone
                 self.changed_attributes.clear
               end
             end
