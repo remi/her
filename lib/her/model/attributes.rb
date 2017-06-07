@@ -138,10 +138,11 @@ module Her
       end
 
       module ClassMethods
+
         # Initialize a collection of resources
         #
         # @private
-        def initialize_collection(klass, parsed_data={})
+        def instantiate_collection(klass, parsed_data={})
           collection_data = klass.extract_array(parsed_data).map do |item_data|
             if item_data.kind_of?(klass)
               resource = item_data
@@ -159,7 +160,7 @@ module Her
         # @param [Array] parsed_data
         # @private
         def new_collection(parsed_data)
-          initialize_collection(self, parsed_data)
+          instantiate_collection(self, parsed_data)
         end
 
         # Initialize a new object with the "raw" parsed_data from the parsing middleware

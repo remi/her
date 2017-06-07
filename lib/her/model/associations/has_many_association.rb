@@ -31,7 +31,7 @@ module Her
           return {} unless data[data_key]
 
           klass = klass.her_nearby_class(association[:class_name])
-          { association[:name] => klass.initialize_collection(klass, :data => data[data_key]) }
+          { association[:name] => klass.instantiate_collection(klass, :data => data[data_key]) }
         end
 
         # Initialize a new object with a foreign key to the parent
@@ -92,7 +92,7 @@ module Her
         # @private
         def assign_nested_attributes(attributes)
           data = attributes.is_a?(Hash) ? attributes.values : attributes
-          @parent.attributes[@name] = @klass.initialize_collection(@klass, :data => data)
+          @parent.attributes[@name] = @klass.instantiate_collection(@klass, :data => data)
         end
       end
     end
