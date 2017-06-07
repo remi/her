@@ -21,10 +21,10 @@ describe Her::API do
       end
 
       context "when setting custom options" do
-        before { subject.setup foo: { bar: "baz" }, url: "https://api.example.com" }
+        before { subject.setup foo: { bar: "baz" }, url: "https://api.example.com", timeout: 10, open_timeout: 2 }
 
         describe "#options" do
-          it { expect(subject.options).to eq(foo: { bar: "baz" }, url: "https://api.example.com") }
+          it { expect(subject.options).to eq(foo: { bar: "baz" }, url: "https://api.example.com", timeout: 10, open_timeout: 2) }
         end
       end
     end
