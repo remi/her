@@ -38,6 +38,22 @@ module Her
       end
       alias all where
 
+      # Return a JSON serialized string representing the fetched collection of models
+      #
+      # @see Model::Serialization#to_json
+      #   for list of allowable options
+      def to_json(options = {})
+        as_json(options).to_json
+      end
+
+      # Map all of the fetched models as Hashes preparing for JSON serialization
+      #
+      # @see Model::Serialization#to_json
+      #   for list of allowable options
+      def as_json(options = {})
+        fetch.map { |model| model.as_json(options) }
+      end
+
       # Bubble all methods to the fetched collection
       #
       # @private

@@ -7,6 +7,7 @@ require "her/model/orm"
 require "her/model/parse"
 require "her/model/associations"
 require "her/model/introspection"
+require "her/model/serialization"
 require "her/model/paths"
 require "her/model/nested_attributes"
 require "active_model"
@@ -33,6 +34,7 @@ module Her
     include Her::Model::HTTP
     include Her::Model::Parse
     include Her::Model::Introspection
+    include Her::Model::Serialization
     include Her::Model::Paths
     include Her::Model::Associations
     include Her::Model::NestedAttributes
