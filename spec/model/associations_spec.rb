@@ -223,6 +223,10 @@ describe Her::Model::Associations do
       expect(@user_without_included_data.comments.first.object_id).not_to eq(@user_without_included_data.comments.where(foo_id: 1).first.object_id)
     end
 
+    it "fetches data again after being reloaded" do
+      expect { @user_without_included_data.comments.reload }.to change { @user_without_included_data.comments.first.object_id }
+    end
+
     it "maps an array of included data through has_one" do
       expect(@user_with_included_data.role).to be_a(Foo::Role)
       expect(@user_with_included_data.role.object_id).to eq(@user_with_included_data.role.object_id)
