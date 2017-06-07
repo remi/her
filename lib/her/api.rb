@@ -73,7 +73,7 @@ module Her
       @options = opts
 
       faraday_options = @options.reject { |key, value| !FARADAY_OPTIONS.include?(key.to_sym) }
-      @connection = Faraday.new(faraday_options) do |connection|
+      @connection = Faraday.new(faraday_options.delete(:url), faraday_options) do |connection|
         yield connection if block_given?
       end
       self
