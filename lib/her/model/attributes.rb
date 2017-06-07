@@ -30,29 +30,6 @@ module Her
         run_callbacks :initialize
       end
 
-      # Use setter methods of model for each key / value pair in params
-      # Return key / value pairs for which no setter method was defined on the model
-      #
-      # @private
-      def self.use_setter_methods(model, params)
-        params ||= {}
-
-        reserved_keys = [:id, model.class.primary_key] + model.class.association_keys
-        model.class.attributes *params.keys.reject { |k| reserved_keys.include?(k) || reserved_keys.map(&:to_s).include?(k) }
-
-        setter_method_names = model.class.setter_method_names
-        params.inject({}) do |memo, (key, value)|
-          setter_method = key.to_s + '='
-          if setter_method_names.include?(setter_method)
-            model.send(setter_method, value)
-          else
-            key = key.to_sym if key.is_a?(String)
-            memo[key] = value
-          end
-          memo
-        end
-      end
-
       # Handles missing methods
       #
       # @private
@@ -89,7 +66,7 @@ module Her
       def assign_attributes(new_attributes)
         @attributes ||= attributes
         # Use setter methods first
-        unset_attributes = Her::Model::Attributes.use_setter_methods(self, new_attributes)
+        unset_attributes = self.class.use_setter_methods(self, new_attributes)
 
         # Then translate attributes of associations into association instances
         parsed_attributes = self.class.parse_associations(unset_attributes)
@@ -191,6 +168,29 @@ module Her
         def new_from_parsed_data(parsed_data)
           parsed_data = parsed_data.with_indifferent_access
           new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+        end
+
+        # Use setter methods of model for each key / value pair in params
+        # Return key / value pairs for which no setter method was defined on the model
+        #
+        # @private
+        def use_setter_methods(model, params)
+          params ||= {}
+
+          reserved_keys = [:id, model.class.primary_key] + model.class.association_keys
+          model.class.attributes *params.keys.reject { |k| reserved_keys.include?(k) || reserved_keys.map(&:to_s).include?(k) }
+
+          setter_method_names = model.class.setter_method_names
+          params.inject({}) do |memo, (key, value)|
+            setter_method = key.to_s + '='
+            if setter_method_names.include?(setter_method)
+              model.send(setter_method, value)
+            else
+              key = key.to_sym if key.is_a?(String)
+              memo[key] = value
+            end
+            memo
+          end
         end
 
         # Define attribute method matchers to automatically define them using ActiveModel's define_attribute_methods.
