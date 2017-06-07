@@ -137,6 +137,28 @@ module Her
           end
         end
 
+        # Transform attributes keys during (de)serialization.
+        # This allow the transformation of any underscore contained in ruby symbols into dash to fit JSON API format.
+        #
+        # @param [Symbol] option The option configuring how keys are modified (`:dash` will replace `example_key` with `example-key` during serialization)
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     key_transform :dash
+        #     user = User.find(1)
+        #     user.full_name # Get the value of `full-name` key
+        #   end
+        #
+        def key_transform(value = nil)
+          @_her_key_transform = value || @_her_key_transform
+        end
+
+        # @private
+        def key_transform?
+          @_her_key_transform || (superclass.respond_to?(:key_transform?) && superclass.key_transform?)
+        end
+
         # @private
         def root_element_included?(data)
           data.keys.to_s.include? @_her_root_element.to_s

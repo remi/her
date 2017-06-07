@@ -14,7 +14,8 @@ describe Her::JsonApi::Model do
                 id:    1,
                 type: "users",
                 attributes: {
-                  name: "Roger Federer"
+                  name: "Roger Federer",
+                  :"first-name" => "Roger"
                 }
               }
 
@@ -32,14 +33,16 @@ describe Her::JsonApi::Model do
                   id:    1,
                   type: "users",
                   attributes: {
-                    name: "Roger Federer"
+                    name: "Roger Federer",
+                    :"first-name" => "Roger"
                   }
                 },
                 {
                   id:    2,
                   type: "users",
                   attributes: {
-                    name: "Kei Nishikori"
+                    name: "Kei Nishikori",
+                    :"first-name" => "Kei"
                   }
                 }
               ]
@@ -51,7 +54,8 @@ describe Her::JsonApi::Model do
         {
           type: "users",
           attributes: {
-            name: "Jeremy Lin"
+            name: "Jeremy Lin",
+            :"first-name" => "Jeremy"
           }
         }) do
           [
@@ -62,7 +66,8 @@ describe Her::JsonApi::Model do
                 id:    3,
                 type: "users",
                 attributes: {
-                  name: "Jeremy Lin"
+                  name: "Jeremy Lin",
+                  :"first-name" => "Jeremy"
                 }
               }
 
@@ -75,7 +80,8 @@ describe Her::JsonApi::Model do
           type: "users",
           id: 1,
           attributes: {
-            name: "Fed GOAT"
+            name: "Fed GOAT",
+            :"first-name" => "Fed"
           }
         }) do
           [
@@ -86,7 +92,8 @@ describe Her::JsonApi::Model do
                 id:    1,
                 type: "users",
                 attributes: {
-                  name: "Fed GOAT"
+                  name: "Fed GOAT",
+                  :"first-name" => "Fed"
                 }
               }
 
@@ -100,7 +107,9 @@ describe Her::JsonApi::Model do
       end
     end
 
-    spawn_model("Foo::User", type: Her::JsonApi::Model)
+    spawn_model("Foo::User", type: Her::JsonApi::Model) do
+      key_transform :dash
+    end
   end
 
   it "allows configuration of type" do
@@ -115,7 +124,8 @@ describe Her::JsonApi::Model do
     user = Foo::User.find(1)
     expect(user.attributes).to eql(
       "id" => 1,
-      "name" => "Roger Federer"
+      "name" => "Roger Federer",
+      "first_name" => "Roger"
     )
   end
 
@@ -125,32 +135,37 @@ describe Her::JsonApi::Model do
       [
         {
           "id" => 1,
-          "name" => "Roger Federer"
+          "name" => "Roger Federer",
+          "first_name" => "Roger"
         },
         {
-          "id" => 2,
-          "name" => "Kei Nishikori"
+          id: 2,
+          name: "Kei Nishikori",
+          "first_name" => "Kei"
         }
       ]
     )
   end
 
   it "creates a Foo::User" do
-    user = Foo::User.new(name: "Jeremy Lin")
+    user = Foo::User.new(name: "Jeremy Lin", first_name: "Jeremy")
     user.save
     expect(user.attributes).to eql(
       "id" => 3,
-      "name" => "Jeremy Lin"
+      "name" => "Jeremy Lin",
+      "first_name" => "Jeremy"
     )
   end
 
   it "updates a Foo::User" do
     user = Foo::User.find(1)
     user.name = "Fed GOAT"
+    user.first_name = "Fed"
     user.save
     expect(user.attributes).to eql(
       "id" => 1,
-      "name" => "Fed GOAT"
+      "name" => "Fed GOAT",
+      "first_name" => "Fed"
     )
   end
 
