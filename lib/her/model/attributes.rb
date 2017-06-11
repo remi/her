@@ -25,6 +25,8 @@ module Her
 
         attributes = self.class.default_scope.apply_to(attributes)
         assign_attributes(attributes)
+
+        yield self if block_given?
         run_callbacks :initialize
       end
 
