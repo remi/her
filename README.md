@@ -1,4 +1,5 @@
 # Maintenance Update 29th Sept 2016
+
 Hi folks, [@edtjones](https://github.com/edtjones) here. Rémi has handed me the keys to Her and [@foxpaul](https://github.com/foxpaul) and I will be trying to do the library justice with the help of the community. There's loads to do; we'll get in touch with everyone who's raised a PR as soon as possible and figure out a plan of action.
 
 # Rails 5 support
@@ -15,6 +16,7 @@ If you need Rails 5 support, version 0.8.2 is for you!
   <a href="https://codeclimate.com/github/remiprev/her"><img src="http://img.shields.io/codeclimate/github/remiprev/her.svg" /></a>
   <a href='https://gemnasium.com/remiprev/her'><img src="http://img.shields.io/gemnasium/remiprev/her.svg" /></a>
   <a href="https://travis-ci.org/remiprev/her"><img src="http://img.shields.io/travis/remiprev/her/master.svg" /></a>
+  <a href="https://gitter.im/her-orm/Lobby"><img src="https://badges.gitter.im/her-orm/Lobby.png" alt="Gitter chat" title="" data-pin-nopin="true"></a>
 </p>
 
 ---
@@ -182,7 +184,7 @@ Her::API.setup url: "https://api.example.com" do |c|
   # Request
   c.use Faraday::Request::BasicAuthentication, 'myusername', 'mypassword'
   c.use Faraday::Request::UrlEncoded
-  
+
   # Response
   c.use Her::Middleware::DefaultParseJSON
 
@@ -611,7 +613,7 @@ users = Users.all
 #### JSON API support
 
 To consume a JSON API 1.0 compliant service, it must return data in accordance with the [JSON API spec](http://jsonapi.org/). The general format
-of the data is as follows: 
+of the data is as follows:
 
 ```json
 { "data": {
