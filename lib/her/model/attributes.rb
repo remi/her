@@ -139,20 +139,29 @@ module Her
 
       module ClassMethods
 
+        # Initialize a single resource
+        #
+        # @private
+        def instantiate_record(klass, parsed_data)
+          if record = parsed_data[:data] and record.kind_of?(klass)
+            record
+          else
+            attributes = klass.parse(record).merge(_metadata: parsed_data[:metadata],
+                                                   _errors: parsed_data[:errors])
+            klass.new(attributes).tap do |record|
+              record.run_callbacks :find
+            end
+          end
+        end
+
         # Initialize a collection of resources
         #
         # @private
-        def instantiate_collection(klass, parsed_data={})
-          collection_data = klass.extract_array(parsed_data).map do |item_data|
-            if item_data.kind_of?(klass)
-              resource = item_data
-            else
-              resource = klass.new(klass.parse(item_data))
-              resource.run_callbacks :find
-            end
-            resource
+        def instantiate_collection(klass, parsed_data = {})
+          items = klass.extract_array(parsed_data).map do |item|
+            instantiate_record(klass, data: item)
           end
-          Her::Collection.new(collection_data, parsed_data[:metadata], parsed_data[:errors])
+          Her::Collection.new(items, parsed_data[:metadata], parsed_data[:errors])
         end
 
         # Initialize a collection of resources with raw data from an HTTP request
@@ -167,8 +176,7 @@ module Her
         #
         # @private
         def new_from_parsed_data(parsed_data)
-          parsed_data = parsed_data.with_indifferent_access
-          new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+          instantiate_record(self, parsed_data)
         end
 
         # Use setter methods of model for each key / value pair in params

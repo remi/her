@@ -26,11 +26,7 @@ module Her
           return {} unless data[data_key]
 
           klass = klass.her_nearby_class(association[:class_name])
-          if data[data_key].kind_of?(klass)
-            { association[:name] => data[data_key] }
-          else
-            { association[:name] => klass.new(klass.parse(data[data_key])) }
-          end
+          { association[:name] => klass.instantiate_record(klass, data: data[data_key]) }
         end
 
         # @private
@@ -104,7 +100,7 @@ module Her
           @klass.get_resource(path, @params)
         end
 
-        # Refetches the association and puts the proxy back in its initial state, 
+        # Refetches the association and puts the proxy back in its initial state,
         # which is unloaded. Cached associations are cleared.
         #
         # @example
