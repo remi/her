@@ -75,7 +75,7 @@ describe Her::Model::Relation do
         end
 
         class User < Foo::Model; end
-        @spawned_models << :User
+        @spawned_classes << :User
       end
 
       it "propagates the scopes through its children" do

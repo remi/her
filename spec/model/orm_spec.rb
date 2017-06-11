@@ -580,7 +580,7 @@ describe Her::Model::ORM do
       context "for children class" do
         before do
           class User < Foo::User; end
-          @spawned_models << :User
+          @spawned_classes << :User
         end
 
         it "uses the custom method (PUT) instead of default method (POST)" do
@@ -613,4 +613,47 @@ describe Her::Model::ORM do
       end
     end
   end
+
+  context 'without custom relation' do
+    before do
+      spawn_model 'User'
+      #Her::Model::Relation.any_instance.stub(:fetch).and_return(:correct_relation_called)
+    end
+
+    describe '.relation_class' do
+      it 'should default to Her::Model::Relation' do
+        User.relation_class.should == Her::Model::Relation
+      end
+    end
+
+    describe 'scope and relation calls' do
+      it 'should use the default relation' do
+        User.scoped.class.should == Her::Model::Relation
+      end
+    end
+
+  end
+
+  context 'with custom relation' do
+    before do
+      spawn_relation 'CustomRelation'
+      spawn_model 'User' do
+        use_relation CustomRelation
+      end
+    end
+
+    describe '.relation_class' do
+      it 'should be the custom relation' do
+        User.relation_class.should == CustomRelation
+      end
+    end
+
+    describe 'scope and relation calls' do
+      it 'should use the custom relation' do
+        User.scoped.class.should == CustomRelation
+      end
+    end
+
+  end
+
 end

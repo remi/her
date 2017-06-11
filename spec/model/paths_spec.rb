@@ -144,7 +144,7 @@ describe Her::Model::Paths do
         spawn_model("Foo::Model") { include_root_in_json true }
 
         class User < Foo::Model; end
-        @spawned_models << :User
+        @spawned_classes << :User
       end
 
       it "builds path using the children model name" do

@@ -156,6 +156,20 @@ module Her
       end
 
       module ClassMethods
+        @@relation_class = Relation
+        # get the default Relation class
+        # @ note if unspecified, will return {Her::Model::Relation}
+        # @private
+        def relation_class
+          @@relation_class
+        end
+        # set the default Relation class
+        # @note a custom relation class should inherit or behave like
+        #   {Her::Model::Relation}
+        def use_relation(klass)
+          @@relation_class = klass
+        end
+
         # Create a new chainable scope
         #
         # @example
@@ -175,7 +189,7 @@ module Her
           end
 
           # Add the scope method to the Relation class
-          Relation.instance_eval do
+          relation_class.instance_eval do
             define_method(name) { |*args| instance_exec(*args, &code) }
           end
         end
@@ -272,7 +286,7 @@ module Her
         private
         # @private
         def blank_relation
-          @blank_relation ||= Relation.new(self)
+          @blank_relation ||= relation_class.new(self)
         end
       end
     end

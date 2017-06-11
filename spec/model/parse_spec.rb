@@ -54,7 +54,7 @@ describe Her::Model::Parse do
         spawn_model("Foo::Model") { include_root_in_json true }
 
         class User < Foo::Model; end
-        @spawned_models << :User
+        @spawned_classes << :User
       end
 
       it "wraps params with the class name" do
@@ -143,7 +143,7 @@ describe Her::Model::Parse do
           collection_path "/users"
         end
 
-        @spawned_models << :User
+        @spawned_classes << :User
       end
 
       it "parse the data with the symbol" do
