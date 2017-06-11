@@ -11,6 +11,14 @@ describe Her::Model::Attributes do
       expect(@new_user.fullname).to eq("Tobias Fünke")
     end
 
+    it "handles new resource with block" do
+      @new_user = Foo::User.new do |user|
+        user.fullname = "Tobias Fünke"
+      end
+      expect(@new_user.new?).to be_truthy
+      expect(@new_user.fullname).to eq("Tobias Fünke")
+    end
+
     it "accepts new resource with strings as hash keys" do
       @new_user = Foo::User.new("fullname" => "Tobias Fünke")
       expect(@new_user.fullname).to eq("Tobias Fünke")
