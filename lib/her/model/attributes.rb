@@ -16,7 +16,13 @@ module Her
       #     include Her::Model
       #   end
       #
-      #  User.new(name: "Tobias") # => #<User name="Tobias">
+      #  User.new(name: "Tobias")
+      #  # => #<User name="Tobias">
+      #
+      #  User.new do |u|
+      #    u.name = "Tobias"
+      #  end
+      #  # => #<User name="Tobias">
       def initialize(attributes={})
         attributes ||= {}
         @metadata = attributes.delete(:_metadata) || {}
@@ -25,7 +31,6 @@ module Her
 
         attributes = self.class.default_scope.apply_to(attributes)
         assign_attributes(attributes)
-
         yield self if block_given?
         run_callbacks :initialize
       end
