@@ -16,13 +16,13 @@ module Her
       #     include Her::Model
       #   end
       #
-      #  User.new(name: "Tobias")
-      #  # => #<User name="Tobias">
+      #   User.new(name: "Tobias")
+      #   # => #<User name="Tobias">
       #
-      #  User.new do |u|
-      #    u.name = "Tobias"
-      #  end
-      #  # => #<User name="Tobias">
+      #   User.new do |u|
+      #     u.name = "Tobias"
+      #   end
+      #   # => #<User name="Tobias">
       def initialize(attributes={})
         attributes ||= {}
         @metadata = attributes.delete(:_metadata) || {}
@@ -105,7 +105,8 @@ module Her
         @attributes[self.class.primary_key]
       end
 
-      # Return `true` if the other object is also a Her::Model and has matching data
+      # Return `true` if the other object is also a Her::Model and has matching
+      # data
       #
       # @private
       def ==(other)
@@ -185,7 +186,8 @@ module Her
         end
 
         # Use setter methods of model for each key / value pair in params
-        # Return key / value pairs for which no setter method was defined on the model
+        # Return key / value pairs for which no setter method was defined on the
+        # model
         #
         # @private
         def use_setter_methods(model, params = {})
@@ -203,7 +205,8 @@ module Her
           end
         end
 
-        # Define attribute method matchers to automatically define them using ActiveModel's define_attribute_methods.
+        # Define attribute method matchers to automatically define them using
+        # ActiveModel's define_attribute_methods.
         #
         # @private
         def define_attribute_method_matchers
@@ -211,18 +214,22 @@ module Her
           attribute_method_suffix '?'
         end
 
-        # Create a mutex for dynamically generated attribute methods or use one defined by ActiveModel.
+        # Create a mutex for dynamically generated attribute methods or use one
+        # defined by ActiveModel.
         #
         # @private
         def attribute_methods_mutex
-          @attribute_methods_mutex ||= if generated_attribute_methods.respond_to? :mu_synchronize
-                                         generated_attribute_methods
-                                       else
-                                         Mutex.new
-                                       end
+          @attribute_methods_mutex ||= begin
+            if generated_attribute_methods.respond_to? :mu_synchronize
+              generated_attribute_methods
+            else
+              Mutex.new
+            end
+          end
         end
 
-        # Define the attributes that will be used to track dirty attributes and validations
+        # Define the attributes that will be used to track dirty attributes and
+        # validations
         #
         # @param [Array] attributes
         # @example
@@ -236,7 +243,8 @@ module Her
           end
         end
 
-        # Define the accessor in which the API response errors (obtained from the parsing middleware) will be stored
+        # Define the accessor in which the API response errors (obtained from
+        # the parsing middleware) will be stored
         #
         # @param [Symbol] store_response_errors
         #
@@ -249,7 +257,8 @@ module Her
           store_her_data(:response_errors, value)
         end
 
-        # Define the accessor in which the API response metadata (obtained from the parsing middleware) will be stored
+        # Define the accessor in which the API response metadata (obtained from
+        # the parsing middleware) will be stored
         #
         # @param [Symbol] store_metadata
         #
@@ -264,9 +273,10 @@ module Her
 
         # @private
         def setter_method_names
-          @_her_setter_method_names ||= instance_methods.inject(Set.new) do |memo, method_name|
-            memo << method_name.to_s if method_name.to_s.end_with?('=')
-            memo
+          @_her_setter_method_names ||= begin
+            instance_methods.each_with_object(Set.new) do |method, memo|
+              memo << method.to_s if method.to_s.end_with?('=')
+            end
           end
         end
 
