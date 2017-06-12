@@ -188,22 +188,18 @@ module Her
         # Return key / value pairs for which no setter method was defined on the model
         #
         # @private
-        def use_setter_methods(model, params)
-          params ||= {}
-
-          reserved_keys = [:id, model.class.primary_key] + model.class.association_keys
-          model.class.attributes *params.keys.reject { |k| reserved_keys.include?(k) || reserved_keys.map(&:to_s).include?(k) }
+        def use_setter_methods(model, params = {})
+          reserved = [:id, model.class.primary_key, *model.class.association_keys]
+          model.class.attributes *params.keys.reject { |k| reserved.include?(k) }
 
           setter_method_names = model.class.setter_method_names
-          params.inject({}) do |memo, (key, value)|
+          params.each_with_object({}) do |(key, value), memo|
             setter_method = key.to_s + '='
             if setter_method_names.include?(setter_method)
               model.send(setter_method, value)
             else
-              key = key.to_sym if key.is_a?(String)
-              memo[key] = value
+              memo[key.to_sym] = value
             end
-            memo
           end
         end
 
