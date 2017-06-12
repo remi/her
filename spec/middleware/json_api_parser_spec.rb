@@ -22,6 +22,26 @@ describe Her::Middleware::JsonApiParser do
     end
   end
 
+  context "with status code 204" do
+    it "returns an empty body" do
+      env = { status: 204 }
+      subject.on_complete(env)
+      env[:body].tap do |json|
+        expect(json[:data]).to eq({})
+      end
+    end
+  end
+
+  context 'with status code 304' do
+    it 'returns an empty body' do
+      env = { :status => 304 }
+      subject.on_complete(env)
+      env[:body].tap do |json|
+        expect(json[:data]).to eq({})
+      end
+    end
+  end
+
   # context "with invalid JSON body" do
   #  let(:body) { '"foo"' }
   #  it 'ensures that invalid JSON throws an exception' do
