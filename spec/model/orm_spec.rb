@@ -613,4 +613,51 @@ describe Her::Model::ORM do
       end
     end
   end
+
+  context "registering callbacks" do
+    before do
+      Her::API.setup url: "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+        builder.adapter :test do |stub|
+          stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.put("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke" }.to_json] }
+          stub.post("/users")  { [200, {}, { id: 2, fullname: "Lindsay Fünke" }.to_json] }
+        end
+      end
+
+      spawn_model "User" do
+        before_save :before_save_callback
+        before_create :before_create_callback
+        before_update :before_update_callback
+        after_update :after_update_callback
+        after_create :after_create_callback
+        after_save :after_save_callback
+        def before_save_callback; end
+        def before_create_callback; end
+        def before_update_callback; end
+        def after_update_callback; end
+        def after_create_callback; end
+        def after_save_callback; end
+      end
+    end
+
+    it "runs create callbacks in the correct order" do
+      @user = User.new(fullname: "Tobias Fünke")
+      expect(@user).to receive(:before_save_callback).ordered
+      expect(@user).to receive(:before_create_callback).ordered
+      expect(@user).to receive(:after_create_callback).ordered
+      expect(@user).to receive(:after_save_callback).ordered
+      @user.save
+    end
+
+    it "runs update callbacks in the correct order" do
+      @user = User.find(1)
+      expect(@user).to receive(:before_save_callback).ordered
+      expect(@user).to receive(:before_update_callback).ordered
+      expect(@user).to receive(:after_update_callback).ordered
+      expect(@user).to receive(:after_save_callback).ordered
+      @user.save
+    end
+  end
 end
