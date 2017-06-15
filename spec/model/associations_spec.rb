@@ -180,6 +180,7 @@ describe Her::Model::Associations do
     let(:user_with_included_data_after_save_existing) { Foo::User.save_existing(5, name: "Clancy Brown") }
     let(:user_with_included_data_after_destroy) { Foo::User.new(id: 5).destroy }
     let(:comment_without_included_parent_data) { Foo::Comment.new(id: 7, user_id: 1) }
+    let(:new_user) { Foo::User.new }
 
     it "maps an array of included data through has_many" do
       expect(@user_with_included_data.comments.first).to be_a(Foo::Comment)
@@ -202,6 +203,12 @@ describe Her::Model::Associations do
 
     it "uses the given inverse_of key to set the parent model" do
       expect(@user_with_included_data.posts.first.admin.object_id).to eq(@user_with_included_data.object_id)
+    end
+
+    it "doesn't attempt to fetch association data for a new resource" do
+      expect(new_user.comments).to eq([])
+      expect(new_user.role).to be_nil
+      expect(new_user.organization).to be_nil
     end
 
     it "fetches data that was not included through has_many" do

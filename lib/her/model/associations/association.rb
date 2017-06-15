@@ -49,6 +49,7 @@ module Her
 
           return @cached_result unless @params.any? || @cached_result.nil?
           return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
+          return @opts[:default].try(:dup) if @parent.new?
 
           path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
           @klass.get(path, @params).tap do |result|
@@ -104,7 +105,7 @@ module Her
           @klass.get_resource(path, @params)
         end
 
-        # Refetches the association and puts the proxy back in its initial state, 
+        # Refetches the association and puts the proxy back in its initial state,
         # which is unloaded. Cached associations are cleared.
         #
         # @example
