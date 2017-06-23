@@ -153,8 +153,8 @@ describe Her::Model::Associations do
 
       spawn_model "Foo::User" do
         has_many :comments, class_name: "Foo::Comment"
-        has_one :role
-        belongs_to :organization
+        has_one :role, class_name: "Foo::Role"
+        belongs_to :organization, class_name: "Foo::Organization"
         has_many :posts, inverse_of: :admin
       end
       spawn_model "Foo::Comment" do
@@ -303,6 +303,18 @@ describe Her::Model::Associations do
       expect(params[:comments].length).to eq(2)
     end
 
+    it "includes has_one relationship in params by default" do
+      params = @user_with_included_data.to_params
+      expect(params[:role]).to be_kind_of(Hash)
+      expect(params[:role]).not_to be_empty
+    end
+
+    it "includes belongs_to relationship in params by default" do
+      params = @user_with_included_data.to_params
+      expect(params[:organization]).to be_kind_of(Hash)
+      expect(params[:organization]).not_to be_empty
+    end
+
     [:create, :save_existing, :destroy].each do |type|
       context "after #{type}" do
         let(:subject) { send("user_with_included_data_after_#{type}") }
@@ -331,6 +343,8 @@ describe Her::Model::Associations do
         builder.adapter :test do |stub|
           stub.get("/users/1") { [200, {}, { user: { id: 1, name: "Tobias Fünke", comments: [{ id: 2, body: "Tobias, you blow hard!", user_id: 1 }, { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 } }.to_json] }
           stub.get("/users/2") { [200, {}, { user: { id: 2, name: "Lindsay Fünke", organization_id: 1 } }.to_json] }
+          stub.get("/users/1/role") { [200, {}, { id: 1, body: "User" }.to_json] }
+          stub.get("/users/2/role") { [200, {}, { id: 2, body: "User" }.to_json] }
           stub.get("/users/1/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }] }.to_json] }
           stub.get("/users/2/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }, { id: 5, body: "Is this the tiny town from Footloose?" }] }.to_json] }
           stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
@@ -340,7 +354,12 @@ describe Her::Model::Associations do
       spawn_model "Foo::User" do
         parse_root_in_json true, format: :active_model_serializers
         has_many :comments, class_name: "Foo::Comment"
-        belongs_to :organization
+        has_one :role, class_name: "Foo::Role"
+        belongs_to :organization, class_name: "Foo::Organization"
+      end
+      spawn_model "Foo::Role" do
+        belongs_to :user
+        parse_root_in_json true, format: :active_model_serializers
       end
       spawn_model "Foo::Comment" do
         belongs_to :user
@@ -398,10 +417,22 @@ describe Her::Model::Associations do
       expect(comment.id).to eq(5)
     end
 
+    it "includes has_one relationships in params by default" do
+      params = @user_with_included_data.to_params
+      expect(params[:role]).to be_kind_of(Hash)
+      expect(params[:role]).not_to be_empty
+    end
+
     it "includes has_many relationships in params by default" do
       params = @user_with_included_data.to_params
       expect(params[:comments]).to be_kind_of(Array)
       expect(params[:comments].length).to eq(2)
+    end
+
+    it "includes belongs_to relationship in params by default" do
+      params = @user_with_included_data.to_params
+      expect(params[:organization]).to be_kind_of(Hash)
+      expect(params[:organization]).not_to be_empty
     end
   end
 

@@ -52,20 +52,17 @@ module Her
           end
         end
 
-
         # @private
-        # TODO: Handle has_one
         def embeded_params(attributes)
-          associations[:has_many].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
-            params = attributes[association[:data_key]].map(&:to_params)
+          association_names.inject({}) do |hash, association_name|
+            target = attributes[association_name] || []
+            params = target.respond_to?(:map) ? target.map(&:to_params) : target.to_params
             next hash if params.empty?
-            if association[:class_name].constantize.include_root_in_json?
-              root = association[:class_name].constantize.root_element
-              hash[association[:data_key]] = params.map { |n| n[root] }
-            else
-              hash[association[:data_key]] = params
-            end
-            hash
+            association_class = association_name_class_name_hash[association_name].constantize
+            next hash.merge(association_name => params) unless association_class.include_root_in_json?
+            root = association_class.root_element
+            hash.merge(association_name =>
+                         target.respond_to?(:map) ? params.map { |n| n[root] } : params[root])
           end
         end
 
@@ -209,6 +206,14 @@ module Her
         # @private
         def parse_root_in_json?
           @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
+        end
+
+        # @private
+        def association_name_class_name_hash
+          @association_name_class_name_hash ||=
+            associations.values.flatten.inject({}) do |cumulative, increment|
+              cumulative.merge(increment[:name] => increment[:class_name])
+            end
         end
       end
     end
