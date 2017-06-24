@@ -153,14 +153,16 @@ describe Her::Model::Associations do
 
       spawn_model "Foo::User" do
         has_many :comments, class_name: "Foo::Comment"
-        has_one :role
-        belongs_to :organization
+        has_one :role, class_name: "Foo::Role"
+        belongs_to :organization, class_name: "Foo::Organization"
         has_many :posts, inverse_of: :admin
       end
+
       spawn_model "Foo::Comment" do
         belongs_to :user
         parse_root_in_json true
       end
+
       spawn_model "Foo::Post" do
         belongs_to :admin, class_name: "Foo::User"
       end
@@ -303,6 +305,18 @@ describe Her::Model::Associations do
       expect(params[:comments].length).to eq(2)
     end
 
+    it "includes has_one relationship in params by default" do
+      params = @user_with_included_data.to_params
+      expect(params[:role]).to be_kind_of(Hash)
+      expect(params[:role]).not_to be_empty
+    end
+
+    it "includes belongs_to relationship in params by default" do
+      params = @user_with_included_data.to_params
+      expect(params[:organization]).to be_kind_of(Hash)
+      expect(params[:organization]).not_to be_empty
+    end
+
     [:create, :save_existing, :destroy].each do |type|
       context "after #{type}" do
         let(:subject) { send("user_with_included_data_after_#{type}") }
@@ -337,15 +351,24 @@ describe Her::Model::Associations do
           stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
         end
       end
+
       spawn_model "Foo::User" do
         parse_root_in_json true, format: :active_model_serializers
         has_many :comments, class_name: "Foo::Comment"
-        belongs_to :organization
+        has_one :role, class_name: "Foo::Role"
+        belongs_to :organization, class_name: "Foo::Organization"
       end
+
+      spawn_model "Foo::Role" do
+        belongs_to :user
+        parse_root_in_json true, format: :active_model_serializers
+      end
+
       spawn_model "Foo::Comment" do
         belongs_to :user
         parse_root_in_json true, format: :active_model_serializers
       end
+
       spawn_model "Foo::Organization" do
         parse_root_in_json true, format: :active_model_serializers
       end
@@ -402,6 +425,18 @@ describe Her::Model::Associations do
       params = @user_with_included_data.to_params
       expect(params[:comments]).to be_kind_of(Array)
       expect(params[:comments].length).to eq(2)
+    end
+
+    it "includes has_one relationships in params by default" do
+      params = @user_with_included_data.to_params
+      expect(params[:role]).to be_kind_of(Hash)
+      expect(params[:role]).not_to be_empty
+    end
+
+    it "includes belongs_to relationship in params by default" do
+      params = @user_with_included_data.to_params
+      expect(params[:organization]).to be_kind_of(Hash)
+      expect(params[:organization]).not_to be_empty
     end
   end
 
