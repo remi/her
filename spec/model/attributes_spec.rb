@@ -307,6 +307,12 @@ describe Her::Model::Attributes do
       expect(user.fullname?).to be_truthy
     end
 
+    it "does not define a getter for @attributes matching reserved words" do
+      user = Foo::User.new
+      user.assign_attributes(class: 'klass')
+      expect(user.class.name).to eq("Foo::User")
+    end
+
     context "when attribute methods are already defined" do
       before do
         class AbstractUser
