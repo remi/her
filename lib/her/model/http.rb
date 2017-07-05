@@ -71,7 +71,7 @@ module Her
                 if parsed_data[:data].is_a?(Array) || active_model_serializers_format? || json_api_format?
                   new_collection(parsed_data)
                 else
-                  new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+                  new_from_parsed_data(parsed_data)
                 end
               end
             end
@@ -91,7 +91,7 @@ module Her
             def #{method}_resource(path, params={})
               path = build_request_path_from_string_or_symbol(path, params)
               send(:"#{method}_raw", path, params) do |parsed_data, response|
-                new(parse(parsed_data[:data]).merge :_metadata => parsed_data[:metadata], :_errors => parsed_data[:errors])
+                new_from_parsed_data(parsed_data)
               end
             end
 
