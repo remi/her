@@ -20,6 +20,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake", "~> 10.0"
   s.add_development_dependency "rspec", "~> 3.5"
   s.add_development_dependency "json", "~> 1.8"
+  s.add_development_dependency "pry",                       "~> 0.10"
+  s.add_development_dependency "pry-byebug",                "~> 3.4"
+  s.add_development_dependency "pry-remote",                "~> 0.1"
+  s.add_development_dependency "pry-stack_explorer",        "~> 0.4"
 
   s.add_runtime_dependency "activemodel", ">= 3.0.0", "<= 6.0.0"
   s.add_runtime_dependency "activesupport", ">= 3.0.0", "<= 6.0.0"

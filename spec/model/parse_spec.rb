@@ -2,6 +2,28 @@
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::Parse do
+  context "when no root element not included" do
+    before do
+      Her::API.setup url: "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.post("/users") { |env| [200, {}, { user: "foobar", id: 1, fullname: params(env)[:fullname] }.to_json] }
+      end
+
+      spawn_model "Foo::User"
+    end
+
+
+    it "ignores root keys if not array or object" do
+      user = Foo::User.create(fullname: "barfoo")
+      expect(user.fullname).to eq "barfoo"
+      expect(user.user).to eq "foobar"
+    end
+  end
+
   context "when include_root_in_json is set" do
     before do
       Her::API.setup url: "https://api.example.com" do |builder|

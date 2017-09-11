@@ -135,7 +135,8 @@ module Her
 
         # @private
         def root_element_included?(data)
-          data.keys.to_s.include? @_her_root_element.to_s
+          data.keys.include?(root_element) &&
+            (data[root_element].is_a?(Hash) || data[root_element].is_a?(Array))
         end
 
         # @private

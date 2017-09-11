@@ -2,3 +2,5 @@
 /pkg
 /tmp
 /coverage
+.bundle
+/vendor
