@@ -231,7 +231,9 @@ module Her
             data = parse(parsed_data[:data])
             metadata = parsed_data[:metadata]
             response_errors = parsed_data[:errors]
-            new(data.merge(:_destroyed => response.success?, :metadata => metadata, :response_errors => response_errors))
+            record = new(data.merge(:_destroyed => response.success?, :metadata => metadata))
+            record.response_errors = response_errors
+            record
           end
         end
 
