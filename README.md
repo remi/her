@@ -234,7 +234,7 @@ end
 @tweets = Tweet.get("/statuses/home_timeline.json")
 ```
 
-See the *Authentication* middleware section for an example of how to pass different credentials based on the current user.
+See the [*Authentication middleware section*](#authentication) for an example of how to pass different credentials based on the current user.
 
 ### Parsing JSON data
 
@@ -248,7 +248,7 @@ By default, Her handles JSON data. It expects the resource/collection data to be
 [{ "id" : 1, "name" : "Tobias Fünke" }]
 ```
 
-However, if you want Her to be able to parse the data from a single root element (usually based on the model name), you’ll have to use the `parse_root_in_json` method (See the **JSON attributes-wrapping** section).
+However, if you want Her to be able to parse the data from a single root element (usually based on the model name), you’ll have to use the `parse_root_in_json` method (See the [**JSON attributes-wrapping**](#json-attributes-wrapping) section).
 
 Also, you can define your own parsing method using a response middleware. The middleware should set `env[:body]` to a hash with three symbol keys: `:data`, `:errors` and `:metadata`. The following code uses a custom middleware to parse the JSON data:
 
@@ -452,7 +452,7 @@ class Organization
 end
 ```
 
-Her expects all `User` resources to have an `:organization_id` (or `:_organization_id`) attribute. Otherwise, calling mostly all methods, like `User.all`, will thrown an exception like this one:
+Her expects all `User` resources to have an `:organization_id` (or `:_organization_id`) attribute. Otherwise, calling mostly all methods, like `User.all`, will throw an exception like this one:
 
 ```ruby
 Her::Errors::PathError: Missing :_organization_id parameter to build the request path. Path is `organizations/:organization_id/users`. Parameters are `{ … }`.
