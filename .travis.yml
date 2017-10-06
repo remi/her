@@ -16,4 +16,7 @@ gemfile:
   - gemfiles/Gemfile.activemodel-4.0
   - gemfiles/Gemfile.activemodel-3.2.x
 
+before_install:
+  - gem install bundler
+
 script: "echo 'COME ON!' && bundle exec rake spec"
