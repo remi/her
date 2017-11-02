@@ -152,8 +152,10 @@ module Her
           if record = parsed_data[:data] and record.kind_of?(klass)
             record
           else
-            attributes = klass.parse(record).merge(_metadata: parsed_data[:metadata],
-                                                   _errors: parsed_data[:errors])
+            attributes = klass.parse(record)
+            attributes = Hash[*attributes] if attributes.is_a? Array
+            data = { _metadata: parsed_data[:metadata], _errors: parsed_data[:errors] }
+            attributes.merge!(data)
             klass.new(attributes).tap do |record|
               record.run_callbacks :find
             end
