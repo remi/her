@@ -152,6 +152,8 @@ module Her
           if record = parsed_data[:data] and record.kind_of?(klass)
             record
           else
+            attributes = klass.parse(record)
+            attributes = Hash[*attributes] if attributes.is_a? Array
             attributes = klass.parse(record).merge(_metadata: parsed_data[:metadata],
                                                    _errors: parsed_data[:errors]) rescue binding.pry
             klass.new(attributes).tap do |record|
