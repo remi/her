@@ -154,8 +154,8 @@ module Her
           else
             attributes = klass.parse(record)
             attributes = Hash[*attributes] if attributes.is_a? Array
-            attributes = klass.parse(record).merge(_metadata: parsed_data[:metadata],
-                                                   _errors: parsed_data[:errors]) rescue binding.pry
+            data = { _metadata: parsed_data[:metadata], _errors: parsed_data[:errors] }
+            attributes.merge!(data)
             klass.new(attributes).tap do |record|
               record.run_callbacks :find
             end
