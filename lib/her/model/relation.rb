@@ -12,7 +12,7 @@ module Her
 
       # @private
       def apply_to(attributes)
-        @params.merge(attributes)
+        @params.merge(attributes) rescue binding.pry
       end
 
       # Build a new resource
