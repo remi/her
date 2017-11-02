@@ -153,7 +153,7 @@ module Her
             record
           else
             attributes = klass.parse(record).merge(_metadata: parsed_data[:metadata],
-                                                   _errors: parsed_data[:errors])
+                                                   _errors: parsed_data[:errors]) rescue binding.pry
             klass.new(attributes).tap do |record|
               record.run_callbacks :find
             end
