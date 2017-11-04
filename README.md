@@ -1,9 +1,3 @@
-# Maintenance Update 29th Sept 2016
-
-Hi folks, [@edtjones](https://github.com/edtjones) here. Rémi has handed me the keys to Her and [@foxpaul](https://github.com/foxpaul) and I will be trying to do the library justice with the help of the community. There's loads to do; we'll get in touch with everyone who's raised a PR as soon as possible and figure out a plan of action.
-
-# Rails 5 support
-If you need Rails 5 support, version 0.8.2 is for you!
 
 <p align="center">
   <a href="https://github.com/remiprev/her">
@@ -1006,6 +1000,9 @@ Most projects I know that use Her are internal or private projects but here’s 
 I told myself a few months ago that it would be great to build a gem to replace Rails’ [ActiveResource](http://api.rubyonrails.org/classes/ActiveResource/Base.html) since it was barely maintained (and now removed from Rails 4.0), lacking features and hard to extend/customize. I had built a few of these REST-powered ORMs for client projects before but I decided I wanted to write one for myself that I could release as an open-source project.
 
 Most of Her’s core concepts were written on a Saturday morning of April 2012 ([first commit](https://github.com/remiprev/her/commit/689d8e88916dc2ad258e69a2a91a283f061cbef2) at 7am!).
+
+## Maintainers
+The gem is currently maintained by [@zacharywelch](https://github.com/zacharywelch) and [@edtjones](https://github.com/edtjones).
 
 ## Contribute
 
