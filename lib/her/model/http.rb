@@ -3,7 +3,7 @@ module Her
     # This module interacts with Her::API to fetch HTTP data
     module HTTP
       extend ActiveSupport::Concern
-      METHODS = [:get, :post, :put, :patch, :delete]
+      METHODS = [:get, :post, :put, :patch, :delete, :options]
 
       # For each HTTP method, define these class methods:
       #

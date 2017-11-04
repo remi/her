@@ -89,19 +89,26 @@ module Her
       path = opts.delete(:_path)
       headers = opts.delete(:_headers)
       opts.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
-      response = @connection.send method do |request|
+      if method == :options
+        # Faraday doesn't support the OPTIONS verb because of a name collision with an internal options method
+        # so we need to call run_request directly.
         request.headers.merge!(headers) if headers
-        if method == :get
-          # For GET requests, treat additional parameters as querystring data
-          request.url path, opts
-        else
-          # For POST, PUT and DELETE requests, treat additional parameters as request body
-          request.url path
-          request.body = opts
+        response = @connection.run_request method, path, opts, headers
+      else
+        response = @connection.send method do |request|
+          request.headers.merge!(headers) if headers
+          if method == :get
+            # For GET requests, treat additional parameters as querystring data
+            request.url path, opts
+          else
+            # For POST, PUT and DELETE requests, treat additional parameters as request body
+            request.url path
+            request.body = opts
+          end
         end
       end
-
       { :parsed_data => response.env[:body], :response => response }
+
     end
 
     private
