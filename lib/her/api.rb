@@ -89,9 +89,9 @@ module Her
       path = opts.delete(:_path)
       headers = opts.delete(:_headers)
       opts.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
-      # Faraday doesn't support the OPTIONS verb because of a name collision with an internal options method
-      # so we need to call run_request directly.
       if method == :options
+        # Faraday doesn't support the OPTIONS verb because of a name collision with an internal options method
+        # so we need to call run_request directly.
         request.headers.merge!(headers) if headers
         response = @connection.run_request method, path, opts, headers
       else
