@@ -371,6 +371,7 @@ describe Her::Model::Associations do
             stub.get("/users/2/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }].to_json] }
             stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
             stub.get("/users/2/role") { [200, {}, { id: 2, body: "User" }.to_json] }
+            stub.get("/organizations/1") { [200, {}, { organization: { id: 1, name: "Bluth Company Foo" } }.to_json] }
             stub.get("/organizations/2") do |env|
               if env[:params]["admin"] == "true"
                 [200, {}, { organization: { id: 2, name: "Bluth Company (admin)" } }.to_json]
@@ -439,6 +440,19 @@ describe Her::Model::Associations do
       it "'s associations responds to #empty?" do
         expect(user.organization.respond_to?(:empty?)).to be_truthy
         expect(user.organization).not_to be_empty
+      end
+
+      it "changes the belongs_to foreign key value when a new resource is assigned" do
+        org1 = Foo::Organization.find(1)
+        user.organization = org1
+        expect(user.organization).to eq(org1)
+        expect(user.changes).to eq('organization_id' => [2, 1])
+      end
+
+      it "nullifies the belongs_to foreign key value when a nil resource is assigned" do
+        user.organization = nil
+        expect(user.organization).to be_nil
+        expect(user.changes).to eq('organization_id' => [2, nil])
       end
     end
 
