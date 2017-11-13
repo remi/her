@@ -806,6 +806,19 @@ describe Her::Model::Associations do
         expect(comment.user_id).to eq(10)
       end
 
+      it "caches the parent record when the inverse if present" do
+        Foo::Comment.belongs_to :user
+        @user = Foo::User.new(id: 10)
+        @comment = @user.comments.build
+        expect(@comment.user.object_id).to eq(@user.object_id)
+      end
+
+      it "does not cache the parent resource when inverse is missing" do
+        @user = Foo::User.new(id: 10)
+        @comment = @user.comments.build
+        expect(@comment.respond_to?(:user)).to be_falsey
+      end
+
       it "uses nested path parameters from the parent when new object isn't requested" do
         @like = Foo::User.new(:id => 10).comments.build(:id => 20).likes.build
         expect(@like.request_path).to eq("/users/10/comments/20/likes")
