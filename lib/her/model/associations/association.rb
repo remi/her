@@ -69,17 +69,24 @@ module Her
 
         # @private
         def fetch(opts = {})
-          attribute_value = @parent.attributes[@name]
-          return @opts[:default].try(:dup) if @parent.attributes.include?(@name) && (attribute_value.nil? || !attribute_value.nil? && attribute_value.empty?) && @params.empty?
-
-          return @cached_result unless @params.any? || @cached_result.nil?
-          return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
-          return @opts[:default].try(:dup) if @parent.new?
-
-          path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}" }
-          @klass.get(path, @params).tap do |result|
-            @cached_result = result unless @params.any?
+          if @params.blank?
+            result =
+              if @parent.attributes.key?(@name) && @parent.attributes[@name].blank?
+                @opts[:default].try(:dup)
+              else
+                @cached_result || @parent.attributes[@name]
+              end
           end
+
+          result ||=
+            if @parent.new?
+              @opts[:default].try(:dup)
+            else
+              path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}" }
+              @klass.get(path, @params).tap { |r| @cached_result = r if @params.blank? }
+            end
+
+          result
         end
 
         # @private
