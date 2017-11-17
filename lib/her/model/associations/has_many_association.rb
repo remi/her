@@ -80,14 +80,6 @@ module Her
         end
 
         # @private
-        def fetch
-          super.tap do |o|
-            inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
-            o.each { |entry| entry.attributes[inverse_of] = @parent }
-          end
-        end
-
-        # @private
         def assign_nested_attributes(attributes)
           data = attributes.is_a?(Hash) ? attributes.values : attributes
           @parent.attributes[@name] = @klass.instantiate_collection(@klass, :data => data)

@@ -272,8 +272,19 @@ describe Her::Model::Associations do
       end
 
       spawn_model "Foo::Comment" do
+        collection_path "/users/:user_id/comments"
         belongs_to :user
+        has_many :likes
+        has_one :deletion
         parse_root_in_json true
+      end
+
+      spawn_model "Foo::Like" do
+        collection_path "/users/:user_id/comments/:comment_id/likes"
+      end
+
+      spawn_model "Foo::Deletion" do
+        collection_path "/users/:user_id/comments/:comment_id/deletion"
       end
 
       spawn_model "Foo::Post" do
@@ -284,7 +295,9 @@ describe Her::Model::Associations do
         parse_root_in_json true
       end
 
-      spawn_model "Foo::Role"
+      spawn_model "Foo::Role" do
+        belongs_to :user
+      end
     end
 
     context "with included data" do
@@ -312,8 +325,12 @@ describe Her::Model::Associations do
         expect(user.comments.first.body).to eq("Tobias, you blow hard!")
       end
 
-      it "does not refetch the parents models data if they have been fetched before" do
+      it "does not refetch the parents models data if they have been fetched before for a has_many" do
         expect(user.comments.first.user.object_id).to eq(user.object_id)
+      end
+
+      it "does not refetch the parents models data if they have been fetched before for a has_one" do
+        expect(user.role.user.object_id).to eq(user.object_id)
       end
 
       it "uses the given inverse_of key to set the parent model" do
@@ -370,6 +387,8 @@ describe Her::Model::Associations do
             stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
             stub.get("/users/2/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }].to_json] }
             stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
+            stub.get("/users/2/comments/5/likes") { [200, {}, [{ like: { id: 1, liker_id: 1 } }].to_json] }
+            stub.get("/users/2/comments/5/deletion") { [200, {}, { deletion: { id: 1, deleter_id: 1 } }.to_json] }
             stub.get("/users/2/role") { [200, {}, { id: 2, body: "User" }.to_json] }
             stub.get("/organizations/1") { [200, {}, { organization: { id: 1, name: "Bluth Company Foo" } }.to_json] }
             stub.get("/organizations/2") do |env|
@@ -384,6 +403,10 @@ describe Her::Model::Associations do
       end
 
       let(:user) { Foo::User.find(2) }
+
+      it "does not refetch the parents models data if they have been fetched before for a has_many member" do
+        expect(user.comments.find(5).user.object_id).to eq(user.object_id)
+      end
 
       it "fetches data that was not included through has_many" do
         expect(user.comments.first).to be_a(Foo::Comment)
@@ -435,6 +458,16 @@ describe Her::Model::Associations do
         comment = user.comments.find(5)
         expect(comment).to be_a(Foo::Comment)
         expect(comment.id).to eq(5)
+      end
+
+      it "uses nested path parameters from the parent when fetching a has_many" do
+        like = user.comments.find(5).likes.first
+        expect(like.request_path).to eq('/users/2/comments/5/likes')
+      end
+
+      it "uses nested path parameters from the parent when fetching a has_one" do
+        deletion = user.comments.find(5).deletion
+        expect(deletion.request_path).to eq('/users/2/comments/5/deletion')
       end
 
       it "'s associations responds to #empty?" do

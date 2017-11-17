@@ -68,6 +68,20 @@ module Her
         end
 
         # @private
+        def set_missing_and_inverse_from_parent(resources, inverse = self.inverse)
+          Array(resources).each do |resource|
+            begin
+              resource.request_path
+            rescue Her::Errors::PathError => e
+              set_missing_from_parent e.missing_parameters, resource.attributes, inverse
+            end
+
+            iname = inverse ? inverse[:name] : @parent_name
+            resource.send("#{iname}=", @parent)
+          end
+        end
+
+        # @private
         def fetch(opts = {})
           if @params.blank?
             result =
@@ -86,6 +100,7 @@ module Her
               @klass.get(path, @params).tap { |r| @cached_result = r if @params.blank? }
             end
 
+          set_missing_and_inverse_from_parent result if result
           result
         end
 
@@ -167,7 +182,9 @@ module Her
         def find(id)
           return nil if id.blank?
           path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
-          @klass.get_resource(path, @params)
+          @klass.get_resource(path, @params).tap do |result|
+            set_missing_and_inverse_from_parent(result) if result
+          end
         end
 
         # Refetches the association and puts the proxy back in its initial state,
