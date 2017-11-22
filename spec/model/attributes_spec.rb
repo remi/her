@@ -393,4 +393,21 @@ describe Her::Model::Attributes do
       end
     end
   end
+
+  it 'updates the cache of setter methods' do
+    spawn_model "Foo::User" do
+      attr_reader :setter_called
+    end
+
+    Foo::User.new(fullname: "Tobias Fünke")
+
+    Foo::User.class_eval do
+      def password=(value)
+        @setter_called = true
+      end
+    end
+
+    user = Foo::User.new(password: 'supersecret')
+    expect(user.setter_called).to be_truthy
+  end
 end
