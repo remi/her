@@ -239,7 +239,11 @@ module Her
         #   end
         def attributes(*attributes)
           attribute_methods_mutex.synchronize do
-            define_attribute_methods attributes
+            old_methods = generated_attribute_methods.instance_methods
+            define_attribute_methods(attributes).tap do
+              new_methods = generated_attribute_methods.instance_methods
+              @_her_setter_method_names = nil if old_methods != new_methods
+            end
           end
         end
 
