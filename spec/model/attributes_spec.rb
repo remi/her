@@ -242,6 +242,18 @@ describe Her::Model::Attributes do
         @user = Foo::User.find(1)
         expect(@user.document).to eq("http://example.com")
       end
+
+      it 'exposes the method to respond_to? and respond_to_without_missing?' do
+        @user = Foo::User.find(1)
+        expect(@user.respond_to?(:document=)).to be_truthy
+        expect(@user.respond_to_without_missing?(:document=)).to be_truthy
+      end
+
+      it 'exposes a non-existent method to respond_to? but not respond_to_without_missing?' do
+        @user = Foo::User.find(1)
+        expect(@user.respond_to?(:nonexistent=)).to be_truthy
+        expect(@user.respond_to_without_missing?(:nonexistent=)).to be_falsey
+      end
     end
 
     context "for predicate method" do
