@@ -89,7 +89,10 @@ module Her
       method = opts.delete(:_method)
       path = opts.delete(:_path)
       headers = opts.delete(:_headers)
-      opts.delete_if { |key, _| key.to_s =~ /^_/ } # Remove all internal parameters
+
+      # Recursively remove all internal parameters
+      strip_internal_params opts
+
       if method == :options
         # Faraday doesn't support the OPTIONS verb because of a name collision with an internal options method
         # so we need to call run_request directly.
@@ -116,6 +119,19 @@ module Her
     # @private
     def self.default_api(opts = {})
       defined?(@default_api) ? @default_api : nil
+    end
+
+    # @private
+    def strip_internal_params(object)
+      case object
+      when Hash
+        object.delete_if { |key, _| key.to_s[0] == '_' }
+        strip_internal_params object.values
+      when Array
+        object.each do |elem|
+          strip_internal_params elem
+        end
+      end
     end
   end
 end
