@@ -11,7 +11,8 @@ module Her
             :data_key => name,
             :default => nil,
             :foreign_key => "#{name}_id",
-            :path => "/#{name.to_s.pluralize}/:id"
+            :path => "/#{name.to_s.pluralize}/:id",
+            :autosave => true
           }.merge(opts)
           klass.associations[:belongs_to] << opts
 
@@ -95,6 +96,7 @@ module Her
           reset
           pkey = resource ? resource.id : nil
           @parent.send("#{@opts[:foreign_key]}=", pkey)
+          @parent.attributes[@name] = resource
           @cached_result = resource
 
           if resource

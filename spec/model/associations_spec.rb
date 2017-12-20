@@ -18,7 +18,8 @@ describe Her::Model::Associations do
             default: [],
             class_name: "Comment",
             path: "/comments",
-            inverse_of: nil
+            inverse_of: nil,
+            autosave: true
           }
         end
         before { Foo::User.has_many :comments }
@@ -34,7 +35,8 @@ describe Her::Model::Associations do
             default: [],
             class_name: "Comment",
             path: "/comments",
-            inverse_of: nil
+            inverse_of: nil,
+            autosave: true
           }
         end
         let(:posts_association) do
@@ -44,7 +46,8 @@ describe Her::Model::Associations do
             default: [],
             class_name: "Post",
             path: "/posts",
-            inverse_of: nil
+            inverse_of: nil,
+            autosave: true
           }
         end
         before do
@@ -66,7 +69,8 @@ describe Her::Model::Associations do
             data_key: :category,
             default: nil,
             class_name: "Category",
-            path: "/category"
+            path: "/category",
+            autosave: true
           }
         end
         before { Foo::User.has_one :category }
@@ -81,7 +85,8 @@ describe Her::Model::Associations do
             data_key: :category,
             default: nil,
             class_name: "Category",
-            path: "/category"
+            path: "/category",
+            autosave: true
           }
         end
         let(:role_association) do
@@ -90,7 +95,8 @@ describe Her::Model::Associations do
             data_key: :role,
             default: nil,
             class_name: "Role",
-            path: "/role"
+            path: "/role",
+            autosave: true
           }
         end
         before do
@@ -113,7 +119,8 @@ describe Her::Model::Associations do
             default: nil,
             class_name: "Organization",
             foreign_key: "organization_id",
-            path: "/organizations/:id"
+            path: "/organizations/:id",
+            autosave: true
           }
         end
         before { Foo::User.belongs_to :organization }
@@ -129,7 +136,8 @@ describe Her::Model::Associations do
             default: nil,
             class_name: "Organization",
             foreign_key: "organization_id",
-            path: "/organizations/:id"
+            path: "/organizations/:id",
+            autosave: true
           }
         end
         let(:family_association) do
@@ -139,7 +147,8 @@ describe Her::Model::Associations do
             default: nil,
             class_name: "Family",
             foreign_key: "family_id",
-            path: "/families/:id"
+            path: "/families/:id",
+            autosave: true
           }
         end
         before do
@@ -168,7 +177,8 @@ describe Her::Model::Associations do
               default: {},
               class_name: "Post",
               path: "/comments",
-              inverse_of: :admin
+              inverse_of: :admin,
+              autosave: true
             }
           end
           before do
@@ -193,7 +203,8 @@ describe Her::Model::Associations do
               default: nil,
               class_name: "Topic",
               foreign_key: "topic_id",
-              path: "/category"
+              path: "/category",
+              autosave: true
             }
           end
           before do
@@ -217,7 +228,8 @@ describe Her::Model::Associations do
               default: true,
               class_name: "Business",
               foreign_key: "org_id",
-              path: "/organizations/:id"
+              path: "/organizations/:id",
+              autosave: true
             }
           end
           before do
@@ -252,7 +264,8 @@ describe Her::Model::Associations do
               default: [],
               class_name: "Post",
               path: "/comments",
-              inverse_of: nil
+              inverse_of: nil,
+              autosave: true
             }
           end
 
@@ -375,6 +388,139 @@ describe Her::Model::Associations do
       it "includes belongs_to relationship in params by default" do
         expect(user_params[:organization]).to be_kind_of(Hash)
         expect(user_params[:organization]).not_to be_empty
+      end
+
+      context 'and send_only_modified_attributes is true' do
+        before do
+          Her::API.default_api.options[:send_only_modified_attributes] = true
+        end
+
+        it 'does not include unmodified has_many relationships in params' do
+          params = user.to_params
+          expect(params[:comments]).to be_nil
+        end
+
+        it 'does not include an unmodified has_one relationship in params' do
+          params = user.to_params
+          expect(params[:role]).to be_nil
+        end
+
+        it 'does not include an unmodified belongs_to relationship in params' do
+          params = user.to_params
+          expect(params[:organization]).to be_nil
+        end
+
+        it 'includes a modified has_many relationship in params' do
+          user.comments.last.body = 'Merry Christmas!'
+          params = user.to_params
+          expect(params[:comments]).to be_kind_of(Array)
+          expect(params[:comments].length).to eq(1)
+        end
+
+        it 'includes a modified has_one relationship in params' do
+          user.role.body = 'Guest'
+          params = user.to_params
+          expect(params[:role]).to be_kind_of(Hash)
+          expect(params[:role]).not_to be_empty
+        end
+
+        it 'includes a modified belongs_to relationship in params' do
+          user.organization.name = 'New Company'
+          params = user.to_params
+          expect(params[:organization]).to be_kind_of(Hash)
+          expect(params[:organization]).not_to be_empty
+        end
+      end
+
+      context 'and autosave as nil' do
+        before do
+          Foo::User.associations.values.each do |assocs|
+            assocs.each do |assoc|
+              assoc[:autosave] = nil
+            end
+          end
+        end
+
+        it 'does not include persisted has_many relationships in params' do
+          params = user.to_params
+          expect(params[:comments]).to be_nil
+        end
+
+        it 'does not include a persisted has_one relationship in params' do
+          params = user.to_params
+          expect(params[:role]).to be_nil
+        end
+
+        it 'does not include a persisted belongs_to relationship in params' do
+          params = user.to_params
+          expect(params[:organization]).to be_nil
+        end
+
+        it 'includes a new has_many relationship in params' do
+          new = user.comments.build(body: 'Merry Christmas!')
+          user.comments << new
+          params = user.to_params
+          expect(params[:comments]).to be_kind_of(Array)
+          expect(params[:comments].length).to eq(1)
+        end
+
+        it 'includes a new has_one relationship in params' do
+          user.role = Foo::Role.build(body: 'User')
+          params = user.to_params
+          expect(params[:role]).to be_kind_of(Hash)
+          expect(params[:role]).not_to be_empty
+        end
+
+        it 'includes a new belongs_to relationship in params' do
+          user.organization = Foo::Organization.build(name: 'Bluth Company')
+          params = user.to_params
+          expect(params[:organization]).to be_kind_of(Hash)
+          expect(params[:organization]).not_to be_empty
+        end
+      end
+
+      context 'and autosave as false' do
+        before do
+          Foo::User.associations.values.each do |assocs|
+            assocs.each do |assoc|
+              assoc[:autosave] = false
+            end
+          end
+        end
+
+        it 'does not include persisted has_many relationships in params' do
+          params = user.to_params
+          expect(params[:comments]).to be_nil
+        end
+
+        it 'does not include a persisted has_one relationship in params' do
+          params = user.to_params
+          expect(params[:role]).to be_nil
+        end
+
+        it 'does not include a persisted belongs_to relationship in params' do
+          params = user.to_params
+          expect(params[:organization]).to be_nil
+        end
+
+        it 'does not include a new has_many relationship in params' do
+          new = user.comments.build(body: 'Merry Christmas!')
+          user.comments << new
+          params = user.to_params
+          expect(params[:comments]).to be_nil
+        end
+
+        it 'does not include a new has_one relationship in params' do
+          user.role = Foo::Role.build(body: 'User')
+          params = user.to_params
+          expect(params[:role]).to be_nil
+        end
+
+        it 'does not include a new belongs_to relationship in params' do
+          user.organization = Foo::Organization.build(name: 'Bluth Company')
+          params = user.to_params
+          expect(params[:organization]).to be_nil
+        end
       end
     end
 

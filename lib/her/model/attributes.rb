@@ -205,7 +205,7 @@ module Her
           setter_method_names = model.class.setter_method_names
           params.each_with_object({}) do |(key, value), memo|
             setter_method = "#{key}="
-            if setter_method_names.include?(setter_method) && (!assoc_keys.include?(key) || !value.is_a?(Hash))
+            if setter_method_names.include?(setter_method) && (!assoc_keys.include?(key) || (!value.is_a?(Hash) && Array(value).any? { |v| !v.is_a?(Hash) }))
               model.send setter_method, value
             else
               memo[key.to_sym] = value

@@ -10,7 +10,8 @@ module Her
             :name => name,
             :data_key => name,
             :default => nil,
-            :path => "/#{name}"
+            :path => "/#{name}",
+            :autosave => true
           }.merge(opts)
           klass.associations[:has_one] << opts
 
@@ -20,6 +21,10 @@ module Her
 
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
               cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasOneAssociation.proxy(self, #{opts.inspect}))
+            end
+
+            def #{name}=(resource)
+              send("#{name}").association.assign(resource)
             end
           RUBY
         end
@@ -65,7 +70,8 @@ module Her
         #   user.role # => #<Role id=2 user_id=1 title="moderator">
         def create(attributes = {})
           resource = build(attributes)
-          @parent.attributes[@name] = resource if resource.save
+          set_missing_and_inverse_from_parent(resource)
+          assign(resource) if resource.save
           resource
         end
 

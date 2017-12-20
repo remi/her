@@ -153,6 +153,14 @@ module Her
           @parent.attributes.delete(@name)
         end
 
+        # @private
+        def assign(resources)
+          reset
+          set_missing_and_inverse_from_parent(resources)
+          @parent.attributes[@name] = resources
+          @cached_result = resources
+        end
+
         # Add query parameters to the HTTP request performed to fetch the data
         #
         # @example
