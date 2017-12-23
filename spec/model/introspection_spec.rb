@@ -73,7 +73,7 @@ describe Her::Model::Introspection do
         expect(Foo::User.her_nearby_class("AccessRecord")).to eq(Foo::AccessRecord)
         expect(AccessRecord.her_nearby_class("Log")).to eq(Log)
         expect(Foo::User.her_nearby_class("Log")).to eq(Log)
-        expect(Foo::User.her_nearby_class("X")).to be_nil
+        expect{Foo::User.her_nearby_class("X")}.to raise_error(NameError)
       end
     end
   end
