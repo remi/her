@@ -54,9 +54,6 @@ module Her
       method_for :destroy, :delete
       method_for :new, :get
 
-      # Define the default primary key
-      primary_key :id
-
       # Define default storage accessors for errors and metadata
       store_response_errors :response_errors
       store_metadata :metadata
@@ -70,6 +67,9 @@ module Her
 
       # Define matchers for attr? and attr= methods
       define_attribute_method_matchers
+
+      # Define the default primary key
+      primary_key :id
     end
   end
 end

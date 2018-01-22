@@ -109,7 +109,7 @@ describe "Her::Model and ActiveModel::Dirty" do
     end
 
     context "for new resource" do
-      let(:user) { Foo::User.new(fullname: "Lindsay Fünke") }
+      let(:user) { Foo::User.new(id: 1, fullname: "Lindsay Fünke") }
       it "has changes" do
         expect(user).to be_changed
       end
@@ -119,6 +119,19 @@ describe "Her::Model and ActiveModel::Dirty" do
         expect(user).to be_changed
         user.save
         expect(user).not_to be_changed
+      end
+      it "tracks a dirty :id primary key" do
+        expect(user.changes).to eq('id' => [nil, 1], "fullname" => [nil, "Lindsay Fünke"])
+        user.id = 2
+        expect(user.changes).to eq('id' => [nil, 2], "fullname" => [nil, "Lindsay Fünke"])
+      end
+      it "tracks a dirty custom primary key" do
+        user = Dynamic::User.new(user_id: 1, fullname: "Lindsay Fünke")
+        expect(user.changes).to eq('user_id' => [nil, 1], "fullname" => [nil, "Lindsay Fünke"])
+        user.user_id = 2
+        expect(user.changes).to eq('user_id' => [nil, 2], "fullname" => [nil, "Lindsay Fünke"])
+        user.id = 3
+        expect(user.changes).to eq('user_id' => [nil, 3], "fullname" => [nil, "Lindsay Fünke"])
       end
     end
 

@@ -100,11 +100,6 @@ module Her
       end
       alias attribute get_attribute
 
-      # Return the value of the model `primary_key` attribute
-      def id
-        @attributes[self.class.primary_key]
-      end
-
       # Return `true` if the other object is also a Her::Model and has matching
       # data
       #

@@ -30,12 +30,28 @@ module Her
         #
         # @param [Symbol] value
         def primary_key(value = nil)
-          @_her_primary_key ||= begin
-            superclass.primary_key if superclass.respond_to?(:primary_key)
-          end
+          if value
+            value = value.to_sym
 
-          return @_her_primary_key unless value
-          @_her_primary_key = value.to_sym
+            if value == :id
+              klass = self
+
+              while (klass = klass.superclass).respond_to?(:primary_key)
+                if klass.primary_key != :id
+                  raise ArgumentError, 'cannot change primary key to :id if ancestors use other name'
+                end
+              end
+            else
+              alias_attribute :id, value
+            end
+
+            attributes value
+            @_her_primary_key = value
+          else
+            @_her_primary_key ||= begin
+              superclass.primary_key if superclass.respond_to?(:primary_key)
+            end
+          end
         end
 
         # Defines a custom collection path for the resource

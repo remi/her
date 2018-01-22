@@ -58,7 +58,7 @@ describe Her::Model::ORM do
     end
 
     it "handles new resource with custom primary key" do
-      @new_user = Foo::AdminUser.new(fullname: "Lindsay Fünke", id: -1)
+      @new_user = Foo::AdminUser.new(fullname: "Lindsay Fünke")
       expect(@new_user).to be_new
 
       @existing_user = Foo::AdminUser.find(1)

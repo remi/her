@@ -182,13 +182,27 @@ describe Her::Model::Paths do
       describe "#request_path" do
         it "uses the correct primary key attribute" do
           expect(User.new(UserId: "foo").request_path).to eq("users/foo")
-          expect(User.new(id: "foo").request_path).to eq("users")
         end
 
         it "replaces :id with the appropriate primary key" do
           expect(Customer.new(customer_id: "joe").request_path).to eq("customers/joe")
-          expect(Customer.new(id: "joe").request_path).to eq("customers")
         end
+      end
+
+      it 'prevents subclasses from using :id again' do
+        expect {
+          Class.new(User) do
+            primary_key :id
+          end
+        }.to raise_error(ArgumentError, /:id/)
+      end
+
+      it 'allow subclasses to use yet another primary key name' do
+        expect {
+          Class.new(User) do
+            primary_key :subclass_id
+          end
+        }.to_not raise_error
       end
     end
   end
