@@ -186,7 +186,9 @@ describe Her::Model::Relation do
         end
       end
 
-      it 'does not cause the models to share a method definition' do
+      it 'does not cause the models to share a scope definition' do
+        expect(Foo::User.scoped.foo.params[:foo]).to eq true
+        expect(Bar::User.scoped.foo.params[:foo]).to eq false
         expect(Foo::User.scoped.method(:foo).unbind).not_to eq(Bar::User.scoped.method(:foo).unbind)
       end
     end
