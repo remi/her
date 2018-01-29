@@ -324,6 +324,27 @@ describe Her::Model::ORM do
     end
   end
 
+  describe :default_scope do
+    before do
+      spawn_model 'Foo::User' do
+        default_scope -> { where(foo: 123) }
+        scope :bar, -> { where(bar: true ) }
+      end
+
+      spawn_model 'Bar::User' do
+        scope :foo, -> { where(foo: true ) }
+        default_scope -> { where(bar: 123) }
+      end
+    end
+
+    it 'preserves scope definitions regardless of call order' do
+      expect(Foo::User.public_methods).to include(:bar)
+      expect(Foo::User.scoped.public_methods).to include(:bar)
+      expect(Bar::User.public_methods).to include(:foo)
+      expect(Bar::User.scoped.public_methods).to include(:foo)
+    end
+  end
+
   context "building resources" do
     context "when request_new_object_on_build is not set (default)" do
       before do
