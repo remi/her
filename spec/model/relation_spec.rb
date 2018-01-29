@@ -143,6 +143,7 @@ describe Her::Model::Relation do
         scope :bar, ->(v) { where(where: v) }
         scope :baz, -> { bar(6) }
       end
+      spawn_model 'Bar::User'
     end
 
     it "passes query parameters" do
@@ -159,6 +160,16 @@ describe Her::Model::Relation do
       @user = Foo::User.baz.first
       expect(@user.id).to eq(4)
     end
+
+    it 'does not pollute a shared namespace' do
+      expect(Foo::User.public_methods).to include(:foo, :bar, :baz)
+      expect(Foo::User.scoped.public_methods).to include(:foo, :bar, :baz)
+      expect(Foo::User.where(foo: '123').public_methods).to include(:foo, :bar, :baz)
+      expect(Bar::User.public_methods).not_to include(:foo, :bar, :baz)
+      expect(Bar::User.scoped.public_methods).not_to include(:foo, :bar, :baz)
+      expect(Bar::User.where(foo: '123').public_methods).not_to include(:foo, :bar, :baz)
+      expect(Her::Model::Relation.public_instance_methods).not_to include(:foo, :bar, :baz)
+    end
   end
 
   describe :default_scope do
@@ -173,6 +184,27 @@ describe Her::Model::Relation do
       it "should apply the scope to the attributes" do
         expect(Foo::User.new).to be_active
         expect(Foo::User.new).to be_admin
+      end
+    end
+
+    context 'when other scopes are present' do
+      before do
+        spawn_model 'Foo::User' do
+          default_scope -> { where(foo: 123) }
+          scope :bar, -> { where(bar: true ) }
+        end
+
+        spawn_model 'Bar::User' do
+          scope :foo, -> { where(foo: true ) }
+          default_scope -> { where(bar: 123) }
+        end
+      end
+
+      it 'preserves scope definitions regardless of call order' do
+        expect(Foo::User.public_methods).to include(:bar)
+        expect(Foo::User.scoped.public_methods).to include(:bar)
+        expect(Bar::User.public_methods).to include(:foo)
+        expect(Bar::User.scoped.public_methods).to include(:foo)
       end
     end
 
