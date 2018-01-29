@@ -175,7 +175,7 @@ module Her
           end
 
           # Add the scope method to the blank_relation
-          blank_relation.define_singleton_method(name) { |*args| instance_exec(*args, &code) }
+          scoped.define_singleton_method(name) { |*args| instance_exec(*args, &code) }
         end
 
         # @private
