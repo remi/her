@@ -316,8 +316,10 @@ describe Her::Model::ORM do
     it 'does not pollute a shared namespace' do
       expect(Foo::User.public_methods).to include(:baz)
       expect(Foo::User.scoped.public_methods).to include(:baz)
+      expect(Foo::User.where(foo: '123').public_methods).to include(:baz)
       expect(Bar::User.public_methods).not_to include(:baz)
       expect(Bar::User.scoped.public_methods).not_to include(:baz)
+      expect(Bar::User.where(foo: '123').public_methods).not_to include(:baz)
       expect(Her::Model::Relation.public_instance_methods).not_to include(:baz)
     end
   end
