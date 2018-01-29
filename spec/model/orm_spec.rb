@@ -308,15 +308,17 @@ describe Her::Model::ORM do
   describe :scope do
     before do
       spawn_model "Foo::User" do
-        collection_path '/organizations/:org_id/users'
-        scope :created_on, ->(date) { where(created_on: date) }
-        scope :for_org_id, ->(org_id) { where(_org_id: org_id) }
+        scope :baz, ->(yar) { where(baz: yar) }
       end
+      spawn_model "Bar::User"
     end
 
-    it 'does not pollute the global namespace' do
-      expect(Her::Model::Relation.public_instance_methods).to_not include(:created_on, :for_org_id)
-      expect(Foo::User.scoped.public_methods).to include(:created_on, :for_org_id)
+    it 'does not pollute a shared namespace' do
+      expect(Foo::User.public_methods).to include(:baz)
+      expect(Foo::User.scoped.public_methods).to include(:baz)
+      expect(Bar::User.public_methods).not_to include(:baz)
+      expect(Bar::User.scoped.public_methods).not_to include(:baz)
+      expect(Her::Model::Relation.public_instance_methods).not_to include(:baz)
     end
   end
 
