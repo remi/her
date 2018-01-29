@@ -305,43 +305,45 @@ describe Her::Model::ORM do
     end
   end
 
-  describe :scope do
-    before do
-      spawn_model "Foo::User" do
-        scope :baz, ->(yar) { where(baz: yar) }
-      end
-      spawn_model "Bar::User"
-    end
-
-    it 'does not pollute a shared namespace' do
-      expect(Foo::User.public_methods).to include(:baz)
-      expect(Foo::User.scoped.public_methods).to include(:baz)
-      expect(Foo::User.where(foo: '123').public_methods).to include(:baz)
-      expect(Bar::User.public_methods).not_to include(:baz)
-      expect(Bar::User.scoped.public_methods).not_to include(:baz)
-      expect(Bar::User.where(foo: '123').public_methods).not_to include(:baz)
-      expect(Her::Model::Relation.public_instance_methods).not_to include(:baz)
-    end
-  end
-
-  describe :default_scope do
-    before do
-      spawn_model 'Foo::User' do
-        default_scope -> { where(foo: 123) }
-        scope :bar, -> { where(bar: true ) }
+  context 'defining scopes' do
+    context 'when defining a single scope' do
+      before do
+        spawn_model "Foo::User" do
+          scope :baz, ->(yar) { where(baz: yar) }
+        end
+        spawn_model "Bar::User"
       end
 
-      spawn_model 'Bar::User' do
-        scope :foo, -> { where(foo: true ) }
-        default_scope -> { where(bar: 123) }
+      it 'does not pollute a shared namespace' do
+        expect(Foo::User.public_methods).to include(:baz)
+        expect(Foo::User.scoped.public_methods).to include(:baz)
+        expect(Foo::User.where(foo: '123').public_methods).to include(:baz)
+        expect(Bar::User.public_methods).not_to include(:baz)
+        expect(Bar::User.scoped.public_methods).not_to include(:baz)
+        expect(Bar::User.where(foo: '123').public_methods).not_to include(:baz)
+        expect(Her::Model::Relation.public_instance_methods).not_to include(:baz)
       end
     end
 
-    it 'preserves scope definitions regardless of call order' do
-      expect(Foo::User.public_methods).to include(:bar)
-      expect(Foo::User.scoped.public_methods).to include(:bar)
-      expect(Bar::User.public_methods).to include(:foo)
-      expect(Bar::User.scoped.public_methods).to include(:foo)
+    context 'when defining scopes alongside a default_scope' do
+      before do
+        spawn_model 'Foo::User' do
+          default_scope -> { where(foo: 123) }
+          scope :bar, -> { where(bar: true ) }
+        end
+
+        spawn_model 'Bar::User' do
+          scope :foo, -> { where(foo: true ) }
+          default_scope -> { where(bar: 123) }
+        end
+      end
+
+      it 'preserves scope definitions regardless of call order' do
+        expect(Foo::User.public_methods).to include(:bar)
+        expect(Foo::User.scoped.public_methods).to include(:bar)
+        expect(Bar::User.public_methods).to include(:foo)
+        expect(Bar::User.scoped.public_methods).to include(:foo)
+      end
     end
   end
 
