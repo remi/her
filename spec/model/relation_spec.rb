@@ -143,7 +143,6 @@ describe Her::Model::Relation do
         scope :bar, ->(v) { where(where: v) }
         scope :baz, -> { bar(6) }
       end
-      spawn_model 'Bar::User'
     end
 
     it "passes query parameters" do
@@ -161,14 +160,20 @@ describe Her::Model::Relation do
       expect(@user.id).to eq(4)
     end
 
-    it 'does not pollute a shared namespace' do
-      expect(Foo::User.public_methods).to include(:foo, :bar, :baz)
-      expect(Foo::User.scoped.public_methods).to include(:foo, :bar, :baz)
-      expect(Foo::User.where(foo: '123').public_methods).to include(:foo, :bar, :baz)
-      expect(Bar::User.public_methods).not_to include(:foo, :bar, :baz)
-      expect(Bar::User.scoped.public_methods).not_to include(:foo, :bar, :baz)
-      expect(Bar::User.where(foo: '123').public_methods).not_to include(:foo, :bar, :baz)
-      expect(Her::Model::Relation.public_instance_methods).not_to include(:foo, :bar, :baz)
+    context 'when there is another model present' do
+      before do
+        spawn_model 'Bar::User'
+      end
+
+      it 'does not pollute a shared namespace' do
+        expect(Foo::User.public_methods).to include(:foo, :bar, :baz)
+        expect(Foo::User.scoped.public_methods).to include(:foo, :bar, :baz)
+        expect(Foo::User.where(foo: '123').public_methods).to include(:foo, :bar, :baz)
+        expect(Bar::User.public_methods).not_to include(:foo, :bar, :baz)
+        expect(Bar::User.scoped.public_methods).not_to include(:foo, :bar, :baz)
+        expect(Bar::User.where(foo: '123').public_methods).not_to include(:foo, :bar, :baz)
+        expect(Her::Model::Relation.public_instance_methods).not_to include(:foo, :bar, :baz)
+      end
     end
 
     context 'when two scopes have the same name' do
