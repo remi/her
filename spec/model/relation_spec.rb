@@ -170,6 +170,21 @@ describe Her::Model::Relation do
       expect(Bar::User.where(foo: '123').public_methods).not_to include(:foo, :bar, :baz)
       expect(Her::Model::Relation.public_instance_methods).not_to include(:foo, :bar, :baz)
     end
+
+    context 'when two scopes have the same name' do
+      before do
+        spawn_model "Foo::User" do
+          scope :foo, -> { where(foo: true) }
+        end
+        spawn_model 'Bar::User' do
+          scope :foo, -> { where(foo: false) }
+        end
+      end
+
+      it 'does not cause the models to share a method definition' do
+        expect(Foo::User.scoped.method(:foo).unbind).not_to eq(Bar::User.scoped.method(:foo).unbind)
+      end
+    end
   end
 
   describe :default_scope do
