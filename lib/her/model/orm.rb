@@ -174,10 +174,8 @@ module Her
             instance_exec(*args, &code)
           end
 
-          # Add the scope method to the Relation class
-          Relation.instance_eval do
-            define_method(name) { |*args| instance_exec(*args, &code) }
-          end
+          # Add the scope method to the blank_relation
+          blank_relation.define_singleton_method(name) { |*args| instance_exec(*args, &code) }
         end
 
         # @private

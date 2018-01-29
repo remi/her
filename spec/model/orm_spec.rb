@@ -305,6 +305,21 @@ describe Her::Model::ORM do
     end
   end
 
+  describe :scope do
+    before do
+      spawn_model "Foo::User" do
+        collection_path '/organizations/:org_id/users'
+        scope :created_on, ->(date) { where(created_on: date) }
+        scope :for_org_id, ->(org_id) { where(_org_id: org_id) }
+      end
+    end
+
+    it 'does not pollute the global namespace' do
+      expect(Her::Model::Relation.public_instance_methods).to_not include(:created_on, :for_org_id)
+      expect(Foo::User.scoped.public_methods).to include(:created_on, :for_org_id)
+    end
+  end
+
   context "building resources" do
     context "when request_new_object_on_build is not set (default)" do
       before do
