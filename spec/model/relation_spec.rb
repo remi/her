@@ -135,6 +135,7 @@ describe Her::Model::Relation do
           stub.get("/users?what=4&where=3") { ok! [{ id: 3, fullname: "Maeby Fünke" }] }
           stub.get("/users?what=2") { ok! [{ id: 2, fullname: "Lindsay Fünke" }] }
           stub.get("/users?where=6") { ok! [{ id: 4, fullname: "Tobias Fünke" }] }
+          stub.get('/bar/users') { ok! [] }
         end
       end
 
@@ -142,6 +143,11 @@ describe Her::Model::Relation do
         scope :foo, ->(v) { where(what: v) }
         scope :bar, ->(v) { where(where: v) }
         scope :baz, -> { bar(6) }
+      end
+
+      spawn_model "Bar::User" do
+        collection_path '/bar/users'
+        scope :baz, -> { where(where: 7) }
       end
     end
 
@@ -160,37 +166,10 @@ describe Her::Model::Relation do
       expect(@user.id).to eq(4)
     end
 
-    context 'when there is another model present' do
-      before do
-        spawn_model 'Bar::User'
-      end
-
-      it 'does not pollute a shared namespace' do
-        expect(Foo::User.public_methods).to include(:foo, :bar, :baz)
-        expect(Foo::User.scoped.public_methods).to include(:foo, :bar, :baz)
-        expect(Foo::User.where(foo: '123').public_methods).to include(:foo, :bar, :baz)
-        expect(Bar::User.public_methods).not_to include(:foo, :bar, :baz)
-        expect(Bar::User.scoped.public_methods).not_to include(:foo, :bar, :baz)
-        expect(Bar::User.where(foo: '123').public_methods).not_to include(:foo, :bar, :baz)
-        expect(Her::Model::Relation.public_instance_methods).not_to include(:foo, :bar, :baz)
-      end
-    end
-
-    context 'when two scopes have the same name' do
-      before do
-        spawn_model "Foo::User" do
-          scope :foo, -> { where(foo: true) }
-        end
-        spawn_model 'Bar::User' do
-          scope :foo, -> { where(foo: false) }
-        end
-      end
-
-      it 'does not cause the models to share a scope definition' do
-        expect(Foo::User.scoped.foo.params[:foo]).to eq true
-        expect(Bar::User.scoped.foo.params[:foo]).to eq false
-        expect(Foo::User.scoped.method(:foo).unbind).not_to eq(Bar::User.scoped.method(:foo).unbind)
-      end
+    it "does not share scope with other models" do
+      expect(Bar::User.scoped).not_to respond_to(:foo, :bar)
+      expect(Foo::User.scoped.baz.params[:where]).to eq(6)
+      expect(Bar::User.scoped.baz.params[:where]).to eq(7)
     end
   end
 
@@ -206,27 +185,6 @@ describe Her::Model::Relation do
       it "should apply the scope to the attributes" do
         expect(Foo::User.new).to be_active
         expect(Foo::User.new).to be_admin
-      end
-    end
-
-    context 'when other scopes are present' do
-      before do
-        spawn_model 'Foo::User' do
-          default_scope -> { where(foo: 123) }
-          scope :bar, -> { where(bar: true ) }
-        end
-
-        spawn_model 'Bar::User' do
-          scope :foo, -> { where(foo: true ) }
-          default_scope -> { where(bar: 123) }
-        end
-      end
-
-      it 'preserves scope definitions regardless of call order' do
-        expect(Foo::User.public_methods).to include(:bar)
-        expect(Foo::User.scoped.public_methods).to include(:bar)
-        expect(Bar::User.public_methods).to include(:foo)
-        expect(Bar::User.scoped.public_methods).to include(:foo)
       end
     end
 
