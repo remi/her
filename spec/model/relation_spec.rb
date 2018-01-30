@@ -79,8 +79,8 @@ describe Her::Model::Relation do
       end
 
       it "propagates the scopes through its children" do
-        @users = User.page(2)
-        expect(@users.length).to eq(2)
+        expect(User.page(2).length).to eq(2)
+        expect(User.scoped.page(2).length).to eq(2)
       end
     end
   end
@@ -135,6 +135,7 @@ describe Her::Model::Relation do
           stub.get("/users?what=4&where=3") { ok! [{ id: 3, fullname: "Maeby Fünke" }] }
           stub.get("/users?what=2") { ok! [{ id: 2, fullname: "Lindsay Fünke" }] }
           stub.get("/users?where=6") { ok! [{ id: 4, fullname: "Tobias Fünke" }] }
+          stub.get('/bar/users') { ok! [] }
         end
       end
 
@@ -142,6 +143,11 @@ describe Her::Model::Relation do
         scope :foo, ->(v) { where(what: v) }
         scope :bar, ->(v) { where(where: v) }
         scope :baz, -> { bar(6) }
+      end
+
+      spawn_model "Bar::User" do
+        collection_path '/bar/users'
+        scope :baz, -> { where(where: 7) }
       end
     end
 
@@ -158,6 +164,12 @@ describe Her::Model::Relation do
     it "handles embedded scopes" do
       @user = Foo::User.baz.first
       expect(@user.id).to eq(4)
+    end
+
+    it "does not share scope with other models" do
+      expect(Bar::User.scoped).not_to respond_to(:foo, :bar)
+      expect(Foo::User.scoped.baz.params[:where]).to eq(6)
+      expect(Bar::User.scoped.baz.params[:where]).to eq(7)
     end
   end
 

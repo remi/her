@@ -3,6 +3,7 @@ module Her
     class Relation
       # @private
       attr_accessor :params
+      attr_writer :parent
 
       # @private
       def initialize(parent)
