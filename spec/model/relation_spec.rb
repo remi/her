@@ -79,8 +79,8 @@ describe Her::Model::Relation do
       end
 
       it "propagates the scopes through its children" do
-        @users = User.page(2)
-        expect(@users.length).to eq(2)
+        expect(User.page(2).length).to eq(2)
+        expect(User.scoped.page(2).length).to eq(2)
       end
     end
   end

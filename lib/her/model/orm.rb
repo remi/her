@@ -267,9 +267,9 @@ module Her
           resource
         end
 
-        private
         # @private
         def blank_relation
+          @blank_relation ||= superclass.blank_relation.clone.tap { |r| r.parent = self } if superclass.respond_to?(:blank_relation)
           @blank_relation ||= Relation.new(self)
         end
       end
