@@ -990,6 +990,7 @@ See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for
 Most projects I know that use Her are internal or private projects but here’s a list of public ones:
 
 * [tumbz](https://github.com/remiprev/tumbz)
+* [zoho-ruby](https://github.com/errorstudio/zoho-ruby)
 * [crowdher](https://github.com/simonprev/crowdher)
 * [vodka](https://github.com/magnolia-fan/vodka)
 * [webistrano_cli](https://github.com/chytreg/webistrano_cli)
