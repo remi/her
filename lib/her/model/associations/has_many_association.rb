@@ -85,7 +85,14 @@ module Her
         def fetch
           super.tap do |o|
             inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
-            o.each { |entry| entry.send("#{inverse_of}=", @parent) }
+            o.each do |entry|
+              inverse_association = entry.send(inverse_of).association rescue nil
+              if inverse_association.present?
+                inverse_association.cached_result = @parent
+              else
+                entry.send("#{inverse_of}=", @parent)
+              end
+            end
           end
         end
 
