@@ -158,6 +158,7 @@ module Her
           reset
           set_missing_and_inverse_from_parent(resources)
           @parent.attributes[@name] = resources
+          resources = @parent.attributes[@name] if ActiveSupport::VERSION::MAJOR == 3
           @cached_result = resources
         end
 
