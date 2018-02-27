@@ -38,7 +38,7 @@ module Her
         #
         # @private
         def her_nearby_class(name)
-          her_sibling_class(name) || name.constantize rescue nil
+          her_sibling_class(name) || name.constantize
         end
 
         protected
