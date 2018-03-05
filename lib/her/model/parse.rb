@@ -34,6 +34,7 @@ module Her
         def to_params(attributes, changes={})
           filtered_attributes = attributes.dup.symbolize_keys
           filtered_attributes.merge!(embeded_params(attributes))
+          filtered_attributes.except!(*associations[:belongs_to].map{ |a| a[:data_key] })
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
               hash[attribute] = filtered_attributes[attribute]
