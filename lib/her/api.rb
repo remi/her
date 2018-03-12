@@ -13,6 +13,15 @@ module Her
       @default_api = new(opts, &block)
     end
 
+    # Setup a default API as a connection pool.
+    #
+    # @param [Fixnum] size maximum number of connections in the pool
+    # @param [Hash] opts the same options as in {API.setup}
+    #
+    def self.setup_pool(size, opts={}, &block)
+      @default_api = new(opts.merge(:pool_size => size), &block)
+    end
+
     # Create a new API object. This is useful to create multiple APIs and use them with the `uses_api` method.
     # If your application uses only one API, you should use Her::API.setup to configure the default API
     #
@@ -34,8 +43,10 @@ module Her
     # @param [Hash] opts the Faraday options
     # @option opts [String] :url The main HTTP API root (eg. `https://api.example.com`)
     # @option opts [String] :ssl A hash containing [SSL options](https://github.com/lostisland/faraday/wiki/Setting-up-SSL-certificates)
+    # @option opts [Fixnum] :pool_size Size of connection pool
+    # @option opts [Fixnum] :pool_timeout Timeout of connection pool
     #
-    # @return Faraday::Connection
+    # @return Her::API
     #
     # @example Setting up the default API connection
     #   Her::API.setup :url => "https://api.example"
@@ -71,11 +82,14 @@ module Her
     def setup(opts={}, &blk)
       opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
       @options = opts
+      @faraday_options = @options.slice(*FARADAY_OPTIONS)
+      @faraday_block = blk
 
-      faraday_options = @options.reject { |key, value| !FARADAY_OPTIONS.include?(key.to_sym) }
-      @connection = Faraday.new(faraday_options) do |connection|
-        yield connection if block_given?
-      end
+      @connection = if opts[:pool_size] || opts[:pool_timeout]
+                      make_faraday_pool
+                    else
+                      make_faraday_connection
+                    end
       self
     end
 
@@ -115,6 +129,22 @@ module Her
     # @private
     def self.default_api(opts={})
       defined?(@default_api) ? @default_api : nil
+    end
+
+    # @private
+    def make_faraday_pool
+      require 'her/api/connection_pool'
+      pool_options = {}
+      pool_options[:size] = @options[:pool_size] if @options[:pool_size]
+      pool_options[:timeout] = @options[:pool_timeout] if @options[:pool_timeout]
+      ConnectionPool.new(pool_options) do
+        make_faraday_connection
+      end
+    end
+
+    # @private
+    def make_faraday_connection
+      Faraday.new(@faraday_options, &@faraday_block)
     end
   end
 end
