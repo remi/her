@@ -24,6 +24,21 @@ describe Her::Model::Parse do
         end
       end
 
+      it "inherits attributes from parent class" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+        end
+
+        expect(Foo::ChildUser).to be_include_root_in_json
+      end
+
+      it "allows `include_root_in_json` to be set to `false` on a child model" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+          include_root_in_json false
+        end
+
+        expect(Foo::ChildUser).to_not be_include_root_in_json
+      end
+
       it "wraps params in the element name in `to_params`" do
         @new_user = Foo::User.new(fullname: "Tobias Fünke")
         expect(@new_user.to_params).to eq(user: { fullname: "Tobias Fünke" })
@@ -32,6 +47,29 @@ describe Her::Model::Parse do
       it "wraps params in the element name in `.create`" do
         @new_user = Foo::User.admins(fullname: "Tobias Fünke")
         expect(@new_user.fullname).to eq("Tobias Fünke")
+      end
+    end
+
+    context "to false" do
+      before do
+        spawn_model "Foo::User" do
+          include_root_in_json false
+        end
+      end
+
+      it "inherits attributes from parent class" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+        end
+
+        expect(Foo::ChildUser).to_not be_include_root_in_json
+      end
+
+      it "allows `include_root_in_json` to be set to `true` on a child model" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+          include_root_in_json true
+        end
+
+        expect(Foo::ChildUser).to be_include_root_in_json
       end
     end
 
@@ -64,6 +102,54 @@ describe Her::Model::Parse do
     end
   end
 
+  context "when `request_new_object_on_build` is set" do
+    context "to true" do
+      before do
+        spawn_model "Foo::User" do
+          request_new_object_on_build true
+        end
+      end
+
+      it "inherits attributes from parent class" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+        end
+
+        expect(Foo::ChildUser).to be_request_new_object_on_build
+      end
+
+      it "allows `request_new_object_on_build` to be set to `false` on a child model" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+          request_new_object_on_build false
+        end
+
+        expect(Foo::ChildUser).to_not be_request_new_object_on_build
+      end
+    end
+
+    context "to false" do
+      before do
+        spawn_model "Foo::User" do
+          request_new_object_on_build false
+        end
+      end
+
+      it "inherits attributes from parent class" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+        end
+
+        expect(Foo::ChildUser).to_not be_request_new_object_on_build
+      end
+
+      it "allows `request_new_object_on_build` to be set to `true` on a child model" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+          request_new_object_on_build true
+        end
+
+        expect(Foo::ChildUser).to be_request_new_object_on_build
+      end
+    end
+  end
+
   context "when parse_root_in_json is set" do
     before do
       Her::API.setup url: "https://api.example.com" do |builder|
@@ -86,6 +172,21 @@ describe Her::Model::Parse do
           parse_root_in_json true
           custom_get :admins
         end
+      end
+
+      it "inherits attributes from parent class" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+        end
+
+        expect(Foo::ChildUser).to be_parse_root_in_json
+      end
+
+      it "allows `parse_root_in_json` to be set to `false` on a child model" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+          parse_root_in_json false
+        end
+
+        expect(Foo::ChildUser).to_not be_parse_root_in_json
       end
 
       it "parse the data from the JSON root element after .create" do
@@ -113,6 +214,29 @@ describe Her::Model::Parse do
         @user.fullname = "Tobias Fünke"
         @user.save
         expect(@user.fullname).to eq("Tobias Fünke Jr.")
+      end
+    end
+
+    context "to false" do
+      before do
+        spawn_model "Foo::User" do
+          parse_root_in_json false
+        end
+      end
+
+      it "inherits attributes from parent class" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+        end
+
+        expect(Foo::ChildUser).to_not be_parse_root_in_json
+      end
+
+      it "allows `parse_root_in_json` to be set to `true` on a child model" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+          parse_root_in_json true
+        end
+
+        expect(Foo::ChildUser).to be_parse_root_in_json
       end
     end
 

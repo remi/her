@@ -194,17 +194,20 @@ module Her
 
         # @private
         def request_new_object_on_build?
-          @_her_request_new_object_on_build || (superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?)
+          return @_her_request_new_object_on_build unless @_her_request_new_object_on_build.nil?
+          superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?
         end
 
         # @private
         def include_root_in_json?
-          @_her_include_root_in_json || (superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?)
+          return @_her_include_root_in_json unless @_her_include_root_in_json.nil?
+          superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?
         end
 
         # @private
         def parse_root_in_json?
-          @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
+          return @_her_parse_root_in_json unless @_her_parse_root_in_json.nil?
+          superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?
         end
       end
     end
