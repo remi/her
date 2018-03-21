@@ -491,10 +491,28 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", active: true }.to_json] }
           stub.delete("/users/1") { [status, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
+
+          stub.get("/child_users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
+          stub.get("/child_users") { |env| [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], :metadata => { :total_pages => 10, :next_page => 2 }, :errors => ["Oh", "My", "God"] }.to_json] }
+          stub.post("/child_users") { |env| [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
+          stub.delete("/child_users/1") { |env| [200, {}, { :data => { :id => 1 }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
         end
       end
 
       spawn_model "Foo::User"
+    end
+
+    it "handles proper resource deletion on a child model class" do
+      child_user_klass = Class.new(Foo::User) do
+        def self.name
+          "ChildUser"
+        end
+      end
+
+      child_user_klass.destroy_existing(1)
+      @child_user = child_user_klass.create(name: "George Michael Bluth")
+
+      expect { @child_user.save! }.to raise_error(Her::Errors::ResourceInvalid)
     end
 
     it "handle resource deletion through the .destroy class method" do
