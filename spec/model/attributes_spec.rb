@@ -379,9 +379,9 @@ describe Her::Model::Attributes do
           undef :synchronize
         end
       end
-    else
+    elsif ActiveModel::VERSION::MAJOR == 5 && ActiveModel::VERSION::MINOR <= 1
       it "uses ActiveModel's mutex" do
-        expect(Foo::User.attribute_methods_mutex).to eq(Foo::User.send(:generated_attribute_methods))
+        expect(Foo::User.attribute_methods_mutex).to eq(Foo::User.generated_attribute_methods)
       end
     end
 
