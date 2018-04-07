@@ -324,15 +324,15 @@ describe Her::Model::Attributes do
       end
 
       it "overrides getter method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname)
+        expect(Foo::User.send(:generated_attribute_methods).instance_methods).to include(:fullname)
       end
 
       it "overrides setter method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname=)
+        expect(Foo::User.send(:generated_attribute_methods).instance_methods).to include(:fullname=)
       end
 
       it "overrides predicate method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname?)
+        expect(Foo::User.send(:generated_attribute_methods).instance_methods).to include(:fullname?)
       end
 
       it "defines setter that affects @attributes" do
@@ -361,7 +361,7 @@ describe Her::Model::Attributes do
         spawn_model "Foo::User" do
           attributes :fullname
         end
-        expect(Foo::User.attribute_methods_mutex).not_to eq(Foo::User.generated_attribute_methods)
+        expect(Foo::User.attribute_methods_mutex).not_to eq(Foo::User.send(:generated_attribute_methods))
       end
 
       it "works well with Module#synchronize monkey patched by ActiveSupport" do
@@ -374,14 +374,14 @@ describe Her::Model::Attributes do
         spawn_model "Foo::User" do
           attributes :fullname
         end
-        expect(Foo::User.attribute_methods_mutex).not_to eq(Foo::User.generated_attribute_methods)
+        expect(Foo::User.attribute_methods_mutex).not_to eq(Foo::User.send(:generated_attribute_methods))
         Module.class_eval do
           undef :synchronize
         end
       end
     else
       it "uses ActiveModel's mutex" do
-        expect(Foo::User.attribute_methods_mutex).to eq(Foo::User.generated_attribute_methods)
+        expect(Foo::User.attribute_methods_mutex).to eq(Foo::User.send(:generated_attribute_methods))
       end
     end
 
