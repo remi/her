@@ -204,7 +204,7 @@ describe Her::Model::Attributes do
 
         spawn_model "Foo::User" do
           def document
-            @attributes[:document][:url]
+            self.attributes[:document][:url]
           end
         end
       end
@@ -229,7 +229,7 @@ describe Her::Model::Attributes do
 
         spawn_model "Foo::User" do
           def document=(document)
-            @attributes[:document] = document[:url]
+            @_attributes[:document] = document[:url]
           end
         end
       end

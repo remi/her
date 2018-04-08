@@ -39,7 +39,7 @@ module Her
       #
       # @private
       def method_missing(method, *args, &blk)
-        if method.to_s =~ /[?=]$/ || @attributes.include?(method)
+        if method.to_s =~ /[?=]$/ || @_attributes.include?(method)
           # Extract the attribute
           attribute = method.to_s.sub(/[?=]$/, '')
 
@@ -55,7 +55,7 @@ module Her
 
       # @private
       def respond_to_missing?(method, include_private = false)
-        method.to_s =~ /[?=]$/ || @attributes.include?(method) || super
+        method.to_s =~ /[?=]$/ || @_attributes.include?(method) || super
       end
 
       # Assign new attributes to a resource
@@ -69,40 +69,47 @@ module Her
       #   user.assign_attributes(name: "Lindsay")
       #   user.changes # => { :name => ["Tobias", "Lindsay"] }
       def assign_attributes(new_attributes)
-        @attributes ||= attributes
+        @_attributes ||= attributes
         # Use setter methods first
         unset_attributes = self.class.use_setter_methods(self, new_attributes)
 
         # Then translate attributes of associations into association instances
         parsed_attributes = self.class.parse_associations(unset_attributes)
 
-        # Then merge the parsed_data into @attributes.
-        @attributes.merge!(parsed_attributes)
+        # Then merge the parsed_data into @_attributes.
+        @_attributes.merge!(parsed_attributes)
       end
       alias attributes= assign_attributes
 
       def attributes
-        @attributes ||= HashWithIndifferentAccess.new
+        # The natural choice of instance variable naming here would be
+        # `@attributes`. Unfortunately that causes a naming clash when
+        # used with `ActiveModel` version >= 5.2.0.
+        # As of v5.2.0 `ActiveModel` checks to see if `ActiveRecord`
+        # attributes exist, assuming that if the instance variable
+        # `@attributes` exists on the instance, it is because they are
+        # `ActiveRecord` attributes.
+        @_attributes ||= HashWithIndifferentAccess.new
       end
 
       # Handles returning true for the accessible attributes
       #
       # @private
       def has_attribute?(attribute_name)
-        @attributes.include?(attribute_name)
+        @_attributes.include?(attribute_name)
       end
 
       # Handles returning data for a specific attribute
       #
       # @private
       def get_attribute(attribute_name)
-        @attributes[attribute_name]
+        @_attributes[attribute_name]
       end
       alias attribute get_attribute
 
       # Return the value of the model `primary_key` attribute
       def id
-        @attributes[self.class.primary_key]
+        @_attributes[self.class.primary_key]
       end
 
       # Return `true` if the other object is also a Her::Model and has matching
@@ -110,7 +117,7 @@ module Her
       #
       # @private
       def ==(other)
-        other.is_a?(Her::Model) && @attributes == other.attributes
+        other.is_a?(Her::Model) && @_attributes == other.attributes
       end
 
       # Delegate to the == method
@@ -120,27 +127,27 @@ module Her
         self == other
       end
 
-      # Delegate to @attributes, allowing models to act correctly in code like:
+      # Delegate to @_attributes, allowing models to act correctly in code like:
       #     [ Model.find(1), Model.find(1) ].uniq # => [ Model.find(1) ]
       # @private
       def hash
-        @attributes.hash
+        @_attributes.hash
       end
 
       # Assign attribute value (ActiveModel convention method).
       #
       # @private
       def attribute=(attribute, value)
-        @attributes[attribute] = nil unless @attributes.include?(attribute)
-        self.send(:"#{attribute}_will_change!") if @attributes[attribute] != value
-        @attributes[attribute] = value
+        @_attributes[attribute] = nil unless @_attributes.include?(attribute)
+        self.send(:"#{attribute}_will_change!") if @_attributes[attribute] != value
+        @_attributes[attribute] = value
       end
 
       # Check attribute value to be present (ActiveModel convention method).
       #
       # @private
       def attribute?(attribute)
-        @attributes.include?(attribute) && @attributes[attribute].present?
+        @_attributes.include?(attribute) && @_attributes[attribute].present?
       end
 
       module ClassMethods
