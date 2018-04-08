@@ -42,6 +42,7 @@ describe "Her::Model and ActiveModel::Dirty" do
         end
 
         it "tracks only changed dirty attributes" do
+          expect(user.fullname_changed?).to be_falsey
           user.fullname = user.fullname
           expect(user.fullname_changed?).to be_falsey
         end

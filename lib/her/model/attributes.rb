@@ -31,6 +31,7 @@ module Her
 
         attributes = self.class.default_scope.apply_to(attributes)
         assign_attributes(attributes)
+        self.clear_changes_information unless new?
         yield self if block_given?
         run_callbacks :initialize
       end

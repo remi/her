@@ -49,8 +49,9 @@ module Her
 
               return false if !response.success? || @response_errors.any?
               if self.changed_attributes.present?
-                @previously_changed = self.changes.clone
-                self.changed_attributes.clear
+                previously_changed = self.changes.clone
+                self.clear_changes_information
+                @previously_changed = previously_changed
               end
             end
           end
