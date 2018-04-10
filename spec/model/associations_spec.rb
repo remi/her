@@ -682,14 +682,18 @@ describe Her::Model::Associations do
     end
 
     context "with #build" do
+      let(:comment) { Foo::User.new(id: 10).comments.build(body: "Hello!") }
+
       it "takes the parent primary key" do
-        @comment = Foo::User.new(id: 10).comments.build(body: "Hello!")
-        expect(@comment.body).to eq("Hello!")
-        expect(@comment.user_id).to eq(10)
+        expect(comment.body).to eq("Hello!")
+        expect(comment.user_id).to eq(10)
       end
     end
 
     context "with #create" do
+      let(:user) { Foo::User.find(10) }
+      let(:comment) { user.comments.create(body: "Hello!") }
+
       before do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
@@ -705,25 +709,30 @@ describe Her::Model::Associations do
       end
 
       it "takes the parent primary key and saves the resource" do
-        @user = Foo::User.find(10)
-        @comment = @user.comments.create(body: "Hello!")
-        expect(@comment.id).to eq(1)
-        expect(@comment.body).to eq("Hello!")
-        expect(@comment.user_id).to eq(10)
-        expect(@user.comments).to eq([@comment])
+        expect(comment.id).to eq(1)
+        expect(comment.body).to eq("Hello!")
+        expect(comment.user_id).to eq(10)
+        expect(user.comments).to eq([comment])
       end
     end
 
     context "with #new" do
-      it "creates nested models from hash attibutes" do
-        user = Foo::User.new(name: "vic", comments: [{ text: "hello" }])
-        expect(user.comments.first.text).to eq("hello")
+      let(:user) { Foo::User.new(name: "vic", comments: [comment]) }
+
+      context "using hash attributes" do
+        let(:comment) { { text: "hello" } }
+
+        it "assigns nested models" do
+          expect(user.comments.first.text).to eq("hello")
+        end
       end
 
-      it "assigns nested models if given as already constructed objects" do
-        bye = Foo::Comment.new(text: "goodbye")
-        user = Foo::User.new(name: "vic", comments: [bye])
-        expect(user.comments.first.text).to eq("goodbye")
+      context "using constructed objects" do
+        let(:comment) { Foo::Comment.new(text: "goodbye") }
+
+        it "assigns nested models" do
+          expect(user.comments.first.text).to eq("goodbye")
+        end
       end
     end
   end
