@@ -8,10 +8,21 @@ describe Her::Model::Associations do
 
     context "single has_many association" do
       before { Foo::User.has_many :comments }
+      subject { super()[:has_many] }
 
       describe "[:has_many]" do
-        subject { super()[:has_many] }
-        it { is_expected.to eql [{ name: :comments, data_key: :comments, default: [], class_name: "Comment", path: "/comments", inverse_of: nil }] }
+        let(:association) do
+          {
+            name: :comments,
+            data_key: :comments,
+            default: [],
+            class_name: "Comment",
+            path: "/comments",
+            inverse_of: nil
+          }
+        end
+
+        it { is_expected.to eql [association] }
       end
     end
 
@@ -20,19 +31,50 @@ describe Her::Model::Associations do
         Foo::User.has_many :comments
         Foo::User.has_many :posts
       end
+      subject { super()[:has_many] }
 
       describe "[:has_many]" do
-        subject { super()[:has_many] }
-        it { is_expected.to eql [{ name: :comments, data_key: :comments, default: [], class_name: "Comment", path: "/comments", inverse_of: nil }, { name: :posts, data_key: :posts, default: [], class_name: "Post", path: "/posts", inverse_of: nil }] }
+        let(:comments_association) do
+          {
+            name: :comments,
+            data_key: :comments,
+            default: [],
+            class_name: "Comment",
+            path: "/comments",
+            inverse_of: nil
+          }
+        end
+        let(:posts_association) do
+          {
+            name: :posts,
+            data_key: :posts,
+            default: [],
+            class_name: "Post",
+            path: "/posts",
+            inverse_of: nil
+          }
+        end
+
+        it { is_expected.to eql [comments_association, posts_association] }
       end
     end
 
     context "single has_one association" do
       before { Foo::User.has_one :category }
+      subject { super()[:has_one] }
 
       describe "[:has_one]" do
-        subject { super()[:has_one] }
-        it { is_expected.to eql [{ name: :category, data_key: :category, default: nil, class_name: "Category", path: "/category" }] }
+        let(:association) do
+          {
+            name: :category,
+            data_key: :category,
+            default: nil,
+            class_name: "Category",
+            path: "/category"
+          }
+        end
+
+        it { is_expected.to eql [association] }
       end
     end
 
@@ -41,19 +83,49 @@ describe Her::Model::Associations do
         Foo::User.has_one :category
         Foo::User.has_one :role
       end
+      subject { super()[:has_one] }
 
       describe "[:has_one]" do
-        subject { super()[:has_one] }
-        it { is_expected.to eql [{ name: :category, data_key: :category, default: nil, class_name: "Category", path: "/category" }, { name: :role, data_key: :role, default: nil, class_name: "Role", path: "/role" }] }
+        let(:category_association) do
+          {
+            name: :category,
+            data_key: :category,
+            default: nil,
+            class_name: "Category",
+            path: "/category"
+          }
+        end
+        let(:role_association) do
+          {
+            name: :role,
+            data_key: :role,
+            default: nil,
+            class_name: "Role",
+            path: "/role"
+          }
+        end
+
+        it { is_expected.to eql [category_association, role_association] }
       end
     end
 
     context "single belongs_to association" do
       before { Foo::User.belongs_to :organization }
+      subject { super()[:belongs_to] }
 
       describe "[:belongs_to]" do
-        subject { super()[:belongs_to] }
-        it { is_expected.to eql [{ name: :organization, data_key: :organization, default: nil, class_name: "Organization", foreign_key: "organization_id", path: "/organizations/:id" }] }
+        let(:association) do
+          {
+            name: :organization,
+            data_key: :organization,
+            default: nil,
+            class_name: "Organization",
+            foreign_key: "organization_id",
+            path: "/organizations/:id"
+          }
+        end
+
+        it { is_expected.to eql [association] }
       end
     end
 
@@ -62,10 +134,31 @@ describe Her::Model::Associations do
         Foo::User.belongs_to :organization
         Foo::User.belongs_to :family
       end
+      subject { super()[:belongs_to] }
 
       describe "[:belongs_to]" do
-        subject { super()[:belongs_to] }
-        it { is_expected.to eql [{ name: :organization, data_key: :organization, default: nil, class_name: "Organization", foreign_key: "organization_id", path: "/organizations/:id" }, { name: :family, data_key: :family, default: nil, class_name: "Family", foreign_key: "family_id", path: "/families/:id" }] }
+        let(:organization_association) do
+          {
+            name: :organization,
+            data_key: :organization,
+            default: nil,
+            class_name: "Organization",
+            foreign_key: "organization_id",
+            path: "/organizations/:id"
+          }
+        end
+        let(:family_association) do
+          {
+            name: :family,
+            data_key: :family,
+            default: nil,
+            class_name: "Family",
+            foreign_key: "family_id",
+            path: "/families/:id"
+          }
+        end
+
+        it { is_expected.to eql [organization_association, family_association] }
       end
     end
   end
@@ -76,29 +169,76 @@ describe Her::Model::Associations do
 
     context "in base class" do
       context "single has_many association" do
-        before { Foo::User.has_many :comments, class_name: "Post", inverse_of: :admin, data_key: :user_comments, default: {} }
+        before do
+          Foo::User.has_many :comments, class_name: "Post",
+                                        inverse_of: :admin,
+                                        data_key: :user_comments,
+                                        default: {}
+        end
+        subject { super()[:has_many] }
 
         describe "[:has_many]" do
-          subject { super()[:has_many] }
-          it { is_expected.to eql [{ name: :comments, data_key: :user_comments, default: {}, class_name: "Post", path: "/comments", inverse_of: :admin }] }
+          let(:association) do
+            {
+              name: :comments,
+              data_key: :user_comments,
+              default: {},
+              class_name: "Post",
+              path: "/comments",
+              inverse_of: :admin
+            }
+          end
+
+          it { is_expected.to eql [association] }
         end
       end
 
       context "single has_one association" do
-        before { Foo::User.has_one :category, class_name: "Topic", foreign_key: "topic_id", data_key: :topic, default: nil }
+        before do
+          Foo::User.has_one :category, class_name: "Topic",
+                                       foreign_key: "topic_id",
+                                       data_key: :topic, default: nil
+        end
+        subject { super()[:has_one] }
 
         describe "[:has_one]" do
-          subject { super()[:has_one] }
-          it { is_expected.to eql [{ name: :category, data_key: :topic, default: nil, class_name: "Topic", foreign_key: "topic_id", path: "/category" }] }
+          let(:association) do
+            {
+              name: :category,
+              data_key: :topic,
+              default: nil,
+              class_name: "Topic",
+              foreign_key: "topic_id",
+              path: "/category"
+            }
+          end
+
+          it { is_expected.to eql [association] }
         end
       end
 
       context "single belongs_to association" do
-        before { Foo::User.belongs_to :organization, class_name: "Business", foreign_key: "org_id", data_key: :org, default: true }
+        before do
+          Foo::User.belongs_to :organization, class_name: "Business",
+                                              foreign_key: "org_id",
+                                              data_key: :org,
+                                              default: true
+        end
+        subject { super()[:belongs_to] }
 
         describe "[:belongs_to]" do
-          subject { super()[:belongs_to] }
-          it { is_expected.to eql [{ name: :organization, data_key: :org, default: true, class_name: "Business", foreign_key: "org_id", path: "/organizations/:id" }] }
+          let(:association) do
+            {
+              name: :organization,
+              data_key: :org,
+              default: true,
+              class_name: "Business",
+              foreign_key: "org_id",
+              path: "/organizations/:id"
+            }
+          end
+
+          it { is_expected.to eql [association] }
         end
       end
     end
@@ -116,7 +256,18 @@ describe Her::Model::Associations do
 
         describe "[:has_many]" do
           subject { super()[:has_many] }
-          it { is_expected.to eql [{ name: :comments, data_key: :comments, default: [], class_name: "Post", path: "/comments", inverse_of: nil }] }
+          let(:association) do
+            {
+              name: :comments,
+              data_key: :comments,
+              default: [],
+              class_name: "Post",
+              path: "/comments",
+              inverse_of: nil
+            }
+          end
+
+          it { is_expected.to eql [association] }
         end
       end
     end
