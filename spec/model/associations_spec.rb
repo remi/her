@@ -2,7 +2,7 @@
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::Associations do
-  context "setting associations without details" do
+  context "setting associations without options" do
     before { spawn_model "Foo::User" }
     subject { Foo::User.associations }
 
@@ -70,7 +70,7 @@ describe Her::Model::Associations do
     end
   end
 
-  context "setting associations with details" do
+  context "setting associations with options" do
     before { spawn_model "Foo::User" }
     subject { Foo::User.associations }
 
@@ -122,7 +122,7 @@ describe Her::Model::Associations do
     end
   end
 
-  context "handling associations without details" do
+  context "handling associations without options" do
     before do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -337,7 +337,7 @@ describe Her::Model::Associations do
     end
   end
 
-  context "handling associations with details in active_model_serializers format" do
+  context "handling associations with options in active_model_serializers format" do
     before do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
@@ -440,7 +440,7 @@ describe Her::Model::Associations do
     end
   end
 
-  context "handling associations with details" do
+  context "handling associations with options" do
     before do
       Her::API.setup url: "https://api.example.com" do |builder|
         builder.use Her::Middleware::FirstLevelParseJSON
