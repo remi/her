@@ -48,7 +48,7 @@ module Her
 
           embed_params!(attributes, filtered_attributes)
 
-          if include_root_in_json?
+          if include_root_in_json
             if json_api_format?
               { included_root_element => [filtered_attributes] }
             else
@@ -96,18 +96,6 @@ module Her
           end
         ensure
           Thread.current[:her_embedded_params_objects] = nil if first
-        end
-
-        # Return or change the value of `include_root_in_json`
-        #
-        # @example
-        #   class User
-        #     include Her::Model
-        #     include_root_in_json true
-        #   end
-        def include_root_in_json(value, options = {})
-          @_her_include_root_in_json = value
-          @_her_include_root_in_json_format = options[:format]
         end
 
         # Return or change the value of `parse_root_in_json`
@@ -174,7 +162,7 @@ module Her
 
         # @private
         def included_root_element
-          include_root_in_json? == true ? root_element : include_root_in_json?
+          include_root_in_json == true ? root_element : include_root_in_json
         end
 
         # Extract an array from the request data
@@ -230,12 +218,6 @@ module Her
         def request_new_object_on_build?
           return @_her_request_new_object_on_build unless @_her_request_new_object_on_build.nil?
           superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?
-        end
-
-        # @private
-        def include_root_in_json?
-          return @_her_include_root_in_json unless @_her_include_root_in_json.nil?
-          superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?
         end
 
         # @private
