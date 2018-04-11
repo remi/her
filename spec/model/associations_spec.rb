@@ -311,166 +311,180 @@ describe Her::Model::Associations do
       end
 
       spawn_model "Foo::Role"
-
-      @user_with_included_data = Foo::User.find(1)
-      @user_without_included_data = Foo::User.find(2)
-      @user_without_organization_and_not_persisted = Foo::User.new(organization_id: nil, name: "Katlin Fünke")
     end
 
-    let(:user_with_included_data_after_create) { Foo::User.create }
-    let(:user_with_included_data_after_save_existing) { Foo::User.save_existing(5, name: "Clancy Brown") }
-    let(:user_with_included_data_after_destroy) { Foo::User.new(id: 5).destroy }
-    let(:comment_without_included_parent_data) { Foo::Comment.new(id: 7, user_id: 1) }
-    let(:new_user) { Foo::User.new }
+    context "with included data" do
+      let(:user) { Foo::User.find(1) }
+      let(:user_params) { user.to_params }
 
-    it "maps an array of included data through has_many" do
-      expect(@user_with_included_data.comments.first).to be_a(Foo::Comment)
-      expect(@user_with_included_data.comments.length).to eq(2)
-      expect(@user_with_included_data.comments.first.id).to eq(2)
-      expect(@user_with_included_data.comments.first.body).to eq("Tobias, you blow hard!")
+      it "maps an array of included data through has_many" do
+        expect(user.comments.first).to be_a(Foo::Comment)
+        expect(user.comments.length).to eq(2)
+        expect(user.comments.first.id).to eq(2)
+        expect(user.comments.first.body).to eq("Tobias, you blow hard!")
+      end
+
+      it "does not refetch the parents models data if they have been fetched before" do
+        expect(user.comments.first.user.object_id).to eq(user.object_id)
+      end
+
+      it "uses the given inverse_of key to set the parent model" do
+        expect(user.posts.first.admin.object_id).to eq(user.object_id)
+      end
+
+      it "fetches has_many data even if it was included, only if called with parameters" do
+        expect(user.comments.where(foo_id: 1).length).to eq(1)
+      end
+
+      it "maps an array of included data through has_one" do
+        expect(user.role).to be_a(Foo::Role)
+        expect(user.role.object_id).to eq(user.role.object_id)
+        expect(user.role.id).to eq(1)
+        expect(user.role.body).to eq("Admin")
+      end
+
+      it "fetches has_one data even if it was included, only if called with parameters" do
+        expect(user.role.where(foo_id: 2).id).to eq(3)
+      end
+
+      it "maps an array of included data through belongs_to" do
+        expect(user.organization).to be_a(Foo::Organization)
+        expect(user.organization.id).to eq(1)
+        expect(user.organization.name).to eq("Bluth Company")
+      end
+
+      it "fetches belongs_to data even if it was included, only if called with parameters" do
+        expect(user.organization.where(foo_id: 1).name).to eq("Bluth Company Foo")
+      end
+
+      it "includes has_many relationships in params by default" do
+        expect(user_params[:comments]).to be_kind_of(Array)
+        expect(user_params[:comments].length).to eq(2)
+      end
+
+      it "includes has_one relationship in params by default" do
+        expect(user_params[:role]).to be_kind_of(Hash)
+        expect(user_params[:role]).not_to be_empty
+      end
+
+      it "includes belongs_to relationship in params by default" do
+        expect(user_params[:organization]).to be_kind_of(Hash)
+        expect(user_params[:organization]).not_to be_empty
+      end
     end
 
-    it "does not refetch the parents models data if they have been fetched before" do
-      expect(@user_with_included_data.comments.first.user.object_id).to eq(@user_with_included_data.object_id)
+    context "without included data" do
+      let(:user) { Foo::User.find(2) }
+
+      it "fetches data that was not included through has_many" do
+        expect(user.comments.first).to be_a(Foo::Comment)
+        expect(user.comments.length).to eq(2)
+        expect(user.comments.first.id).to eq(4)
+        expect(user.comments.first.body).to eq("They're having a FIRESALE?")
+      end
+
+      it "fetches data that was not included through has_many only once" do
+        expect(user.comments.first.object_id).to eq(user.comments.first.object_id)
+      end
+
+      it "fetches data that was cached through has_many if called with parameters" do
+        expect(user.comments.first.object_id).not_to eq(user.comments.where(foo_id: 1).first.object_id)
+      end
+
+      it "fetches data again after being reloaded" do
+        expect { user.comments.reload }.to change { user.comments.first.object_id }
+      end
+
+      it "fetches data that was not included through has_one" do
+        expect(user.role).to be_a(Foo::Role)
+        expect(user.role.id).to eq(2)
+        expect(user.role.body).to eq("User")
+      end
+
+      it "fetches data that was not included through belongs_to" do
+        expect(user.organization).to be_a(Foo::Organization)
+        expect(user.organization.id).to eq(2)
+        expect(user.organization.name).to eq("Bluth Company")
+      end
+
+      it "can tell if it has a association" do
+        expect(user.has_association?(:unknown_association)).to be false
+        expect(user.has_association?(:organization)).to be true
+      end
+
+      it "fetches the resource corresponding to a named association" do
+        expect(user.get_association(:unknown_association)).to be_nil
+        expect(user.get_association(:organization).name).to eq("Bluth Company")
+      end
+
+      it "pass query string parameters when additional arguments are passed" do
+        expect(user.organization.where(admin: true).name).to eq("Bluth Company (admin)")
+        expect(user.organization.name).to eq("Bluth Company")
+      end
+
+      it "fetches data with the specified id when calling find" do
+        comment = user.comments.find(5)
+        expect(comment).to be_a(Foo::Comment)
+        expect(comment.id).to eq(5)
+      end
+
+      it "'s associations responds to #empty?" do
+        expect(user.organization.respond_to?(:empty?)).to be_truthy
+        expect(user.organization).not_to be_empty
+      end
     end
 
-    it "does fetch the parent models data only once" do
-      expect(comment_without_included_parent_data.user.object_id).to eq(comment_without_included_parent_data.user.object_id)
+    context "without included parent data" do
+      let(:comment) { Foo::Comment.new(id: 7, user_id: 1) }
+
+      it "does fetch the parent models data only once" do
+        expect(comment.user.object_id).to eq(comment.user.object_id)
+      end
+
+      it "does fetch the parent models data that was cached if called with parameters" do
+        expect(comment.user.object_id).not_to eq(comment.user.where(a: 2).object_id)
+      end
     end
 
-    it "does fetch the parent models data that was cached if called with parameters" do
-      expect(comment_without_included_parent_data.user.object_id).not_to eq(comment_without_included_parent_data.user.where(a: 2).object_id)
+    context "when resource is new" do
+      let(:new_user) { Foo::User.new }
+
+      it "doesn't attempt to fetch association data" do
+        expect(new_user.comments).to eq([])
+        expect(new_user.role).to be_nil
+        expect(new_user.organization).to be_nil
+      end
     end
 
-    it "uses the given inverse_of key to set the parent model" do
-      expect(@user_with_included_data.posts.first.admin.object_id).to eq(@user_with_included_data.object_id)
+    context "when foreign_key is nil" do
+      let(:user) { Foo::User.new(organization_id: nil, name: "Katlin Fünke") }
+
+      it "returns nil" do
+        expect(user.organization).to be_nil
+      end
     end
 
-    it "doesn't attempt to fetch association data for a new resource" do
-      expect(new_user.comments).to eq([])
-      expect(new_user.role).to be_nil
-      expect(new_user.organization).to be_nil
-    end
+    context "after" do
+      let(:user_after_create) { Foo::User.create }
+      let(:user_after_save_existing) { Foo::User.save_existing(5, name: "Clancy Brown") }
+      let(:user_after_destroy) { Foo::User.new(id: 5).destroy }
 
-    it "fetches data that was not included through has_many" do
-      expect(@user_without_included_data.comments.first).to be_a(Foo::Comment)
-      expect(@user_without_included_data.comments.length).to eq(2)
-      expect(@user_without_included_data.comments.first.id).to eq(4)
-      expect(@user_without_included_data.comments.first.body).to eq("They're having a FIRESALE?")
-    end
+      [:create, :save_existing, :destroy].each do |type|
+        context "after #{type}" do
+          let(:subject) { send("user_after_#{type}") }
 
-    it "fetches has_many data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.comments.where(foo_id: 1).length).to eq(1)
-    end
+          it "maps an array of included data through has_many" do
+            expect(subject.comments.first).to be_a(Foo::Comment)
+            expect(subject.comments.length).to eq(1)
+            expect(subject.comments.first.id).to eq(99)
+            expect(subject.comments.first.body).to eq("Rodríguez, nasibisibusi?")
+          end
 
-    it "fetches data that was not included through has_many only once" do
-      expect(@user_without_included_data.comments.first.object_id).to eq(@user_without_included_data.comments.first.object_id)
-    end
-
-    it "fetches data that was cached through has_many if called with parameters" do
-      expect(@user_without_included_data.comments.first.object_id).not_to eq(@user_without_included_data.comments.where(foo_id: 1).first.object_id)
-    end
-
-    it "fetches data again after being reloaded" do
-      expect { @user_without_included_data.comments.reload }.to change { @user_without_included_data.comments.first.object_id }
-    end
-
-    it "maps an array of included data through has_one" do
-      expect(@user_with_included_data.role).to be_a(Foo::Role)
-      expect(@user_with_included_data.role.object_id).to eq(@user_with_included_data.role.object_id)
-      expect(@user_with_included_data.role.id).to eq(1)
-      expect(@user_with_included_data.role.body).to eq("Admin")
-    end
-
-    it "fetches data that was not included through has_one" do
-      expect(@user_without_included_data.role).to be_a(Foo::Role)
-      expect(@user_without_included_data.role.id).to eq(2)
-      expect(@user_without_included_data.role.body).to eq("User")
-    end
-
-    it "fetches has_one data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.role.where(foo_id: 2).id).to eq(3)
-    end
-
-    it "maps an array of included data through belongs_to" do
-      expect(@user_with_included_data.organization).to be_a(Foo::Organization)
-      expect(@user_with_included_data.organization.id).to eq(1)
-      expect(@user_with_included_data.organization.name).to eq("Bluth Company")
-    end
-
-    it "fetches data that was not included through belongs_to" do
-      expect(@user_without_included_data.organization).to be_a(Foo::Organization)
-      expect(@user_without_included_data.organization.id).to eq(2)
-      expect(@user_without_included_data.organization.name).to eq("Bluth Company")
-    end
-
-    it "returns nil if the foreign key is nil" do
-      expect(@user_without_organization_and_not_persisted.organization).to be_nil
-    end
-
-    it "fetches belongs_to data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.organization.where(foo_id: 1).name).to eq("Bluth Company Foo")
-    end
-
-    it "can tell if it has a association" do
-      expect(@user_without_included_data.has_association?(:unknown_association)).to be false
-      expect(@user_without_included_data.has_association?(:organization)).to be true
-    end
-
-    it "fetches the resource corresponding to a named association" do
-      expect(@user_without_included_data.get_association(:unknown_association)).to be_nil
-      expect(@user_without_included_data.get_association(:organization).name).to eq("Bluth Company")
-    end
-
-    it "pass query string parameters when additional arguments are passed" do
-      expect(@user_without_included_data.organization.where(admin: true).name).to eq("Bluth Company (admin)")
-      expect(@user_without_included_data.organization.name).to eq("Bluth Company")
-    end
-
-    it "fetches data with the specified id when calling find" do
-      comment = @user_without_included_data.comments.find(5)
-      expect(comment).to be_a(Foo::Comment)
-      expect(comment.id).to eq(5)
-    end
-
-    it "'s associations responds to #empty?" do
-      expect(@user_without_included_data.organization.respond_to?(:empty?)).to be_truthy
-      expect(@user_without_included_data.organization).not_to be_empty
-    end
-
-    it "includes has_many relationships in params by default" do
-      params = @user_with_included_data.to_params
-      expect(params[:comments]).to be_kind_of(Array)
-      expect(params[:comments].length).to eq(2)
-    end
-
-    it "includes has_one relationship in params by default" do
-      params = @user_with_included_data.to_params
-      expect(params[:role]).to be_kind_of(Hash)
-      expect(params[:role]).not_to be_empty
-    end
-
-    it "includes belongs_to relationship in params by default" do
-      params = @user_with_included_data.to_params
-      expect(params[:organization]).to be_kind_of(Hash)
-      expect(params[:organization]).not_to be_empty
-    end
-
-    [:create, :save_existing, :destroy].each do |type|
-      context "after #{type}" do
-        let(:subject) { send("user_with_included_data_after_#{type}") }
-
-        it "maps an array of included data through has_many" do
-          expect(subject.comments.first).to be_a(Foo::Comment)
-          expect(subject.comments.length).to eq(1)
-          expect(subject.comments.first.id).to eq(99)
-          expect(subject.comments.first.body).to eq("Rodríguez, nasibisibusi?")
-        end
-
-        it "maps an array of included data through has_one" do
-          expect(subject.role).to be_a(Foo::Role)
-          expect(subject.role.id).to eq(1)
-          expect(subject.role.body).to eq("Admin")
+          it "maps an array of included data through has_one" do
+            expect(subject.role).to be_a(Foo::Role)
+            expect(subject.role.id).to eq(1)
+            expect(subject.role.body).to eq("Admin")
+          end
         end
       end
     end
@@ -511,71 +525,74 @@ describe Her::Model::Associations do
       spawn_model "Foo::Organization" do
         parse_root_in_json true, format: :active_model_serializers
       end
-
-      @user_with_included_data = Foo::User.find(1)
-      @user_without_included_data = Foo::User.find(2)
     end
 
-    it "maps an array of included data through has_many" do
-      expect(@user_with_included_data.comments.first).to be_a(Foo::Comment)
-      expect(@user_with_included_data.comments.length).to eq(2)
-      expect(@user_with_included_data.comments.first.id).to eq(2)
-      expect(@user_with_included_data.comments.first.body).to eq("Tobias, you blow hard!")
+    context "with included data" do
+      let(:user) { Foo::User.find(1) }
+      let(:user_params) { user.to_params }
+
+      it "maps an array of included data through has_many" do
+        expect(user.comments.first).to be_a(Foo::Comment)
+        expect(user.comments.length).to eq(2)
+        expect(user.comments.first.id).to eq(2)
+        expect(user.comments.first.body).to eq("Tobias, you blow hard!")
+      end
+
+      it "does not refetch the parents models data if they have been fetched before" do
+        expect(user.comments.first.user.object_id).to eq(user.object_id)
+      end
+
+      it "fetches has_many data even if it was included, only if called with parameters" do
+        expect(user.comments.where(foo_id: 1).length).to eq(1)
+      end
+
+      it "maps an array of included data through belongs_to" do
+        expect(user.organization).to be_a(Foo::Organization)
+        expect(user.organization.id).to eq(1)
+        expect(user.organization.name).to eq("Bluth Company")
+      end
+
+      it "fetches belongs_to data even if it was included, only if called with parameters" do
+        expect(user.organization.where(foo_id: 1).name).to eq("Bluth Company Foo")
+      end
+
+      it "includes has_many relationships in params by default" do
+        expect(user_params[:comments]).to be_kind_of(Array)
+        expect(user_params[:comments].length).to eq(2)
+      end
+
+      it "includes has_one relationships in params by default" do
+        expect(user_params[:role]).to be_kind_of(Hash)
+        expect(user_params[:role]).not_to be_empty
+      end
+
+      it "includes belongs_to relationship in params by default" do
+        expect(user_params[:organization]).to be_kind_of(Hash)
+        expect(user_params[:organization]).not_to be_empty
+      end
     end
 
-    it "does not refetch the parents models data if they have been fetched before" do
-      expect(@user_with_included_data.comments.first.user.object_id).to eq(@user_with_included_data.object_id)
-    end
+    context "without included data" do
+      let(:user) { Foo::User.find(2) }
 
-    it "fetches data that was not included through has_many" do
-      expect(@user_without_included_data.comments.first).to be_a(Foo::Comment)
-      expect(@user_without_included_data.comments.length).to eq(2)
-      expect(@user_without_included_data.comments.first.id).to eq(4)
-      expect(@user_without_included_data.comments.first.body).to eq("They're having a FIRESALE?")
-    end
+      it "fetches data that was not included through has_many" do
+        expect(user.comments.first).to be_a(Foo::Comment)
+        expect(user.comments.length).to eq(2)
+        expect(user.comments.first.id).to eq(4)
+        expect(user.comments.first.body).to eq("They're having a FIRESALE?")
+      end
 
-    it "fetches has_many data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.comments.where(foo_id: 1).length).to eq(1)
-    end
+      it "fetches data that was not included through belongs_to" do
+        expect(user.organization).to be_a(Foo::Organization)
+        expect(user.organization.id).to eq(1)
+        expect(user.organization.name).to eq("Bluth Company Foo")
+      end
 
-    it "maps an array of included data through belongs_to" do
-      expect(@user_with_included_data.organization).to be_a(Foo::Organization)
-      expect(@user_with_included_data.organization.id).to eq(1)
-      expect(@user_with_included_data.organization.name).to eq("Bluth Company")
-    end
-
-    it "fetches data that was not included through belongs_to" do
-      expect(@user_without_included_data.organization).to be_a(Foo::Organization)
-      expect(@user_without_included_data.organization.id).to eq(1)
-      expect(@user_without_included_data.organization.name).to eq("Bluth Company Foo")
-    end
-
-    it "fetches belongs_to data even if it was included, only if called with parameters" do
-      expect(@user_with_included_data.organization.where(foo_id: 1).name).to eq("Bluth Company Foo")
-    end
-
-    it "fetches data with the specified id when calling find" do
-      comment = @user_without_included_data.comments.find(5)
-      expect(comment).to be_a(Foo::Comment)
-      expect(comment.id).to eq(5)
-    end
-
-    it "includes has_many relationships in params by default" do
-      params = @user_with_included_data.to_params
-      expect(params[:comments]).to be_kind_of(Array)
-      expect(params[:comments].length).to eq(2)
-    end
-
-    it "includes has_one relationships in params by default" do
-      params = @user_with_included_data.to_params
-      expect(params[:role]).to be_kind_of(Hash)
-      expect(params[:role]).not_to be_empty
-    end
-
-    it "includes belongs_to relationship in params by default" do
-      params = @user_with_included_data.to_params
-      expect(params[:organization]).to be_kind_of(Hash)
-      expect(params[:organization]).not_to be_empty
+      it "fetches data with the specified id when calling find" do
+        comment = user.comments.find(5)
+        expect(comment).to be_a(Foo::Comment)
+        expect(comment.id).to eq(5)
+      end
     end
   end
 
@@ -598,31 +615,42 @@ describe Her::Model::Associations do
       end
 
       spawn_model "Foo::Company"
-
-      @user_with_included_data = Foo::User.find(1)
-      @user_without_included_data = Foo::User.find(2)
-      @user_with_included_nil_data = Foo::User.find(3)
-      @user_with_included_data_but_no_fk = Foo::User.find(4)
     end
 
-    it "maps an array of included data through belongs_to" do
-      expect(@user_with_included_data.company).to be_a(Foo::Company)
-      expect(@user_with_included_data.company.id).to eq(1)
-      expect(@user_with_included_data.company.name).to eq("Bluth Company Inc.")
+    context "with included data" do
+      let(:user) { Foo::User.find(1) }
+
+      it "maps an array of included data through belongs_to" do
+        expect(user.company).to be_a(Foo::Company)
+        expect(user.company.id).to eq(1)
+        expect(user.company.name).to eq("Bluth Company Inc.")
+      end
+
+      context "when included data is nil" do
+        let(:user) { Foo::User.find(3) }
+
+        it "does not map included data" do
+          expect(user.company).to be_nil
+        end
+      end
+
+      context "when included data has no foreign_key" do
+        let(:user) { Foo::User.find(4) }
+
+        it "maps included data anyway" do
+          expect(user.company.name).to eq("Bluth Company Inc.")
+        end
+      end
     end
 
-    it "does not map included data if it’s nil" do
-      expect(@user_with_included_nil_data.company).to be_nil
-    end
+    context "without included data" do
+      let(:user) { Foo::User.find(2) }
 
-    it "fetches data that was not included through belongs_to" do
-      expect(@user_without_included_data.company).to be_a(Foo::Company)
-      expect(@user_without_included_data.company.id).to eq(1)
-      expect(@user_without_included_data.company.name).to eq("Bluth Company")
-    end
-
-    it "does not require foreugn key to have nested object" do
-      expect(@user_with_included_data_but_no_fk.company.name).to eq("Bluth Company Inc.")
+      it "fetches data that was not included through belongs_to" do
+        expect(user.company).to be_a(Foo::Company)
+        expect(user.company.id).to eq(1)
+        expect(user.company.name).to eq("Bluth Company")
+      end
     end
   end
 
