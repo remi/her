@@ -263,33 +263,6 @@ describe Her::Model::Associations do
 
   context "handling associations without details" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
-        builder.use Faraday::Request::UrlEncoded
-        builder.adapter :test do |stub|
-          stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke", comments: [{ comment: { id: 2, body: "Tobias, you blow hard!", user_id: 1 } }, { comment: { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 } }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 }.to_json] }
-          stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
-          stub.get("/users/1/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }].to_json] }
-          stub.get("/users/2/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }].to_json] }
-          stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
-          stub.get("/users/2/role") { [200, {}, { id: 2, body: "User" }.to_json] }
-          stub.get("/users/1/role") { [200, {}, { id: 3, body: "User" }.to_json] }
-          stub.get("/users/1/posts") { [200, {}, [{ id: 1, body: "blogging stuff", admin_id: 1 }].to_json] }
-          stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
-          stub.post("/users") { [200, {}, { id: 5, name: "Mr. Krabs", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
-          stub.put("/users/5") { [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
-          stub.delete("/users/5") { [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
-
-          stub.get("/organizations/2") do |env|
-            if env[:params]["admin"] == "true"
-              [200, {}, { organization: { id: 2, name: "Bluth Company (admin)" } }.to_json]
-            else
-              [200, {}, { organization: { id: 2, name: "Bluth Company" } }.to_json]
-            end
-          end
-        end
-      end
-
       spawn_model "Foo::User" do
         has_many :comments, class_name: "Foo::Comment"
         has_one :role, class_name: "Foo::Role"
@@ -314,6 +287,20 @@ describe Her::Model::Associations do
     end
 
     context "with included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke", comments: [{ comment: { id: 2, body: "Tobias, you blow hard!", user_id: 1 } }, { comment: { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 } }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 }.to_json] }
+            stub.get("/users/1/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }].to_json] }
+            stub.get("/users/1/role") { [200, {}, { id: 3, body: "User" }.to_json] }
+            stub.get("/users/1/posts") { [200, {}, [{ id: 1, body: "blogging stuff", admin_id: 1 }].to_json] }
+            stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+          end
+        end
+      end
+
       let(:user) { Foo::User.find(1) }
       let(:user_params) { user.to_params }
 
@@ -374,6 +361,26 @@ describe Her::Model::Associations do
     end
 
     context "without included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
+            stub.get("/users/2/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }].to_json] }
+            stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
+            stub.get("/users/2/role") { [200, {}, { id: 2, body: "User" }.to_json] }
+            stub.get("/organizations/2") do |env|
+              if env[:params]["admin"] == "true"
+                [200, {}, { organization: { id: 2, name: "Bluth Company (admin)" } }.to_json]
+              else
+                [200, {}, { organization: { id: 2, name: "Bluth Company" } }.to_json]
+              end
+            end
+          end
+        end
+      end
+
       let(:user) { Foo::User.find(2) }
 
       it "fetches data that was not included through has_many" do
@@ -435,6 +442,13 @@ describe Her::Model::Associations do
     end
 
     context "without included parent data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+        end
+      end
+
       let(:comment) { Foo::Comment.new(id: 7, user_id: 1) }
 
       it "does fetch the parent models data only once" do
@@ -457,6 +471,16 @@ describe Her::Model::Associations do
     end
 
     context "when foreign_key is nil" do
+      before do
+        spawn_model "Foo::User" do
+          belongs_to :organization, class_name: "Foo::Organization"
+        end
+
+        spawn_model "Foo::Organization" do
+          parse_root_in_json true
+        end
+      end
+
       let(:user) { Foo::User.new(organization_id: nil, name: "Katlin Fünke") }
 
       it "returns nil" do
@@ -465,6 +489,18 @@ describe Her::Model::Associations do
     end
 
     context "after" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.post("/users") { [200, {}, { id: 5, name: "Mr. Krabs", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
+            stub.put("/users/5") { [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
+            stub.delete("/users/5") { [200, {}, { id: 5, name: "Clancy Brown", comments: [{ comment: { id: 99, body: "Rodríguez, nasibisibusi?", user_id: 5 } }], role: { id: 1, body: "Admin" }, organization: { id: 3, name: "Krusty Krab" }, organization_id: 3 }.to_json] }
+          end
+        end
+      end
+
       let(:user_after_create) { Foo::User.create }
       let(:user_after_save_existing) { Foo::User.save_existing(5, name: "Clancy Brown") }
       let(:user_after_destroy) { Foo::User.new(id: 5).destroy }
@@ -492,19 +528,6 @@ describe Her::Model::Associations do
 
   context "handling associations with details in active_model_serializers format" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
-        builder.use Faraday::Request::UrlEncoded
-        builder.adapter :test do |stub|
-          stub.get("/users/1") { [200, {}, { user: { id: 1, name: "Tobias Fünke", comments: [{ id: 2, body: "Tobias, you blow hard!", user_id: 1 }, { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 } }.to_json] }
-          stub.get("/users/2") { [200, {}, { user: { id: 2, name: "Lindsay Fünke", organization_id: 1 } }.to_json] }
-          stub.get("/users/1/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }] }.to_json] }
-          stub.get("/users/2/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }, { id: 5, body: "Is this the tiny town from Footloose?" }] }.to_json] }
-          stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
-          stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
-        end
-      end
-
       spawn_model "Foo::User" do
         parse_root_in_json true, format: :active_model_serializers
         has_many :comments, class_name: "Foo::Comment"
@@ -528,6 +551,18 @@ describe Her::Model::Associations do
     end
 
     context "with included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { [200, {}, { user: { id: 1, name: "Tobias Fünke", comments: [{ id: 2, body: "Tobias, you blow hard!", user_id: 1 }, { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 } }.to_json] }
+            stub.get("/users/1/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }] }.to_json] }
+            stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+          end
+        end
+      end
+
       let(:user) { Foo::User.find(1) }
       let(:user_params) { user.to_params }
 
@@ -573,6 +608,19 @@ describe Her::Model::Associations do
     end
 
     context "without included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/2") { [200, {}, { user: { id: 2, name: "Lindsay Fünke", organization_id: 1 } }.to_json] }
+            stub.get("/users/2/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }, { id: 5, body: "Is this the tiny town from Footloose?" }] }.to_json] }
+            stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
+            stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+          end
+        end
+      end
+
       let(:user) { Foo::User.find(2) }
 
       it "fetches data that was not included through has_many" do
@@ -598,18 +646,6 @@ describe Her::Model::Associations do
 
   context "handling associations with details" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
-        builder.use Faraday::Request::UrlEncoded
-        builder.adapter :test do |stub|
-          stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." }, organization_id: 1 }.to_json] }
-          stub.get("/users/4") { [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." } }.to_json] }
-          stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 1 }.to_json] }
-          stub.get("/users/3") { [200, {}, { id: 2, name: "Lindsay Fünke", company: nil }.to_json] }
-          stub.get("/companies/1") { [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
-        end
-      end
-
       spawn_model "Foo::User" do
         belongs_to :company, path: "/organizations/:id", foreign_key: :organization_id, data_key: :organization
       end
@@ -618,6 +654,19 @@ describe Her::Model::Associations do
     end
 
     context "with included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." }, organization_id: 1 }.to_json] }
+            stub.get("/users/4") { [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." } }.to_json] }
+            stub.get("/users/3") { [200, {}, { id: 2, name: "Lindsay Fünke", company: nil }.to_json] }
+            stub.get("/companies/1") { [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
+          end
+        end
+      end
+
       let(:user) { Foo::User.find(1) }
 
       it "maps an array of included data through belongs_to" do
@@ -644,6 +693,17 @@ describe Her::Model::Associations do
     end
 
     context "without included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 1 }.to_json] }
+            stub.get("/companies/1") { [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
+          end
+        end
+      end
+
       let(:user) { Foo::User.find(2) }
 
       it "fetches data that was not included through belongs_to" do
