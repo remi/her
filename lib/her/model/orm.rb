@@ -50,7 +50,11 @@ module Her
               return false if !response.success? || @response_errors.any?
               if self.changed_attributes.present?
                 previously_changed = self.changes.clone
-                self.clear_changes_information
+                if respond_to?(:clear_changes_information)
+                  clear_changes_information
+                else
+                  self.changed_attributes.clear
+                end
                 @previously_changed = previously_changed
               end
             end

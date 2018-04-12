@@ -31,9 +31,18 @@ module Her
 
         attributes = self.class.default_scope.apply_to(attributes)
         assign_attributes(attributes)
-        self.clear_changes_information unless new?
+        _clear_changes_information unless new?
         yield self if block_given?
         run_callbacks :initialize
+      end
+
+      def _clear_changes_information
+        # this is public in `ActiveModel` v5.2 but private in v5.1, so we can't
+        # just blanket call it here
+        return clear_changes_information if respond_to?(:clear_changes_information)
+
+        @previously_changed = ActiveSupport::HashWithIndifferentAccess.new
+        @changed_attributes = ActiveSupport::HashWithIndifferentAccess.new
       end
 
       # Handles missing methods
