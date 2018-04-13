@@ -192,7 +192,7 @@ module Her
         #
         # @private
         def use_setter_methods(model, params = {})
-          reserved = [:id, model.class.primary_key, *model.class.association_keys]
+          reserved = [:id, :class, model.class.primary_key, *model.class.association_keys].uniq
           model.class.attributes *params.keys.reject { |k| reserved.include?(k) }
 
           setter_method_names = model.class.setter_method_names
