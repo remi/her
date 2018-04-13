@@ -86,44 +86,6 @@ module Her
         self
       end
 
-      # Refetches the resource
-      #
-      # This method finds the resource by its primary key (which could be
-      # assigned manually) and modifies the object in-place.
-      #
-      # @example
-      #   user = User.find(1)
-      #   # => #<User(users/1) id=1 name="Tobias Fünke">
-      #   user.name = "Oops"
-      #   user.reload # Fetched again via GET "/users/1"
-      #   # => #<User(users/1) id=1 name="Tobias Fünke">
-      def reload(options = nil)
-        fresh_object = self.class.find(id)
-        assign_attributes(fresh_object.attributes)
-        self
-      end
-
-      # Assigns to +attribute+ the boolean opposite of <tt>attribute?</tt>. So
-      # if the predicate returns +true+ the attribute will become +false+. This
-      # method toggles directly the underlying value without calling any setter.
-      # Returns +self+.
-      #
-      # @example
-      #   user = User.first
-      #   user.admin? # => false
-      #   user.toggle(:admin)
-      #   user.admin? # => true
-      def toggle(attribute)
-        attributes[attribute] = !public_send("#{attribute}?")
-        self
-      end
-
-      # Wrapper around #toggle that saves the resource. Saving is subjected to
-      # validation checks. Returns +true+ if the record could be saved.
-      def toggle!(attribute)
-        toggle(attribute) && save
-      end
-
       # Initializes +attribute+ to zero if +nil+ and adds the value passed as
       # +by+ (default is 1). The increment is performed directly on the
       # underlying attribute, no setter is invoked. Only makes sense for
@@ -153,6 +115,44 @@ module Her
       # to validation checks. Returns +self+.
       def decrement!(attribute, by = 1)
         increment!(attribute, -by)
+      end
+
+      # Assigns to +attribute+ the boolean opposite of <tt>attribute?</tt>. So
+      # if the predicate returns +true+ the attribute will become +false+. This
+      # method toggles directly the underlying value without calling any setter.
+      # Returns +self+.
+      #
+      # @example
+      #   user = User.first
+      #   user.admin? # => false
+      #   user.toggle(:admin)
+      #   user.admin? # => true
+      def toggle(attribute)
+        attributes[attribute] = !public_send("#{attribute}?")
+        self
+      end
+
+      # Wrapper around #toggle that saves the resource. Saving is subjected to
+      # validation checks. Returns +true+ if the record could be saved.
+      def toggle!(attribute)
+        toggle(attribute) && save
+      end
+
+      # Refetches the resource
+      #
+      # This method finds the resource by its primary key (which could be
+      # assigned manually) and modifies the object in-place.
+      #
+      # @example
+      #   user = User.find(1)
+      #   # => #<User(users/1) id=1 name="Tobias Fünke">
+      #   user.name = "Oops"
+      #   user.reload # Fetched again via GET "/users/1"
+      #   # => #<User(users/1) id=1 name="Tobias Fünke">
+      def reload(options = nil)
+        fresh_object = self.class.find(id)
+        assign_attributes(fresh_object.attributes)
+        self
       end
 
       module ClassMethods
