@@ -58,7 +58,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
         end
       end
 
-      it "should call the server with the canged value" do
+      it "should call the server with the changed value" do
         expect(subject.name).to eq("Tobias Funke")
         subject.save
         expect(subject.name).to eq("Lumberjack")

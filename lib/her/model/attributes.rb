@@ -41,7 +41,7 @@ module Her
       def method_missing(method, *args, &blk)
         if method.to_s =~ /[?=]$/ || @attributes.include?(method)
           # Extract the attribute
-          attribute = method.to_s.sub(/[?=]$/, '')
+          attribute = method.to_s.chop
 
           # Create a new `attribute` methods set
           self.class.attributes(*attribute)
@@ -74,10 +74,10 @@ module Her
         unset_attributes = self.class.use_setter_methods(self, new_attributes)
 
         # Then translate attributes of associations into association instances
-        parsed_attributes = self.class.parse_associations(unset_attributes)
+        associations = self.class.parse_associations(unset_attributes)
 
-        # Then merge the parsed_data into @attributes.
-        @attributes.merge!(parsed_attributes)
+        # Then merge the associations into @attributes.
+        @attributes.merge!(associations)
       end
       alias attributes= assign_attributes
 
@@ -132,7 +132,7 @@ module Her
       # @private
       def attribute=(attribute, value)
         @attributes[attribute] = nil unless @attributes.include?(attribute)
-        self.send(:"#{attribute}_will_change!") if @attributes[attribute] != value
+        send("#{attribute}_will_change!") unless value == @attributes[attribute]
         @attributes[attribute] = value
       end
 
@@ -165,10 +165,10 @@ module Her
         #
         # @private
         def instantiate_collection(klass, parsed_data = {})
-          items = klass.extract_array(parsed_data).map do |item|
-            instantiate_record(klass, data: item)
+          records = klass.extract_array(parsed_data).map do |record|
+            instantiate_record(klass, data: record)
           end
-          Her::Collection.new(items, parsed_data[:metadata], parsed_data[:errors])
+          Her::Collection.new(records, parsed_data[:metadata], parsed_data[:errors])
         end
 
         # Initialize a collection of resources with raw data from an HTTP request
@@ -197,9 +197,9 @@ module Her
 
           setter_method_names = model.class.setter_method_names
           params.each_with_object({}) do |(key, value), memo|
-            setter_method = key.to_s + '='
+            setter_method = "#{key}="
             if setter_method_names.include?(setter_method)
-              model.send(setter_method, value)
+              model.send setter_method, value
             else
               memo[key.to_sym] = value
             end
