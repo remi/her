@@ -44,10 +44,7 @@ module Her
             self.class.request(to_params.merge(:_method => method, :_path => request_path)) do |parsed_data, response|
               load_from_parsed_data(parsed_data)
               return false if !response.success? || @response_errors.any?
-              if self.changed_attributes.present?
-                @previously_changed = self.changes.clone
-                self.changed_attributes.clear
-              end
+              changes_applied
             end
           end
         end
