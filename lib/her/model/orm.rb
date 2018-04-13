@@ -42,10 +42,7 @@ module Her
         run_callbacks :save do
           run_callbacks callback do
             self.class.request(to_params.merge(:_method => method, :_path => request_path)) do |parsed_data, response|
-              assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
-              @metadata = parsed_data[:metadata]
-              @response_errors = parsed_data[:errors]
-
+              load_from_parsed_data(parsed_data)
               return false if !response.success? || @response_errors.any?
               if self.changed_attributes.present?
                 @previously_changed = self.changes.clone
@@ -76,9 +73,7 @@ module Her
         method = self.class.method_for(:destroy)
         run_callbacks :destroy do
           self.class.request(params.merge(:_method => method, :_path => request_path)) do |parsed_data, response|
-            assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
-            @metadata = parsed_data[:metadata]
-            @response_errors = parsed_data[:errors]
+            load_from_parsed_data(parsed_data)
             @destroyed = response.success?
           end
         end
@@ -152,6 +147,16 @@ module Her
         fresh_object = self.class.find(id)
         assign_attributes(fresh_object.attributes)
         self
+      end
+
+      # Uses parsed response to assign attributes and metadata
+      #
+      # @private
+      def load_from_parsed_data(parsed_data)
+        data = parsed_data[:data]
+        assign_attributes(self.class.parse(data)) if data.any?
+        @metadata = parsed_data[:metadata]
+        @response_errors = parsed_data[:errors]
       end
 
       module ClassMethods
