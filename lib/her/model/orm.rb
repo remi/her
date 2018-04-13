@@ -41,7 +41,6 @@ module Her
 
         run_callbacks :save do
           run_callbacks callback do
-            params = to_params
             self.class.request(to_params.merge(:_method => method, :_path => request_path)) do |parsed_data, response|
               assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
               @metadata = parsed_data[:metadata]
