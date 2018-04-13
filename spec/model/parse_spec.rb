@@ -466,4 +466,31 @@ describe Her::Model::Parse do
       expect(user.to_params).to eql(user: { first_name: "Someone" })
     end
   end
+
+  context 'when passed a non-Her ActiveModel instance' do
+    before do
+      klass = Class.new do
+        include ActiveModel::Serialization
+
+        def attributes
+          { 'name' => nil }
+        end
+
+        def name
+          'foo'
+        end
+      end
+
+      @model = klass.new
+
+      Her::API.setup
+      spawn_model 'Foo::User'
+    end
+
+    it 'serializes the instance in `to_params`' do
+      attributes = { model: @model }
+      user = Foo::User.new(attributes)
+      expect(user.to_params).to eq(model: { name: 'foo' })
+    end
+  end
 end
