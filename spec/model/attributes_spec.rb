@@ -204,7 +204,7 @@ describe Her::Model::Attributes do
 
         spawn_model "Foo::User" do
           def document
-            @attributes[:document][:url]
+            self.attributes[:document][:url]
           end
         end
       end
@@ -229,7 +229,7 @@ describe Her::Model::Attributes do
 
         spawn_model "Foo::User" do
           def document=(document)
-            @attributes[:document] = document[:url]
+            @_her_attributes[:document] = document[:url]
           end
         end
       end
@@ -288,19 +288,19 @@ describe Her::Model::Attributes do
       it { is_expected.to respond_to(:fullname?) }
     end
 
-    it "defines setter that affects @attributes" do
+    it "defines setter that affects attributes" do
       user = Foo::User.new
       user.fullname = "Tobias Fünke"
       expect(user.attributes[:fullname]).to eq("Tobias Fünke")
     end
 
-    it "defines getter that reads @attributes" do
+    it "defines getter that reads attributes" do
       user = Foo::User.new
       user.assign_attributes(fullname: "Tobias Fünke")
       expect(user.fullname).to eq("Tobias Fünke")
     end
 
-    it "defines predicate that reads @attributes" do
+    it "defines predicate that reads attributes" do
       user = Foo::User.new
       expect(user.fullname?).to be_falsey
       user.assign_attributes(fullname: "Tobias Fünke")
@@ -335,19 +335,19 @@ describe Her::Model::Attributes do
         expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname?)
       end
 
-      it "defines setter that affects @attributes" do
+      it "defines setter that affects attributes" do
         user = Foo::User.new
         user.fullname = "Tobias Fünke"
         expect(user.attributes[:fullname]).to eq("Tobias Fünke")
       end
 
-      it "defines getter that reads @attributes" do
+      it "defines getter that reads attributes" do
         user = Foo::User.new
         user.attributes[:fullname] = "Tobias Fünke"
         expect(user.fullname).to eq("Tobias Fünke")
       end
 
-      it "defines predicate that reads @attributes" do
+      it "defines predicate that reads attributes" do
         user = Foo::User.new
         expect(user.fullname?).to be_falsey
         user.attributes[:fullname] = "Tobias Fünke"
