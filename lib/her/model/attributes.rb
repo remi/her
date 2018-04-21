@@ -41,7 +41,7 @@ module Her
       def method_missing(method, *args, &blk)
         if method.to_s =~ /[?=]$/ || @_her_attributes.include?(method)
           # Extract the attribute
-          attribute = method.to_s.chop
+          attribute = method.to_s.sub(/[?=]$/, '')
 
           # Create a new `attribute` methods set
           self.class.attributes(*attribute)
