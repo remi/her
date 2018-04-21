@@ -310,10 +310,16 @@ describe Her::Model::Attributes do
     context "when attribute methods are already defined" do
       before do
         class AbstractUser
-          attr_accessor :fullname
+          def fullname
+            raise NotImplementedError
+          end
+
+          def fullname=(value)
+            raise NotImplementedError
+          end
 
           def fullname?
-            @fullname.present?
+            raise NotImplementedError
           end
         end
         @spawned_models << :AbstractUser
@@ -324,34 +330,18 @@ describe Her::Model::Attributes do
       end
 
       it "overrides getter method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname)
+        user = Foo::User.new
+        expect { user.fullname }.to_not raise_error(NotImplementedError)
       end
 
       it "overrides setter method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname=)
+        user = Foo::User.new
+        expect { user.fullname = "foo" }.to_not raise_error(NotImplementedError)
       end
 
       it "overrides predicate method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname?)
-      end
-
-      it "defines setter that affects attributes" do
         user = Foo::User.new
-        user.fullname = "Tobias Fünke"
-        expect(user.attributes[:fullname]).to eq("Tobias Fünke")
-      end
-
-      it "defines getter that reads attributes" do
-        user = Foo::User.new
-        user.attributes[:fullname] = "Tobias Fünke"
-        expect(user.fullname).to eq("Tobias Fünke")
-      end
-
-      it "defines predicate that reads attributes" do
-        user = Foo::User.new
-        expect(user.fullname?).to be_falsey
-        user.attributes[:fullname] = "Tobias Fünke"
-        expect(user.fullname?).to be_truthy
+        expect { user.fullname? }.to_not raise_error(NotImplementedError)
       end
     end
   end
