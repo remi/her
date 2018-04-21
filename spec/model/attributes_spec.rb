@@ -354,43 +354,5 @@ describe Her::Model::Attributes do
         expect(user.fullname?).to be_truthy
       end
     end
-
-    if ActiveModel::VERSION::MAJOR < 4
-      it "creates a new mutex" do
-        expect(Mutex).to receive(:new).once.and_call_original
-        spawn_model "Foo::User" do
-          attributes :fullname
-        end
-        expect(Foo::User.attribute_methods_mutex).not_to eq(Foo::User.generated_attribute_methods)
-      end
-
-      it "works well with Module#synchronize monkey patched by ActiveSupport" do
-        Module.class_eval do
-          def synchronize(*_args)
-            raise "gotcha!"
-          end
-        end
-        expect(Mutex).to receive(:new).once.and_call_original
-        spawn_model "Foo::User" do
-          attributes :fullname
-        end
-        expect(Foo::User.attribute_methods_mutex).not_to eq(Foo::User.generated_attribute_methods)
-        Module.class_eval do
-          undef :synchronize
-        end
-      end
-    else
-      it "uses ActiveModel's mutex" do
-        expect(Foo::User.attribute_methods_mutex).to eq(Foo::User.generated_attribute_methods)
-      end
-    end
-
-    it "uses a mutex" do
-      spawn_model "Foo::User"
-      expect(Foo::User.attribute_methods_mutex).to receive(:synchronize).once.and_call_original
-      Foo::User.class_eval do
-        attributes :fullname, :documents
-      end
-    end
   end
 end
