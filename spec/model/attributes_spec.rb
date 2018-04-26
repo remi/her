@@ -310,10 +310,16 @@ describe Her::Model::Attributes do
     context "when attribute methods are already defined" do
       before do
         class AbstractUser
-          attr_accessor :fullname
+          def fullname
+            raise NotImplementedError
+          end
+
+          def fullname=(value)
+            raise NotImplementedError
+          end
 
           def fullname?
-            @fullname.present?
+            raise NotImplementedError
           end
         end
         @spawned_models << :AbstractUser
@@ -324,72 +330,18 @@ describe Her::Model::Attributes do
       end
 
       it "overrides getter method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname)
+        user = Foo::User.new
+        expect { user.fullname }.to_not raise_error(NotImplementedError)
       end
 
       it "overrides setter method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname=)
+        user = Foo::User.new
+        expect { user.fullname = "foo" }.to_not raise_error(NotImplementedError)
       end
 
       it "overrides predicate method" do
-        expect(Foo::User.generated_attribute_methods.instance_methods).to include(:fullname?)
-      end
-
-      it "defines setter that affects attributes" do
         user = Foo::User.new
-        user.fullname = "Tobias Fünke"
-        expect(user.attributes[:fullname]).to eq("Tobias Fünke")
-      end
-
-      it "defines getter that reads attributes" do
-        user = Foo::User.new
-        user.attributes[:fullname] = "Tobias Fünke"
-        expect(user.fullname).to eq("Tobias Fünke")
-      end
-
-      it "defines predicate that reads attributes" do
-        user = Foo::User.new
-        expect(user.fullname?).to be_falsey
-        user.attributes[:fullname] = "Tobias Fünke"
-        expect(user.fullname?).to be_truthy
-      end
-    end
-
-    if ActiveModel::VERSION::MAJOR < 4
-      it "creates a new mutex" do
-        expect(Mutex).to receive(:new).once.and_call_original
-        spawn_model "Foo::User" do
-          attributes :fullname
-        end
-        expect(Foo::User.attribute_methods_mutex).not_to eq(Foo::User.generated_attribute_methods)
-      end
-
-      it "works well with Module#synchronize monkey patched by ActiveSupport" do
-        Module.class_eval do
-          def synchronize(*_args)
-            raise "gotcha!"
-          end
-        end
-        expect(Mutex).to receive(:new).once.and_call_original
-        spawn_model "Foo::User" do
-          attributes :fullname
-        end
-        expect(Foo::User.attribute_methods_mutex).not_to eq(Foo::User.generated_attribute_methods)
-        Module.class_eval do
-          undef :synchronize
-        end
-      end
-    else
-      it "uses ActiveModel's mutex" do
-        expect(Foo::User.attribute_methods_mutex).to eq(Foo::User.generated_attribute_methods)
-      end
-    end
-
-    it "uses a mutex" do
-      spawn_model "Foo::User"
-      expect(Foo::User.attribute_methods_mutex).to receive(:synchronize).once.and_call_original
-      Foo::User.class_eval do
-        attributes :fullname, :documents
+        expect { user.fullname? }.to_not raise_error(NotImplementedError)
       end
     end
   end

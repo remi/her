@@ -162,7 +162,7 @@ module Her
             attributes = klass.parse(record).merge(_metadata: parsed_data[:metadata],
                                                    _errors: parsed_data[:errors])
             klass.new(attributes).tap do |record|
-              record.instance_variable_set(:@changed_attributes, {})
+              record.send :clear_changes_information
               record.run_callbacks :find
             end
           end
