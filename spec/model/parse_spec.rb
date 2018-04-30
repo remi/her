@@ -493,4 +493,25 @@ describe Her::Model::Parse do
       expect(user.to_params).to eq(model: { name: 'foo' })
     end
   end
+
+  context "when attribute uses the same name as root element" do
+    before do
+      Her::API.setup url: "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.post("/users") { |env| [200, {}, { user: "foobar", id: 1, fullname: params(env)[:fullname] }.to_json] }
+      end
+
+      spawn_model "Foo::User"
+    end
+
+    it "parses as attribute instead of root element" do
+      user = Foo::User.create(fullname: "barfoo")
+      expect(user.fullname).to eq "barfoo"
+      expect(user.user).to eq "foobar"
+    end
+  end
 end
