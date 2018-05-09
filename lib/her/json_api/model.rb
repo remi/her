@@ -24,10 +24,7 @@ module Her
             request_data = { type: @type }.tap { |request_body| 
               attrs = attributes.dup.symbolize_keys.tap { |filtered_attributes|
                 if her_api.options[:send_only_modified_attributes]
-                  filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
-                    hash[attribute] = filtered_attributes[attribute]
-                    hash
-                  end
+                  filtered_attributes.slice! *changes.keys.map(&:to_sym)
                 end
               }
               request_body[:id] = attrs.delete(:id) if attrs[:id]
