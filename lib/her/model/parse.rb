@@ -45,10 +45,7 @@ module Her
           filtered_attributes.merge!(embeded_params(attributes))
 
           if her_api.options[:send_only_modified_attributes]
-            filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
-              hash[attribute] = filtered_attributes[attribute]
-              hash
-            end
+            filtered_attributes.slice! *changes.keys.map(&:to_sym)
           end
 
           if include_root_in_json?
