@@ -32,15 +32,7 @@ module Her
 
         # @private
         def to_params(attributes, changes = {})
-          filtered_attributes = attributes.each_with_object({}) do |(key, value), memo|
-            case value
-            when Her::Model
-            when ActiveModel::Serialization
-              value = value.serializable_hash.symbolize_keys
-            end
-
-            memo[key.to_sym] = value
-          end
+          filtered_attributes = attributes.symbolize_keys
 
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes.slice! *changes.keys.map(&:to_sym)
@@ -93,6 +85,26 @@ module Her
               end
 
             write_attributes[assoc[:data_key]] = value if value.present?
+          end
+
+          write_attributes.each do |key, value|
+            value =
+              case value
+              when Her::Collection
+                value.map(&:to_params).reject(&:empty?)
+              when Her::Model
+                value.to_params
+              when ActiveModel::Serialization
+                value.serializable_hash.symbolize_keys
+              end
+
+            if value
+              if value.empty?
+                write_attributes.delete(key)
+              else
+                write_attributes[key] = value
+              end
+            end
           end
         ensure
           Thread.current[:her_embedded_params_objects] = nil if first
