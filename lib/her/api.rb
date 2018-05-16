@@ -112,6 +112,7 @@ module Her
     end
 
     private
+
     # @private
     def self.default_api(opts={})
       defined?(@default_api) ? @default_api : nil

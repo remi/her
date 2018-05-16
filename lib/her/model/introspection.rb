@@ -22,6 +22,7 @@ module Her
       end
 
       private
+
       def attribute_for_inspect(value)
         if value.is_a?(String) && value.length > 50
           "#{value[0..50]}...".inspect
@@ -42,6 +43,7 @@ module Her
         end
 
         protected
+
         # Looks for a class at the same level as this one with the given name.
         #
         # @private

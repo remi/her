@@ -289,6 +289,7 @@ module Her
         end
 
         private
+
         # @private
         def store_her_data(name, value)
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
