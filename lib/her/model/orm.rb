@@ -1,4 +1,5 @@
 # coding: utf-8
+
 module Her
   module Model
     # This module adds ORM-like capabilities to the model
