@@ -297,7 +297,7 @@ describe Her::Model::Associations do
             stub.get("/users/1/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }].to_json] }
             stub.get("/users/1/role") { [200, {}, { id: 3, body: "User" }.to_json] }
             stub.get("/users/1/posts") { [200, {}, [{ id: 1, body: "blogging stuff", admin_id: 1 }].to_json] }
-            stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+            stub.get("/organizations/1") { [200, {}, { organization: { id: 1, name: "Bluth Company Foo" } }.to_json] }
           end
         end
       end
@@ -559,7 +559,7 @@ describe Her::Model::Associations do
           builder.adapter :test do |stub|
             stub.get("/users/1") { [200, {}, { user: { id: 1, name: "Tobias Fünke", comments: [{ id: 2, body: "Tobias, you blow hard!", user_id: 1 }, { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 } }.to_json] }
             stub.get("/users/1/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }] }.to_json] }
-            stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+            stub.get("/organizations/1") { [200, {}, { organization: { id: 1, name: "Bluth Company Foo" } }.to_json] }
           end
         end
       end
@@ -617,7 +617,7 @@ describe Her::Model::Associations do
             stub.get("/users/2") { [200, {}, { user: { id: 2, name: "Lindsay Fünke", organization_id: 1 } }.to_json] }
             stub.get("/users/2/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }, { id: 5, body: "Is this the tiny town from Footloose?" }] }.to_json] }
             stub.get("/users/2/comments/5") { [200, {}, { comment: { id: 5, body: "Is this the tiny town from Footloose?" } }.to_json] }
-            stub.get("/organizations/1") { [200, {}, { organization:  { id: 1, name: "Bluth Company Foo" } }.to_json] }
+            stub.get("/organizations/1") { [200, {}, { organization: { id: 1, name: "Bluth Company Foo" } }.to_json] }
           end
         end
       end

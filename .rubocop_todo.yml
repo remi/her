@@ -13,14 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
-Layout/ExtraSpacing:
-  Exclude:
-    - 'lib/her/middleware.rb'
-    - 'spec/model/associations_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentationWidth.

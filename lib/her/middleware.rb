@@ -7,6 +7,6 @@ module Her
   module Middleware
     DefaultParseJSON = FirstLevelParseJSON
 
-    autoload :JsonApiParser,   'her/middleware/json_api_parser'
+    autoload :JsonApiParser, 'her/middleware/json_api_parser'
   end
 end
