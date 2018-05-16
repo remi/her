@@ -653,10 +653,15 @@ describe Her::Model::ORM do
         after_create :after_create_callback
         after_save :after_save_callback
         def before_save_callback; end
+
         def before_create_callback; end
+
         def before_update_callback; end
+
         def after_update_callback; end
+
         def after_create_callback; end
+
         def after_save_callback; end
       end
     end

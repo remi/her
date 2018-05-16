@@ -13,13 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAdjacentOneLineDefs, NumberOfEmptyLines.
-Layout/EmptyLineBetweenDefs:
-  Exclude:
-    - 'spec/model/orm_spec.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Layout/EmptyLinesAroundAccessModifier:
