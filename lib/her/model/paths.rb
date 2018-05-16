@@ -19,7 +19,6 @@ module Her
       end
 
       module ClassMethods
-
         # Define the primary key field that will be used to find and save records
         #
         # @example

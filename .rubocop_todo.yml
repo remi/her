@@ -13,15 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Layout/EmptyLinesAroundModuleBody:
-  Exclude:
-    - 'lib/her/model/attributes.rb'
-    - 'lib/her/model/paths.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleAlignWith, AutoCorrect, Severity.

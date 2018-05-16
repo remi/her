@@ -151,7 +151,6 @@ module Her
       end
 
       module ClassMethods
-
         # Initialize a single resource
         #
         # @private
