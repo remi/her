@@ -1,1 +1,4 @@
 inherit_from: .rubocop_todo.yml
+
+Layout/CaseIndentation:
+  EnforcedStyle: end
