@@ -38,7 +38,7 @@ describe Her::Model::Introspection do
         @user.instance_eval do
           def password
             "filtered"
-                             end
+          end
         end
         expect(@user.inspect).to include("name=\"Tobias Funke\"")
         expect(@user.inspect).to include("password=\"filtered\"")

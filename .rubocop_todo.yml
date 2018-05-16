@@ -13,14 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, AutoCorrect, Severity.
-# SupportedStylesAlignWith: start_of_line, def
-Layout/DefEndAlignment:
-  Exclude:
-    - 'spec/model/introspection_spec.rb'
-
 # Offense count: 21
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterMagicComment:
