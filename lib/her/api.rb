@@ -109,7 +109,6 @@ module Her
         end
       end
       { :parsed_data => response.env[:body], :response => response }
-
     end
 
     private
