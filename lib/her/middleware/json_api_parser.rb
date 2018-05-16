@@ -26,11 +26,11 @@ module Her
       # @private
       def on_complete(env)
         env[:body] = case env[:status]
-        when 204, 304
-          parse('{}')
-        else
-          parse(env[:body])
-        end
+                     when 204, 304
+                       parse('{}')
+                     else
+                       parse(env[:body])
+                     end
       end
     end
   end
