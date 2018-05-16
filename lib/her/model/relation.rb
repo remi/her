@@ -1,6 +1,7 @@
 module Her
   module Model
     class Relation
+
       # @private
       attr_accessor :params
       attr_writer :parent

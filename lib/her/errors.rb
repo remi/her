@@ -1,6 +1,7 @@
 module Her
   module Errors
     class PathError < StandardError
+
       attr_reader :missing_parameter
 
       def initialize(message, missing_parameter=nil)
@@ -16,6 +17,7 @@ module Her
     end
 
     class ResourceInvalid < StandardError
+
       attr_reader :resource
       def initialize(resource)
         @resource = resource

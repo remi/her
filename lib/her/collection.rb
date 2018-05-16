@@ -1,5 +1,6 @@
 module Her
   class Collection < ::Array
+
     attr_reader :metadata, :errors
 
     # @private

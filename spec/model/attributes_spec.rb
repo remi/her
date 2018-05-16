@@ -311,6 +311,7 @@ describe Her::Model::Attributes do
     context "when attribute methods are already defined" do
       before do
         class AbstractUser
+
           def fullname
             raise NotImplementedError
           end

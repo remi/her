@@ -1,6 +1,7 @@
 module Her
   module Middleware
     class ParseJSON < Faraday::Response::Middleware
+
       # @private
       def parse_json(body = nil)
         body = '{}' if body.blank?

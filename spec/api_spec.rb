@@ -33,6 +33,7 @@ describe Her::API do
     describe "#request" do
       before do
         class SimpleParser < Faraday::Response::Middleware
+
           def on_complete(env)
             env[:body] = { data: env[:body] }
           end
@@ -86,6 +87,7 @@ describe Her::API do
         let(:parsed_data) { subject.request(_method: :get, _path: "users/1")[:parsed_data] }
         before do
           class CustomParser < Faraday::Response::Middleware
+
             def on_complete(env)
               json = MultiJson.load(env[:body], symbolize_keys: true)
               errors = json.delete(:errors) || []

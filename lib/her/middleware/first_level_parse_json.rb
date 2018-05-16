@@ -2,6 +2,7 @@ module Her
   module Middleware
     # This middleware treat the received first-level JSON structure as the resource data.
     class FirstLevelParseJSON < ParseJSON
+
       # Parse the response body
       #
       # @param [String] body The response body

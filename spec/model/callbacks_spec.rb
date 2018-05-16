@@ -23,6 +23,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a symbol callback" do
       before do
         class Foo::User
+
           before_save :alter_name
           def alter_name
             name.upcase!
@@ -39,6 +40,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a block callback" do
       before do
         class Foo::User
+
           before_save -> { name.upcase! }
         end
       end
@@ -52,6 +54,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when changing a value of an existing resource in a callback" do
       before do
         class Foo::User
+
           before_save :alter_name
           def alter_name
             self.name = "Lumberjack" if persisted?
@@ -78,6 +81,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a symbol callback" do
       before do
         class Foo::User
+
           before_create :alter_name
           def alter_name
             name.upcase!
@@ -94,6 +98,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a block callback" do
       before do
         class Foo::User
+
           before_create -> { name.upcase! }
         end
       end
@@ -116,6 +121,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a symbol callback" do
       before do
         class Foo::User
+
           after_find :alter_name
           def alter_name
             name.upcase!
@@ -132,6 +138,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a block callback" do
       before do
         class Foo::User
+
           after_find -> { name.upcase! }
         end
       end
@@ -149,6 +156,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a symbol callback" do
       before do
         class Foo::User
+
           after_initialize :alter_name
           def alter_name
             name.upcase!
@@ -165,6 +173,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
     context "when using a block callback" do
       before do
         class Foo::User
+
           after_initialize -> { name.upcase! }
         end
       end

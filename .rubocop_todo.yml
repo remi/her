@@ -13,18 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines, beginning_only, ending_only
-Layout/EmptyLinesAroundClassBody:
-  Exclude:
-    - 'lib/her/model/associations/association.rb'
-    - 'lib/her/model/associations/association_proxy.rb'
-    - 'lib/her/model/associations/belongs_to_association.rb'
-    - 'lib/her/model/associations/has_many_association.rb'
-    - 'lib/her/model/associations/has_one_association.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Layout/EmptyLinesAroundMethodBody:

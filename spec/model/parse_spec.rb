@@ -265,6 +265,7 @@ describe Her::Model::Parse do
 
         spawn_model("Foo::Model") { parse_root_in_json true, format: :active_model_serializers }
         class User < Foo::Model
+
           collection_path "/users"
         end
 

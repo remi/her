@@ -2,6 +2,7 @@ module Her
   # This class is where all HTTP requests are made. Before using Her, you must configure it
   # so it knows where to make those requests. In Rails, this is usually done in `config/initializers/her.rb`:
   class API
+
     # @private
     attr_reader :connection, :options
 

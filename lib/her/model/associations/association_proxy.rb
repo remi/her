@@ -38,7 +38,6 @@ module Her
           # resend message to fetched object
           __send__(name, *args, &block)
         end
-
       end
     end
   end

@@ -2,6 +2,7 @@ module Her
   module Model
     module Associations
       class Association
+
         # @private
         attr_accessor :params
 
@@ -123,7 +124,6 @@ module Her
           reset
           fetch
         end
-
       end
     end
   end

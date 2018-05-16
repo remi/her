@@ -3,6 +3,7 @@ module Her
     # This middleware expects the resource/collection data to be contained in the `data`
     # key of the JSON object
     class JsonApiParser < ParseJSON
+
       # Parse the response body
       #
       # @param [String] body The response body
