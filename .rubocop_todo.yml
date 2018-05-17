@@ -150,14 +150,6 @@ Style/PerlBackrefs:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, exploded
-Style/RaiseArgs:
-  Exclude:
-    - 'lib/her/model/nested_attributes.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 Style/RedundantBegin:
   Exclude:
     - 'lib/her/model/associations/association.rb'

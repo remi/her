@@ -25,7 +25,7 @@ module Her
 
           associations.each do |association_name|
             unless allowed_association_names.include?(association_name)
-              raise Her::Errors::AssociationUnknownError.new("Unknown association name :#{association_name}")
+              raise Her::Errors::AssociationUnknownError, "Unknown association name :#{association_name}"
             end
 
             class_eval <<-RUBY, __FILE__, __LINE__ + 1
