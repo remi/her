@@ -17,3 +17,6 @@ Lint/AssignmentInCondition:
 
 Naming/UncommunicativeMethodParamName:
   AllowedNames: io, id, to, by
+
+Style/AsciiComments:
+  Enabled: false

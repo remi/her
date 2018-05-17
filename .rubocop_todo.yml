@@ -89,15 +89,6 @@ Performance/RegexpMatch:
   Exclude:
     - 'spec/support/macros/model_macros.rb'
 
-# Offense count: 11
-# Configuration parameters: AllowedChars.
-Style/AsciiComments:
-  Exclude:
-    - 'lib/her/model.rb'
-    - 'lib/her/model/introspection.rb'
-    - 'lib/her/model/orm.rb'
-    - 'lib/her/model/relation.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods.
