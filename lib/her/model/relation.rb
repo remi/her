@@ -33,7 +33,7 @@ module Her
       #   # Fetched via GET "/users?approved=1"
       def where(params = {})
         return self if params.blank? && !@_fetch.nil?
-        self.clone.tap do |r|
+        clone.tap do |r|
           r.params = r.params.merge(params)
           r.clear_fetch_cache!
         end

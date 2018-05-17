@@ -148,17 +148,6 @@ Style/PerlBackrefs:
   Exclude:
     - 'lib/her/model/paths.rb'
 
-# Offense count: 18
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Exclude:
-    - 'lib/her/model/associations/association.rb'
-    - 'lib/her/model/introspection.rb'
-    - 'lib/her/model/orm.rb'
-    - 'lib/her/model/parse.rb'
-    - 'lib/her/model/relation.rb'
-    - 'spec/model/attributes_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, AllowInnerSlashes.

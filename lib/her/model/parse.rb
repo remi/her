@@ -10,7 +10,7 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        self.class.to_params(self.attributes, self.changes)
+        self.class.to_params(attributes, changes)
       end
 
       module ClassMethods
@@ -130,9 +130,9 @@ module Her
         def root_element(value = nil)
           if value.nil?
             @_her_root_element ||= if json_api_format?
-                                     self.name.split("::").last.pluralize.underscore.to_sym
+                                     name.split("::").last.pluralize.underscore.to_sym
                                    else
-                                     self.name.split("::").last.underscore.to_sym
+                                     name.split("::").last.underscore.to_sym
                                    end
           else
             @_her_root_element = value.to_sym
