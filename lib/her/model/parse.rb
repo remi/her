@@ -129,11 +129,11 @@ module Her
         #   user.name # => "Tobias"
         def root_element(value = nil)
           if value.nil?
-            if json_api_format?
-              @_her_root_element ||= self.name.split("::").last.pluralize.underscore.to_sym
-            else
-              @_her_root_element ||= self.name.split("::").last.underscore.to_sym
-            end
+            @_her_root_element ||= if json_api_format?
+                                     self.name.split("::").last.pluralize.underscore.to_sym
+                                   else
+                                     self.name.split("::").last.underscore.to_sym
+                                   end
           else
             @_her_root_element = value.to_sym
           end

@@ -89,14 +89,6 @@ Performance/RegexpMatch:
   Exclude:
     - 'spec/support/macros/model_macros.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'lib/her/model/parse.rb'
-
 # Offense count: 23
 Style/Documentation:
   Enabled: false
