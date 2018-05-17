@@ -83,13 +83,6 @@ Naming/PredicateName:
     - 'lib/her/model/base.rb'
     - 'lib/her/model/deprecated_methods.rb'
 
-# Offense count: 4
-# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
-# AllowedNames: io, id, to
-Naming/UncommunicativeMethodParamName:
-  Exclude:
-    - 'lib/her/model/orm.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Performance/RegexpMatch:

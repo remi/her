@@ -14,3 +14,6 @@ Lint/AmbiguousOperator:
 
 Lint/AssignmentInCondition:
   Enabled: false
+
+Naming/UncommunicativeMethodParamName:
+  AllowedNames: io, id, to, by
