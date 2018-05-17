@@ -13,15 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces, SpaceBeforeBlockParameters.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideBlockBraces:
-  Exclude:
-    - 'spec/model/introspection_spec.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Layout/TrailingWhitespace:
