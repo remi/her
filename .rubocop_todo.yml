@@ -220,14 +220,6 @@ Style/WordArray:
   Exclude:
     - 'spec/model/orm_spec.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: all_comparison_operators, equality_operators_only
-Style/YodaCondition:
-  Exclude:
-    - 'lib/her/model/associations/association_proxy.rb'
-
 # Offense count: 409
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https

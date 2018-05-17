@@ -28,7 +28,7 @@ module Her
 
         # @private
         def method_missing(name, *args, &block)
-          if :object_id == name # avoid redefining object_id
+          if name == :object_id # avoid redefining object_id
             return association.fetch.object_id
           end
 
