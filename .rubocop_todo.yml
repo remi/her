@@ -13,12 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'lib/her/json_api/model.rb'
-
 # Offense count: 4
 Lint/AmbiguousBlockAssociation:
   Exclude:

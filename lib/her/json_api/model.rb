@@ -1,7 +1,6 @@
 module Her
   module JsonApi
     module Model
-      
       def self.included(klass)
         klass.class_eval do
           include Her::Model
@@ -15,13 +14,13 @@ module Her
           method_for :update, :patch
 
           @type = name.demodulize.tableize
-          
+
           def self.parse(data)
             data.fetch(:attributes).merge(data.slice(:id))
           end
 
           def self.to_params(attributes, changes = {})
-            request_data = { type: @type }.tap { |request_body| 
+            request_data = { type: @type }.tap { |request_body|
               attrs = attributes.dup.symbolize_keys.tap { |filtered_attributes|
                 if her_api.options[:send_only_modified_attributes]
                   filtered_attributes.slice! *changes.keys.map(&:to_sym)
