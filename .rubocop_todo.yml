@@ -148,12 +148,6 @@ Style/PerlBackrefs:
   Exclude:
     - 'lib/her/model/paths.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/RedundantConditional:
-  Exclude:
-    - 'spec/model/relation_spec.rb'
-
 # Offense count: 18
 # Cop supports --auto-correct.
 Style/RedundantSelf:

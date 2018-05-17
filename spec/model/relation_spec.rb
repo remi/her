@@ -195,7 +195,7 @@ describe Her::Model::Relation do
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.post("/users") { |env| ok! id: 3, active: (params(env)[:active] == "true" ? true : false) }
+            stub.post("/users") { |env| ok! id: 3, active: (params(env)[:active] == "true") }
           end
         end
 
@@ -213,7 +213,7 @@ describe Her::Model::Relation do
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
-            stub.get("/users?active=true") { |env| ok! [{ id: 3, active: (params(env)[:active] == "true" ? true : false) }] }
+            stub.get("/users?active=true") { |env| ok! [{ id: 3, active: (params(env)[:active] == "true") }] }
           end
         end
 
