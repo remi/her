@@ -165,11 +165,11 @@ describe Her::Model::Attributes do
         store_metadata :my_data
       end
 
-      @user = Foo::User.new(_errors: %w(Foo Bar), _metadata: { secret: true })
+      @user = Foo::User.new(_errors: %w[Foo Bar], _metadata: { secret: true })
     end
 
     it "should return response_errors stored in the method provided by `store_response_errors`" do
-      expect(@user.errors).to eq(%w(Foo Bar))
+      expect(@user.errors).to eq(%w[Foo Bar])
     end
 
     it "should remove the default method for errors" do

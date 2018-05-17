@@ -142,15 +142,6 @@ Style/MutableConstant:
     - 'lib/her/model/http.rb'
     - 'lib/her/version.rb'
 
-# Offense count: 13
-# Cop supports --auto-correct.
-# Configuration parameters: PreferredDelimiters.
-Style/PercentLiteralDelimiters:
-  Exclude:
-    - 'spec/middleware/first_level_parse_json_spec.rb'
-    - 'spec/model/attributes_spec.rb'
-    - 'spec/model/orm_spec.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Style/PerlBackrefs:
