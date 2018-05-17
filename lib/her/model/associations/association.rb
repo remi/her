@@ -48,7 +48,7 @@ module Her
           return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
           return @opts[:default].try(:dup) if @parent.new?
 
-          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
+          path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}" }
           @klass.get(path, @params).tap do |result|
             @cached_result = result unless @params.any?
           end
@@ -98,7 +98,7 @@ module Her
         #   user.comments.find(3) # Fetched via GET "/users/1/comments/3
         def find(id)
           return nil if id.blank?
-          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
+          path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
           @klass.get_resource(path, @params)
         end
 

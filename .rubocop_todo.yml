@@ -129,15 +129,6 @@ Style/IfUnlessModifier:
     - 'lib/her/model/orm.rb'
     - 'lib/her/model/parse.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: line_count_dependent, lambda, literal
-Style/Lambda:
-  Exclude:
-    - 'lib/her/model/associations/association.rb'
-    - 'lib/her/model/associations/belongs_to_association.rb'
-
 # Offense count: 2
 Style/MethodMissing:
   Exclude:
