@@ -56,11 +56,9 @@ module Her
 
         # @private
         def build_association_path(code)
-          begin
-            instance_exec(&code)
-          rescue Her::Errors::PathError
-            return nil
-          end
+          instance_exec(&code)
+        rescue Her::Errors::PathError
+          nil
         end
 
         # @private
