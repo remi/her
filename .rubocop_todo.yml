@@ -18,11 +18,6 @@ Lint/IneffectiveAccessModifier:
   Exclude:
     - 'lib/her/api.rb'
 
-# Offense count: 1
-Lint/ShadowingOuterLocalVariable:
-  Exclude:
-    - 'lib/her/model/attributes.rb'
-
 # Offense count: 12
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
