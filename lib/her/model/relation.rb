@@ -59,7 +59,7 @@ module Her
 
       # @private
       def kind_of?(thing)
-        fetch.kind_of?(thing)
+        fetch.is_a?(thing)
       end
 
       # Fetch a collection of resources
@@ -107,7 +107,7 @@ module Her
           resource
         end
 
-        ids.length > 1 || ids.first.kind_of?(Array) ? results : results.first
+        ids.length > 1 || ids.first.is_a?(Array) ? results : results.first
       end
 
       # Fetch first resource with the given attributes.
