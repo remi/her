@@ -73,7 +73,7 @@ module Her
       opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
       @options = opts
 
-      faraday_options = @options.reject { |key, value| !FARADAY_OPTIONS.include?(key.to_sym) }
+      faraday_options = @options.reject { |key, _| !FARADAY_OPTIONS.include?(key.to_sym) }
       @connection = Faraday.new(faraday_options) do |connection|
         yield connection if block_given?
       end
@@ -89,7 +89,7 @@ module Her
       method = opts.delete(:_method)
       path = opts.delete(:_path)
       headers = opts.delete(:_headers)
-      opts.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
+      opts.delete_if { |key, _| key.to_s =~ /^_/ } # Remove all internal parameters
       if method == :options
         # Faraday doesn't support the OPTIONS verb because of a name collision with an internal options method
         # so we need to call run_request directly.

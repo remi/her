@@ -6,7 +6,7 @@ module Her
           include Her::Model
 
           [:parse_root_in_json, :include_root_in_json, :root_element, :primary_key].each do |method|
-            define_method method do |*args|
+            define_method method do |*_|
               raise NoMethodError, "Her::JsonApi::Model does not support the #{method} configuration option"
             end
           end

@@ -18,17 +18,6 @@ Lint/IneffectiveAccessModifier:
   Exclude:
     - 'lib/her/api.rb'
 
-# Offense count: 12
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
-Lint/UnusedBlockArgument:
-  Exclude:
-    - 'lib/her/api.rb'
-    - 'lib/her/json_api/model.rb'
-    - 'lib/her/model/associations.rb'
-    - 'lib/her/model/relation.rb'
-    - 'spec/model/orm_spec.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods.
