@@ -26,3 +26,6 @@ Style/GuardClause:
 
 Style/RescueModifier:
   Enabled: false
+
+Style/SymbolArray:
+  Enabled: false

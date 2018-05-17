@@ -187,13 +187,6 @@ Style/StringLiteralsInInterpolation:
   Exclude:
     - 'lib/her/model/introspection.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: MinSize.
-# SupportedStyles: percent, brackets
-Style/SymbolArray:
-  EnforcedStyle: brackets
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.
