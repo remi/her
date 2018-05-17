@@ -31,7 +31,7 @@ module Her
         end
 
         # @private
-        def to_params(attributes, changes={})
+        def to_params(attributes, changes = {})
           filtered_attributes = attributes.each_with_object({}) do |(key, value), memo|
             case value
             when Her::Model

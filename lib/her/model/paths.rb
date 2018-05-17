@@ -87,7 +87,7 @@ module Her
         # Return a custom path based on the collection path and variable parameters
         #
         # @private
-        def build_request_path(path=nil, parameters={})
+        def build_request_path(path = nil, parameters = {})
           parameters = parameters.try(:with_indifferent_access)
 
           unless path.is_a?(String)
@@ -116,7 +116,7 @@ module Her
         end
 
         # @private
-        def build_request_path_from_string_or_symbol(path, params={})
+        def build_request_path_from_string_or_symbol(path, params = {})
           path.is_a?(Symbol) ? "#{build_request_path(params)}/#{path}" : path
         end
       end

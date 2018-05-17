@@ -20,7 +20,7 @@ module Her
             data.fetch(:attributes).merge(data.slice(:id))
           end
 
-          def self.to_params(attributes, changes={})
+          def self.to_params(attributes, changes = {})
             request_data = { type: @type }.tap { |request_body| 
               attrs = attributes.dup.symbolize_keys.tap { |filtered_attributes|
                 if her_api.options[:send_only_modified_attributes]

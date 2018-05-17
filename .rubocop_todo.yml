@@ -13,23 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 20
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/SpaceAroundEqualsInParameterDefault:
-  Exclude:
-    - 'lib/her/api.rb'
-    - 'lib/her/collection.rb'
-    - 'lib/her/errors.rb'
-    - 'lib/her/json_api/model.rb'
-    - 'lib/her/model/associations.rb'
-    - 'lib/her/model/attributes.rb'
-    - 'lib/her/model/http.rb'
-    - 'lib/her/model/orm.rb'
-    - 'lib/her/model/parse.rb'
-    - 'lib/her/model/paths.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.

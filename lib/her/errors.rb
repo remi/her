@@ -4,7 +4,7 @@ module Her
 
       attr_reader :missing_parameter
 
-      def initialize(message, missing_parameter=nil)
+      def initialize(message, missing_parameter = nil)
         super(message)
         @missing_parameter = missing_parameter
       end

@@ -10,7 +10,7 @@ module Her
     FARADAY_OPTIONS = [:request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class].freeze
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
-    def self.setup(opts={}, &block)
+    def self.setup(opts = {}, &block)
       @default_api = new(opts, &block)
     end
 
@@ -69,7 +69,7 @@ module Her
     #     connection.use MyCustomParser
     #     connection.use Faraday::Adapter::NetHttp
     #   end
-    def setup(opts={}, &blk)
+    def setup(opts = {}, &blk)
       opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
       @options = opts
 
@@ -85,7 +85,7 @@ module Her
     # and a metadata Hash.
     #
     # @private
-    def request(opts={})
+    def request(opts = {})
       method = opts.delete(:_method)
       path = opts.delete(:_path)
       headers = opts.delete(:_headers)
@@ -114,7 +114,7 @@ module Her
     private
 
     # @private
-    def self.default_api(opts={})
+    def self.default_api(opts = {})
       defined?(@default_api) ? @default_api : nil
     end
   end

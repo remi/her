@@ -23,7 +23,7 @@ module Her
       #     u.name = "Tobias"
       #   end
       #   # => #<User name="Tobias">
-      def initialize(attributes={})
+      def initialize(attributes = {})
         attributes ||= {}
         @metadata = attributes.delete(:_metadata) || {}
         @response_errors = attributes.delete(:_errors) || {}

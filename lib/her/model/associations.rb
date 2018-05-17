@@ -81,7 +81,7 @@ module Her
         #   @user = User.find(1)
         #   @user.articles # => [#<Article(articles/2) id=2 title="Hello world.">]
         #   # Fetched via GET "/users/1/articles"
-        def has_many(name, opts={})
+        def has_many(name, opts = {})
           Her::Model::Associations::HasManyAssociation.attach(self, name, opts)
         end
 
@@ -106,7 +106,7 @@ module Her
         #   @user = User.find(1)
         #   @user.organization # => #<Organization(organizations/2) id=2 name="Foobar Inc.">
         #   # Fetched via GET "/users/1/organization"
-        def has_one(name, opts={})
+        def has_one(name, opts = {})
           Her::Model::Associations::HasOneAssociation.attach(self, name, opts)
         end
 
@@ -132,7 +132,7 @@ module Her
         #   @user = User.find(1) # => #<User(users/1) id=1 team_id=2 name="Tobias">
         #   @user.team # => #<Team(teams/2) id=2 name="Developers">
         #   # Fetched via GET "/teams/2"
-        def belongs_to(name, opts={})
+        def belongs_to(name, opts = {})
           Her::Model::Associations::BelongsToAssociation.attach(self, name, opts)
         end
       end
