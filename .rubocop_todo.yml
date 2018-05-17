@@ -142,14 +142,6 @@ Style/MutableConstant:
     - 'lib/her/model/http.rb'
     - 'lib/her/version.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: both, prefix, postfix
-Style/NegatedIf:
-  Exclude:
-    - 'lib/her/model/orm.rb'
-
 # Offense count: 13
 # Cop supports --auto-correct.
 # Configuration parameters: PreferredDelimiters.
