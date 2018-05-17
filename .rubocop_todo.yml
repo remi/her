@@ -13,13 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 2
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Exclude:
-    - 'lib/her/model/attributes.rb'
-    - 'lib/her/model/introspection.rb'
-
 # Offense count: 1
 Lint/IneffectiveAccessModifier:
   Exclude:

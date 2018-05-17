@@ -11,3 +11,6 @@ Lint/AmbiguousBlockAssociation:
 
 Lint/AmbiguousOperator:
   Enabled: false
+
+Lint/AssignmentInCondition:
+  Enabled: false
