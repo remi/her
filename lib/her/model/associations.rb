@@ -32,7 +32,7 @@ module Her
         # @private
         def associations
           @_her_associations ||= begin
-            superclass.respond_to?(:associations) ? superclass.associations.dup : Hash.new { |h,k| h[k] = [] }
+            superclass.respond_to?(:associations) ? superclass.associations.dup : Hash.new { |h, k| h[k] = [] }
           end
         end
 
