@@ -23,3 +23,6 @@ Style/AsciiComments:
 
 Style/GuardClause:
   Enabled: false
+
+Style/RescueModifier:
+  Enabled: false

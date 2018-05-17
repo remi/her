@@ -158,12 +158,6 @@ Style/RegexpLiteral:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-Style/RescueModifier:
-  Exclude:
-    - 'lib/her/model/introspection.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, Whitelist.
 # Whitelist: present?, blank?, presence, try
 Style/SafeNavigation:
