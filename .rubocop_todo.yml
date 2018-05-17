@@ -129,13 +129,6 @@ Style/IfUnlessModifier:
     - 'lib/her/model/orm.rb'
     - 'lib/her/model/parse.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: InverseMethods, InverseBlocks.
-Style/InverseMethods:
-  Exclude:
-    - 'lib/her/api.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

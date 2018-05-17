@@ -73,7 +73,7 @@ module Her
       opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
       @options = opts
 
-      faraday_options = @options.reject { |key, _| !FARADAY_OPTIONS.include?(key.to_sym) }
+      faraday_options = @options.select { |key, _| FARADAY_OPTIONS.include?(key.to_sym) }
       @connection = Faraday.new(faraday_options) do |connection|
         yield connection if block_given?
       end
