@@ -35,11 +35,6 @@ Lint/AssignmentInCondition:
     - 'lib/her/model/introspection.rb'
 
 # Offense count: 1
-Lint/EmptyWhen:
-  Exclude:
-    - 'lib/her/model/parse.rb'
-
-# Offense count: 1
 Lint/IneffectiveAccessModifier:
   Exclude:
     - 'lib/her/api.rb'
