@@ -15,16 +15,6 @@ Bundler/DuplicatedGem:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceBeforeBlockBraces:
-  Exclude:
-    - 'her.gemspec'
-    - 'spec/model/introspection_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces, SpaceBeforeBlockParameters.
 # SupportedStyles: space, no_space
 # SupportedStylesForEmptyBraces: space, no_space
