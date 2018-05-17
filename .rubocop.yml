@@ -5,3 +5,6 @@ Layout/CaseIndentation:
 
 Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: beginning_only
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: false

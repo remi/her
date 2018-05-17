@@ -13,13 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 4
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - 'lib/her/model/associations/association.rb'
-    - 'spec/model/associations_spec.rb'
-    - 'spec/model/orm_spec.rb'
-
 # Offense count: 3
 Lint/AmbiguousOperator:
   Exclude:
