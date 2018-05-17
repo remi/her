@@ -20,3 +20,6 @@ Naming/UncommunicativeMethodParamName:
 
 Style/AsciiComments:
   Enabled: false
+
+Style/GuardClause:
+  Enabled: false
