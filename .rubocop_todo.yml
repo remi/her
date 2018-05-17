@@ -89,14 +89,6 @@ Performance/RegexpMatch:
   Exclude:
     - 'spec/support/macros/model_macros.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle.
-# SupportedStyles: nested, compact
-Style/ClassAndModuleChildren:
-  Exclude:
-    - 'spec/model/callbacks_spec.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

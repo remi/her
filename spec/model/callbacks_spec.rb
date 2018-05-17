@@ -7,12 +7,10 @@ describe "Her::Model and ActiveModel::Callbacks" do
     Her::API.setup url: "https://api.example.com" do |builder|
       builder.use Her::Middleware::FirstLevelParseJSON
     end
-
-    spawn_model "Foo::User"
   end
 
   context :before_save do
-    subject { Foo::User.create(name: "Tobias Funke") }
+    subject { User.create(name: "Tobias Funke") }
     before do
       Her::API.default_api.connection.adapter :test do |stub|
         stub.post("/users") { |env| [200, {}, { id: 1, name: env[:body][:name] }.to_json] }
@@ -22,8 +20,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
 
     context "when using a symbol callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           before_save :alter_name
           def alter_name
             name.upcase!
@@ -39,8 +36,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
 
     context "when using a block callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           before_save -> { name.upcase! }
         end
       end
@@ -53,8 +49,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
 
     context "when changing a value of an existing resource in a callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           before_save :alter_name
           def alter_name
             self.name = "Lumberjack" if persisted?
@@ -71,7 +66,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
   end
 
   context :before_create do
-    subject { Foo::User.create(name: "Tobias Funke") }
+    subject { User.create(name: "Tobias Funke") }
     before do
       Her::API.default_api.connection.adapter :test do |stub|
         stub.post("/users") { |env| [200, {}, { id: 1, name: env[:body][:name] }.to_json] }
@@ -80,8 +75,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
 
     context "when using a symbol callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           before_create :alter_name
           def alter_name
             name.upcase!
@@ -97,8 +91,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
 
     context "when using a block callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           before_create -> { name.upcase! }
         end
       end
@@ -111,7 +104,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
   end
 
   context :after_find do
-    subject { Foo::User.find(1) }
+    subject { User.find(1) }
     before do
       Her::API.default_api.connection.adapter :test do |stub|
         stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
@@ -120,8 +113,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
 
     context "when using a symbol callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           after_find :alter_name
           def alter_name
             name.upcase!
@@ -137,8 +129,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
 
     context "when using a block callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           after_find -> { name.upcase! }
         end
       end
@@ -151,12 +142,11 @@ describe "Her::Model and ActiveModel::Callbacks" do
   end
 
   context :after_initialize do
-    subject { Foo::User.new(name: "Tobias Funke") }
+    subject { User.new(name: "Tobias Funke") }
 
     context "when using a symbol callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           after_initialize :alter_name
           def alter_name
             name.upcase!
@@ -172,8 +162,7 @@ describe "Her::Model and ActiveModel::Callbacks" do
 
     context "when using a block callback" do
       before do
-        class Foo::User
-
+        spawn_model "User" do
           after_initialize -> { name.upcase! }
         end
       end
