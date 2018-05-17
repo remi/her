@@ -89,17 +89,6 @@ Performance/RegexpMatch:
   Exclude:
     - 'spec/support/macros/model_macros.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods.
-# SupportedStyles: line_count_based, semantic, braces_for_chaining
-# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
-# FunctionalMethods: let, let!, subject, watch
-# IgnoredMethods: lambda, proc, it
-Style/BlockDelimiters:
-  Exclude:
-    - 'lib/her/json_api/model.rb'
-
 # Offense count: 9
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, EnforcedStyle.

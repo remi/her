@@ -20,15 +20,15 @@ module Her
           end
 
           def self.to_params(attributes, changes = {})
-            request_data = { type: @type }.tap { |request_body|
-              attrs = attributes.dup.symbolize_keys.tap { |filtered_attributes|
+            request_data = { type: @type }.tap do |request_body|
+              attrs = attributes.dup.symbolize_keys.tap do |filtered_attributes|
                 if her_api.options[:send_only_modified_attributes]
                   filtered_attributes.slice! *changes.keys.map(&:to_sym)
                 end
-              }
+              end
               request_body[:id] = attrs.delete(:id) if attrs[:id]
               request_body[:attributes] = attrs
-            }
+            end
             { data: request_data }
           end
 
