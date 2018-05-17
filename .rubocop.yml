@@ -8,3 +8,6 @@ Layout/EmptyLinesAroundClassBody:
 
 Lint/AmbiguousBlockAssociation:
   Enabled: false
+
+Lint/AmbiguousOperator:
+  Enabled: false

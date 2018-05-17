@@ -13,13 +13,6 @@ Bundler/DuplicatedGem:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 3
-Lint/AmbiguousOperator:
-  Exclude:
-    - 'lib/her/json_api/model.rb'
-    - 'lib/her/model/attributes.rb'
-    - 'lib/her/model/parse.rb'
-
 # Offense count: 2
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
