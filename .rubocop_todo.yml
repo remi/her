@@ -89,15 +89,6 @@ Performance/RegexpMatch:
   Exclude:
     - 'spec/support/macros/model_macros.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, conditionals
-Style/AndOr:
-  Exclude:
-    - 'lib/her/middleware/parse_json.rb'
-    - 'lib/her/model/attributes.rb'
-
 # Offense count: 11
 # Configuration parameters: AllowedChars.
 Style/AsciiComments:

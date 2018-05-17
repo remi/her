@@ -155,7 +155,7 @@ module Her
         #
         # @private
         def instantiate_record(klass, parsed_data)
-          if record = parsed_data[:data] and record.kind_of?(klass)
+          if (record = parsed_data[:data]) && record.kind_of?(klass)
             record
           else
             attributes = klass.parse(record).merge(_metadata: parsed_data[:metadata],
