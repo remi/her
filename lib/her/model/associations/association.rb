@@ -2,6 +2,7 @@ module Her
   module Model
     module Associations
       class Association
+
         # @private
         attr_accessor :params
 
@@ -47,7 +48,7 @@ module Her
           return @parent.attributes[@name] unless @params.any? || @parent.attributes[@name].blank?
           return @opts[:default].try(:dup) if @parent.new?
 
-          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}" }
+          path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}" }
           @klass.get(path, @params).tap do |result|
             @cached_result = result unless @params.any?
           end
@@ -55,11 +56,9 @@ module Her
 
         # @private
         def build_association_path(code)
-          begin
-            instance_exec(&code)
-          rescue Her::Errors::PathError
-            return nil
-          end
+          instance_exec(&code)
+        rescue Her::Errors::PathError
+          nil
         end
 
         # @private
@@ -81,7 +80,7 @@ module Her
         #   user.comments.where(:approved => 1) # Fetched via GET "/users/1/comments?approved=1
         def where(params = {})
           return self if params.blank? && @parent.attributes[@name].blank?
-          AssociationProxy.new self.clone.tap { |a| a.params = a.params.merge(params) }
+          AssociationProxy.new clone.tap { |a| a.params = a.params.merge(params) }
         end
         alias all where
 
@@ -97,7 +96,7 @@ module Her
         #   user.comments.find(3) # Fetched via GET "/users/1/comments/3
         def find(id)
           return nil if id.blank?
-          path = build_association_path lambda { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
+          path = build_association_path -> { "#{@parent.request_path(@params)}#{@opts[:path]}/#{id}" }
           @klass.get_resource(path, @params)
         end
 
@@ -123,7 +122,6 @@ module Her
           reset
           fetch
         end
-
       end
     end
   end

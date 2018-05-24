@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require "spec_helper"
 
 describe Her::Middleware::FirstLevelParseJSON do
@@ -31,7 +32,7 @@ describe Her::Middleware::FirstLevelParseJSON do
   end
 
   it "ensures the errors are a hash if there are no errors" do
-    expect(subject.parse(body_with_errors)[:errors]).to eq(name: %w(not_valid should_be_present))
+    expect(subject.parse(body_with_errors)[:errors]).to eq(name: %w[not_valid should_be_present])
   end
 
   it "ensures that malformed JSON throws an exception" do

@@ -15,7 +15,7 @@ module Her
         end
 
         install_proxy_methods :association,
-          :build, :create, :where, :find, :all, :assign_nested_attributes, :reload
+                              :build, :create, :where, :find, :all, :assign_nested_attributes, :reload
 
         # @private
         def initialize(association)
@@ -28,7 +28,7 @@ module Her
 
         # @private
         def method_missing(name, *args, &block)
-          if :object_id == name # avoid redefining object_id
+          if name == :object_id # avoid redefining object_id
             return association.fetch.object_id
           end
 
@@ -38,7 +38,6 @@ module Her
           # resend message to fetched object
           __send__(name, *args, &block)
         end
-
       end
     end
   end

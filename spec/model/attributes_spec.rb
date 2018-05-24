@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::Attributes do
@@ -164,11 +165,11 @@ describe Her::Model::Attributes do
         store_metadata :my_data
       end
 
-      @user = Foo::User.new(_errors: %w(Foo Bar), _metadata: { secret: true })
+      @user = Foo::User.new(_errors: %w[Foo Bar], _metadata: { secret: true })
     end
 
     it "should return response_errors stored in the method provided by `store_response_errors`" do
-      expect(@user.errors).to eq(%w(Foo Bar))
+      expect(@user.errors).to eq(%w[Foo Bar])
     end
 
     it "should remove the default method for errors" do
@@ -204,7 +205,7 @@ describe Her::Model::Attributes do
 
         spawn_model "Foo::User" do
           def document
-            self.attributes[:document][:url]
+            attributes[:document][:url]
           end
         end
       end
@@ -310,6 +311,7 @@ describe Her::Model::Attributes do
     context "when attribute methods are already defined" do
       before do
         class AbstractUser
+
           def fullname
             raise NotImplementedError
           end

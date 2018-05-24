@@ -23,7 +23,7 @@ module Her
       #     u.name = "Tobias"
       #   end
       #   # => #<User name="Tobias">
-      def initialize(attributes={})
+      def initialize(attributes = {})
         attributes ||= {}
         @metadata = attributes.delete(:_metadata) || {}
         @response_errors = attributes.delete(:_errors) || {}
@@ -151,19 +151,18 @@ module Her
       end
 
       module ClassMethods
-
         # Initialize a single resource
         #
         # @private
         def instantiate_record(klass, parsed_data)
-          if record = parsed_data[:data] and record.kind_of?(klass)
+          if (record = parsed_data[:data]) && record.is_a?(klass)
             record
           else
             attributes = klass.parse(record).merge(_metadata: parsed_data[:metadata],
                                                    _errors: parsed_data[:errors])
-            klass.new(attributes).tap do |record|
-              record.send :clear_changes_information
-              record.run_callbacks :find
+            klass.new(attributes).tap do |record_instance|
+              record_instance.send :clear_changes_information
+              record_instance.run_callbacks :find
             end
           end
         end
@@ -289,6 +288,7 @@ module Her
         end
 
         private
+
         # @private
         def store_her_data(name, value)
           class_eval <<-RUBY, __FILE__, __LINE__ + 1

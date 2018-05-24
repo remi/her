@@ -1,6 +1,7 @@
 module Her
   module Middleware
     class ParseJSON < Faraday::Response::Middleware
+
       # @private
       def parse_json(body = nil)
         body = '{}' if body.blank?
@@ -12,7 +13,7 @@ module Her
           raise Her::Errors::ParseError, message
         end
 
-        raise Her::Errors::ParseError, message unless json.is_a?(Hash) or json.is_a?(Array)
+        raise Her::Errors::ParseError, message unless json.is_a?(Hash) || json.is_a?(Array)
 
         json
       end

@@ -32,18 +32,18 @@ module Her
         # @private
         def associations
           @_her_associations ||= begin
-            superclass.respond_to?(:associations) ? superclass.associations.dup : Hash.new { |h,k| h[k] = [] }
+            superclass.respond_to?(:associations) ? superclass.associations.dup : Hash.new { |h, k| h[k] = [] }
           end
         end
 
         # @private
         def association_names
-          associations.inject([]) { |memo, (name, details)| memo << details }.flatten.map { |a| a[:name] }
+          associations.inject([]) { |memo, (_, details)| memo << details }.flatten.map { |a| a[:name] }
         end
 
         # @private
         def association_keys
-          associations.inject([]) { |memo, (name, details)| memo << details }.flatten.map { |a| a[:data_key] }
+          associations.inject([]) { |memo, (_, details)| memo << details }.flatten.map { |a| a[:data_key] }
         end
 
         # Parse associations data after initializing a new object
@@ -81,7 +81,7 @@ module Her
         #   @user = User.find(1)
         #   @user.articles # => [#<Article(articles/2) id=2 title="Hello world.">]
         #   # Fetched via GET "/users/1/articles"
-        def has_many(name, opts={})
+        def has_many(name, opts = {})
           Her::Model::Associations::HasManyAssociation.attach(self, name, opts)
         end
 
@@ -106,7 +106,7 @@ module Her
         #   @user = User.find(1)
         #   @user.organization # => #<Organization(organizations/2) id=2 name="Foobar Inc.">
         #   # Fetched via GET "/users/1/organization"
-        def has_one(name, opts={})
+        def has_one(name, opts = {})
           Her::Model::Associations::HasOneAssociation.attach(self, name, opts)
         end
 
@@ -132,7 +132,7 @@ module Her
         #   @user = User.find(1) # => #<User(users/1) id=1 team_id=2 name="Tobias">
         #   @user.team # => #<Team(teams/2) id=2 name="Developers">
         #   # Fetched via GET "/teams/2"
-        def belongs_to(name, opts={})
+        def belongs_to(name, opts = {})
           Her::Model::Associations::BelongsToAssociation.attach(self, name, opts)
         end
       end

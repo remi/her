@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::Parse do
@@ -264,6 +265,7 @@ describe Her::Model::Parse do
 
         spawn_model("Foo::Model") { parse_root_in_json true, format: :active_model_serializers }
         class User < Foo::Model
+
           collection_path "/users"
         end
 

@@ -10,7 +10,7 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        self.class.to_params(self.attributes, self.changes)
+        self.class.to_params(attributes, changes)
       end
 
       module ClassMethods
@@ -31,10 +31,9 @@ module Her
         end
 
         # @private
-        def to_params(attributes, changes={})
+        def to_params(attributes, changes = {})
           filtered_attributes = attributes.each_with_object({}) do |(key, value), memo|
             case value
-            when Her::Model
             when ActiveModel::Serialization
               value = value.serializable_hash.symbolize_keys
             end
@@ -130,11 +129,11 @@ module Her
         #   user.name # => "Tobias"
         def root_element(value = nil)
           if value.nil?
-            if json_api_format?
-              @_her_root_element ||= self.name.split("::").last.pluralize.underscore.to_sym
-            else
-              @_her_root_element ||= self.name.split("::").last.underscore.to_sym
-            end
+            @_her_root_element ||= if json_api_format?
+                                     name.split("::").last.pluralize.underscore.to_sym
+                                   else
+                                     name.split("::").last.underscore.to_sym
+                                   end
           else
             @_her_root_element = value.to_sym
           end

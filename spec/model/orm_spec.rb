@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
 describe Her::Model::ORM do
@@ -73,10 +74,10 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
-          stub.get("/users") { |env| [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], :metadata => { :total_pages => 10, :next_page => 2 }, :errors => ["Oh", "My", "God"] }.to_json] }
-          stub.post("/users") { |env| [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
-          stub.delete("/users/1") { |env| [200, {}, { :data => { :id => 1 }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
+          stub.get("/users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w[Oh My God] }.to_json] }
+          stub.get("/users") { [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], :metadata => { :total_pages => 10, :next_page => 2 }, :errors => ["Oh", "My", "God"] }.to_json] }
+          stub.post("/users") { [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
+          stub.delete("/users/1") { [200, {}, { :data => { :id => 1 }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
         end
       end
 
@@ -102,7 +103,7 @@ describe Her::Model::ORM do
 
     it "handles error data on a resource" do
       @user = User.create(name: "George Michael Bluth")
-      expect(@user.response_errors).to eq(%w(Yes Sir))
+      expect(@user.response_errors).to eq(%w[Yes Sir])
     end
 
     it "handles metadata on a destroyed resource" do
@@ -112,7 +113,7 @@ describe Her::Model::ORM do
 
     it "handles error data on a destroyed resource" do
       @user = User.destroy_existing(1)
-      expect(@user.response_errors).to eq(%w(Yes Sir))
+      expect(@user.response_errors).to eq(%w[Yes Sir])
     end
   end
 
@@ -123,8 +124,8 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::SecondLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
-          stub.post("/users") { [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: %w(Yes Sir) }.to_json] }
+          stub.get("/users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w[Oh My God] }.to_json] }
+          stub.post("/users") { [200, {}, { data: { name: "George Michael Bluth" }, metadata: { foo: "bar" }, errors: %w[Yes Sir] }.to_json] }
         end
       end
 
@@ -150,7 +151,7 @@ describe Her::Model::ORM do
 
     it "handles error data on a resource" do
       @user = User.create(name: "George Michael Bluth")
-      expect(@user.response_errors).to eq(%w(Yes Sir))
+      expect(@user.response_errors).to eq(%w[Yes Sir])
     end
   end
 
@@ -161,7 +162,7 @@ describe Her::Model::ORM do
         builder.use Her::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
-          stub.get("/users/1") { [200, {}, { id: 1, friends: %w(Maeby GOB Anne) }.to_json] }
+          stub.get("/users/1") { [200, {}, { id: 1, friends: %w[Maeby GOB Anne] }.to_json] }
           stub.get("/users/2") { [200, {}, { id: 1 }.to_json] }
         end
       end
@@ -185,7 +186,7 @@ describe Her::Model::ORM do
       @user = User.find(1)
       expect(@user.friends).to eq("* Maeby\n* GOB\n* Anne")
       @user.instance_eval do
-        @_her_attributes[:friends] = %w(Maeby GOB Anne)
+        @_her_attributes[:friends] = %w[Maeby GOB Anne]
       end
     end
 
@@ -194,7 +195,7 @@ describe Her::Model::ORM do
       @user.friends = "* George\n* Oscar\n* Lucille"
       expect(@user.friends).to eq("* George\n* Oscar\n* Lucille")
       @user.instance_eval do
-        @_her_attributes[:friends] = %w(George Oscar Lucille)
+        @_her_attributes[:friends] = %w[George Oscar Lucille]
       end
     end
   end
@@ -492,10 +493,10 @@ describe Her::Model::ORM do
           stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", active: true }.to_json] }
           stub.delete("/users/1") { [status, {}, { id: 1, fullname: "Lindsay Fünke", active: false }.to_json] }
 
-          stub.get("/child_users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w(Oh My God) }.to_json] }
-          stub.get("/child_users") { |env| [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], :metadata => { :total_pages => 10, :next_page => 2 }, :errors => ["Oh", "My", "God"] }.to_json] }
-          stub.post("/child_users") { |env| [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
-          stub.delete("/child_users/1") { |env| [200, {}, { :data => { :id => 1 }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
+          stub.get("/child_users") { [200, {}, { data: [{ id: 1, name: "Tobias Fünke" }, { id: 2, name: "Lindsay Fünke" }], metadata: { total_pages: 10, next_page: 2 }, errors: %w[Oh My God] }.to_json] }
+          stub.get("/child_users") { [200, {}, { :data => [{ :id => 1, :name => "Tobias Fünke" }, { :id => 2, :name => "Lindsay Fünke" }], :metadata => { :total_pages => 10, :next_page => 2 }, :errors => ["Oh", "My", "God"] }.to_json] }
+          stub.post("/child_users") { [200, {}, { :data => { :name => "George Michael Bluth" }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
+          stub.delete("/child_users/1") { [200, {}, { :data => { :id => 1 }, :metadata => { :foo => "bar" }, :errors => ["Yes", "Sir"] }.to_json] }
         end
       end
 
@@ -652,10 +653,15 @@ describe Her::Model::ORM do
         after_create :after_create_callback
         after_save :after_save_callback
         def before_save_callback; end
+
         def before_create_callback; end
+
         def before_update_callback; end
+
         def after_update_callback; end
+
         def after_create_callback; end
+
         def after_save_callback; end
       end
     end

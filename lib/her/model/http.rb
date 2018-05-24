@@ -52,7 +52,7 @@ module Her
         # Main request wrapper around Her::API. Used to make custom request to the API.
         #
         # @private
-        def request(params={})
+        def request(params = {})
           request = her_api.request(params)
 
           if block_given?

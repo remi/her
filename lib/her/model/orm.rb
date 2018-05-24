@@ -1,4 +1,5 @@
 # coding: utf-8
+
 module Her
   module Model
     # This module adds ORM-like capabilities to the model
@@ -54,7 +55,7 @@ module Her
 
       # Similar to save(), except that ResourceInvalid is raised if the save fails
       def save!
-        if !self.save
+        unless save
           raise Her::Errors::ResourceInvalid, self
         end
         self
@@ -195,7 +196,7 @@ module Her
         #
         #   User.all # Called via GET "/users?admin=1"
         #   User.new.admin # => 1
-        def default_scope(block=nil)
+        def default_scope(block = nil)
           @_her_default_scope ||= (!respond_to?(:default_scope) && superclass.respond_to?(:default_scope)) ? superclass.default_scope : scoped
           @_her_default_scope = @_her_default_scope.instance_exec(&block) unless block.nil?
           @_her_default_scope
@@ -227,7 +228,7 @@ module Her
         # @example
         #   User.destroy_existing(1)
         #   # Called via DELETE "/users/1"
-        def destroy_existing(id, params={})
+        def destroy_existing(id, params = {})
           request(params.merge(:_method => method_for(:destroy), :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
             data = parse(parsed_data[:data])
             metadata = parsed_data[:metadata]
@@ -256,15 +257,15 @@ module Her
         # If the request_new_object_on_build flag is set, the new object is requested via API.
         def build(attributes = {})
           params = attributes
-          return self.new(params) unless self.request_new_object_on_build?
+          return new(params) unless request_new_object_on_build?
 
-          path = self.build_request_path(params.merge(self.primary_key => 'new'))
-          method = self.method_for(:new)
+          path = build_request_path(params.merge(primary_key => 'new'))
+          method = method_for(:new)
 
           resource = nil
-          self.request(params.merge(:_method => method, :_path => path)) do |parsed_data, response|
+          request(params.merge(:_method => method, :_path => path)) do |parsed_data, response|
             if response.success?
-              resource = self.new_from_parsed_data(parsed_data)
+              resource = new_from_parsed_data(parsed_data)
             end
           end
           resource

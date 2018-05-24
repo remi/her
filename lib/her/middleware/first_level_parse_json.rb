@@ -2,6 +2,7 @@ module Her
   module Middleware
     # This middleware treat the received first-level JSON structure as the resource data.
     class FirstLevelParseJSON < ParseJSON
+
       # Parse the response body
       #
       # @param [String] body The response body
@@ -25,11 +26,11 @@ module Her
       # @private
       def on_complete(env)
         env[:body] = case env[:status]
-        when 204
-          parse('{}')
-        else
-          parse(env[:body])
-        end
+                     when 204
+                       parse('{}')
+                     else
+                       parse(env[:body])
+                     end
       end
     end
   end

@@ -11,7 +11,7 @@ module Her
       # @private
       def has_key?(attribute_name)
         has_attribute?(attribute_name) ||
-        has_association?(attribute_name)
+          has_association?(attribute_name)
       end
 
       # Returns
@@ -21,7 +21,7 @@ module Her
       # @private
       def [](attribute_name)
         get_attribute(attribute_name) ||
-        get_association(attribute_name)
+          get_association(attribute_name)
       end
 
       # @private
