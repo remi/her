@@ -223,6 +223,13 @@ module Her
           resource
         end
 
+        # Similar to User.save_existing(), except that ResourceInvalid is raised if the save fails
+        def save_existing!(id, params)
+          resource = new(params.merge(primary_key => id))
+          resource.save!
+          resource
+        end
+
         # Destroy an existing resource
         #
         # @example
