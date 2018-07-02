@@ -251,6 +251,7 @@ describe Her::Model::Parse do
 
       it "parse the data with the symbol" do
         @new_user = Foo::User.create(fullname: "Lindsay Fünke")
+        expect(@new_user.id).to eq(1)
         expect(@new_user.fullname).to eq("Lindsay Fünke")
       end
     end

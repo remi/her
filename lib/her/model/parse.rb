@@ -145,7 +145,7 @@ module Her
 
         # @private
         def root_element_included?(data)
-          element = data[root_element]
+          element = data[parsed_root_element]
           element.is_a?(Hash) || element.is_a?(Array)
         end
 
