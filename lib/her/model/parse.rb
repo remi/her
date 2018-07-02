@@ -34,6 +34,7 @@ module Her
         def to_params(attributes, changes = {})
           filtered_attributes = attributes.each_with_object({}) do |(key, value), memo|
             case value
+            when Her::Model
             when ActiveModel::Serialization
               value = value.serializable_hash.symbolize_keys
             end
