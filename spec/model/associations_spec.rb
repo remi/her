@@ -662,8 +662,7 @@ describe Her::Model::Associations do
           builder.adapter :test do |stub|
             stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." }, organization_id: 1 }.to_json] }
             stub.get("/users/4") { [200, {}, { id: 1, name: "Tobias Fünke", organization: { id: 1, name: "Bluth Company Inc." } }.to_json] }
-            stub.get("/users/3") { [200, {}, { id: 2, name: "Lindsay Fünke", company: nil }.to_json] }
-            stub.get("/companies/1") { [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
+            stub.get("/users/3") { [200, {}, { id: 2, name: "Lindsay Fünke", organization: nil }.to_json] }
           end
         end
       end
@@ -700,7 +699,7 @@ describe Her::Model::Associations do
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
             stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 1 }.to_json] }
-            stub.get("/companies/1") { [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
+            stub.get("/organizations/1") { [200, {}, { id: 1, name: "Bluth Company" }.to_json] }
           end
         end
       end
