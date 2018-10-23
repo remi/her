@@ -32,23 +32,15 @@ module Her
 
         # @private
         def to_params(attributes, changes = {})
-          filtered_attributes = attributes.each_with_object({}) do |(key, value), memo|
-            case value
-            when Her::Model
-            when ActiveModel::Serialization
-              value = value.serializable_hash.symbolize_keys
-            end
-
-            memo[key.to_sym] = value
-          end
-
-          filtered_attributes.merge!(embeded_params(attributes))
+          filtered_attributes = attributes.symbolize_keys
 
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes.slice! *changes.keys.map(&:to_sym)
           end
 
-          if include_root_in_json?
+          embed_params!(attributes, filtered_attributes)
+
+          if include_root_in_json
             if json_api_format?
               { included_root_element => [filtered_attributes] }
             else
@@ -60,28 +52,62 @@ module Her
         end
 
         # @private
-        def embeded_params(attributes)
-          associations.values.flatten.each_with_object({}) do |definition, hash|
-            value = case association = attributes[definition[:name]]
-                    when Her::Collection, Array
-                      association.map { |a| a.to_params }.reject(&:empty?)
-                    when Her::Model
-                      association.to_params
-                    end
-            hash[definition[:data_key]] = value if value.present?
-          end
-        end
+        def embed_params!(read_attributes, write_attributes)
+          first = Thread.current[:her_embedded_params_objects].nil?
+          Thread.current[:her_embedded_params_objects] = [] if first
 
-        # Return or change the value of `include_root_in_json`
-        #
-        # @example
-        #   class User
-        #     include Her::Model
-        #     include_root_in_json true
-        #   end
-        def include_root_in_json(value, options = {})
-          @_her_include_root_in_json = value
-          @_her_include_root_in_json_format = options[:format]
+          return {} if Thread.current[:her_embedded_params_objects].include?(self)
+          Thread.current[:her_embedded_params_objects] << self
+
+          associations.values.flatten.each do |assoc|
+            write_attributes.delete(assoc[:name])
+            next if assoc[:autosave] == false
+            value = read_attributes[assoc[:name]]
+
+            value =
+              if assoc[:autosave].nil?
+                case value
+                when Her::Collection, Array
+                  value.select(&:new_record?)
+                when Her::Model
+                  value if value.new_record?
+                end
+              else
+                value
+              end
+
+            value =
+              case value
+              when Her::Collection, Array
+                value.map(&:to_params).reject(&:empty?)
+              when Her::Model
+                value.to_params
+              end
+
+            write_attributes[assoc[:data_key]] = value if value.present?
+          end
+
+          write_attributes.each do |key, value|
+            value =
+              case value
+              when Her::Collection
+                value.map(&:to_params).reject(&:empty?)
+              when Her::Model
+                value.to_params
+              when ActiveModel::Serialization
+                value.serializable_hash.symbolize_keys
+              end
+
+            if value
+              if value.empty?
+                write_attributes.delete(key)
+              else
+                write_attributes[key] = value
+              end
+            end
+          end
+        ensure
+          Thread.current[:her_embedded_params_objects] = nil if first
         end
 
         # Return or change the value of `parse_root_in_json`
@@ -148,7 +174,7 @@ module Her
 
         # @private
         def included_root_element
-          include_root_in_json? == true ? root_element : include_root_in_json?
+          include_root_in_json == true ? root_element : include_root_in_json
         end
 
         # Extract an array from the request data
@@ -204,12 +230,6 @@ module Her
         def request_new_object_on_build?
           return @_her_request_new_object_on_build unless @_her_request_new_object_on_build.nil?
           superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?
-        end
-
-        # @private
-        def include_root_in_json?
-          return @_her_include_root_in_json unless @_her_include_root_in_json.nil?
-          superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?
         end
 
         # @private

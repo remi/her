@@ -11,7 +11,8 @@ module Her
             :data_key => name,
             :default => nil,
             :foreign_key => "#{name}_id",
-            :path => "/#{name.to_s.pluralize}/:id"
+            :path => "/#{name.to_s.pluralize}/:id",
+            :autosave => true
           }.merge(opts)
           klass.associations[:belongs_to] << opts
 
@@ -21,6 +22,10 @@ module Her
 
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
               cached_data || instance_variable_set(cached_name, Her::Model::Associations::BelongsToAssociation.proxy(self, #{opts.inspect}))
+            end
+
+            def #{name}=(resource)
+              send("#{name}").association.assign(resource)
             end
           RUBY
         end
@@ -84,6 +89,28 @@ module Her
           @klass.get_resource(path, @params).tap do |result|
             @cached_result = result if @params.blank?
           end
+        end
+
+        # @private
+        def assign(resource)
+          reset
+          pkey = resource ? resource.id : nil
+          @parent.send("#{@opts[:foreign_key]}=", pkey)
+          @parent.attributes[@name] = resource
+          @cached_result = resource
+
+          if resource
+            begin
+              @parent.request_path
+            rescue Her::Errors::PathError => e
+              e.missing_parameters.each do |m|
+                id = resource.get_attribute(m) || resource.get_attribute("_#{m}")
+                @parent.send("_#{m}=", id) if id
+              end
+            end
+          end
+
+          resource
         end
 
         # @private

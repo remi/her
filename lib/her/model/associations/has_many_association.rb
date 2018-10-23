@@ -11,7 +11,8 @@ module Her
             :data_key       => name,
             :default        => Her::Collection.new,
             :path           => "/#{name}",
-            :inverse_of => nil
+            :inverse_of => nil,
+            :autosave => true
           }.merge(opts)
           klass.associations[:has_many] << opts
 
@@ -21,6 +22,10 @@ module Her
 
               cached_data = (instance_variable_defined?(cached_name) && instance_variable_get(cached_name))
               cached_data || instance_variable_set(cached_name, Her::Model::Associations::HasManyAssociation.proxy(self, #{opts.inspect}))
+            end
+
+            def #{name}=(resources)
+              send("#{name}").association.assign(resources)
             end
           RUBY
         end
@@ -49,10 +54,8 @@ module Her
         #   user = User.find(1)
         #   new_comment = user.comments.build(:body => "Hello!")
         #   new_comment # => #<Comment user_id=1 body="Hello!">
-        # TODO: This only merges the id of the parents, handle the case
-        #       where this is more deeply nested
         def build(attributes = {})
-          @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
+          build_with_inverse(attributes)
         end
 
         # Create a new object, save it and add it to the associated collection
@@ -72,21 +75,14 @@ module Her
         #   user.comments # => [#<Comment id=2 user_id=1 body="Hello!">]
         def create(attributes = {})
           resource = build(attributes)
+          set_missing_and_inverse_from_parent(resource)
 
           if resource.save
-            @parent.attributes[@name] ||= Her::Collection.new
-            @parent.attributes[@name] << resource
+            collection = @parent.attributes[@name] || assign(Her::Collection.new)
+            collection << resource
           end
 
           resource
-        end
-
-        # @private
-        def fetch
-          super.tap do |o|
-            inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
-            o.each { |entry| entry.attributes[inverse_of] = @parent }
-          end
         end
 
         # @private

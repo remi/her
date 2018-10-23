@@ -12,13 +12,26 @@ module Her
       #   @user = User.find(1)
       #   p @user # => #<User(/users/1) id=1 name="Tobias Fünke">
       def inspect
+        first = Thread.current[:her_inspect_objects].nil?
+        Thread.current[:her_inspect_objects] = [] if first
+
         resource_path = begin
           request_path
         rescue Her::Errors::PathError => e
-          "<unknown path, missing `#{e.missing_parameter}`>"
+          joined = e.missing_parameters.map { |m| "`#{m}`" }.join(", ")
+          "<unknown path, missing #{joined}>"
         end
 
-        "#<#{self.class}(#{resource_path}) #{attributes.keys.map { |k| "#{k}=#{attribute_for_inspect(send(k))}" }.join(" ")}>"
+        result = "#<#{self.class}(#{resource_path}) "
+
+        if Thread.current[:her_inspect_objects].include?(self)
+          result << '...>'
+        else
+          Thread.current[:her_inspect_objects] << self
+          result << attributes.keys.map { |k| "#{k}=#{attribute_for_inspect(send(k))}" }.join(' ') + '>'
+        end
+      ensure
+        Thread.current[:her_inspect_objects] = nil if first
       end
 
       private

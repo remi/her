@@ -344,6 +344,10 @@ describe Her::Model::Parse do
           { fullname: "Lindsay Fünke" }
         end
       end
+
+      spawn_model "Foo::Comment" do
+        attributes :user
+      end
     end
 
     it "changes the request parameters for one-line resource creation" do
@@ -355,6 +359,12 @@ describe Her::Model::Parse do
       @user = Foo::User.new(fullname: "Tobias Fünke")
       @user.save
       expect(@user.fullname).to eq("Lindsay Fünke")
+    end
+
+    it 'changes the request parameters when nested inside an unassociated resource' do
+      @user = Foo::User.new(fullname: "Tobias Fünke")
+      @comment = Foo::Comment.new(user: @user)
+      expect(@comment.to_params).to eq(user: { fullname: "Lindsay Fünke" })
     end
   end
 

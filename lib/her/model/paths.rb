@@ -15,7 +15,7 @@ module Her
       # @param [Hash] params An optional set of additional parameters for
       #   path construction. These will not override attributes of the resource.
       def request_path(params = {})
-        self.class.build_request_path(params.merge(attributes.dup))
+        self.class.build_request_path(params.merge(attributes))
       end
 
       module ClassMethods
@@ -84,34 +84,65 @@ module Her
           end
         end
 
-        # Return a custom path based on the collection path and variable parameters
+        # Return a custom path based on the resource or collection
+        # path and variable parameters.
+        #
+        # If :collection option is true then a collection path is
+        # forced, regardless of whether the primary key is in the
+        # parameters.
+        #
+        # If :remove_used option is true then parameters used in that
+        # path will be removed from the hash.
         #
         # @private
-        def build_request_path(path = nil, parameters = {})
-          parameters = parameters.try(:with_indifferent_access)
+        def build_request_path(parameters = {}, options = {})
+          path =
+            if options[:collection]
+              collection_path.dup
+            else
+              pkey = parameters[primary_key.to_s] || parameters[primary_key.to_sym]
 
-          unless path.is_a?(String)
-            parameters = path.try(:with_indifferent_access) || parameters
-            path =
-              if parameters.include?(primary_key) && parameters[primary_key] && !parameters[primary_key].is_a?(Array)
+              if pkey && !pkey.is_a?(Array)
                 resource_path.dup
               else
                 collection_path.dup
               end
+            end
 
-            # Replace :id with our actual primary key
-            path.gsub!(/(\A|\/):id(\Z|\/)/, "\\1:#{primary_key}\\2")
+          # Replace :id with our actual primary key
+          path.gsub!(/(\A|\/):id(\z|\/)/, "\\1:#{primary_key}\\2")
+
+          used = []
+          missing = []
+
+          result = path.gsub(/:([\w_]+)/) do
+            # Look for "key" or "_key", otherwise add to the missing
+            # list and raise below.
+            replacement = nil
+            [$1, "_#{$1}"].each do |str_key|
+              [str_key, str_key.to_sym].each do |key|
+                value = parameters[key]
+                next unless value
+                used << key if options[:remove_used]
+                replacement = value
+                break 2
+              end
+            end
+
+            unless replacement
+              replacement = $1
+              missing << $1.to_sym
+            end
+
+            Faraday::Utils.escape replacement
           end
 
-          path.gsub(/:([\w_]+)/) do
-            # Look for :key or :_key, otherwise raise an exception
-            key = $1.to_sym
-            value = parameters.delete(key) || parameters.delete(:"_#{key}")
-            if value
-              Faraday::Utils.escape value
-            else
-              raise(Her::Errors::PathError.new("Missing :_#{$1} parameter to build the request path. Path is `#{path}`. Parameters are `#{parameters.symbolize_keys.inspect}`.", $1))
-            end
+          if missing.empty?
+            parameters.except! *used
+            result
+          else
+            joined = missing.map { |m| ":_#{m}" }.join(", ")
+            raise Her::Errors::PathError.new("Missing #{joined} parameters to build the request path. Path is `#{path}`. Parameters are `#{parameters.symbolize_keys.inspect}`.", missing)
           end
         end
 
