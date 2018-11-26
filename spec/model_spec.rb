@@ -42,4 +42,12 @@ describe Her::Model do
     specify { expect(subject[:name]).to eq("Tobias Fünke") }
     specify { expect(subject[:comments].first.body).to eq("They're having a FIRESALE?") }
   end
+
+  describe :duplication do
+    it "should not modify the original object" do
+      dup_subject = subject.dup
+      dup_subject.name = "Maeby Fünke"
+      expect(subject.name).to eq("Tobias Fünke")
+    end
+  end
 end

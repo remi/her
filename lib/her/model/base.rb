@@ -28,6 +28,17 @@ module Her
       def singularized_resource_name
         self.class.name.split('::').last.tableize.singularize
       end
+
+      # @private
+      def initialize_dup(other)
+        @_her_attributes = @_her_attributes.dup
+        @_her_attributes[self.class.primary_key] = nil
+
+        @new_record  = true
+        @destroyed   = false
+
+        super
+      end
     end
   end
 end
