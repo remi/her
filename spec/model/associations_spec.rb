@@ -574,6 +574,40 @@ describe Her::Model::Associations do
     end
   end
 
+  context "handling associations with path_prefix" do
+    before do
+      spawn_model "Foo::Organization" do
+        has_many :users
+        parse_root_in_json true
+      end
+      spawn_model "Foo::User" do
+        belongs_to :organization
+      end
+    end
+
+    context "without included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.path_prefix = 'special'
+          builder.adapter :test do |stub|
+            stub.get("/special/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
+            stub.get("/special/organizations/2") { [200, {}, { organization: { id: 2, name: "Bluth Company" } }.to_json] }
+          end
+        end
+      end
+
+      let(:user) { Foo::User.find(2) }
+
+      it "fetches data that was not included through belongs_to" do
+        expect(user.organization).to be_a(Foo::Organization)
+        expect(user.organization.id).to eq(2)
+        expect(user.organization.name).to eq("Bluth Company")
+      end
+    end
+  end
+
   context "handling associations with details in active_model_serializers format" do
     before do
       spawn_model "Foo::User" do
