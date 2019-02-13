@@ -430,6 +430,13 @@ describe Her::Model::ORM do
       expect(@user.fullname).to eq("Lindsay Fünke")
     end
 
+    it "handle resource update through #update_attributes" do
+      @user = Foo::User.find(1)
+      expect(@user).to receive(:save).and_return(true)
+      @user.update_attributes(fullname: "Lindsay Fünke")
+      expect(@user.fullname).to eq("Lindsay Fünke")
+    end
+
     it "handles resource update through #toggle without saving it" do
       @user = Foo::User.find(1)
       expect(@user.admin).to be_falsey

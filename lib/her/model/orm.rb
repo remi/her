@@ -61,6 +61,16 @@ module Her
         self
       end
 
+      # Update a resource and return it
+      #
+      # @example
+      #   @user = User.find(1)
+      #   @user.update_attributes(:name => "Tobias Fünke")
+      #   # Called via PUT "/users/1"
+      def update_attributes(attributes)
+        assign_attributes(attributes) && save
+      end
+
       # Destroy a resource
       #
       # @example

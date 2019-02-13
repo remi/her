@@ -91,6 +91,10 @@ user.fullname = "Lindsay Fünke" # OR user.assign_attributes(fullname: "Lindsay 
 user.save # returns false if it fails, errors in user.response_errors array
 # PUT "/users/1" with `fullname=Lindsay+Fünke`
 
+user.update_attributes(fullname: "Maeby Fünke")
+# PUT "/users/1" with `fullname=Maeby+Fünke`
+
+# => PUT /users/1 { "id": 1, "name": "new new name" }
 # Update a resource without fetching it
 User.save_existing(1, fullname: "Lindsay Fünke")
 # PUT "/users/1" with `fullname=Lindsay+Fünke`
