@@ -112,11 +112,27 @@ describe Her::Model::Associations do
             data_key: :organization,
             default: nil,
             class_name: "Organization",
-            foreign_key: "organization_id",
-            path: "/organizations/:id"
+            foreign_key: "organization_id"
           }
         end
         before { Foo::User.belongs_to :organization }
+
+        it { is_expected.to eql [organization_association] }
+      end
+
+      context "specifying non-default path" do
+        let(:path) { 'my_special_path' }
+        let(:organization_association) do
+          {
+            name: :organization,
+            data_key: :organization,
+            default: nil,
+            class_name: "Organization",
+            foreign_key: "organization_id",
+            path: path
+          }
+        end
+        before { Foo::User.belongs_to :organization, path: path }
 
         it { is_expected.to eql [organization_association] }
       end
@@ -128,8 +144,7 @@ describe Her::Model::Associations do
             data_key: :organization,
             default: nil,
             class_name: "Organization",
-            foreign_key: "organization_id",
-            path: "/organizations/:id"
+            foreign_key: "organization_id"
           }
         end
         let(:family_association) do
@@ -138,8 +153,7 @@ describe Her::Model::Associations do
             data_key: :family,
             default: nil,
             class_name: "Family",
-            foreign_key: "family_id",
-            path: "/families/:id"
+            foreign_key: "family_id"
           }
         end
         before do
@@ -216,8 +230,7 @@ describe Her::Model::Associations do
               data_key: :org,
               default: true,
               class_name: "Business",
-              foreign_key: "org_id",
-              path: "/organizations/:id"
+              foreign_key: "org_id"
             }
           end
           before do
@@ -523,6 +536,74 @@ describe Her::Model::Associations do
             expect(subject.role.body).to eq("Admin")
           end
         end
+      end
+    end
+  end
+
+  context "handling associations with collection_path" do
+    before do
+      spawn_model "Foo::Organization" do
+        has_many :users
+        parse_root_in_json true
+        collection_path '/special/organizations'
+      end
+      spawn_model "Foo::User" do
+        belongs_to :organization
+      end
+    end
+
+    context "without included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
+            stub.get("/special/organizations/2") { [200, {}, { organization: { id: 2, name: "Bluth Company" } }.to_json] }
+          end
+        end
+      end
+
+      let(:user) { Foo::User.find(2) }
+
+      it "fetches data that was not included through belongs_to" do
+        expect(user.organization).to be_a(Foo::Organization)
+        expect(user.organization.id).to eq(2)
+        expect(user.organization.name).to eq("Bluth Company")
+      end
+    end
+  end
+
+  context "handling associations with path_prefix" do
+    before do
+      spawn_model "Foo::Organization" do
+        has_many :users
+        parse_root_in_json true
+      end
+      spawn_model "Foo::User" do
+        belongs_to :organization
+      end
+    end
+
+    context "without included data" do
+      before(:context) do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.path_prefix = 'special'
+          builder.adapter :test do |stub|
+            stub.get("/special/users/2") { [200, {}, { id: 2, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
+            stub.get("/special/organizations/2") { [200, {}, { organization: { id: 2, name: "Bluth Company" } }.to_json] }
+          end
+        end
+      end
+
+      let(:user) { Foo::User.find(2) }
+
+      it "fetches data that was not included through belongs_to" do
+        expect(user.organization).to be_a(Foo::Organization)
+        expect(user.organization.id).to eq(2)
+        expect(user.organization.name).to eq("Bluth Company")
       end
     end
   end

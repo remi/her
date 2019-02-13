@@ -10,8 +10,7 @@ module Her
             :name => name,
             :data_key => name,
             :default => nil,
-            :foreign_key => "#{name}_id",
-            :path => "/#{name.to_s.pluralize}/:id"
+            :foreign_key => "#{name}_id"
           }.merge(opts)
           klass.associations[:belongs_to] << opts
 
