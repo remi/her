@@ -69,7 +69,15 @@ module Her
       #   user.assign_attributes(name: "Lindsay")
       #   user.changes # => { :name => ["Tobias", "Lindsay"] }
       def assign_attributes(new_attributes)
+        if !new_attributes.respond_to?(:to_hash)
+          raise ArgumentError, "When assigning attributes, you must pass a hash as an argument."
+        end
+
+        # Coerce new_attributes to hash in case of strong parameters
+        new_attributes = new_attributes.to_hash
+
         @_her_attributes ||= attributes
+
         # Use setter methods first
         unset_attributes = self.class.use_setter_methods(self, new_attributes)
 

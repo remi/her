@@ -86,6 +86,10 @@ describe Her::Model::Attributes do
       @user.assign_attributes active: true
       expect(@user).to be_active
     end
+
+    it "expects to receive hash" do
+      expect { @user.assign_attributes(1) }.to raise_error(ArgumentError, 'When assigning attributes, you must pass a hash as an argument.')
+    end
   end
 
   context "checking resource equality" do
