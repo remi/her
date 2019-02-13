@@ -116,7 +116,7 @@ module Her
         # @param [Hash] opts Options
         # @option opts [String] :class_name The name of the class to map objects to
         # @option opts [Symbol] :data_key The attribute where the data is stored
-        # @option opts [Path] :path The relative path where to fetch the data (defaults to the target class's path)
+        # @option opts [Path] :path The relative path where to fetch the data
         # @option opts [Symbol] :foreign_key The foreign key used to build the `:id` part of the path (defaults to `{name}_id`)
         #
         # @example
