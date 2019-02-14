@@ -228,8 +228,15 @@ module Her
         #   @user = User.save_existing(1, { :fullname => "Tobias Fünke" })
         #   # Called via PUT "/users/1"
         def save_existing(id, params)
+          save_existing!(id, params)
+        rescue Her::Errors::ResourceInvalid => e
+          e.resource
+        end
+
+        # Similar to .save_existing but raises ResourceInvalid if save fails
+        def save_existing!(id, params)
           resource = new(params.merge(primary_key => id))
-          resource.save
+          resource.save!
           resource
         end
 

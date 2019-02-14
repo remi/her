@@ -402,6 +402,7 @@ describe Her::Model::ORM do
         builder.adapter :test do |stub|
           stub.get("/users/1") { [200, {}, { id: 1, fullname: "Tobias Fünke", admin: false }.to_json] }
           stub.put("/users/1") { [200, {}, { id: 1, fullname: "Lindsay Fünke", admin: true }.to_json] }
+          stub.put("/users/2") { [200, {}, { id: 2, errors: ["fullname has already been taken"] }.to_json] }
           stub.get("/pages/1") { [200, {}, { id: 1, views: 1, unique_visitors: 4 }.to_json] }
           stub.put("/pages/1") { [200, {}, { id: 1, views: 2, unique_visitors: 3 }.to_json] }
         end
@@ -421,6 +422,15 @@ describe Her::Model::ORM do
     it "handle resource update through the .update class method" do
       @user = Foo::User.save_existing(1, fullname: "Lindsay Fünke")
       expect(@user.fullname).to eq("Lindsay Fünke")
+    end
+
+    it "handle resource update through .save_existing!" do
+      @user = Foo::User.save_existing!(1, fullname: "Lindsay Fünke")
+      expect(@user.fullname).to eq("Lindsay Fünke")
+    end
+
+    it "raises ResourceInvalid when .save_existing! has errors" do
+      expect { Foo::User.save_existing!(2, fullname: "Lindsay Fünke") }.to raise_error(Her::Errors::ResourceInvalid)
     end
 
     it "handle resource update through #save on an existing resource" do
