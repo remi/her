@@ -424,12 +424,12 @@ describe Her::Model::ORM do
       expect(@user.fullname).to eq("Lindsay Fünke")
     end
 
-    it "handle resource update through the .update class method" do
+    it "handle resource update through .save_existing!" do
       @user = Foo::User.save_existing!(1, fullname: "Lindsay Fünke")
       expect(@user.fullname).to eq("Lindsay Fünke")
     end
 
-    it "raises ResourceInvalid when #save_existing! gets errors" do
+    it "raises ResourceInvalid when .save_existing! has errors" do
       expect { Foo::User.save_existing!(2, fullname: "Lindsay Fünke") }.to raise_error(Her::Errors::ResourceInvalid)
     end
 
