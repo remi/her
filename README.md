@@ -675,7 +675,7 @@ class User
   include Her::Model
 
   custom_get :popular, :unpopular
-  custom_post :from_default
+  custom_post :from_default, :activate
 end
 
 User.popular
@@ -689,6 +689,10 @@ User.unpopular
 User.from_default(name: "Maeby Fünke")
 # POST "/users/from_default" with `name=Maeby+Fünke`
 # => #<User id=5 name="Maeby Fünke">
+
+User.activate(id: 6)
+# POST "/users/6/activate"
+# => #<User id=6>
 ```
 
 You can also use `get`, `post`, `put` or `delete` (which maps the returned data to either a collection or a resource).
