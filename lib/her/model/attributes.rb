@@ -35,6 +35,18 @@ module Her
         run_callbacks :initialize
       end
 
+      # @private
+      def initialize_dup(other)
+        @_her_attributes = @_her_attributes.dup
+        @_her_attributes[self.class.primary_key] = nil
+        run_callbacks :initialize
+
+        clear_associations
+        @destroyed   = false
+
+        super
+      end
+
       # Handles missing methods
       #
       # @private

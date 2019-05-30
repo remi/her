@@ -25,6 +25,15 @@ module Her
         send(association_name) if has_association?(association_name)
       end
 
+      # @private
+      def clear_associations
+        self.class.association_names.each do |association|
+          cached_name = :"@_her_association_#{association}"
+          instance_variable_set(cached_name, nil) if instance_variable_defined?(cached_name)
+          attributes.delete(association)
+        end
+      end
+
       module ClassMethods
         # Return @_her_associations, lazily initialized with copy of the
         # superclass' her_associations, or an empty hash.

@@ -49,5 +49,10 @@ describe Her::Model do
       dup_subject.name = "Maeby Fünke"
       expect(subject.name).to eq("Tobias Fünke")
     end
+
+    it "should not have associations" do
+      dup_subject = subject.dup
+      expect(dup_subject.comments.size).to eq(0)
+    end
   end
 end
