@@ -97,7 +97,6 @@ module Her
 
             def custom_#{method}(*paths)
               metaclass = (class << self; self; end)
-              opts = paths.last.is_a?(Hash) ? paths.pop : Hash.new
 
               paths.each do |path|
                 metaclass.send(:define_method, path) do |*params|
