@@ -158,18 +158,16 @@ describe Her::Model::HTTP do
     subject { Foo::User }
 
     describe :custom_get do
-      context "without cache" do
-        before { Foo::User.custom_get :popular, :recent }
-        it { is_expected.to respond_to(:popular) }
-        it { is_expected.to respond_to(:recent) }
+      before { Foo::User.custom_get :popular, :recent }
+      it { is_expected.to respond_to(:popular) }
+      it { is_expected.to respond_to(:recent) }
 
-        context "making the HTTP request" do
-          subject { Foo::User.popular }
+      context "making the HTTP request" do
+        subject { Foo::User.popular }
 
-          describe "#length" do
-            subject { super().length }
-            it { is_expected.to eq(2) }
-          end
+        describe "#length" do
+          subject { super().length }
+          it { is_expected.to eq(2) }
         end
       end
     end
