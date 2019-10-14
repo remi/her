@@ -185,5 +185,26 @@ describe Her::Model::HTTP do
         end
       end
     end
+
+    describe "#custom_get with deprecated options" do
+      context "making the HTTP request" do
+        before do
+          allow(Foo::User).to receive(:warn)
+          Foo::User.custom_get :popular, foo: "bar"
+        end
+
+        specify do
+          expect(Foo::User).to have_received(:warn).with(
+            "[DEPRECATION] options for custom request methods are deprecated and will be removed on or after January 2020."
+          )
+        end
+
+        describe "id" do
+          subject { Foo::User.popular.first.id }
+
+          specify { is_expected.to eq(1) }
+        end
+      end
+    end
   end
 end
