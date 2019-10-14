@@ -158,33 +158,43 @@ describe Her::Model::HTTP do
     subject { Foo::User }
 
     describe :custom_get do
-      context "without cache" do
-        before { Foo::User.custom_get :popular, :recent }
-        it { is_expected.to respond_to(:popular) }
-        it { is_expected.to respond_to(:recent) }
+      before do
+        Foo::User.custom_get :popular, :recent
+      end
 
-        context "making the HTTP request" do
-          subject { Foo::User.popular }
+      it { is_expected.to respond_to(:popular) }
+      it { is_expected.to respond_to(:recent) }
 
-          describe "#length" do
-            subject { super().length }
-            it { is_expected.to eq(2) }
-          end
-        end
+      it "makes HTTP request" do
+        expect(Foo::User.popular.length).to be 2
       end
     end
 
     describe :custom_post do
-      before { Foo::User.custom_post :from_default }
+      before do
+        Foo::User.custom_post :from_default
+      end
+
       it { is_expected.to respond_to(:from_default) }
 
-      context "making the HTTP request" do
-        subject { Foo::User.from_default(name: "Tobias Fünke") }
+      it "makes HTTP request" do
+        user = Foo::User.from_default(name: "Tobias Fünke")
+        expect(user.id).to be 4
+      end
+    end
 
-        describe "#id" do
-          subject { super().id }
-          it { is_expected.to eq(4) }
-        end
+    context "with options" do
+      before do
+        allow(Foo::User).to receive(:warn)
+        Foo::User.custom_get :popular, foo: "bar"
+      end
+
+      it "issues DEPRECATION warning" do
+        expect(Foo::User).to have_received(:warn).with("[DEPRECATION] options for custom request methods are deprecated and will be removed on or after January 2020.")
+      end
+
+      it "makes HTTP request" do
+        expect(Foo::User.popular.length).to be 2
       end
     end
   end
