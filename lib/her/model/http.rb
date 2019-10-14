@@ -97,7 +97,12 @@ module Her
 
             def custom_#{method}(*paths)
               metaclass = (class << self; self; end)
-              opts = paths.last.is_a?(Hash) ? paths.pop : Hash.new
+
+              # TODO: Remove this check after January 2020
+              if paths.last.is_a?(Hash)
+                warn("[DEPRECATION] options for custom request methods are deprecated and will be removed on or after January 2020.")
+                paths.pop
+              end
 
               paths.each do |path|
                 metaclass.send(:define_method, path) do |*params|
