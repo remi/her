@@ -97,7 +97,7 @@ module Her
         # attributes exist, and assumes that if the instance variable
         # `@attributes` exists on the instance, it is because they are
         # `ActiveRecord` attributes.
-        @_her_attributes ||= HashWithIndifferentAccess.new
+        @_her_attributes ||= HashWithNaiveIndifferentAccess.new
       end
 
       # Handles returning true for the accessible attributes
