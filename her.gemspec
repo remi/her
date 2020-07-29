@@ -23,6 +23,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec", "~> 3.5"
 
   s.add_runtime_dependency "activemodel", ">= 4.2.1"
-  s.add_runtime_dependency "faraday", ">= 0.8", "< 1.0"
+  s.add_runtime_dependency "faraday", ">= 0.8"
   s.add_runtime_dependency "multi_json", "~> 1.7"
 end

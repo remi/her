@@ -10,12 +10,14 @@ rvm:
   - 2.3.7
   - 2.4.3
   - 2.5.1
+  - 2.6.6
 
 gemfile:
   - gemfiles/Gemfile.activemodel-4.2
   - gemfiles/Gemfile.activemodel-5.0
   - gemfiles/Gemfile.activemodel-5.1
   - gemfiles/Gemfile.activemodel-5.2
+  - gemfiles/Gemfile.faraday-1.0
 
 matrix:
   exclude:
@@ -37,6 +39,14 @@ matrix:
       rvm: 2.0.0
     - gemfile: gemfiles/Gemfile.activemodel-5.2
       rvm: 2.1.6
+    - gemfile: gemfiles/Gemfile.faraday-1.0
+      rvm: 1.9.3
+    - gemfile: gemfiles/Gemfile.faraday-1.0
+      rvm: 2.0.0
+    - gemfile: gemfiles/Gemfile.faraday-1.0
+      rvm: 2.1.6
+    - gemfile: gemfiles/Gemfile.faraday-1.0
+      rvm: 2.2.10
 
 before_install:
   - gem uninstall -v '>= 2' -i $(rvm gemdir)@global -ax bundler || true
