@@ -63,7 +63,7 @@ module Her
         def embeded_params(attributes)
           associations.keys.each_with_object({}) do |key, hash|
             associations[key].flatten.each do |definition|
-              next if hash[definition[:data_key]].present? && key == :belongs_to
+              next if hash[definition[:data_key]].present? && key.to_sym == :belongs_to
               embeded_association(attributes, definition, hash)
             end
           end
