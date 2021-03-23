@@ -279,6 +279,7 @@ describe Her::Model::Associations do
     before do
       spawn_model "Foo::User" do
         has_many :comments, class_name: "Foo::Comment"
+        has_many :feeds, class_name: "Foo::Feed"
         has_one :role, class_name: "Foo::Role"
         belongs_to :organization, class_name: "Foo::Organization"
         has_many :posts, inverse_of: :admin
@@ -287,6 +288,10 @@ describe Her::Model::Associations do
       spawn_model "Foo::Comment" do
         belongs_to :user
         parse_root_in_json true
+      end
+
+      spawn_model "Foo::Feed" do
+        belongs_to :user
       end
 
       spawn_model "Foo::Post" do
@@ -308,6 +313,7 @@ describe Her::Model::Associations do
           builder.adapter :test do |stub|
             stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias Fünke", comments: [{ comment: { id: 2, body: "Tobias, you blow hard!", user_id: 1 } }, { comment: { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 } }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 }.to_json] }
             stub.get("/users/1/comments") { [200, {}, [{ comment: { id: 4, body: "They're having a FIRESALE?" } }].to_json] }
+            stub.get("/users/1/feeds") { [204, {}, ''.to_json] }
             stub.get("/users/1/role") { [200, {}, { id: 3, body: "User" }.to_json] }
             stub.get("/users/1/posts") { [200, {}, [{ id: 1, body: "blogging stuff", admin_id: 1 }].to_json] }
             stub.get("/organizations/1") { [200, {}, { organization: { id: 1, name: "Bluth Company Foo" } }.to_json] }
@@ -323,6 +329,12 @@ describe Her::Model::Associations do
         expect(user.comments.length).to eq(2)
         expect(user.comments.first.id).to eq(2)
         expect(user.comments.first.body).to eq("Tobias, you blow hard!")
+      end
+
+      it "when a has_many doesn't have anything" do
+        expect(user.feeds).to eq([])
+        expect(user.feeds.first).to eq(nil)
+        expect(user.feeds.length).to eq(0)
       end
 
       it "does not refetch the parents models data if they have been fetched before" do
