@@ -460,6 +460,9 @@ describe Her::Model::Associations do
         Her::API.setup url: "https://api.example.com" do |builder|
           builder.use Her::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { [200, {}, { id: 1, name: "Lindsay Fünke", organization_id: 2 }.to_json] }
+          end
         end
       end
 
