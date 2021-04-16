@@ -55,7 +55,17 @@ module Her
 
       # @private
       def respond_to_missing?(method, include_private = false)
+        return false if Thread.current[:her_respond_to_missing]
         method.to_s =~ /[?=]$/ || @_her_attributes.include?(method) || super
+      end
+
+      def respond_to_without_missing?(method, include_private = false)
+        Thread.current[:her_respond_to_missing] = true
+        respond_to?(method, include_private)
+      ensure
+        # Normally we would use nil to delete the variable but this is
+        # slightly more expensive and performance counts here.
+        Thread.current[:her_respond_to_missing] = false
       end
 
       # Assign new attributes to a resource
@@ -209,10 +219,9 @@ module Her
           reserved = [:id, model.class.primary_key, *model.class.association_keys]
           model.class.attributes *params.keys.reject { |k| reserved.include?(k) }
 
-          setter_method_names = model.class.setter_method_names
           params.each_with_object({}) do |(key, value), memo|
             setter_method = "#{key}="
-            if setter_method_names.include?(setter_method)
+            if model.respond_to_without_missing?(setter_method)
               model.send setter_method, value
             else
               memo[key.to_sym] = value
@@ -284,15 +293,6 @@ module Her
         #   end
         def store_metadata(value = nil)
           store_her_data(:metadata, value)
-        end
-
-        # @private
-        def setter_method_names
-          @_her_setter_method_names ||= begin
-            instance_methods.each_with_object(Set.new) do |method, memo|
-              memo << method.to_s if method.to_s.end_with?('=')
-            end
-          end
         end
 
         private
