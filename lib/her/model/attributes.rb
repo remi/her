@@ -179,9 +179,14 @@ module Her
         #
         # @private
         def instantiate_collection(klass, parsed_data = {})
-          records = klass.extract_array(parsed_data).map do |record|
+          raw_data = klass.extract_array(parsed_data)
+
+          # XXX: This method should always return a collection
+          raw_data = [] if raw_data.blank?
+          records = raw_data.map do |record|
             instantiate_record(klass, data: record)
           end
+
           Her::Collection.new(records, parsed_data[:metadata], parsed_data[:errors])
         end
 
