@@ -1062,4 +1062,4 @@ These [fine folks](https://github.com/remiprev/her/contributors) helped with Her
 
 ## License
 
-Her is © 2012-2013 [Rémi Prévost](http://exomel.com) and may be freely distributed under the [MIT license](https://github.com/remiprev/her/blob/master/LICENSE). See the `LICENSE` file.
+Her is © 2012-2019 [Rémi Prévost](http://exomel.com) and may be freely distributed under the [MIT license](https://github.com/remiprev/her/blob/master/LICENSE). See the `LICENSE` file.
