@@ -103,6 +103,101 @@ describe Her::Model::Parse do
     end
   end
 
+  context "when include_root_in_embedded_json is set" do
+    before do
+      Her::API.setup url: "https://api.example.com" do |builder|
+        builder.use Her::Middleware::FirstLevelParseJSON
+        builder.use Faraday::Request::UrlEncoded
+      end
+
+      Her::API.default_api.connection.adapter :test do |stub|
+        stub.post("/users") { |env| [200, {}, { user: { id: 1, fullname: params(env)[:user][:fullname] } }.to_json] }
+        stub.post("/users/admins") { |env| [200, {}, { user: { id: 1, fullname: params(env)[:user][:fullname] } }.to_json] }
+      end
+    end
+
+    context "to true" do
+      before do
+        spawn_model "Foo::User" do
+          include_root_in_embedded_json true
+          parse_root_in_json true
+          custom_post :admins
+        end
+      end
+
+      it "inherits attributes from parent class" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+        end
+
+        expect(Foo::ChildUser).to be_include_root_in_embedded_json
+      end
+
+      it "allows `include_root_in_embedded_json` to be set to `false` on a child model" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+          include_root_in_embedded_json false
+        end
+
+        expect(Foo::ChildUser).to_not be_include_root_in_embedded_json
+      end
+
+      it "wraps params in the element name in `to_embedded_params`" do
+        @new_user = Foo::User.new(fullname: "Tobias Fünke")
+        expect(@new_user.to_embedded_params).to eq(user: { fullname: "Tobias Fünke" })
+      end
+    end
+
+    context "to false" do
+      before do
+        spawn_model "Foo::User" do
+          include_root_in_embedded_json false
+        end
+      end
+
+      it "inherits attributes from parent class" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+        end
+
+        expect(Foo::ChildUser).to_not be_include_root_in_embedded_json
+      end
+
+      it "allows `include_root_in_embedded_json` to be set to `true` on a child model" do
+        spawn_model "Foo::ChildUser", super_class: Foo::User do
+          include_root_in_embedded_json true
+        end
+
+        expect(Foo::ChildUser).to be_include_root_in_embedded_json
+      end
+    end
+
+    context "to a symbol" do
+      before do
+        spawn_model "Foo::User" do
+          include_root_in_embedded_json :person
+          parse_root_in_json :person
+        end
+      end
+
+      it "wraps params in the specified value" do
+        @new_user = Foo::User.new(fullname: "Tobias Fünke")
+        expect(@new_user.to_embedded_params).to eq(person: { fullname: "Tobias Fünke" })
+      end
+    end
+
+    context "in the parent class" do
+      before do
+        spawn_model("Foo::Model") { include_root_in_embedded_json true }
+
+        class User < Foo::Model; end
+        @spawned_models << :User
+      end
+
+      it "wraps params with the class name" do
+        @new_user = User.new(fullname: "Tobias Fünke")
+        expect(@new_user.to_embedded_params).to eq(user: { fullname: "Tobias Fünke" })
+      end
+    end
+  end
+
   context "when `request_new_object_on_build` is set" do
     context "to true" do
       before do

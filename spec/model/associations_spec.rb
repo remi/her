@@ -369,7 +369,7 @@ describe Her::Model::Associations do
       end
 
       it "includes belongs_to relationship in params by default" do
-        expect(user_params[:organization]).to be_kind_of(Hash)
+        expect(user_params[:organization]).to be_a(Foo::Organization)
         expect(user_params[:organization]).not_to be_empty
       end
     end
@@ -687,7 +687,7 @@ describe Her::Model::Associations do
       end
 
       it "includes belongs_to relationship in params by default" do
-        expect(user_params[:organization]).to be_kind_of(Hash)
+        expect(user_params[:organization]).to be_a(Foo::Organization)
         expect(user_params[:organization]).not_to be_empty
       end
     end

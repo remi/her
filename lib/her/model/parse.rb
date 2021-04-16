@@ -13,6 +13,11 @@ module Her
         self.class.to_params(attributes, changes)
       end
 
+      # Convert into a hash of request parameters, based on `include_root_in_embedded_json`.
+      def to_embedded_params
+        self.class.to_params(attributes, changes, true)
+      end
+
       module ClassMethods
         # Parse data before assigning it to a resource, based on `parse_root_in_json`.
         #
@@ -31,7 +36,7 @@ module Her
         end
 
         # @private
-        def to_params(attributes, changes = {})
+        def to_params(attributes, changes = {}, embedded = false)
           filtered_attributes = attributes.each_with_object({}) do |(key, value), memo|
             case value
             when Her::Model
@@ -48,11 +53,14 @@ module Her
             filtered_attributes.slice! *changes.keys.map(&:to_sym)
           end
 
-          if include_root_in_json?
+          include_element = embedded ? include_root_in_embedded_json? : include_root_in_json?
+          element = embedded ? included_embedded_root_element : included_root_element
+          
+          if include_element
             if json_api_format?
-              { included_root_element => [filtered_attributes] }
+              { element => [filtered_attributes] }
             else
-              { included_root_element => filtered_attributes }
+              { element => filtered_attributes }
             end
           else
             filtered_attributes
@@ -61,15 +69,23 @@ module Her
 
         # @private
         def embeded_params(attributes)
-          associations.values.flatten.each_with_object({}) do |definition, hash|
-            value = case association = attributes[definition[:name]]
-                    when Her::Collection, Array
-                      association.map { |a| a.to_params }.reject(&:empty?)
-                    when Her::Model
-                      association.to_params
-                    end
-            hash[definition[:data_key]] = value if value.present?
+          associations.keys.each_with_object({}) do |key, hash|
+            associations[key].flatten.each do |definition|
+              next if attributes[definition[:data_key]].present? && key.to_sym == :belongs_to
+              embeded_association(attributes, definition, hash)
+            end
           end
+        end
+
+        # @private
+        def embeded_association(attributes, definition, hash)
+          value = case association = attributes[definition[:name]]
+                  when Her::Collection, Array
+                    association.map { |a| a.to_embedded_params }.reject(&:empty?)
+                  when Her::Model
+                    association.to_embedded_params
+                  end
+          hash[definition[:data_key]] = value if value.present?
         end
 
         # Return or change the value of `include_root_in_json`
@@ -82,6 +98,17 @@ module Her
         def include_root_in_json(value, options = {})
           @_her_include_root_in_json = value
           @_her_include_root_in_json_format = options[:format]
+        end
+
+        # Return or change the value of `include_root_in_embedded_json`
+        #
+        # @example
+        #   class User
+        #     include Her::Model
+        #     include_root_in_embedded_json true
+        #   end
+        def include_root_in_embedded_json(value)
+          @_her_include_root_in_embedded_json = value
         end
 
         # Return or change the value of `parse_root_in_json`
@@ -151,6 +178,11 @@ module Her
           include_root_in_json? == true ? root_element : include_root_in_json?
         end
 
+        # @private
+        def included_embedded_root_element
+          include_root_in_embedded_json? == true ? root_element : include_root_in_embedded_json?
+        end
+
         # Extract an array from the request data
         #
         # @example
@@ -210,6 +242,12 @@ module Her
         def include_root_in_json?
           return @_her_include_root_in_json unless @_her_include_root_in_json.nil?
           superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?
+        end
+
+        # @private
+        def include_root_in_embedded_json?
+          return @_her_include_root_in_embedded_json unless @_her_include_root_in_embedded_json.nil?
+          superclass.respond_to?(:include_root_in_embedded_json?) && superclass.include_root_in_embedded_json?
         end
 
         # @private
