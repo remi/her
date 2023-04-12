@@ -8,10 +8,15 @@ Gem::Specification.new do |s|
   s.version     = Her::VERSION
   s.authors     = ["Rémi Prévost"]
   s.email       = ["remi@exomel.com"]
-  s.homepage    = "http://her-rb.org"
+  s.homepage    = "https://github.com/remi/her"
   s.license     = "MIT"
   s.summary     = "A simple Representational State Transfer-based Hypertext Transfer Protocol-powered Object Relational Mapper. Her?"
   s.description = "Her is an ORM that maps REST resources and collections to Ruby objects"
+  
+  s.metadata["bug_tracker_uri"]   = "https://github.com/remi/her/issues"
+  s.metadata["changelog_uri"]     = "https://github.com/remi/her/blob/master/UPGRADE.md"
+  s.metadata["documentation_uri"] = "https://github.com/remi/her"
+  s.metadata["source_code_uri"]   = "https://github.com/remi/her"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
