@@ -1,6 +1,6 @@
 module Her
   module Middleware
-    class ParseJSON < Faraday::Response::Middleware
+    class ParseJSON < Faraday::Middleware
 
       # @private
       def parse_json(body = nil)
