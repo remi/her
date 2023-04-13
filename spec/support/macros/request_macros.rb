@@ -1,4 +1,4 @@
-module Her
+module Restorm
   module Testing
     module Macros
       module RequestMacros

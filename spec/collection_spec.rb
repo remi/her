@@ -1,13 +1,13 @@
 require "spec_helper"
 
-describe Her::Collection do
+describe Restorm::Collection do
   let(:items) { [1, 2, 3, 4] }
   let(:metadata) { { name: "Testname" } }
   let(:errors) { { name: ["not_present"] } }
 
   describe "#new" do
     context "without parameters" do
-      subject { Her::Collection.new }
+      subject { Restorm::Collection.new }
 
       it { is_expected.to eq([]) }
 
@@ -23,7 +23,7 @@ describe Her::Collection do
     end
 
     context "with parameters" do
-      subject { Her::Collection.new(items, metadata, errors) }
+      subject { Restorm::Collection.new(items, metadata, errors) }
 
       it { is_expected.to eq([1, 2, 3, 4]) }
 

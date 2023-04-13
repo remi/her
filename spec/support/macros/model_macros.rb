@@ -1,11 +1,11 @@
-module Her
+module Restorm
   module Testing
     module Macros
       module ModelMacros
-        # Create a class and automatically inject Her::Model into it
+        # Create a class and automatically inject Restorm::Model into it
         def spawn_model(klass, options = {}, &block)
           super_class = options[:super_class]
-          model_type = options[:type] || Her::Model
+          model_type = options[:type] || Restorm::Model
           new_class = if super_class
                         Class.new(super_class)
                       else

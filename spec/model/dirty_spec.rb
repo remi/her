@@ -2,11 +2,11 @@
 
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
-describe "Her::Model and ActiveModel::Dirty" do
+describe "Restorm::Model and ActiveModel::Dirty" do
   context "checking dirty attributes" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
+      Restorm::API.setup url: "https://api.example.com" do |builder|
+        builder.use Restorm::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("/users")   { [200, {}, [{ id: 1, fullname: "Lindsay Fünke" }, { id: 2, fullname: "Maeby Fünke" }].to_json] }

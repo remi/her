@@ -2,11 +2,11 @@
 
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
-describe Her::Model::Introspection do
+describe Restorm::Model::Introspection do
   context "introspecting a resource" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
+      Restorm::API.setup url: "https://api.example.com" do |builder|
+        builder.use Restorm::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.post("/users")     { [200, {}, { id: 1, name: "Tobias Funke" }.to_json] }
@@ -61,7 +61,7 @@ describe Her::Model::Introspection do
     end
   end
 
-  describe "#her_nearby_class" do
+  describe "#restorm_nearby_class" do
     context "for a class inside of a module" do
       before do
         spawn_model "Foo::User"
@@ -71,10 +71,10 @@ describe Her::Model::Introspection do
       end
 
       it "returns a sibling class, if found" do
-        expect(Foo::User.her_nearby_class("AccessRecord")).to eq(Foo::AccessRecord)
-        expect(AccessRecord.her_nearby_class("Log")).to eq(Log)
-        expect(Foo::User.her_nearby_class("Log")).to eq(Log)
-        expect { Foo::User.her_nearby_class("X") }.to raise_error(NameError)
+        expect(Foo::User.restorm_nearby_class("AccessRecord")).to eq(Foo::AccessRecord)
+        expect(AccessRecord.restorm_nearby_class("Log")).to eq(Log)
+        expect(Foo::User.restorm_nearby_class("Log")).to eq(Log)
+        expect { Foo::User.restorm_nearby_class("X") }.to raise_error(NameError)
       end
     end
   end

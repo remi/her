@@ -2,7 +2,7 @@
 
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
-describe Her::Model::Paths do
+describe Restorm::Model::Paths do
   context "building request paths" do
     context "simple model" do
       before do
@@ -62,7 +62,7 @@ describe Her::Model::Paths do
 
         it "raises exceptions when building a path without required custom variables" do
           Foo::User.collection_path "/organizations/:organization_id/utilisateurs"
-          expect { Foo::User.new(id: "foo").request_path }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/utilisateurs/:id`. Parameters are `{:id=>\"foo\"}`.")
+          expect { Foo::User.new(id: "foo").request_path }.to raise_error(Restorm::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/utilisateurs/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
 
         it "escapes the variable values" do
@@ -122,20 +122,20 @@ describe Her::Model::Paths do
 
         it "raises exceptions when building a path without required custom variables" do
           Foo::AdminUser.collection_path "/organizations/:organization_id/users"
-          expect { Foo::AdminUser.new(id: "foo").request_path }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
+          expect { Foo::AdminUser.new(id: "foo").request_path }.to raise_error(Restorm::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `/organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
 
         it "raises exceptions when building a relative path without required custom variables" do
           Foo::AdminUser.collection_path "organizations/:organization_id/users"
-          expect { Foo::AdminUser.new(id: "foo").request_path }.to raise_error(Her::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
+          expect { Foo::AdminUser.new(id: "foo").request_path }.to raise_error(Restorm::Errors::PathError, "Missing :_organization_id parameter to build the request path. Path is `organizations/:organization_id/users/:id`. Parameters are `{:id=>\"foo\"}`.")
         end
       end
     end
 
     context "children model" do
       before do
-        Her::API.setup url: "https://api.example.com" do |builder|
-          builder.use Her::Middleware::FirstLevelParseJSON
+        Restorm::API.setup url: "https://api.example.com" do |builder|
+          builder.use Restorm::Middleware::FirstLevelParseJSON
           builder.use Faraday::Request::UrlEncoded
           builder.adapter :test do |stub|
             stub.get("/users/foo") { [200, {}, { id: "foo" }.to_json] }
@@ -196,8 +196,8 @@ describe Her::Model::Paths do
 
   context "making subdomain HTTP requests" do
     before do
-      Her::API.setup url: "https://api.example.com/" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
+      Restorm::API.setup url: "https://api.example.com/" do |builder|
+        builder.use Restorm::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("organizations/2/users") { [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }
@@ -297,8 +297,8 @@ describe Her::Model::Paths do
 
   context "making path HTTP requests" do
     before do
-      Her::API.setup url: "https://example.com/api/" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
+      Restorm::API.setup url: "https://example.com/api/" do |builder|
+        builder.use Restorm::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
         builder.adapter :test do |stub|
           stub.get("/api/organizations/2/users") { [200, {}, [{ id: 1, fullname: "Tobias Fünke", organization_id: 2 }, { id: 2, fullname: "Lindsay Fünke", organization_id: 2 }].to_json] }

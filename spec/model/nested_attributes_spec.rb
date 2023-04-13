@@ -2,11 +2,11 @@
 
 require File.join(File.dirname(__FILE__), "../spec_helper.rb")
 
-describe Her::Model::NestedAttributes do
+describe Restorm::Model::NestedAttributes do
   context "with a belongs_to association" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
+      Restorm::API.setup url: "https://api.example.com" do |builder|
+        builder.use Restorm::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
 
@@ -38,8 +38,8 @@ describe Her::Model::NestedAttributes do
 
   context "with a has_one association" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
+      Restorm::API.setup url: "https://api.example.com" do |builder|
+        builder.use Restorm::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
 
@@ -71,8 +71,8 @@ describe Her::Model::NestedAttributes do
 
   context "with a has_many association" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
+      Restorm::API.setup url: "https://api.example.com" do |builder|
+        builder.use Restorm::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
 
@@ -99,8 +99,8 @@ describe Her::Model::NestedAttributes do
 
   context "with a has_many association as a Hash" do
     before do
-      Her::API.setup url: "https://api.example.com" do |builder|
-        builder.use Her::Middleware::FirstLevelParseJSON
+      Restorm::API.setup url: "https://api.example.com" do |builder|
+        builder.use Restorm::Middleware::FirstLevelParseJSON
         builder.use Faraday::Request::UrlEncoded
       end
 
@@ -129,7 +129,7 @@ describe Her::Model::NestedAttributes do
     it "raises an error" do
       expect do
         spawn_model("Foo::User") { accepts_nested_attributes_for :company }
-      end.to raise_error(Her::Errors::AssociationUnknownError, "Unknown association name :company")
+      end.to raise_error(Restorm::Errors::AssociationUnknownError, "Unknown association name :company")
     end
   end
 end

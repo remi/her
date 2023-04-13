@@ -2,8 +2,8 @@
 
 require File.join(File.dirname(__FILE__), "spec_helper.rb")
 
-describe Her::API do
-  subject { Her::API.new }
+describe Restorm::API do
+  subject { Restorm::API.new }
 
   context "initialization" do
     describe "#setup" do
@@ -69,7 +69,7 @@ describe Her::API do
         let(:parsed_data) { subject.request(_method: :get, _path: "users/1")[:parsed_data] }
         before do
           subject.setup url: "https://api.example.com" do |builder|
-            builder.use Her::Middleware::FirstLevelParseJSON
+            builder.use Restorm::Middleware::FirstLevelParseJSON
             builder.adapter :test do |stub|
               stub.get("/users/1") { [200, {}, MultiJson.dump(id: 1, name: "George Michael Bluth", errors: ["This is a single error"], metadata: { page: 1, per_page: 10 })] }
             end

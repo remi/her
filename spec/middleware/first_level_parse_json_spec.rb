@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe Her::Middleware::FirstLevelParseJSON do
+describe Restorm::Middleware::FirstLevelParseJSON do
   subject { described_class.new }
   let(:body_without_errors) { "{\"id\": 1, \"name\": \"Tobias Fünke\", \"metadata\": 3}" }
   let(:body_with_errors) { "{\"id\": 1, \"name\": \"Tobias Fünke\", \"errors\": { \"name\": [ \"not_valid\", \"should_be_present\" ] }, \"metadata\": 3}" }
@@ -36,11 +36,11 @@ describe Her::Middleware::FirstLevelParseJSON do
   end
 
   it "ensures that malformed JSON throws an exception" do
-    expect { subject.parse(body_with_malformed_json) }.to raise_error(Her::Errors::ParseError, 'Response from the API must behave like a Hash or an Array (last JSON response was "wut.")')
+    expect { subject.parse(body_with_malformed_json) }.to raise_error(Restorm::Errors::ParseError, 'Response from the API must behave like a Hash or an Array (last JSON response was "wut.")')
   end
 
   it "ensures that invalid JSON throws an exception" do
-    expect { subject.parse(body_with_invalid_json) }.to raise_error(Her::Errors::ParseError, 'Response from the API must behave like a Hash or an Array (last JSON response was "true")')
+    expect { subject.parse(body_with_invalid_json) }.to raise_error(Restorm::Errors::ParseError, 'Response from the API must behave like a Hash or an Array (last JSON response was "true")')
   end
 
   it "ensures that a nil response returns an empty hash" do

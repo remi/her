@@ -1,9 +1,9 @@
 require "spec_helper"
 
-describe Her::JsonApi::Model do
+describe Restorm::JsonApi::Model do
   before do
-    Her::API.setup url: "https://api.example.com" do |connection|
-      connection.use Her::Middleware::JsonApiParser
+    Restorm::API.setup url: "https://api.example.com" do |connection|
+      connection.use Restorm::Middleware::JsonApiParser
       connection.adapter :test do |stub|
         stub.get("/users/1") do
           [
@@ -100,11 +100,11 @@ describe Her::JsonApi::Model do
       end
     end
 
-    spawn_model("Foo::User", type: Her::JsonApi::Model)
+    spawn_model("Foo::User", type: Restorm::JsonApi::Model)
   end
 
   it "allows configuration of type" do
-    spawn_model("Foo::Bar", type: Her::JsonApi::Model) do
+    spawn_model("Foo::Bar", type: Restorm::JsonApi::Model) do
       type :foobars
     end
 
@@ -162,7 +162,7 @@ describe Her::JsonApi::Model do
   context "undefined methods" do
     it "removes methods that are not compatible with json api" do
       [:parse_root_in_json, :include_root_in_json, :root_element, :primary_key].each do |method|
-        expect { Foo::User.new.send(method, :foo) }.to raise_error NoMethodError, "Her::JsonApi::Model does not support the #{method} configuration option"
+        expect { Foo::User.new.send(method, :foo) }.to raise_error NoMethodError, "Restorm::JsonApi::Model does not support the #{method} configuration option"
       end
     end
   end

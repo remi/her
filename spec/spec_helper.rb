@@ -1,7 +1,7 @@
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
 require "rspec"
-require "her"
+require "restorm"
 
 # Require everything in `spec/support`
 Dir[File.expand_path("../../spec/support/**/*.rb", __FILE__)].map(&method(:require))
@@ -10,8 +10,8 @@ Dir[File.expand_path("../../spec/support/**/*.rb", __FILE__)].map(&method(:requi
 I18n.enforce_available_locales = false
 
 RSpec.configure do |config|
-  config.include Her::Testing::Macros::ModelMacros
-  config.include Her::Testing::Macros::RequestMacros
+  config.include Restorm::Testing::Macros::ModelMacros
+  config.include Restorm::Testing::Macros::RequestMacros
 
   config.before :each do
     @spawned_models = []
