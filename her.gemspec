@@ -18,11 +18,12 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_development_dependency "json", "~> 1.8"
-  s.add_development_dependency "rake", "~> 10.0"
-  s.add_development_dependency "rspec", "~> 3.5"
+  s.add_development_dependency "json", "~> 2.6.3"
+  s.add_development_dependency "rake", "~> 13.0.6"
+  s.add_development_dependency "rspec", "~> 3.12"
 
-  s.add_runtime_dependency "activemodel", ">= 4.2.1"
-  s.add_runtime_dependency "faraday", ">= 0.8"
-  s.add_runtime_dependency "multi_json", "~> 1.7"
+  s.add_runtime_dependency "activemodel", ">= 7.0.4.3"
+  s.add_runtime_dependency "faraday", ">= 2.0"
+
+  s.add_runtime_dependency "multi_json", "~> 1.15.0"
 end
